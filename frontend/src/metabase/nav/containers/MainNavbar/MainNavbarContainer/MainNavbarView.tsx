@@ -258,7 +258,7 @@ function MainNavbarView({
               onClick={handleHomeClick}
               url={item.link}
             >
-              Chat query
+              {t`Chat Query`}
             </PaddedSidebarLink>
           </SidebarSection>
 
