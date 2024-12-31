@@ -5,18 +5,13 @@ import type { CliStepMethod } from "../types/cli";
 import { printHelperText } from "../utils/print";
 
 export const askForTenancyColumns: CliStepMethod = async state => {
-  // The sample database does not have tenancy columns.
-  if (state.useSampleDatabase) {
-    return [{ type: "success" }, state];
-  }
-
   printHelperText(
     `e.g. does your table have a customer_id column to isolate tenants?`,
   );
 
   const hasTenancyIsolation = await toggle({
     message: `Is your tenancy isolation based on a column?`,
-    default: false,
+    default: true,
   });
 
   if (!hasTenancyIsolation) {
@@ -24,11 +19,9 @@ export const askForTenancyColumns: CliStepMethod = async state => {
   }
 
   if (!state.chosenTables) {
-    printHelperText(
-      "You have not selected any tables. Continuing without tenancy isolation.",
-    );
+    const message = "You have not selected any tables.";
 
-    return [{ type: "success" }, state];
+    return [{ type: "error", message }, state];
   }
 
   const tenancyColumnNames: Record<string, string> = {};
@@ -84,11 +77,9 @@ export const askForTenancyColumns: CliStepMethod = async state => {
   }
 
   if (Object.keys(tenancyColumnNames).length === 0) {
-    printHelperText(
-      "Your tables do not have any multi-tenancy column. Continuing without tenancy isolation.",
-    );
+    const message = "Your tables do not have any multi-tenancy column.";
 
-    return [{ type: "success" }, state];
+    return [{ type: "error", message }, state];
   }
 
   return [{ type: "success" }, { ...state, tenancyColumnNames }];

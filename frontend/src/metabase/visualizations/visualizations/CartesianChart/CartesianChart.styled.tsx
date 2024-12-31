@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 
+import { ResponsiveEChartsRenderer } from "metabase/visualizations/components/EChartsRenderer";
 import { LegendLayout } from "metabase/visualizations/components/legend/LegendLayout";
 
 import { getChartPadding } from "./padding";
@@ -19,4 +20,9 @@ export const CartesianChartRoot = styled.div<CartesianChartRootProps>`
 
 export const CartesianChartLegendLayout = styled(LegendLayout)`
   flex: 1 1 auto;
+`;
+
+// created in ExplicitSize
+export const CartesianChartRenderer = styled(ResponsiveEChartsRenderer)`
+  height: 100%;
 `;

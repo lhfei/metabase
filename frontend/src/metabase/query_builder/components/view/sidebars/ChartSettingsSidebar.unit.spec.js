@@ -1,19 +1,12 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import { createMockMetadata } from "__support__/metadata";
-import { renderWithProviders } from "__support__/ui";
+import ChartSettingsSidebar from "metabase/query_builder/components/view/sidebars/ChartSettingsSidebar";
 import registerVisualizations from "metabase/visualizations/register";
 import {
   SAMPLE_DB_ID,
   createSampleDatabase,
 } from "metabase-types/api/mocks/presets";
-import {
-  createMockQueryBuilderState,
-  createMockQueryBuilderUIControlsState,
-  createMockState,
-} from "metabase-types/store/mocks";
-
-import { ChartSettingsSidebar } from "./ChartSettingsSidebar";
 
 registerVisualizations();
 
@@ -29,7 +22,7 @@ describe("ChartSettingsSidebar", () => {
   };
 
   it("should hide the title when showSidebarTitle is false", () => {
-    renderWithProviders(
+    render(
       <ChartSettingsSidebar
         question={db.question().setDisplay("gauge")}
         result={{ data }}
@@ -55,20 +48,12 @@ describe("ChartSettingsSidebar", () => {
   });
 
   it("should not hide the title when showSidebarTitle is false", () => {
-    renderWithProviders(
+    render(
       <ChartSettingsSidebar
         question={db.question().setDisplay("scalar")}
         result={{ data }}
+        showSidebarTitle={true}
       />,
-      {
-        storeInitialState: createMockState({
-          qb: createMockQueryBuilderState({
-            uiControls: createMockQueryBuilderUIControlsState({
-              showSidebarTitle: true,
-            }),
-          }),
-        }),
-      },
     );
 
     // see header with formatting fields

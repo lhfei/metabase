@@ -10,10 +10,7 @@ interface AdminNavLinkProps {
   isInMobileNav?: boolean;
 }
 
-export const AdminNavLink = styled(
-  Link,
-  doNotForwardProps("isSelected", "isInMobileNav"),
-)<AdminNavLinkProps>`
+export const AdminNavLink = styled(Link)<AdminNavLinkProps>`
   white-space: nowrap;
   ${props => (props.isInMobileNav ? "" : "overflow: hidden;")}
   text-overflow: ellipsis;

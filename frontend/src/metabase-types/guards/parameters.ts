@@ -4,7 +4,7 @@ import type {
 } from "metabase-types/api";
 
 export function isDimensionTarget(
-  target: ParameterTarget | undefined,
+  target: ParameterTarget,
 ): target is ParameterDimensionTarget {
   return target?.[0] === "dimension";
 }

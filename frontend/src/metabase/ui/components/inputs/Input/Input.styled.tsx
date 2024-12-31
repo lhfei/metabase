@@ -28,14 +28,10 @@ export const getInputOverrides = (): MantineThemeOverride["components"] => ({
         minHeight: getSize({ size, sizes: SIZES }),
         background: theme.fn.themeColor("bg-white"),
         "&::placeholder": {
-          color: "var(--mb-color-text-tertiary)",
+          color: theme.fn.themeColor("text-light"),
         },
         "&:disabled": {
-          color: "var(--mb-color-text-disabled)",
-          backgroundColor: "var(--mb-color-background-disabled)",
-          "&::placeholder": {
-            color: "var(--mb-color-text-disabled)",
-          },
+          backgroundColor: theme.fn.themeColor("bg-light"),
         },
         "&[data-invalid]": {
           color: theme.fn.themeColor("error"),

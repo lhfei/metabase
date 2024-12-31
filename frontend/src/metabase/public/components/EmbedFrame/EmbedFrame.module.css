@@ -1,4 +1,4 @@
-body:where(:global(.mb-wrapper)) {
+body {
   background-color: transparent;
 }
 
@@ -10,13 +10,12 @@ body:where(:global(.mb-wrapper)) {
 
 .EmbedFrame {
   color: var(--mb-color-text-primary);
-}
-
-.EmbedFrame,
-/* this is to make it work when exporting to pdfs, where the EmbedFrame is not part of the exported dom */
-.WithThemeBackground {
   background-color: var(--mb-color-bg-dashboard);
-  border-color: var(--mb-color-border);
+}
+/* A temporary solution until we migrated all colors in visualization to use semantic colors
+   e.g. `text-primary`, `text-secondary`, `text-tertiary`. */
+.EmbedFrame svg text {
+  fill: var(--mb-color-text-primary);
 }
 
 .EmbedFrameHeader,
@@ -61,6 +60,14 @@ body:where(:global(.mb-wrapper)) {
   --mb-color-background-disabled: var(--mb-base-color-gray-70);
   --mb-color-background-brand: var(--mb-base-color-brand-60);
 
+  .EmbedFrame,
+    /* this is to make it work when exporting to pdfs,
+  where the EmbedFrame is not part of the exported dom */
+      .WithThemeBackground {
+    background-color: var(--mb-color-bg-dashboard);
+    border-color: var(--mb-color-border);
+  }
+
   .EmbedFrameHeader,
   .EmbedFrameFooter {
     background-color: var(--mb-color-bg-dashboard);
@@ -71,10 +78,7 @@ body:where(:global(.mb-wrapper)) {
     transition: color 1s linear;
   }
 
-  /* A temporary solution until we migrated all colors in visualization to use semantic colors
-   e.g. `text-primary`, `text-secondary`, `text-tertiary`. */
   .EmbedFrame svg text {
-    fill: var(--mb-color-text-primary);
     stroke: none !important;
   }
 
@@ -95,10 +99,6 @@ body:where(:global(.mb-wrapper)) {
     .DashCard .Card {
       background-color: transparent;
     }
-  }
-
-  .WithThemeBackground {
-    background-color: transparent;
   }
 
   .EmbedFrameHeader,

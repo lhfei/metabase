@@ -1,10 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Component } from "react";
-import _ from "underscore";
+import { connect } from "react-redux";
 
 import Segments from "metabase/entities/segments";
-import Tables from "metabase/entities/tables";
-import { connect } from "metabase/lib/redux";
 
 import RevisionHistory from "../components/revisions/RevisionHistory";
 import { fetchSegmentRevisions } from "../datamodel";
@@ -38,11 +36,6 @@ class SegmentRevisionHistoryInner extends Component {
   }
 }
 
-const SegmentRevisionHistory = _.compose(
-  Segments.load({ id: (_state, { id }) => id }),
-  Tables.load({
-    id: (_state, { segment }) => segment?.table_id,
-    fetchType: "fetchMetadataAndForeignTables",
-    requestType: "fetchMetadataDeprecated",
-  }),
-)(SegmentRevisionHistoryInner);
+const SegmentRevisionHistory = Segments.load({ id: (state, { id }) => id })(
+  SegmentRevisionHistoryInner,
+);

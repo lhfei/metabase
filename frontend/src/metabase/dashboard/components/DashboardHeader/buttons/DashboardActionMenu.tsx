@@ -1,111 +1,77 @@
-import { type JSX, type MouseEvent, useState } from "react";
-import { withRouter } from "react-router";
-import type { WithRouterProps } from "react-router/lib/withRouter";
-import { c, t } from "ttag";
+import type { MouseEvent } from "react";
+import { t } from "ttag";
 
-import Button from "metabase/core/components/Button";
-import Tooltip from "metabase/core/components/Tooltip";
-import type { HeaderButtonProps } from "metabase/dashboard/components/DashboardHeader/DashboardHeaderButtonRow/types";
-import { useRefreshDashboard } from "metabase/dashboard/hooks";
-import { PLUGIN_MODERATION } from "metabase/plugins";
-import { Icon, Menu } from "metabase/ui";
+import EntityMenu from "metabase/components/EntityMenu";
+import type { DashboardFullscreenControls } from "metabase/dashboard/types";
+import { PLUGIN_DASHBOARD_HEADER } from "metabase/plugins";
+import type { Dashboard } from "metabase-types/api";
 
-const DashboardActionMenuInner = ({
+export const DashboardActionMenu = (props: { items: any[] }) => (
+  <EntityMenu
+    key="dashboard-action-menu-button"
+    triggerAriaLabel={t`Move, trash, and more…`}
+    items={props.items}
+    triggerIcon="ellipsis"
+    tooltip={t`Move, trash, and more…`}
+    // TODO: Try to restore this transition once we upgrade to React 18 and can prioritize this update
+    transitionDuration={0}
+  />
+);
+
+export const getExtraButtons = ({
   canResetFilters,
   onResetFilters,
   onFullscreenChange,
   isFullscreen,
   dashboard,
   canEdit,
-  location,
-  openSettingsSidebar,
-}: HeaderButtonProps & WithRouterProps): JSX.Element => {
-  const [opened, setOpened] = useState(false);
+  pathname,
+}: DashboardFullscreenControls & {
+  canResetFilters: boolean;
+  onResetFilters: () => void;
+  dashboard: Dashboard;
+  canEdit: boolean;
+  pathname: string;
+}) => {
+  const extraButtons = [];
 
-  const { refreshDashboard } = useRefreshDashboard({
-    dashboardId: dashboard.id,
-    parameterQueryParams: location.query,
-    refetchData: false,
+  if (canResetFilters) {
+    extraButtons.push({
+      title: t`Reset all filters`,
+      icon: "revert",
+      action: () => onResetFilters(),
+    });
+  }
+
+  extraButtons.push({
+    title: t`Enter fullscreen`,
+    icon: "expand",
+    action: (e: MouseEvent) => onFullscreenChange(!isFullscreen, !e.altKey),
   });
 
-  const moderationItems = PLUGIN_MODERATION.useDashboardMenuItems(
-    dashboard,
-    refreshDashboard,
-  );
+  if (canEdit) {
+    extraButtons.push({
+      title: t`Move`,
+      icon: "move",
+      link: `${pathname}/move`,
+    });
+  }
 
-  return (
-    <Menu position="bottom-end" opened={opened} onChange={setOpened}>
-      <Menu.Target>
-        <div>
-          <Tooltip tooltip={t`Move, trash, and more…`} isEnabled={!opened}>
-            <Button
-              onlyIcon
-              icon="ellipsis"
-              aria-label={t`Move, trash, and more…`}
-            />
-          </Tooltip>
-        </div>
-      </Menu.Target>
-      <Menu.Dropdown>
-        {canResetFilters && (
-          <Menu.Item icon={<Icon name="revert" />} onClick={onResetFilters}>
-            {t`Reset all filters`}
-          </Menu.Item>
-        )}
+  extraButtons.push({
+    title: t`Duplicate`,
+    icon: "clone",
+    link: `${pathname}/copy`,
+  });
 
-        <Menu.Item
-          icon={<Icon name="expand" />}
-          onClick={(e: MouseEvent) =>
-            onFullscreenChange(!isFullscreen, !e.altKey)
-          }
-        >
-          {t`Enter fullscreen`}
-        </Menu.Item>
+  if (canEdit) {
+    extraButtons.push(...PLUGIN_DASHBOARD_HEADER.extraButtons(dashboard));
 
-        {canEdit && (
-          <>
-            <Menu.Item
-              icon={<Icon name="gear" />}
-              onClick={openSettingsSidebar}
-            >
-              {t`Edit settings`}
-            </Menu.Item>
+    extraButtons.push({
+      title: t`Move to trash`,
+      icon: "trash",
+      link: `${pathname}/archive`,
+    });
+  }
 
-            {moderationItems}
-          </>
-        )}
-
-        {canEdit && (
-          <>
-            <Menu.Divider />
-
-            <Menu.Item
-              icon={<Icon name="move" />}
-              component="a"
-              href={`${location?.pathname}/move`}
-            >{c("A verb, not a noun").t`Move`}</Menu.Item>
-          </>
-        )}
-
-        <Menu.Item
-          icon={<Icon name="clone" />}
-          component="a"
-          href={`${location?.pathname}/copy`}
-        >{c("A verb, not a noun").t`Duplicate`}</Menu.Item>
-
-        {canEdit && (
-          <>
-            <Menu.Divider />
-            <Menu.Item
-              icon={<Icon name="trash" />}
-              component="a"
-              href={`${location?.pathname}/archive`}
-            >{t`Move to trash`}</Menu.Item>
-          </>
-        )}
-      </Menu.Dropdown>
-    </Menu>
-  );
+  return extraButtons;
 };
-
-export const DashboardActionMenu = withRouter(DashboardActionMenuInner);

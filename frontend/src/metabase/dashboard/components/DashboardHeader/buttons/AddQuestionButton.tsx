@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "metabase/lib/redux";
 export const AddQuestionButton = () => {
   const dispatch = useDispatch();
   const sidebar = useSelector(getSidebar);
-
   const addQuestionButtonHint =
     sidebar.name === SIDEBAR_NAME.addQuestion
       ? t`Close sidebar`

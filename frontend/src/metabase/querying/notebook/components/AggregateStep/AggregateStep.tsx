@@ -15,15 +15,11 @@ export function AggregateStep({
   readOnly,
   updateQuery,
 }: NotebookStepProps) {
-  const { question, stageIndex } = step;
-  const isMetric = question.type() === "metric";
+  const { stageIndex } = step;
 
-  const aggregations = useMemo(() => {
+  const clauses = useMemo(() => {
     return Lib.aggregations(query, stageIndex);
   }, [query, stageIndex]);
-
-  const hasAddButton = !readOnly && (!isMetric || aggregations.length === 0);
-  const hasRemoveButton = !readOnly && !isMetric;
 
   const handleReorderAggregation = (
     sourceClause: Lib.AggregationClause,
@@ -48,13 +44,11 @@ export function AggregateStep({
 
   return (
     <ClauseStep
-      items={aggregations}
-      initialAddText={t`Pick a function or metric`}
+      items={clauses}
+      initialAddText={t`Pick the metric you want to see`}
       readOnly={readOnly}
       color={color}
       isLastOpened={isLastOpened}
-      hasAddButton={hasAddButton}
-      hasRemoveButton={hasRemoveButton}
       renderName={renderAggregationName}
       renderPopover={({ item: aggregation, index, onClose }) => (
         <AggregationPopover
@@ -62,7 +56,6 @@ export function AggregateStep({
           stageIndex={stageIndex}
           clause={aggregation}
           clauseIndex={index}
-          isMetric={isMetric}
           onQueryChange={updateQuery}
           onClose={onClose}
         />
@@ -79,7 +72,6 @@ interface AggregationPopoverProps {
   stageIndex: number;
   clause?: Lib.AggregationClause;
   clauseIndex?: number;
-  isMetric: boolean;
   onQueryChange: (query: Lib.Query) => void;
   onClose: () => void;
 }
@@ -89,7 +81,6 @@ function AggregationPopover({
   stageIndex,
   clause,
   clauseIndex,
-  isMetric,
   onQueryChange,
   onClose,
 }: AggregationPopoverProps) {
@@ -109,8 +100,6 @@ function AggregationPopover({
       clause={clause}
       clauseIndex={clauseIndex}
       operators={operators}
-      allowCustomExpressions
-      allowTemporalComparisons={!isMetric}
       onQueryChange={onQueryChange}
       onClose={onClose}
     />

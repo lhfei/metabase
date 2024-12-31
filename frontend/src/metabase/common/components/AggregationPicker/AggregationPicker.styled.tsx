@@ -1,5 +1,9 @@
 import styled from "@emotion/styled";
 
+export const ColumnPickerContainer = styled.div`
+  min-width: 300px;
+`;
+
 export const ColumnPickerHeaderContainer = styled.div`
   display: flex;
   align-items: center;
@@ -13,4 +17,10 @@ export const ColumnPickerHeaderTitleContainer = styled.a`
   align-items: center;
   cursor: pointer;
   gap: 0.5rem;
+`;
+
+export const ColumnPickerHeaderTitle = styled.span`
+  display: inline-block;
+  font-weight: 700;
+  font-size: 1.17em;
 `;

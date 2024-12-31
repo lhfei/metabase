@@ -1,34 +1,29 @@
-import cx from "classnames";
 import { useMemo } from "react";
 import { t } from "ttag";
 
-import { getColumnGroupIcon } from "metabase/common/utils/column-groups";
+import {
+  getColumnGroupIcon,
+  getColumnGroupName,
+} from "metabase/common/utils/column-groups";
 import {
   HoverParent,
   QueryColumnInfoIcon,
 } from "metabase/components/MetadataInfo/ColumnInfoIcon";
-import AccordionList from "metabase/core/components/AccordionList";
 import type { IconName } from "metabase/ui";
 import { DelayGroup, Icon } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import { WIDTH } from "../constants";
 import type { ColumnListItem, SegmentListItem } from "../types";
 
-import S from "./FilterColumnPicker.module.css";
+import { StyledAccordionList } from "./FilterColumnPicker.styled";
 
 export interface FilterColumnPickerProps {
-  className?: string;
   query: Lib.Query;
   stageIndex: number;
   checkItemIsSelected: (item: ColumnListItem | SegmentListItem) => boolean;
   onColumnSelect: (column: Lib.ColumnMetadata) => void;
   onSegmentSelect: (segment: Lib.SegmentMetadata) => void;
   onExpressionSelect: () => void;
-
-  withCustomExpression?: boolean;
-  withColumnGroupIcon?: boolean;
-  withColumnItemIcon?: boolean;
 }
 
 type Section = {
@@ -58,16 +53,12 @@ export const isSegmentListItem = (
  * Filter ColumnOrSegmentOrCustomExpressionPicker was too long of a name
  */
 export function FilterColumnPicker({
-  className,
   query,
   stageIndex,
   checkItemIsSelected,
   onColumnSelect,
   onSegmentSelect,
   onExpressionSelect,
-  withCustomExpression = true,
-  withColumnGroupIcon = true,
-  withColumnItemIcon = true,
 }: FilterColumnPickerProps) {
   const sections = useMemo(() => {
     const columns = Lib.filterableColumns(query, stageIndex);
@@ -93,17 +84,14 @@ export function FilterColumnPicker({
         : [];
 
       return {
-        name: groupInfo.displayName,
-        icon: withColumnGroupIcon ? getColumnGroupIcon(groupInfo) : null,
+        name: getColumnGroupName(groupInfo),
+        icon: getColumnGroupIcon(groupInfo),
         items: [...segmentItems, ...columnItems],
       };
     });
 
-    return [
-      ...sections,
-      ...(withCustomExpression ? [CUSTOM_EXPRESSION_SECTION] : []),
-    ];
-  }, [query, stageIndex, withColumnGroupIcon, withCustomExpression]);
+    return [...sections, CUSTOM_EXPRESSION_SECTION];
+  }, [query, stageIndex]);
 
   const handleSectionChange = (section: Section) => {
     if (section.key === "custom-expression") {
@@ -121,8 +109,7 @@ export function FilterColumnPicker({
 
   return (
     <DelayGroup>
-      <AccordionList
-        className={cx(S.StyledAccordionList, className)}
+      <StyledAccordionList
         sections={sections}
         onChange={handleSelect}
         onChangeSection={handleSectionChange}
@@ -130,11 +117,9 @@ export function FilterColumnPicker({
         renderItemWrapper={renderItemWrapper}
         renderItemName={renderItemName}
         renderItemDescription={omitItemDescription}
-        renderItemIcon={(item: ColumnListItem | SegmentListItem) =>
-          withColumnItemIcon ? renderItemIcon(item) : null
-        }
+        renderItemIcon={renderItemIcon}
         // disable scrollbars inside the list
-        style={{ overflow: "visible", "--accordion-list-width": `${WIDTH}px` }}
+        style={{ overflow: "visible" }}
         maxHeight={Infinity}
         // Compat with E2E tests around MLv1-based components
         // Prefer using a11y role selectors

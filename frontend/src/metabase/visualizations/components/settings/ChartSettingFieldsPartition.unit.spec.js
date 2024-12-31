@@ -18,6 +18,7 @@ describe("ChartSettingFieldsPartition", () => {
   });
 
   it("should render column when value is provided", () => {
+    const fieldRef = ["field", 14];
     const fieldName = "my column";
     render(
       <ChartSettingFieldsPartition
@@ -25,13 +26,10 @@ describe("ChartSettingFieldsPartition", () => {
           { name: "rows", title: "Rows", columnFilter: x => Boolean(x) },
         ]}
         columns={[
-          createMockColumn({
-            name: fieldName,
-            display_name: fieldName,
-          }),
+          createMockColumn({ field_ref: fieldRef, display_name: fieldName }),
         ]}
         getColumnTitle={column => column.display_name}
-        value={{ rows: [fieldName] }}
+        value={{ rows: [fieldRef] }}
       />,
     );
     expect(screen.queryByText("Drag fields here")).not.toBeInTheDocument();

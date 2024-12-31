@@ -2,20 +2,16 @@ import { P, match } from "ts-pattern";
 import { t } from "ttag";
 
 import { canonicalCollectionId } from "metabase/collections/utils";
-import { isNullOrUndefined } from "metabase/lib/types";
 import type Question from "metabase-lib/v1/Question";
 import type { CardType } from "metabase-types/api";
 
-import type {
-  CreateQuestionOptions,
-  FormValues,
-  SubmitQuestionOptions,
-  UpdateQuestionOptions,
-} from "./types";
+import type { FormValues } from "./types";
 
-const updateQuestion = async (options: UpdateQuestionOptions) => {
-  const { originalQuestion, newQuestion, onSave } = options;
-
+const updateQuestion = async (
+  originalQuestion: Question,
+  newQuestion: Question,
+  onSave: (question: Question) => Promise<void>,
+) => {
   const collectionId = canonicalCollectionId(originalQuestion.collectionId());
   const displayName = originalQuestion.displayName();
   const description = originalQuestion.description();
@@ -28,57 +24,38 @@ const updateQuestion = async (options: UpdateQuestionOptions) => {
   await onSave(updatedQuestion.setId(originalQuestion.id()));
 };
 
-export const createQuestion = async (options: CreateQuestionOptions) => {
-  const { details, question, onCreate, saveToCollectionId } = options;
-
+export const createQuestion = async (
+  details: FormValues,
+  question: Question,
+  onCreate: (question: Question) => Promise<void>,
+) => {
   if (details.saveType !== "create") {
     return;
   }
 
-  // `saveToCollectionId` is used to override the target collection of the question,
-  // this is mainly used for the embedding SDK.
-  const collectionId = canonicalCollectionId(
-    isNullOrUndefined(saveToCollectionId)
-      ? details.collection_id
-      : saveToCollectionId,
-  );
-  const dashboardId = details.dashboard_id;
-
+  const collectionId = canonicalCollectionId(details.collection_id);
   const displayName = details.name.trim();
   const description = details.description ? details.description.trim() : null;
 
   const newQuestion = question
     .setDisplayName(displayName)
     .setDescription(description)
-    .setCollectionId(collectionId)
-    .setDashboardId(dashboardId);
+    .setCollectionId(collectionId);
 
-  return onCreate(newQuestion, { dashboardTabId: details.tab_id || undefined });
+  await onCreate(newQuestion);
 };
 
-export async function submitQuestion(options: SubmitQuestionOptions) {
-  const {
-    originalQuestion,
-    details,
-    question,
-    onSave,
-    onCreate,
-    saveToCollectionId,
-  } = options;
-
+export async function submitQuestion(
+  originalQuestion: Question | null,
+  details: FormValues,
+  question: Question,
+  onSave: (question: Question) => Promise<void>,
+  onCreate: (question: Question) => Promise<void>,
+) {
   if (details.saveType === "overwrite" && originalQuestion) {
-    await updateQuestion({
-      originalQuestion,
-      newQuestion: question,
-      onSave,
-    });
+    await updateQuestion(originalQuestion, question, onSave);
   } else {
-    await createQuestion({
-      question,
-      details,
-      onCreate,
-      saveToCollectionId,
-    });
+    await createQuestion(details, question, onCreate);
   }
 }
 
@@ -86,8 +63,6 @@ export const getInitialValues = (
   originalQuestion: Question | null,
   question: Question,
   initialCollectionId: FormValues["collection_id"],
-  initialDashboardId: FormValues["dashboard_id"],
-  initialDashboardTabId: FormValues["tab_id"],
 ): FormValues => {
   const isReadonly = originalQuestion != null && !originalQuestion.canWrite();
 
@@ -95,16 +70,6 @@ export const getInitialValues = (
     originalQuestion
       ? t`${originalQuestion.displayName()} - Modified`
       : undefined;
-
-  const dashboardId =
-    question.dashboardId() === undefined || isReadonly
-      ? initialDashboardId
-      : question.dashboardId();
-
-  const collectionId =
-    question.collectionId() === undefined || isReadonly
-      ? initialCollectionId
-      : question.collectionId();
 
   return {
     name:
@@ -115,9 +80,10 @@ export const getInitialValues = (
       "",
     description:
       originalQuestion?.description() || question.description() || "",
-    collection_id: collectionId,
-    dashboard_id: dashboardId,
-    tab_id: initialDashboardTabId,
+    collection_id:
+      question.collectionId() === undefined || isReadonly
+        ? initialCollectionId
+        : question.collectionId(),
     saveType:
       originalQuestion &&
       originalQuestion.type() === "question" &&

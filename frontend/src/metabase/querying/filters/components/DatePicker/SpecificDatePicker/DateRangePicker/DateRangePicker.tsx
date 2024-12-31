@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { t } from "ttag";
 
 import { Box, Button, Divider, Group } from "metabase/ui";
 
@@ -10,16 +11,14 @@ import type { DateRangePickerValue } from "./types";
 
 export interface DateRangePickerProps {
   value: DateRangePickerValue;
-  submitButtonLabel: string;
-  hasTimeToggle: boolean;
+  isNew: boolean;
   onChange: (value: DateRangePickerValue) => void;
   onSubmit: () => void;
 }
 
 export function DateRangePicker({
   value: { dateRange, hasTime },
-  submitButtonLabel,
-  hasTimeToggle,
+  isNew,
   onChange,
   onSubmit,
 }: DateRangePickerProps) {
@@ -51,12 +50,10 @@ export function DateRangePicker({
         />
       </Box>
       <Divider />
-      <Group p="sm" position={hasTimeToggle ? "apart" : "right"}>
-        {hasTimeToggle && (
-          <TimeToggle hasTime={hasTime} onClick={handleTimeToggle} />
-        )}
+      <Group p="sm" position="apart">
+        <TimeToggle hasTime={hasTime} onClick={handleTimeToggle} />
         <Button variant="filled" type="submit">
-          {submitButtonLabel}
+          {isNew ? t`Add filter` : t`Update filter`}
         </Button>
       </Group>
     </form>

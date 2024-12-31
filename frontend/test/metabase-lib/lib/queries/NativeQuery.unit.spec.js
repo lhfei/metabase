@@ -59,18 +59,15 @@ describe("NativeQuery", () => {
       it("Tables should return multiple tables", () => {
         expect(Array.isArray(query.tables())).toBe(true);
       });
-
       it("Tables should return a table map that includes fields", () => {
         expect(Array.isArray(query.tables()[0].fields)).toBe(true);
       });
     });
-
     describe("_databaseId()", () => {
       it("returns the Database ID of the wrapped query", () => {
         expect(query._databaseId()).toBe(SAMPLE_DB_ID);
       });
     });
-
     describe("_database()", () => {
       it("returns a dictionary with the underlying database of the wrapped query", () => {
         expect(query._database().id).toBe(SAMPLE_DB_ID);
@@ -82,17 +79,14 @@ describe("NativeQuery", () => {
         // This is a magic constant and we should probably pull this up into an enum
         expect(query.engine()).toBe("H2");
       });
-
       it("identifies the correct engine for Mongo queries", () => {
         expect(makeMongoQuery("").engine()).toBe("mongo");
       });
     });
-
     describe("supportsNativeParameters()", () => {
       it("Verify that H2 queries support Parameters", () => {
         expect(query.supportsNativeParameters()).toBe(true);
       });
-
       it("Verify that MongoDB queries do not support Parameters", () => {
         expect(makeMongoQuery("").supportsNativeParameters()).toBe(false);
       });
@@ -104,7 +98,6 @@ describe("NativeQuery", () => {
       it("Verify that an empty query isEmpty()", () => {
         expect(query.isEmpty()).toBe(true);
       });
-
       it("Verify that a simple query is not isEmpty()", () => {
         expect(query.setQueryText("SELECT * FROM ORDERS").isEmpty()).toBe(
           false,
@@ -120,7 +113,6 @@ describe("NativeQuery", () => {
       it("Native H2 Queries should not require table selection", () => {
         expect(query.requiresTable()).toBe(false);
       });
-
       it("Native Mongo Queries should require table selection", () => {
         expect(makeMongoQuery("").requiresTable()).toBe(true);
       });
@@ -134,7 +126,6 @@ describe("NativeQuery", () => {
         expect(fakeMongoQuery.collection()).toBe(fakeCollectionID);
       });
     });
-
     describe("table()", () => {
       it("returns null for a non-mongo query", () => {
         expect(query.table()).toBe(null);
@@ -149,20 +140,17 @@ describe("NativeQuery", () => {
         "SELECT * FROM ORDERS",
       );
     });
-
     test("You can update query text the same way as well via setQueryText(newQueryText)", () => {
       const newQuery = makeQuery("SELECT 1");
       expect(newQuery.queryText()).toEqual("SELECT 1");
       const newerQuery = newQuery.setQueryText("SELECT 2");
       expect(newerQuery.queryText()).toEqual("SELECT 2");
     });
-
     test("lineCount() lets you know how long your query is", () => {
       expect(makeQuery("SELECT 1").lineCount()).toBe(1);
       expect(makeQuery("SELECT \n 1").lineCount()).toBe(2);
     });
   });
-
   describe("Native Queries support Templates and Parameters", () => {
     describe("You can get the number of parameters via templateTags()", () => {
       it("Non templated queries don't have parameters", () => {
@@ -177,7 +165,6 @@ describe("NativeQuery", () => {
         expect(newQuery.templateTags().length).toBe(1);
       });
     });
-
     describe("You can get a pre-structured map keyed by name via templateTagsMap()", () => {
       it("Non templated queries don't have parameters", () => {
         const newQuery = makeQuery().setQueryText("SELECT 1");
@@ -257,7 +244,6 @@ describe("NativeQuery", () => {
         expect(displayName).toEqual("Snippet: Foo");
         expect(type).toEqual("snippet");
       });
-
       it("should update query text with new snippet names", () => {
         const q = makeQuery()
           .setQueryText("{{ snippet: foo }}")
@@ -265,7 +251,6 @@ describe("NativeQuery", () => {
           .updateSnippetNames([{ id: 123, name: "bar" }]);
         expect(q.queryText()).toEqual("{{snippet: bar}}");
       });
-
       it("should update snippet names that differ on spacing", () => {
         const q = makeQuery()
           .setQueryText("{{ snippet: foo }} {{snippet:  foo  }}")
@@ -274,7 +259,6 @@ describe("NativeQuery", () => {
         expect(q.queryText()).toEqual("{{snippet: bar}} {{snippet: bar}}");
       });
     });
-
     describe("card template tags", () => {
       it("should parse card tags", () => {
         const q = makeQuery().setQueryText(
@@ -284,7 +268,6 @@ describe("NativeQuery", () => {
       });
     });
   });
-
   describe("values source settings", () => {
     it("should preserve the order of templates tags when updating", () => {
       const oldQuery = makeQuery().setQueryText(
@@ -318,14 +301,12 @@ describe("NativeQuery", () => {
       expect(newParameters[0].values_source_config).toEqual({ values: ["A"] });
     });
   });
-
   describe("variables", () => {
     it("should return empty array if there are no tags", () => {
       const q = makeQuery().setQueryText("SELECT * FROM PRODUCTS");
       const variables = q.variables();
       expect(variables).toHaveLength(0);
     });
-
     it("should return variable for non-dimension template tag", () => {
       const q = makeQuery().setQueryText(
         "SELECT * FROM PRODUCTS WHERE CATEGORY = {{category}}",
@@ -334,7 +315,6 @@ describe("NativeQuery", () => {
       expect(variables).toHaveLength(1);
       expect(variables.map(v => v.displayName())).toEqual(["Category"]);
     });
-
     it("should not return variable for dimension template tag", () => {
       const q = makeQuery()
         .setQueryText("SELECT * FROM PRODUCTS WHERE {{category}}")
@@ -342,13 +322,11 @@ describe("NativeQuery", () => {
       expect(q.variables()).toHaveLength(0);
     });
   });
-
   describe("dimensionOptions", () => {
     it("should return empty dimensionOptions if there are no tags", () => {
       const q = makeQuery().setQueryText("SELECT * FROM PRODUCTS");
       expect(q.dimensionOptions().count).toBe(0);
     });
-
     it("should return a dimension for a dimension template tag", () => {
       const q = makeQuery()
         .setQueryText("SELECT * FROM PRODUCTS WHERE {{category}}")

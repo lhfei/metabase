@@ -1,7 +1,6 @@
-import { type ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 
-import type { MetabasePluginsConfig } from "embedding-sdk";
-import type { SdkQuestionTitleProps } from "embedding-sdk/types/question";
+import type { SdkPluginsConfig } from "embedding-sdk";
 
 import {
   InteractiveQuestionProviderWithLocation,
@@ -12,19 +11,18 @@ import { InteractiveQuestionResult } from "./InteractiveQuestionResult";
 interface InteractiveAdHocQuestionProps {
   questionPath: string; // route path to load a question, e.g. /question/140-best-selling-products - for saved, or /question/xxxxxxx for ad-hoc encoded question config
   onNavigateBack: () => void;
-  title: SdkQuestionTitleProps;
+
+  withTitle?: boolean;
   height?: number;
-  plugins?: MetabasePluginsConfig;
-  children?: ReactNode;
+  plugins?: SdkPluginsConfig;
 }
 
 export const InteractiveAdHocQuestion = ({
   questionPath,
   onNavigateBack,
-  title = true,
+  withTitle = true,
   height,
   plugins,
-  children,
 }: InteractiveAdHocQuestionProps) => {
   const { location, params } = useMemo(
     () => getQuestionParameters(questionPath),
@@ -38,13 +36,7 @@ export const InteractiveAdHocQuestion = ({
       componentPlugins={plugins}
       onNavigateBack={onNavigateBack}
     >
-      {children ?? (
-        <InteractiveQuestionResult
-          height={height}
-          title={title}
-          withChartTypeSelector
-        />
-      )}
+      <InteractiveQuestionResult height={height} withTitle={withTitle} />
     </InteractiveQuestionProviderWithLocation>
   );
 };

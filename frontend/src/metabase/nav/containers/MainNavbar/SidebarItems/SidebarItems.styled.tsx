@@ -7,9 +7,7 @@ import { alpha, color, darken } from "metabase/lib/colors";
 import { NAV_SIDEBAR_WIDTH } from "metabase/nav/constants";
 import { Icon, Tooltip } from "metabase/ui";
 
-export const SidebarIcon = styled(Icon, {
-  shouldForwardProp: propName => propName !== "isSelected",
-})<{
+export const SidebarIcon = styled(Icon)<{
   color?: string | null;
   isSelected: boolean;
 }>`
@@ -68,7 +66,7 @@ NodeRoot.defaultProps = {
   hasDefaultIconStyle: true,
 };
 
-const collectionDragAndDropHoverStyle = css`
+export const collectionDragAndDropHoverStyle = css`
   color: var(--mb-color-text-white);
   background-color: var(--mb-color-brand);
 `;

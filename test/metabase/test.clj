@@ -7,6 +7,7 @@
    [humane-are.core :as humane-are]
    [mb.hawk.assert-exprs.approximately-equal :as hawk.approx]
    [mb.hawk.init]
+   [mb.hawk.parallel]
    [metabase.actions.test-util :as actions.test-util]
    [metabase.config :as config]
    [metabase.db.schema-migrations-test.impl :as schema-migrations-test.impl]
@@ -21,7 +22,7 @@
    [metabase.query-processor :as qp]
    [metabase.query-processor.store :as qp.store]
    [metabase.query-processor.test-util :as qp.test-util]
-   [metabase.request.core]
+   [metabase.server.middleware.session :as mw.session]
    [metabase.test-runner.assert-exprs :as test-runner.assert-exprs]
    [metabase.test.data :as data]
    [metabase.test.data.datasets :as datasets]
@@ -34,7 +35,7 @@
    [metabase.test.redefs :as test.redefs]
    [metabase.test.util :as tu]
    [metabase.test.util.async :as tu.async]
-   [metabase.test.util.dynamic-redefs]
+   [metabase.test.util.dynamic-redefs :as tu.dr]
    [metabase.test.util.i18n :as i18n.tu]
    [metabase.test.util.log :as tu.log]
    [metabase.test.util.misc :as tu.misc]
@@ -69,10 +70,9 @@
   initialize/keep-me
   lib.metadata.jvm/keep-me
   mb.hawk.init/keep-me
-  mdb.test-util/keep-me
-  metabase.request.core/keep-me
-  metabase.test.util.dynamic-redefs/keep-me
+  mb.hawk.parallel/keep-me
   metabase.util.log.capture/keep-me
+  mw.session/keep-me
   perms.test-util/keep-me
   qp.store/keep-me
   qp.test-util/keep-me
@@ -94,6 +94,7 @@
   tu/keep-me
   tx.env/keep-me
   tx/keep-me
+  mdb.test-util/keep-me
   u.random/keep-me)
 
 ;; Add more stuff here as needed
@@ -147,6 +148,7 @@
   with-fake-inbox]
 
  [client
+  authenticate
   build-url
   client
   real-client
@@ -166,16 +168,12 @@
  [metabase.util.log.capture
   with-log-messages-for-level]
 
+ [mw.session
+  with-current-user
+  as-admin]
+
  [mdb.test-util
   with-app-db-timezone-id!]
-
- [metabase.request.core
-  as-admin
-  with-current-user]
-
- [metabase.test.util.dynamic-redefs
-  dynamic-value
-  with-dynamic-redefs]
 
  [perms.test-util
   with-restored-data-perms!
@@ -278,8 +276,7 @@
   with-temporary-setting-values
   with-temporary-raw-setting-values
   with-user-in-groups
-  with-verified-cards!
-  works-after]
+  with-verified-cards!]
 
  [tu.async
   wait-for-result
@@ -297,8 +294,7 @@
 
  [tu.public-setings
   with-premium-features
-  with-additional-premium-features
-  assert-has-premium-feature-error]
+  with-additional-premium-features]
 
  [u.random
   random-name
@@ -333,7 +329,11 @@
   with-test-drivers]
 
  [schema-migrations-test.impl
-  with-temp-empty-app-db])
+  with-temp-empty-app-db]
+
+ [tu.dr
+  dynamic-value
+  with-dynamic-redefs])
 
 ;; Rename this instead of using `import-vars` to make it clear that it's related to `=?`
 (p/import-fn hawk.approx/malli malli=?)

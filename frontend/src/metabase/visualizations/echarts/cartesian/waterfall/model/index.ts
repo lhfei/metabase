@@ -33,7 +33,6 @@ import {
 export const getWaterfallChartModel = (
   rawSeries: RawSeries,
   settings: ComputedVisualizationSettings,
-  hiddenSeries: string[],
   renderingContext: RenderingContext,
   showWarning?: ShowWarning,
 ): WaterfallChartModel => {
@@ -47,10 +46,10 @@ export const getWaterfallChartModel = (
   const [seriesModel] = getCardSeriesModels(
     singleRawSeries,
     cardsColumns[0],
-    [],
     false,
     true,
     settings,
+    renderingContext,
   );
 
   const unsortedDataset = getJoinedCardsDataset(
@@ -70,6 +69,7 @@ export const getWaterfallChartModel = (
     rawSeries,
     scaledDataset,
     settings,
+    renderingContext,
     showWarning,
   );
   if (
@@ -93,7 +93,12 @@ export const getWaterfallChartModel = (
   );
 
   const { formatter: waterfallLabelFormatter, isCompact } =
-    getWaterfallLabelFormatter(seriesModel, transformedDataset, settings);
+    getWaterfallLabelFormatter(
+      seriesModel,
+      transformedDataset,
+      settings,
+      renderingContext,
+    );
 
   const dataDensity = getWaterfallChartDataDensity(
     transformedDataset,
@@ -111,6 +116,7 @@ export const getWaterfallChartModel = (
     settings,
     { [WATERFALL_END_KEY]: seriesModel.column },
     null,
+    renderingContext,
     {
       compact:
         settings["graph.label_value_formatting"] === "compact" || isCompact,

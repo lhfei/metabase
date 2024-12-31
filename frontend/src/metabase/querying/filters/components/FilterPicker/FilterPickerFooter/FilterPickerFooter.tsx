@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { isValidElement } from "react";
 import { t } from "ttag";
 
-import { Box, Button, Flex } from "metabase/ui";
+import { Box, Button } from "metabase/ui";
 
-import S from "./FilterPickerFooter.module.css";
+import { FilterFooterRoot } from "./FilterPickerFooter.styled";
 
 interface FilterPickerFooterProps {
   isNew: boolean;
@@ -18,11 +18,11 @@ export function FilterPickerFooter({
   children,
 }: FilterPickerFooterProps) {
   return (
-    <Flex className={S.FilterFooterRoot} p="md" justify="space-between">
+    <FilterFooterRoot px="md" py="sm" justify="space-between">
       {isValidElement(children) ? children : <Box />}
       <Button type="submit" variant="filled" disabled={!canSubmit}>
         {isNew ? t`Add filter` : t`Update filter`}
       </Button>
-    </Flex>
+    </FilterFooterRoot>
   );
 }

@@ -4,12 +4,7 @@ import { ResolverError } from "metabase-lib/v1/expressions/pratt/types";
 
 import { OPERATOR as OP } from "./tokenizer";
 
-import {
-  MBQL_CLAUSES,
-  getMBQLName,
-  isCaseOrIfOperator,
-  isOptionsObject,
-} from "./index";
+import { MBQL_CLAUSES, getMBQLName } from "./index";
 
 const FIELD_MARKERS = ["dimension", "segment", "metric"];
 export const LOGICAL_OPS = [OP.Not, OP.And, OP.Or];
@@ -60,7 +55,7 @@ const isCompatible = (expectedType, inferredType) => {
   }
   if (
     expectedType === "expression" &&
-    ["datetime", "number", "string", "boolean"].includes(inferredType)
+    ["datetime", "number", "string"].includes(inferredType)
   ) {
     return true;
   }
@@ -129,11 +124,11 @@ export function resolve({
       operandType = "expression";
     } else if (op === "coalesce") {
       operandType = type;
-    } else if (isCaseOrIfOperator(op)) {
+    } else if (op === "case") {
       const [pairs, options] = operands;
       if (pairs.length < 1) {
         throw new ResolverError(
-          t`${op.toUpperCase()} expects 2 arguments or more`,
+          t`CASE expects 2 arguments or more`,
           expression.node,
         );
       }
@@ -208,7 +203,7 @@ export function resolve({
       }
     }
     const resolvedOperands = operands.map((operand, i) => {
-      if ((i >= args.length && !clause.multiple) || isOptionsObject(operand)) {
+      if (i >= args.length) {
         // as-is, optional object for e.g. ends-with, time-interval, etc
         return operand;
       }

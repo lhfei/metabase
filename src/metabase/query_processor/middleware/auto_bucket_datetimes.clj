@@ -131,11 +131,7 @@
              (mbql.u/is-clause? :field x))
          (let [[_tag opts _id-or-name] x]
            ((some-fn :temporal-unit :binning) opts)))
-    :do-not-bucket-reason/field-with-bucketing-or-binning
-
-    (and (vector? x)
-         (get-in x [1 :inherited-temporal-unit]))
-    :do-not-bucket-reason/bucketed-in-previous-stages))
+    :do-not-bucket-reason/field-with-bucketing-or-binning))
 
 (mu/defn- date-or-datetime-clause?
   [{base-type :base-type, effective-type :effective-type} :- ::column-type-info]

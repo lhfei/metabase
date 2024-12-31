@@ -164,12 +164,32 @@
              [:field {:lib/uuid (str (random-uuid)), :base-type :type/Integer} "sum"])))))
 
 (deftest ^:parallel joined-field-display-name-test
-  (let [query (-> (lib/query meta/metadata-provider (meta/table-metadata :venues))
-                  (lib/join (lib/join-clause (meta/table-metadata :categories)
-                                             [(lib/= (meta/field-metadata :venues :category-id)
-                                                     (meta/field-metadata :categories :id))]))
-                  (lib/with-fields [(lib/with-join-alias (meta/field-metadata :categories :name) "Categories")]))
-        field (lib.tu/field-clause :categories :name {:join-alias "Categories"})]
+  (let [query {:lib/type     :mbql/query
+               :stages       [{:lib/type     :mbql.stage/mbql
+                               :lib/options  {:lib/uuid "fdcfaa06-8e65-471d-be5a-f1e821022482"}
+                               :source-table (meta/id :venues)
+                               :fields       [[:field
+                                               {:join-alias "Categories"
+                                                :lib/uuid   "8704e09b-496e-4045-8148-1eef28e96b51"}
+                                               (meta/id :categories :name)]]
+                               :joins        [{:lib/type    :mbql/join
+                                               :lib/options {:lib/uuid "490a5abb-54c2-4e62-9196-7e9e99e8d291"}
+                                               :alias       "Categories"
+                                               :conditions  [[:=
+                                                              {:lib/uuid "cc5f6c43-1acb-49c2-aeb5-e3ff9c70541f"}
+                                                              (lib.tu/field-clause :venues :category-id)
+                                                              (lib.tu/field-clause :categories :id {:join-alias "Categories"})]]
+                                               :strategy    :left-join
+                                               :fk-field-id (meta/id :venues :category-id)
+                                               :stages      [{:lib/type     :mbql.stage/mbql
+                                                              :lib/options  {:lib/uuid "bbbae500-c972-4550-b100-e0584eb72c4d"}
+                                                              :source-table (meta/id :categories)}]}]}]
+               :database     (meta/id)
+               :lib/metadata meta/metadata-provider}
+        field [:field
+               {:join-alias "Categories"
+                :lib/uuid   "8704e09b-496e-4045-8148-1eef28e96b51"}
+               (meta/id :categories :name)]]
     (are [style expected] (= expected
                              (lib/display-name query -1 field style))
       :default "Name"
@@ -249,8 +269,8 @@
   (doseq [[unit effective-type] {:month         :type/Date
                                  :month-of-year :type/Integer}
           :let                  [field-metadata (get-in temporal-bucketing-mock-metadata [:fields :date])]
-          [what x update-props] [["column metadata" field-metadata           (fn [x f & args] (apply f x args))]
-                                 ["field ref"       (lib/ref field-metadata) lib.options/update-options]]
+          [what x]              {"column metadata" field-metadata
+                                 "field ref"       (lib/ref field-metadata)}
           :let                  [x' (lib/with-temporal-bucket x unit)]]
     (testing (str what " unit = " unit "\n\n" (u/pprint-to-str x') "\n")
       (testing "should calculate correct effective type"
@@ -272,13 +292,13 @@
         (let [x'' (lib/with-temporal-bucket x' nil)]
           (is (nil? (lib/temporal-bucket x'')))
           (is (= x
-                 (update-props x'' dissoc :metabase.lib.field/original-temporal-unit)))))
+                 x''))))
       (testing "change the temporal unit, THEN remove it"
         (let [x''  (lib/with-temporal-bucket x' :quarter-of-year)
               x''' (lib/with-temporal-bucket x'' nil)]
           (is (nil? (lib/temporal-bucket x''')))
           (is (= x
-                 (update-props x''' dissoc :metabase.lib.field/original-temporal-unit))))))))
+                 x''')))))))
 
 (deftest ^:parallel available-temporal-buckets-test
   (doseq [{:keys [metadata expected-options selected-index selected-unit]}
@@ -396,12 +416,10 @@
                  (lib/available-binning-strategies query x)))
           (let [binned (lib/with-binning x (second expected-options))
                 query2 (lib/breakout query binned)]
-            (testing "when binned, should return the same available units, with :selected apart from the default"
+            (testing "when binned, should return the same available units, with :selected"
               (is (= (-> expected-options second :mbql)
                      (-> binned lib/binning (dissoc :lib/type :metadata-fn))))
-              (is (= (-> expected-options
-                         (assoc-in [1 :selected] true)
-                         (m/dissoc-in [0 :default]))
+              (is (= (assoc-in expected-options [1 :selected] true)
                      (lib/available-binning-strategies query2 binned))))
             (testing "shows :selected in display-info"
               (let [options (lib/available-binning-strategies query2 binned)]
@@ -446,9 +464,6 @@
                                               {:display-name "1°"}
                                               {:display-name "10°"}
                                               {:display-name "20°"}
-                                              {:display-name "0.05°"}
-                                              {:display-name "0.01°"}
-                                              {:display-name "0.005°"}
                                               nil])]
         (is (= exp
                (some->> strat
@@ -465,7 +480,6 @@
                                                  :condition    [:=
                                                                 [:field (meta/id :venues :category-id) nil]
                                                                 [:field (meta/id :categories :id) {:join-alias "Cat"}]]
-                                                 :ident        "khQz-1AxQ4MVUfynQFnUw"
                                                  :alias        "Cat"}]}}
         query        (lib/query meta/metadata-provider legacy-query)]
     (is (=? [{:lib/desired-column-alias "ID"}
@@ -535,18 +549,37 @@
                                :query    {:source-table (meta/id :checkins)
                                           :aggregation  [[:count]]
                                           :breakout     [[:field (meta/id :checkins :user-id) nil]]}}])
-          cols  (->> (lib.metadata/card metadata-provider 1)
-                     (lib/query metadata-provider)
-                     lib/returned-columns
-                     (m/index-by :name))
-          query (-> (lib/query metadata-provider (meta/table-metadata :checkins))
-                    (lib/join (lib/with-join-alias
-                               (lib/join-clause (lib.metadata/card metadata-provider 1)
-                                                [(lib/= (meta/field-metadata :users :id)
-                                                        (lib/ref (get cols "USER_ID")))])
-                               "checkins_by_user"))
-                    (lib/breakout (lib/with-temporal-bucket (meta/field-metadata :users :last-login) :month))
-                    (lib/aggregate (lib/avg (lib/with-join-alias (lib/ref (get cols "count")) "checkins_by_user"))))]
+          query             {:lib/type     :mbql/query
+                             :lib/metadata metadata-provider
+                             :database     (meta/id)
+                             :stages       [{:lib/type     :mbql.stage/mbql
+                                             :source-table (meta/id :checkins)
+                                             :joins        [{:lib/type    :mbql/join
+                                                             :lib/options {:lib/uuid "d7ebb6bd-e7ac-411a-9d09-d8b18329ad46"}
+                                                             :stages      [{:lib/type    :mbql.stage/mbql
+                                                                            :source-card 1}]
+                                                             :alias       "checkins_by_user"
+                                                             :conditions  [[:=
+                                                                            {:lib/uuid "1cb124b0-757f-4717-b8ee-9cf12a7c3f62"}
+                                                                            [:field
+                                                                             {:lib/uuid "a2eb96a0-420b-4465-817d-f3c9f789eff4"}
+                                                                             (meta/id :users :id)]
+                                                                            [:field
+                                                                             {:base-type  :type/Integer
+                                                                              :join-alias "checkins_by_user"
+                                                                              :lib/uuid   "b23a769d-774a-4eb5-8fb8-1f6a33c9a8d5"}
+                                                                             "USER_ID"]]]
+                                                             :fields      :all}]
+                                             :breakout     [[:field
+                                                             {:temporal-unit :month, :lib/uuid "90c646e8-ed1c-42d3-b50c-c51b21286852"}
+                                                             (meta/id :users :last-login)]]
+                                             :aggregation  [[:avg
+                                                             {:lib/uuid "2e97a042-5eec-4c18-acda-e5485f794c60"}
+                                                             [:field
+                                                              {:base-type  :type/Float
+                                                               :join-alias "checkins_by_user"
+                                                               :lib/uuid   "222b407e-ca3f-4bce-81cb-0ddfb1c6a79c"}
+                                                              "count"]]]}]}]
       (is (=? [{:id                       (meta/id :users :last-login)
                 :name                     "LAST_LOGIN"
                 :lib/source               :source/breakouts
@@ -646,7 +679,6 @@
                                                     :source-card 3}]})]
       (is (= [{:lib/type                 :metadata/column
                :base-type                :type/*
-               :effective-type           :type/*
                :id                       4
                :name                     "Field 4"
                :fk-target-field-id       nil
@@ -954,35 +986,6 @@
             (let [implied-query (lib/add-field field-query -1 (nth implicit-columns 6))]
               (is (=? implied-query
                       (lib/add-field implied-query -1 (nth implicit-columns 6)))))))))))
-
-(deftest ^:parallel add-field-multiple-breakouts-test
-  (testing "multiple breakouts of the same column in the previous stage"
-    (let [query   (-> (lib/query meta/metadata-provider (meta/table-metadata :orders))
-                      (lib/aggregate (lib/count))
-                      (lib/breakout (lib/with-temporal-bucket (meta/field-metadata :orders :created-at) :year))
-                      (lib/breakout (lib/with-temporal-bucket (meta/field-metadata :orders :created-at) :month))
-                      (lib/append-stage))
-          columns (lib/fieldable-columns query)]
-      (testing "removing the column coming from the first breakout"
-        (is (=? [[:field {} "CREATED_AT_2"] [:field {} "count"]]
-                (-> query
-                    (lib/remove-field 1 (first columns))
-                    fields-of))))
-      (testing "removing the column coming from the second breakout"
-        (is (=? [[:field {} "CREATED_AT"] [:field {} "count"]]
-                (-> query
-                    (lib/remove-field 1 (second columns))
-                    fields-of))))
-      (testing "removing and adding back the column from the first breakout"
-        (is (nil? (-> query
-                      (lib/remove-field 1 (first columns))
-                      (lib/add-field 1 (first columns))
-                      fields-of))))
-      (testing "removing and adding back the column from the second breakout"
-        (is (nil? (-> query
-                      (lib/remove-field 1 (second columns))
-                      (lib/add-field 1 (second columns))
-                      fields-of)))))))
 
 (defn- clean-ref [column]
   (-> column

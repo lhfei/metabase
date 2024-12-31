@@ -3,12 +3,12 @@ import { bindActionCreators } from "@reduxjs/toolkit";
 import cx from "classnames";
 import PropTypes from "prop-types";
 import { Component, createRef } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router";
 import { t } from "ttag";
 import _ from "underscore";
 
 import ErrorBoundary from "metabase/ErrorBoundary";
-import { SwagButton } from "metabase/admin/settings/components/Swag/SwagButton";
 import { UpsellSSO } from "metabase/admin/upsells";
 import { AdminLayout } from "metabase/components/AdminLayout";
 import { NotFound } from "metabase/components/ErrorPages";
@@ -16,7 +16,6 @@ import SaveStatus from "metabase/components/SaveStatus";
 import AdminS from "metabase/css/admin.module.css";
 import CS from "metabase/css/core/index.css";
 import title from "metabase/hoc/Title";
-import { connect } from "metabase/lib/redux";
 import MetabaseSettings from "metabase/lib/settings";
 import { Box } from "metabase/ui";
 
@@ -88,7 +87,7 @@ class SettingsEditor extends Component {
    * @param {function} [options.onChanged] - callback fired after the setting has been updated
    * @param {function} [options.onError] - callback fired after the setting has failed to update
    */
-  handleUpdateSetting = async (setting, newValue, options) => {
+  updateSetting = async (setting, newValue, options) => {
     const { settingValues, updateSetting, reloadSettings, dispatch } =
       this.props;
 
@@ -181,7 +180,7 @@ class SettingsEditor extends Component {
           elements={activeSection.settings}
           settingValues={settingValues}
           derivedSettingValues={derivedSettingValues}
-          updateSetting={this.handleUpdateSetting.bind(this)}
+          updateSetting={this.updateSetting.bind(this)}
           onChangeSetting={this.handleChangeSetting.bind(this)}
           reloadSettings={this.props.reloadSettings}
         />
@@ -193,7 +192,7 @@ class SettingsEditor extends Component {
         settingElements={activeSection.settings}
         settingValues={settingValues}
         derivedSettingValues={derivedSettingValues}
-        updateSetting={this.handleUpdateSetting.bind(this)}
+        updateSetting={this.updateSetting.bind(this)}
         onChangeSetting={this.handleChangeSetting.bind(this)}
         reloadSettings={this.props.reloadSettings}
       />
@@ -255,7 +254,6 @@ class SettingsEditor extends Component {
       <aside className={cx(AdminS.AdminList, CS.flexNoShrink)}>
         <ul className={CS.pt1} data-testid="admin-list-settings-items">
           <ErrorBoundary>{renderedSections}</ErrorBoundary>
-          <SwagButton />
         </ul>
       </aside>
     );

@@ -168,6 +168,7 @@ describe("syncVizSettings", () => {
         { name: "ID_2", key: "PRODUCTS__ID" },
         { name: "ID_3", key: "PEOPLE__ID" },
       ];
+
       const oldSettings = createMockVisualizationSettings({
         column_settings: {
           '["name","ID"]': { column_title: "@ID" },
@@ -210,6 +211,7 @@ describe("syncVizSettings", () => {
         { name: "ID_2", key: "PRODUCTS__ID", isAggregation: true },
         { name: "ID_3", key: "PEOPLE__ID" },
       ];
+
       const oldSettings = createMockVisualizationSettings({
         "graph.metrics": ["ID", "ID_2"],
       });
@@ -230,6 +232,7 @@ describe("syncVizSettings", () => {
         { name: "ID_2", key: "PRODUCTS__ID" },
         { name: "ID_3", key: "PEOPLE__ID" },
       ];
+
       const oldSettings = createMockVisualizationSettings({
         "graph.metrics": ["ID", "ID_2"],
       });
@@ -275,84 +278,6 @@ describe("syncVizSettings", () => {
       const newSettings = syncVizSettings(oldSettings, newColumns, oldColumns);
       expect(newSettings).toEqual({
         "graph.metrics": ["ID", "TAX"],
-      });
-    });
-  });
-
-  describe("pivot_table", () => {
-    it("should handle adding new columns with column.name changes", () => {
-      const oldColumns: ColumnInfo[] = [
-        { name: "ID", key: "ID" },
-        { name: "ID_2", key: "PEOPLE__ID" },
-        { name: "count", key: "count" },
-      ];
-      const newColumns: ColumnInfo[] = [
-        { name: "ID", key: "ID" },
-        { name: "ID_2", key: "PRODUCTS__ID" },
-        { name: "ID_3", key: "PEOPLE__ID" },
-        { name: "count", key: "count" },
-      ];
-      const oldSettings = createMockVisualizationSettings({
-        "pivot_table.column_split": {
-          rows: ["ID_2"],
-          columns: ["ID"],
-          values: ["count"],
-        },
-        "pivot_table.collapsed_rows": {
-          rows: ["ID_2"],
-          value: ["1"],
-        },
-      });
-
-      const newSettings = syncVizSettings(oldSettings, newColumns, oldColumns);
-      expect(newSettings).toEqual({
-        "pivot_table.column_split": {
-          rows: ["ID_3"],
-          columns: ["ID"],
-          values: ["count"],
-        },
-        "pivot_table.collapsed_rows": {
-          rows: ["ID_3"],
-          value: ["1"],
-        },
-      });
-    });
-
-    it("should handle removing columns with column.name changes", () => {
-      const oldColumns: ColumnInfo[] = [
-        { name: "ID", key: "ID" },
-        { name: "ID_2", key: "PRODUCTS__ID" },
-        { name: "ID_3", key: "PEOPLE__ID" },
-        { name: "count", key: "count" },
-      ];
-      const newColumns: ColumnInfo[] = [
-        { name: "ID", key: "ID" },
-        { name: "ID_2", key: "PEOPLE__ID" },
-        { name: "count", key: "count" },
-      ];
-      const oldSettings = createMockVisualizationSettings({
-        "pivot_table.column_split": {
-          rows: ["ID_3"],
-          columns: ["ID_2", "ID"],
-          values: ["count"],
-        },
-        "pivot_table.collapsed_rows": {
-          rows: ["ID_3"],
-          value: ["1"],
-        },
-      });
-
-      const newSettings = syncVizSettings(oldSettings, newColumns, oldColumns);
-      expect(newSettings).toEqual({
-        "pivot_table.column_split": {
-          rows: ["ID_2"],
-          columns: ["ID"],
-          values: ["count"],
-        },
-        "pivot_table.collapsed_rows": {
-          rows: ["ID_2"],
-          value: ["1"],
-        },
       });
     });
   });

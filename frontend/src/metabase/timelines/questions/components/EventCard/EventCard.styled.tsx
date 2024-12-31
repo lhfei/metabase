@@ -4,7 +4,7 @@ import Markdown from "metabase/core/components/Markdown";
 import { alpha } from "metabase/lib/colors";
 import { Icon } from "metabase/ui";
 
-interface CardRootProps {
+export interface CardRootProps {
   isSelected?: boolean;
 }
 

@@ -8,20 +8,19 @@ import { getTooltipBaseOption } from "../tooltip";
 
 import type { PieChartFormatters } from "./format";
 import type { PieChartModel } from "./model/types";
-import { getSliceKeyPath } from "./util";
 
 interface ChartItemTooltip {
   chartModel: PieChartModel;
   formatters: PieChartFormatters;
-  sliceKeyPath: string[];
+  dataIndex: number;
 }
 
 const ChartItemTooltip = ({
   chartModel,
   formatters,
-  sliceKeyPath,
+  dataIndex,
 }: ChartItemTooltip) => {
-  const tooltipModel = getTooltipModel(sliceKeyPath, chartModel, formatters);
+  const tooltipModel = getTooltipModel(dataIndex, chartModel, formatters);
   return <EChartsTooltip {...tooltipModel} />;
 };
 
@@ -37,15 +36,11 @@ export const getTooltipOption = (
       if (Array.isArray(params) || typeof params.dataIndex !== "number") {
         return "";
       }
-      // @ts-expect-error - `treePathInfo` is present at runtime, but is not in
-      // the type provided by ECharts.
-      const sliceKeyPath = getSliceKeyPath(params);
-
       return renderToString(
         <ChartItemTooltip
           formatters={formatters}
           chartModel={chartModel}
-          sliceKeyPath={sliceKeyPath}
+          dataIndex={params.dataIndex}
         />,
       );
     },

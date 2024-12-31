@@ -1,9 +1,7 @@
 (ns metabase.util
   "Common utility functions useful throughout the codebase."
-  (:refer-clojure :exclude [group-by])
   (:require
-   #?@(:clj ([clojure.core.protocols]
-             [clojure.math.numeric-tower :as math]
+   #?@(:clj ([clojure.math.numeric-tower :as math]
              [me.flowthing.pp :as pp]
              [metabase.config :as config]
              #_{:clj-kondo/ignore [:discouraged-namespace]}
@@ -19,37 +17,25 @@
    [clojure.walk :as walk]
    [flatland.ordered.map :refer [ordered-map]]
    [medley.core :as m]
+   [metabase.shared.util.i18n :refer [tru] :as i18n]
+   [metabase.shared.util.namespaces :as u.ns]
    [metabase.util.format :as u.format]
-   [metabase.util.i18n :refer [tru]]
    [metabase.util.log :as log]
    [metabase.util.memoize :as memoize]
-   [metabase.util.namespaces :as u.ns]
-   [metabase.util.polyfills]
-   [nano-id.core :as nano-id]
    [net.cgrand.macrovich :as macros]
    [weavejester.dependency :as dep])
   #?(:clj (:import
-           (clojure.core.protocols CollReduce)
            (clojure.lang Reflector)
            (java.text Normalizer Normalizer$Form)
-           (java.util Locale Random)
+           (java.util Locale)
            (org.apache.commons.validator.routines RegexValidator UrlValidator)))
   #?(:cljs (:require-macros [camel-snake-kebab.internals.macros :as csk.macros]
                             [metabase.util])))
 
 #?(:clj (set! *warn-on-reflection* true))
 
-#?(:clj (comment clojure.core.protocols/keep-me))
-
 (u.ns/import-fns
- [u.format
-  colorize
-  format-bytes
-  format-color
-  format-milliseconds
-  format-nanoseconds
-  format-seconds
-  format-plural])
+ [u.format colorize format-bytes format-color format-milliseconds format-nanoseconds format-seconds])
 
 #?(:clj (p/import-vars [u.jvm
                         all-ex-data
@@ -60,6 +46,7 @@
                         encode-base64
                         filtered-stacktrace
                         full-exception-chain
+                        generate-nano-id
                         host-port-up?
                         parse-currency
                         poll
@@ -71,9 +58,7 @@
                         with-timeout
                         with-us-locale]
                        [u.str
-                        build-sentence]
-                       [u.ns
-                        find-and-load-namespaces!]))
+                        build-sentence]))
 
 (defmacro or-with
   "Like or, but determines truthiness with `pred`."
@@ -95,22 +80,6 @@
                          :cljs 'js/Error
                          :clj  'Throwable)
                       ~'_)))
-
-(defn strip-error
-  "Transforms the error in a list of strings to log"
-  ([e]
-   (strip-error e nil))
-  ([e prefix]
-   (->> (for [[e prefix] (map vector
-                              (take-while some? (iterate #(.getCause ^Exception %) e))
-                              (cons prefix (repeat "  caused by")))]
-          (str (when prefix (str prefix ": "))
-               (ex-message e)
-               (when-let [data (-> (ex-data e)
-                                   (dissoc :toucan2/context-trace)
-                                   not-empty)]
-                 (str " " (pr-str data)))))
-        (str/join "\n"))))
 
 (defmacro prog1
   "Execute `first-form`, then any other expressions in `body`, presumably for side-effects; return the result of
@@ -155,20 +124,7 @@
 
      (u/qualified-name :type/FK) -> \"type/FK\""
   [k]
-  (cond
-    (nil? k)
-    nil
-
-    ;; optimization in Clojure: calling [[symbol]] on a keyword returns the underlying symbol, and [[str]] on a symbol
-    ;; is cached internally (see `clojure.lang.Symbol/toString()`). So we can avoid constructing a new string here.
-    ;; Not sure whether this is cached in ClojureScript as well.
-    (keyword? k)
-    (str (symbol k))
-
-    (symbol? k)
-    (str k)
-
-    :else
+  (when (some? k)
     (if-let [namespac (when #?(:clj  (instance? clojure.lang.Named k)
                                :cljs (satisfies? INamed k))
                         (namespace k))]
@@ -199,7 +155,7 @@
       (str/blank? text) text
       (#{\. \? \!} (last text)) text
       (str/ends-with? text "```") text
-      (str/ends-with? text ":") (str (subs text 0 (dec (count text))) ".")
+      (str/ends-with? text ":") (str (subs text 0 (- (count text) 1)) ".")
       :else (str text "."))))
 
 (defn lower-case-en
@@ -337,7 +293,7 @@
 (defn email?
   "Is `s` a valid email address string?"
   ^Boolean [^String s]
-  (boolean (when (and (string? s) (str/includes? s "@")) ;; early bail
+  (boolean (when (string? s)
              (re-matches #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
                          (lower-case-en s)))))
 
@@ -365,15 +321,10 @@
 (defn url?
   "Is `s` a valid HTTP/HTTPS URL string?"
   ^Boolean [s]
-  #?(:clj  (and s
-                ;; UrlValidator is very expensive when non-URLs are passed to it, so we verify if the string looks
-                ;; urlish before passing to UrlValidator.
-                (str/includes? s "://")
-                (let [validator (UrlValidator. (u.jvm/varargs String ["http" "https"])
-                                               (RegexValidator. url-regex-pattern)
-                                               UrlValidator/ALLOW_LOCAL_URLS)]
-                  ;; (swap! -args conj s)
-                  (.isValid validator (str s))))
+  #?(:clj  (let [validator (UrlValidator. (u.jvm/varargs String ["http" "https"])
+                                          (RegexValidator. url-regex-pattern)
+                                          UrlValidator/ALLOW_LOCAL_URLS)]
+             (.isValid validator (str s)))
      :cljs (try
              (let [url (js/URL. (str s))]
                (boolean (and (re-matches (js/RegExp. url-regex-pattern "u")
@@ -543,7 +494,7 @@
 
    The values of `keyseq` can be either regular keys, which work the same way as `select-keys`,
    or vectors of the form `[k & nested-keys]`, which call `select-nested-keys` recursively
-   on the value of `k`."
+   on the value of `k`. "
   [m keyseq]
   ;; TODO - use (empty m) once supported by model instances
   (into {} (for [k     keyseq
@@ -906,10 +857,10 @@
         known-map        (m/index-by id-fn current-rows)
         {to-update false
          to-skip   true} (when (seq update-ids)
-                           (clojure.core/group-by (fn [x]
-                                                    (let [y (get known-map (id-fn x))]
-                                                      (= (to-compare x) (to-compare y))))
-                                                  (filter #(update-ids (id-fn %)) new-rows)))]
+                           (group-by (fn [x]
+                                       (let [y (get known-map (id-fn x))]
+                                         (= (to-compare x) (to-compare y))))
+                                     (filter #(update-ids (id-fn %)) new-rows)))]
     {:to-create (when (seq create-ids) (filter #(create-ids (id-fn %)) new-rows))
      :to-delete (when (seq delete-ids) (filter #(delete-ids (id-fn %)) current-rows))
      :to-update to-update
@@ -925,19 +876,18 @@
   "Traverses a graph of nodes using a user-defined function.
 
   `nodes`: A collection of initial nodes to start the traversal from.
-  `traverse-fn`: A function that, given a node, returns a map of connected nodes to source they are connected from.
+  `traverse-fn`: A function that, given a node, returns its directly connected nodes.
 
   The function performs a breadth-first traversal starting from the initial nodes, applying
   `traverse-fn` to each node to find connected nodes, and continues until all reachable nodes
   have been visited. Returns a set of all traversed nodes."
   [nodes traverse-fn]
-  (loop [to-traverse (zipmap nodes (repeat nil))
-         traversed   {}]
+  (loop [to-traverse (set nodes)
+         traversed   #{}]
     (let [item        (first to-traverse)
-          found       (traverse-fn (key item))
+          found       (traverse-fn item)
           traversed   (conj traversed item)
-          to-traverse (into (dissoc to-traverse (key item))
-                            (apply dissoc found (keys traversed)))]
+          to-traverse (set/union (disj to-traverse item) (set/difference found traversed))]
       (if (empty? to-traverse)
         traversed
         (recur to-traverse traversed)))))
@@ -1088,48 +1038,6 @@
      [timer]
      (/ (- (System/nanoTime) timer) 1e6)))
 
-(defn group-by
-  "(group-by first                  [[1 3]   [1 4]   [2 5]])   => {1 [[1 3] [1 4]], 2 [[2 5]]}
-   (group-by first second           [[1 3]   [1 4]   [2 5]])   => {1 [3 4],         2 [5]}
-   (group-by first second +      0  [[1 3]   [1 4]   [2 5]])   => {1 7,             2 5}
-   (group-by first second           [[1 [3]] [1 [4]] [2 [5]]]) => {1 [[3] [4]],     2 [[5]]}
-   (group-by first second concat    [[1 [3]] [1 [4]] [2 [5]]]) => {1 (3 4),         2 (5)}
-   (group-by first second into      [[1 [3]] [1 [4]] [2 [5]]]) => {1 [3 4],         2 [5]}
-   (group-by first second into   [] [[1 [3]] [1 [4]] [2 [5]]]) => {1 [3 4],         2 [5]}
-   (group-by first second into   () [[1 [3]] [1 [4]] [2 [5]]]) => {1 (4 3),         2 (5)}
-   ;; as a filter:
-             kf    kpred  vf     vpred rf   init
-   (group-by first any?   second even? conj () [[1 3] [1 4] [2 5]])      => {1 (4)}
-   ;; as a reducer (see index-by below):
-             kf    kpred  vf     vpred rf   init
-   (group-by first any?   second even? max  0  [[1 3] [1 6] [1 4] [2 5]] => {1 6})"
-
-  ([kf coll] (clojure.core/group-by kf coll))
-  ([kf vf coll] (group-by kf vf conj [] coll))
-  ([kf vf rf coll] (group-by kf vf rf [] coll))
-  ([kf vf rf init coll]
-   (->> coll
-        (reduce
-         (fn [m x]
-           (let [k (kf x)]
-             (assoc! m k (rf (get m k init) (vf x)))))
-         (transient {}))
-        (persistent!)))
-  ([kf kpred vf vpred rf init coll]
-   (->> coll
-        (reduce
-         (fn [m x]
-           (let [k (kf x)]
-             (if-not (kpred k)
-               m
-               (let [v (vf x)]
-                 ;; no empty collections as a 'side effect':
-                 (if-not (vpred v)
-                   m
-                   (assoc! m k (rf (get m k init) v)))))))
-         (transient {}))
-        (persistent!))))
-
 (defn index-by
   "(index-by first second [[1 3] [1 4] [2 5]]) => {1 4, 2 5}"
   ([kf coll]
@@ -1141,64 +1049,3 @@
   "Return first item from Reducible"
   [reducible]
   (reduce (fn [_ fst] (reduced fst)) nil reducible))
-
-(defn rconcat
-  "Concatenate two Reducibles"
-  [r1 r2]
-  #?(:clj
-     (reify CollReduce
-       (coll-reduce [_ f]
-         #_{:clj-kondo/ignore [:reduce-without-init]}
-         (let [acc1 (reduce f r1)
-               acc2 (reduce f acc1 r2)]
-           acc2))
-       (coll-reduce [_ f init]
-         (let [acc1 (reduce f init r1)
-               acc2 (reduce f acc1 r2)]
-           acc2)))
-     :cljs
-     (reify IReduce
-       (-reduce [_ f]
-         (let [acc1 (reduce f r1)
-               acc2 (reduce f acc1 r2)]
-           acc2))
-       (-reduce [_ f init]
-         (let [acc1 (reduce f init r1)
-               acc2 (reduce f acc1 r2)]
-           acc2)))))
-
-(defn run-count!
-  "Runs the supplied procedure (via reduce), for purposes of side effects, on successive items. See [clojure.core/run!]
-   Returns the number of items processed."
-  [proc reducible]
-  (let [cnt (volatile! 0)]
-    (reduce (fn [_ item] (vswap! cnt inc) (proc item)) nil reducible)
-    @cnt))
-
-(defn generate-nano-id
-  "Generates a random NanoID string. Usually these are used for the entity_id field of various models.
-
-  If an argument is provided, it's taken to be an identity-hash string and used to seed the RNG,
-  producing the same value every time. This is only supported on the JVM!"
-  ([] (nano-id/nano-id))
-  ([seed-str]
-   #?(:clj  (let [seed (Long/parseLong seed-str 16)
-                  rnd  (Random. seed)
-                  gen  (nano-id/custom
-                        "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                        21
-                        (fn [len]
-                          (let [ba (byte-array len)]
-                            (.nextBytes rnd ba)
-                            ba)))]
-              (gen))
-      :cljs (throw (ex-info "Seeded NanoIDs are not supported in CLJS" {:seed-str seed-str})))))
-
-(defn update-some
-  "Update a value by key in the `m`, if it's `some?`. If `nil` is returned, dissoc it instead"
-  [m k f & args]
-  (let [v (get m k)
-        res (when v (apply f v args))]
-    (if res
-      (assoc m k res)
-      (dissoc m k))))

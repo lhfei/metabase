@@ -19,23 +19,21 @@ You must be a superuser to do this.
 
 ### PARAMS:
 
--  **`field_values`** Serialize cached field values.
+-  **`all_collections`** Serialize all collections (`true` unless you specify `collection`).
+
+-  **`collection`** collections' db ids/entity-ids to serialize.
+
+-  **`settings`** Serialize Metabase settings.
 
 -  **`data_model`** Serialize Metabase data model.
 
--  **`collection`** collections' db ids/entity-ids to serialize.
+-  **`field_values`** Serialize cached field values.
+
+-  **`database_secrets`** Serialize details how to connect to each db.
 
 -  **`dirname`** name of directory and archive file (default: `<instance-name>-<YYYY-MM-dd_HH-mm>`).
 
 -  **`continue_on_error`** Do not break execution on errors.
-
--  **`settings`** Serialize Metabase settings.
-
--  **`all_collections`** Serialize all collections (`true` unless you specify `collection`).
-
--  **`full_stacktrace`** Show full stacktraces in the logs.
-
--  **`database_secrets`** Serialize details how to connect to each db.
 
 ## `POST /api/ee/serialization/import`
 
@@ -51,8 +49,6 @@ You must be a superuser to do this.
 ### PARAMS:
 
 -  **`continue_on_error`** Do not break execution on errors.
-
--  **`full_stacktrace`** Show full stacktraces in the logs.
 
 -  **`file`** .tgz with serialization data.
 

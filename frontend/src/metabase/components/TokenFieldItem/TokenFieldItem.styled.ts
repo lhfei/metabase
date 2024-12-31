@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 
+import { alpha, color, darken } from "metabase/lib/colors";
+
 export const TokenFieldItem = styled.li<{
   isValid: boolean;
 }>`
@@ -9,10 +11,8 @@ export const TokenFieldItem = styled.li<{
 
   height: 46px;
   border-radius: 0.5rem;
-  color: ${({ isValid }) =>
-    isValid ? `var(--mb-color-text-white)` : `var(--mb-color-error)`};
-
-  background-color: var(--mb-color-background-brand);
+  color: ${({ isValid }) => (isValid ? color("brand") : color("error"))};
+  background-color: ${() => alpha("brand", 0.2)};
 `;
 
 export const TokenFieldAddon = styled.a<{
@@ -21,9 +21,9 @@ export const TokenFieldAddon = styled.a<{
   display: flex;
   align-items: center;
   margin-left: 0.5rem;
-  color: ${({ isValid }) => (isValid ? "" : `var(--mb-color-error)`)};
+  color: ${({ isValid }) => (isValid ? "" : color("error"))};
 
   &:hover {
-    color: var(--mb-color-text-hover);
+    color: ${() => darken("brand", 0.2)};
   }
 `;

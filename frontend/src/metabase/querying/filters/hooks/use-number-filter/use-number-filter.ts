@@ -38,7 +38,7 @@ export function useNumberFilter({
   const [operator, setOperator] = useState(() =>
     filterParts
       ? filterParts.operator
-      : getDefaultOperator(query, column, availableOptions),
+      : getDefaultOperator(column, availableOptions),
   );
 
   const [values, setValues] = useState(() =>
@@ -57,7 +57,7 @@ export function useNumberFilter({
     isValid,
     getDefaultValues,
     getFilterClause: (
-      operator: Lib.NumberFilterOperator,
+      operator: Lib.NumberFilterOperatorName,
       values: NumberValue[],
     ) => getFilterClause(operator, column, values),
     setOperator,

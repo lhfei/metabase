@@ -16,9 +16,8 @@ import {
   waitForLoaderToBeRemoved,
 } from "__support__/ui";
 import { InteractiveQuestionResult } from "embedding-sdk/components/private/InteractiveQuestionResult";
-import { createMockAuthProviderUriConfig } from "embedding-sdk/test/mocks/config";
+import { createMockJwtConfig } from "embedding-sdk/test/mocks/config";
 import { setupSdkState } from "embedding-sdk/test/server-mocks/sdk-init";
-import type { SdkQuestionTitleProps } from "embedding-sdk/types/question";
 import {
   createMockCard,
   createMockCardQueryMetadata,
@@ -54,37 +53,27 @@ const TEST_DATASET = createMockDataset({
 });
 
 // Provides a button to re-run the query
-function InteractiveQuestionCustomLayout({
-  title,
-}: {
-  title?: SdkQuestionTitleProps;
-}) {
+function InteractiveQuestionTestResult() {
   const { resetQuestion } = useInteractiveQuestionContext();
 
   return (
     <div>
       <button onClick={resetQuestion}>Run Query</button>
-      <InteractiveQuestionResult title={title} />
+      <InteractiveQuestionResult withTitle />
     </div>
   );
 }
 
 const setup = ({
   isValidCard = true,
-  title,
-  withCustomLayout = false,
-  withChartTypeSelector = false,
 }: {
   isValidCard?: boolean;
-  title?: SdkQuestionTitleProps;
-  withCustomLayout?: boolean;
-  withChartTypeSelector?: boolean;
 } = {}) => {
   const { state } = setupSdkState({
     currentUser: TEST_USER,
   });
 
-  const TEST_CARD = createMockCard({ name: "My Question" });
+  const TEST_CARD = createMockCard();
   if (isValidCard) {
     setupCardEndpoints(TEST_CARD);
     setupCardQueryMetadataEndpoint(
@@ -104,18 +93,14 @@ const setup = ({
   setupCardQueryEndpoints(TEST_CARD, TEST_DATASET);
 
   return renderWithProviders(
-    <InteractiveQuestion
-      questionId={TEST_CARD.id}
-      title={title}
-      withChartTypeSelector={withChartTypeSelector}
-    >
-      {withCustomLayout ? <InteractiveQuestionCustomLayout /> : undefined}
+    <InteractiveQuestion questionId={TEST_CARD.id}>
+      <InteractiveQuestionTestResult />
     </InteractiveQuestion>,
     {
       mode: "sdk",
       sdkProviderProps: {
-        authConfig: createMockAuthProviderUriConfig({
-          authProviderUri: "http://TEST_URI/sso/metabase",
+        config: createMockJwtConfig({
+          jwtProviderUri: "http://TEST_URI/sso/metabase",
         }),
       },
       storeInitialState: state,
@@ -131,7 +116,7 @@ describe("InteractiveQuestion", () => {
   });
 
   it("should render loading state when rerunning the query", async () => {
-    setup({ withCustomLayout: true });
+    setup();
 
     await waitForLoaderToBeRemoved();
 
@@ -185,53 +170,7 @@ describe("InteractiveQuestion", () => {
 
     await waitForLoaderToBeRemoved();
 
+    expect(screen.getByText("Error")).toBeInTheDocument();
     expect(screen.getByText("Question not found")).toBeInTheDocument();
-  });
-
-  it.each([
-    // shows the question title by default
-    [undefined, "My Question"],
-
-    // hides the question title when title={false}
-    [false, null],
-
-    // shows the default question title when title={true}
-    [true, "My Question"],
-
-    // customizes the question title via strings
-    ["Foo Bar", "Foo Bar"],
-
-    // customizes the question title via React elements
-    [<h1 key="foo">Foo Bar</h1>, "Foo Bar"],
-
-    // customizes the question title via React components.
-    [() => <h1>Foo Bar</h1>, "Foo Bar"],
-  ])(
-    "shows the question title according to the title prop",
-    async (titleProp, expectedTitle) => {
-      setup({ title: titleProp });
-      await waitForLoaderToBeRemoved();
-
-      const element = screen.queryByText(expectedTitle ?? "My Question");
-      expect(element?.textContent ?? null).toBe(expectedTitle);
-    },
-  );
-
-  it("should show a chart type selector button if withChartTypeSelector is true", async () => {
-    setup({ withChartTypeSelector: true });
-    await waitForLoaderToBeRemoved();
-
-    expect(
-      screen.getByTestId("chart-type-selector-button"),
-    ).toBeInTheDocument();
-  });
-
-  it("should not show a chart type selector button if withChartTypeSelector is false", async () => {
-    setup({ withChartTypeSelector: false });
-    await waitForLoaderToBeRemoved();
-
-    expect(
-      screen.queryByTestId("chart-type-selector-button"),
-    ).not.toBeInTheDocument();
   });
 });

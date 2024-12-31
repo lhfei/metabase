@@ -1,4 +1,3 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID, USERS, USER_GROUPS } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import {
@@ -6,6 +5,27 @@ import {
   ORDERS_DASHBOARD_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  commandPaletteSearch,
+  describeEE,
+  entityPickerModal,
+  filterWidget,
+  getFullName,
+  modal,
+  onlyOnEE,
+  openQuestionActions,
+  openSharingMenu,
+  popover,
+  restore,
+  setTokenFeatures,
+  setupSMTP,
+  sidebar,
+  startNewQuestion,
+  visitDashboard,
+  visitQuestion,
+  visitQuestionAdhoc,
+  withDatabase,
+} from "e2e/support/helpers";
 
 const { ALL_USERS_GROUP, DATA_GROUP, COLLECTION_GROUP } = USER_GROUPS;
 const { ORDERS_ID, PRODUCTS_ID, PEOPLE_ID, REVIEWS_ID, PRODUCTS } =
@@ -19,7 +39,7 @@ describe.skip("issue 13347", { tags: "@external" }, () => {
   beforeEach(() => {
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.restore("postgres-12");
+    restore("postgres-12");
     cy.signInAsAdmin();
 
     cy.updatePermissionsGraph({
@@ -39,7 +59,7 @@ describe.skip("issue 13347", { tags: "@external" }, () => {
       [ALL_USERS_GROUP]: { root: "read" },
     });
 
-    H.withDatabase(
+    withDatabase(
       PG_DB_ID,
       ({ ORDERS_ID }) =>
         cy.createQuestion({
@@ -60,7 +80,7 @@ describe.skip("issue 13347", { tags: "@external" }, () => {
     it(`${test.toUpperCase()} version:\n should be able to select question (from "Saved Questions") which belongs to the database user doesn't have data-permissions for (metabase#13347)`, () => {
       cy.signIn("none");
 
-      H.startNewQuestion();
+      startNewQuestion();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Saved Questions").click();
 
@@ -74,11 +94,11 @@ describe.skip("issue 13347", { tags: "@external" }, () => {
   });
 });
 
-H.describeEE("postgres > user > query", { tags: "@external" }, () => {
+describeEE("postgres > user > query", { tags: "@external" }, () => {
   beforeEach(() => {
-    H.restore("postgres-12");
+    restore("postgres-12");
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
 
     // Update basic permissions (the same starting "state" as we have for the "Sample Database")
     cy.updatePermissionsGraph({
@@ -110,7 +130,7 @@ H.describeEE("postgres > user > query", { tags: "@external" }, () => {
     // We need ultra-wide screen to avoid scrolling (custom column is rendered at the last position)
     cy.viewport(2200, 1200);
 
-    H.withDatabase(PG_DB_ID, ({ PEOPLE, PEOPLE_ID }) => {
+    withDatabase(PG_DB_ID, ({ PEOPLE, PEOPLE_ID }) => {
       // Question with a custom column created with `regextract`
       cy.createQuestion({
         name: "14873",
@@ -136,14 +156,10 @@ H.describeEE("postgres > user > query", { tags: "@external" }, () => {
         cy.signOut();
         cy.signInAsSandboxedUser();
 
-        H.visitQuestion(QUESTION_ID);
+        visitQuestion(QUESTION_ID);
 
         cy.findByText(CC_NAME);
         cy.findByText(/^Hudson$/);
-        H.assertQueryBuilderRowCount(1); // test that user is sandboxed - normal users has over 2000 rows
-        H.assertDatasetReqIsSandboxed({
-          requestAlias: `@cardQuery${QUESTION_ID}`,
-        });
       });
     });
   });
@@ -158,7 +174,7 @@ describe.skip("issue 17777", () => {
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     hideTables([ORDERS_ID, PRODUCTS_ID, PEOPLE_ID, REVIEWS_ID]);
@@ -185,13 +201,13 @@ describe.skip("issue 17777", () => {
 
     cy.findAllByText("No self-service").first().click();
 
-    H.popover().contains("Unrestricted");
+    popover().contains("Unrestricted");
   });
 });
 
 describe("issue 19603", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // Archive second collection (nested under the first one)
@@ -212,13 +228,13 @@ describe("issue 19603", () => {
   });
 });
 
-H.describeEE("issue 20436", () => {
+describeEE("issue 20436", () => {
   const url = `/admin/permissions/data/group/${ALL_USERS_GROUP}`;
 
   function changePermissions(from, to) {
     cy.findAllByText(from).first().click();
 
-    H.popover().contains(to).click();
+    popover().contains(to).click();
   }
 
   function saveChanges() {
@@ -229,9 +245,9 @@ H.describeEE("issue 20436", () => {
   beforeEach(() => {
     cy.intercept("PUT", "/api/permissions/graph").as("updatePermissions");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
 
     cy.updatePermissionsGraph({
       [ALL_USERS_GROUP]: {
@@ -250,7 +266,7 @@ H.describeEE("issue 20436", () => {
       cy.findByText("Query builder only").click();
     });
 
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText("Granular").click();
     });
 
@@ -274,13 +290,13 @@ H.describeEE("issue 20436", () => {
 
 describe("UI elements that make no sense for users without data permissions (metabase#22447, metabase##22449, metabase#22450)", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
   });
 
   it("should not offer to save question to users with no data permissions", () => {
     cy.signIn("nodata");
 
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
     cy.findByTestId("viz-settings-button");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -289,7 +305,7 @@ describe("UI elements that make no sense for users without data permissions (met
     cy.findByTestId("display-options-sensible");
     cy.icon("line").click();
     cy.findByTestId("Line-button").realHover();
-    cy.findByTestId("Line-container").within(() => {
+    cy.findByTestId("Line-button").within(() => {
       cy.icon("gear").click();
     });
 
@@ -310,17 +326,17 @@ describe("UI elements that make no sense for users without data permissions (met
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("New").click();
 
-    H.popover()
+    popover()
       .should("contain", "Dashboard")
       .and("contain", "Collection")
       .and("not.contain", "Question");
   });
 
   it("should not show visualization or question settings to users with block data permissions", () => {
-    H.onlyOnEE();
+    onlyOnEE();
 
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
     cy.updatePermissionsGraph({
       [ALL_USERS_GROUP]: {
         [SAMPLE_DB_ID]: { "view-data": "blocked" },
@@ -332,7 +348,7 @@ describe("UI elements that make no sense for users without data permissions (met
 
     cy.signIn("nodata");
 
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
     cy.findByTextEnsureVisible("There was a problem with your question");
 
@@ -347,7 +363,7 @@ describe("UI elements that make no sense for users without data permissions (met
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("New").click();
 
-    H.popover()
+    popover()
       .should("contain", "Dashboard")
       .and("contain", "Collection")
       .and("not.contain", "Question");
@@ -356,21 +372,21 @@ describe("UI elements that make no sense for users without data permissions (met
 
 describe("issue 22473", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setupSMTP();
+    setupSMTP();
   });
 
   it("nocollection user should be able to view and unsubscribe themselves from a subscription", () => {
     cy.visit(`/dashboard/${ORDERS_DASHBOARD_ID}`);
-    H.openSharingMenu("Subscriptions");
+    openSharingMenu("Subscriptions");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Email it").click();
     cy.findByPlaceholderText("Enter user names or email addresses")
       .click()
       .type(`${nocollection.first_name} ${nocollection.last_name}{enter}`)
       .blur();
-    H.sidebar().within(() => {
+    sidebar().within(() => {
       cy.button("Done").click();
     });
 
@@ -382,7 +398,7 @@ describe("issue 22473", () => {
     cy.findByTestId("notifications-list").within(() => {
       cy.findByLabelText("close icon").click();
     });
-    H.modal().within(() => {
+    modal().within(() => {
       cy.button("Unsubscribe").click();
     });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -390,11 +406,11 @@ describe("issue 22473", () => {
   });
 });
 
-H.describeEE("issue 22695 ", () => {
+describeEE("issue 22695 ", () => {
   function assert() {
     cy.visit("/");
 
-    H.commandPaletteSearch("S");
+    commandPaletteSearch("S");
     cy.wait("@searchResults");
 
     cy.findAllByTestId("search-result-item-name")
@@ -405,9 +421,9 @@ H.describeEE("issue 22695 ", () => {
   beforeEach(() => {
     cy.intercept("GET", "/api/search?*").as("searchResults");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
 
     cy.updatePermissionsGraph({
       [ALL_USERS_GROUP]: {
@@ -440,7 +456,7 @@ describe("issue 22726", () => {
     cy.intercept("POST", "/api/dataset").as("dataset");
     cy.intercept("POST", "/api/card").as("createCard");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // Let's give all users a read only access to "Our analytics"
@@ -452,12 +468,12 @@ describe("issue 22726", () => {
   });
 
   it("should offer to duplicate a question in a view-only collection (metabase#22726)", () => {
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
-    H.openQuestionActions();
-    H.popover().findByText("Duplicate").click();
+    openQuestionActions();
+    popover().findByText("Duplicate").click();
     cy.findByTextEnsureVisible(
-      `${H.getFullName(nocollection)}'s Personal Collection`,
+      `${getFullName(nocollection)}'s Personal Collection`,
     );
 
     cy.button("Duplicate").click();
@@ -469,7 +485,7 @@ describe("issue 22727", () => {
   beforeEach(() => {
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // Let's give all users a read only access to "Our analytics"
@@ -483,11 +499,11 @@ describe("issue 22727", () => {
   it("should not offer to save question in view only collection (metabase#22727, metabase#20717)", () => {
     // It is important to start from a saved question and to alter it.
     // We already have a reproduction that makes sure "Our analytics" is not offered when starting from an ad-hoc question (table).
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("31.44").click();
-    H.popover().contains("=").click();
+    popover().contains("=").click();
     cy.wait("@dataset");
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -498,7 +514,7 @@ describe("issue 22727", () => {
       cy.findByText(/^Replace original qeustion/).should("not.exist");
 
       // This part is an actual repro for https://github.com/metabase/metabase/issues/22727
-      cy.findByLabelText(/Where do you want to save this/)
+      cy.findByLabelText(/Which collection should this go in/)
         .invoke("text")
         .should("not.eq", "Our analytics");
     });
@@ -509,7 +525,7 @@ describe("issue 23981", () => {
   beforeEach(() => {
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // Let's revoke access to "Our analytics" from "All users"
@@ -521,7 +537,7 @@ describe("issue 23981", () => {
   });
 
   it("should not show the root collection name in breadcrumbs if the user does not have access to it (metabase#23981)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       name: "23981",
       dataset_query: {
         database: SAMPLE_DB_ID,
@@ -535,20 +551,18 @@ describe("issue 23981", () => {
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Save").click();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
-    cy.findByText(
-      `${H.getFullName(nocollection)}'s Personal Collection`,
-    ).click();
+    cy.findByText(`${getFullName(nocollection)}'s Personal Collection`).click();
 
-    H.entityPickerModal().within(() => {
+    entityPickerModal().within(() => {
       cy.findByText("Our analytics").should("not.exist");
       cy.log('ensure that "Collections" is not selectable');
       cy.findByText("Collections").should("be.visible").click();
-      cy.button("Select this collection").should("be.disabled");
+      cy.button("Select").should("be.disabled");
     });
   });
 });
 
-H.describeEE("issue 24966", () => {
+describeEE("issue 24966", () => {
   const sandboxingQuestion = {
     name: "geadsfasd",
     native: {
@@ -585,10 +599,9 @@ H.describeEE("issue 24966", () => {
   const dashboardDetails = { parameters: [dashboardFilter] };
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
-    H.blockUserGroupPermissions(USER_GROUPS.ALL_USERS_GROUP);
+    setTokenFeatures("all");
 
     // Add user attribute to existing user
     cy.request("PUT", `/api/user/${NODATA_USER_ID}`, {
@@ -596,7 +609,7 @@ H.describeEE("issue 24966", () => {
     });
 
     cy.createNativeQuestion(sandboxingQuestion).then(({ body: { id } }) => {
-      H.visitQuestion(id);
+      visitQuestion(id);
 
       cy.sandboxTable({
         table_id: PRODUCTS_ID,
@@ -618,7 +631,6 @@ H.describeEE("issue 24966", () => {
       dashboardDetails,
     }).then(({ body: { id, card_id, dashboard_id } }) => {
       cy.wrap(dashboard_id).as("dashboardId");
-      cy.wrap(id).as("dashcardId");
 
       // Connect the filter to the card
       cy.request("PUT", `/api/dashboard/${dashboard_id}`, {
@@ -645,20 +657,17 @@ H.describeEE("issue 24966", () => {
 
   it("should correctly fetch field values for a filter when native question is used for sandboxing (metabase#24966)", () => {
     cy.signIn("nodata");
-    H.visitDashboard("@dashboardId");
-    H.filterWidget().click();
+    visitDashboard("@dashboardId");
+    filterWidget().click();
     cy.findByLabelText("Gizmo").click();
     cy.button("Add filter").click();
     cy.location("search").should("eq", "?text=Gizmo");
 
     cy.signInAsSandboxedUser();
-    H.visitDashboard("@dashboardId");
-    H.filterWidget().click();
+    visitDashboard("@dashboardId");
+    filterWidget().click();
     cy.findByLabelText("Widget").click();
     cy.button("Add filter").click();
     cy.location("search").should("eq", "?text=Widget");
-    cy.get("@dashcardId").then(id => {
-      H.assertDatasetReqIsSandboxed({ requestAlias: `@dashcardQuery${id}` });
-    });
   });
 });

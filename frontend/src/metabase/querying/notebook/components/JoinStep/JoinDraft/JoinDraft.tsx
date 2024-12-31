@@ -1,17 +1,17 @@
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLatest } from "react-use";
 import { t } from "ttag";
 
 import { Box, Flex, Text } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import { NotebookCell, NotebookCellItem } from "../../NotebookCell";
+import { NotebookCellItem } from "../../NotebookCell";
 import { JoinConditionDraft } from "../JoinConditionDraft";
 import { JoinStrategyPicker } from "../JoinStrategyPicker";
 import { JoinTableColumnDraftPicker } from "../JoinTableColumnDraftPicker";
 import { JoinTablePicker } from "../JoinTablePicker";
 
-import S from "./JoinDraft.module.css";
+import { JoinCell, JoinConditionCell } from "./JoinDraft.styled";
 import { getDefaultJoinStrategy, getJoinFields } from "./utils";
 
 interface JoinDraftProps {
@@ -33,7 +33,7 @@ export function JoinDraft({
   isReadOnly,
   onJoinChange,
 }: JoinDraftProps) {
-  const sourceTableId = Lib.sourceTableOrCardId(query);
+  const databaseId = Lib.databaseID(query);
   const [strategy, setStrategy] = useState(
     () => initialStrategy ?? getDefaultJoinStrategy(query, stageIndex),
   );
@@ -87,26 +87,28 @@ export function JoinDraft({
     }
   };
 
-  const handleReset = () => {
+  const resetStateRef = useLatest(() => {
     const rhsTableColumns = initialRhsTable
       ? Lib.joinableColumns(query, stageIndex, initialRhsTable)
       : [];
+
     setStrategy(initialStrategy ?? getDefaultJoinStrategy(query, stageIndex));
     setRhsTable(initialRhsTable);
     setRhsTableColumns(rhsTableColumns);
     setSelectedRhsTableColumns(rhsTableColumns);
     setLhsColumn(undefined);
-  };
+  });
 
-  const handleResetRef = useLatest(handleReset);
-  useLayoutEffect(
-    () => handleResetRef.current(),
-    [sourceTableId, handleResetRef],
+  useEffect(
+    function resetStateOnDatabaseChange() {
+      resetStateRef.current();
+    },
+    [databaseId, resetStateRef],
   );
 
   return (
     <Flex miw="100%" gap="1rem">
-      <NotebookCell className={S.JoinCell} color={color}>
+      <JoinCell color={color}>
         <Flex direction="row" gap={6}>
           <NotebookCellItem color={color} disabled aria-label={t`Left table`}>
             {lhsTableName}
@@ -136,30 +138,25 @@ export function JoinDraft({
             onChange={handleTableChange}
           />
         </Flex>
-      </NotebookCell>
+      </JoinCell>
       {rhsTable && (
         <>
           <Box mt="1.5rem">
             <Text color="brand" weight="bold">{t`on`}</Text>
           </Box>
-          <NotebookCell
-            className={S.JoinConditionCell}
-            color={color}
-            data-testid="new-join-condition"
-          >
+          <JoinConditionCell color={color} data-testid="new-join-condition">
             <JoinConditionDraft
               query={query}
               stageIndex={stageIndex}
               joinable={rhsTable}
               lhsTableName={lhsTableName}
-              rhsTable={rhsTable}
               rhsTableName={rhsTableName}
               isReadOnly={isReadOnly}
               isRemovable={false}
               onChange={handleConditionChange}
               onLhsColumnChange={setLhsColumn}
             />
-          </NotebookCell>
+          </JoinConditionCell>
         </>
       )}
     </Flex>

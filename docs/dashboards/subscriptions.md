@@ -54,8 +54,6 @@ If there are no results, you can tell Metabase to skip sending the email.
 
 ### Set filter values for when this gets sent
 
-{% include plans-blockquote.html feature="Dashboard subscription filter customization" %}
-
 Here you can set filters to apply when Metabase sends the subscription.
 
 ### Attach results
@@ -80,7 +78,7 @@ If you check this box, Metabase will drop any visualization settings applied to 
 
 Here you can specify which questions Metabase should attach results for.
 
-The attached files will include up to 2000 rows by default. If you're self-hosting Metabase, you can adjust this row limit by setting the environment variable [MB_UNAGGREGATED_QUERY_ROW_LIMIT](../configuring-metabase/environment-variables.md#mb_unaggregated_query_row_limit). To change this row limit on your Metabase Cloud instance, you can [contact us](https://www.metabase.com/help/premium) and request a different row limit.
+The attached files will include up to 2000 rows by default. If you're self-hosting Metabase, you can adjust this row limit by setting the environment variable [MB_UNAGGREGATED_QUERY_ROW_LIMIT](../configuring-metabase/environment-variables.md#mb_unaggregated_query_row_limit).
 
 ## Slack subscription options
 
@@ -110,7 +108,7 @@ To remove a subscription from a dashboard, select the subscription you'd like to
 
 {% include plans-blockquote.html feature="Usage analytics" %}
 
-You can view a list of all alerts and dashboard subscriptions that people have set up in your Metabase in **Usage analytics** collection. See [Usage analytics](../usage-and-performance-tools/usage-analytics.md).
+You can view a list of all alerts and dashboard subscriptions that people have set up in your Metabase in **Metabase analytics** collection. See [Usage analytics](../usage-and-performance-tools/usage-analytics.md).
 
 ## Customize filter values for each dashboard subscription
 
@@ -134,7 +132,7 @@ See [Notification permissions](../permissions/notifications.md).
 
 ## Further reading
 
-- [Alerts](../questions/alerts.md)
+- [Alerts](../questions/sharing/alerts.md)
 - [Setting up email](../configuring-metabase/email.md)
 - [Setting up Slack](../configuring-metabase/slack.md)
 - [Usage analytics](../usage-and-performance-tools/usage-analytics.md)

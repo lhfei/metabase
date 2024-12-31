@@ -1,5 +1,6 @@
-(ns ^:mb/driver-tests metabase.driver-test
+(ns metabase.driver-test
   (:require
+   [cheshire.core :as json]
    [clojure.set :as set]
    [clojure.test :refer :all]
    [metabase.driver :as driver]
@@ -7,14 +8,11 @@
    [metabase.driver.h2 :as h2]
    [metabase.driver.impl :as driver.impl]
    [metabase.plugins.classloader :as classloader]
-   [metabase.query-processor :as qp]
-   [metabase.query-processor.compile :as qp.compile]
    [metabase.task.sync-databases :as task.sync-databases]
    [metabase.test :as mt]
    [metabase.test.data.env :as tx.env]
    [metabase.test.data.interface :as tx]
    [metabase.util :as u]
-   [metabase.util.json :as json]
    [toucan2.core :as t2]))
 
 (set! *warn-on-reflection* true)
@@ -33,11 +31,10 @@
        (driver/database-supports? ::test-driver :some-made-up-thing "dummy"))))
 
 (deftest the-driver-test
-  (testing (str "calling `the-driver` should set the context classloader if the driver is not registered yet,"
-                "important because driver plugin code exists there but not elsewhere")
+  (testing (str "calling `the-driver` should set the context classloader, important because driver plugin code exists "
+                "there but not elsewhere")
     (.setContextClassLoader (Thread/currentThread) (ClassLoader/getSystemClassLoader))
-    (with-redefs [driver.impl/hierarchy (make-hierarchy)] ;; To simulate :h2 not being registed yet.
-      (driver/the-driver :h2))
+    (driver/the-driver :h2)
     (is (= @@#'classloader/shared-context-classloader
            (.getContextClassLoader (Thread/currentThread))))))
 
@@ -86,7 +83,7 @@
 
 (deftest can-connect-with-destroy-db-test
   (testing "driver/can-connect? should fail or throw after destroying a database"
-    (mt/test-drivers (mt/normal-drivers-with-feature :test/dynamic-dataset-loading)
+    (mt/test-drivers (mt/normal-drivers-without-feature :connection/multiple-databases)
       (let [database-name (mt/random-name)
             dbdef         (basic-db-definition database-name)]
         (mt/dataset dbdef
@@ -118,7 +115,7 @@
 
 (deftest check-can-connect-before-sync-test
   (testing "Database sync should short-circuit and fail if the database at the connection has been deleted (metabase#7526)"
-    (mt/test-drivers (mt/normal-drivers-with-feature :test/dynamic-dataset-loading)
+    (mt/test-drivers (mt/normal-drivers-without-feature :connection/multiple-databases)
       (let [database-name (mt/random-name)
             dbdef         (basic-db-definition database-name)]
         (mt/dataset dbdef
@@ -187,23 +184,14 @@
         ;; TODO(qnkhuat): do we really need to handle case where wrong driver is passed?
         (let [;; This is a mongodb query, but if you pass in the wrong driver it will attempt the format
               ;; This is a corner case since the system should always be using the right driver
-              weird-formatted-query (driver/prettify-native-form :postgres (json/encode query))]
+              weird-formatted-query (driver/prettify-native-form :postgres (json/generate-string query))]
           (testing "The wrong formatter will change the format..."
             (is (not= query weird-formatted-query)))
           (testing "...but the resulting data is still the same"
             ;; Bottom line - Use the right driver, but if you use the wrong
             ;; one it should be harmless but annoying
             (is (= query
-                   (json/decode weird-formatted-query)))))))))
-
-(deftest ^:parallel prettify-native-form-executable-test
-  (mt/test-drivers
-    (set (filter (partial get-method driver/prettify-native-form) (mt/normal-drivers)))
-    (is (=? {:status :completed}
-            (qp/process-query {:database (mt/id)
-                               :type     :native
-                               :native   (-> (qp.compile/compile (mt/mbql-query orders {:limit 1}))
-                                             (update :query (partial driver/prettify-native-form driver/*driver*)))})))))
+                   (json/parse-string weird-formatted-query)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Begin tests for `describe-*` methods used in sync
@@ -212,10 +200,9 @@
 (defn- describe-fields-for-table [db table]
   (sort-by :database-position
            (if (driver/database-supports? driver/*driver* :describe-fields db)
-             (mapv #(dissoc % :table-name :table-schema)
-                   (driver/describe-fields driver/*driver* db
-                                           :schema-names [(:schema table)]
-                                           :table-names [(:name table)]))
+             (vec (driver/describe-fields driver/*driver* db
+                                          :schema-names [(:schema table)]
+                                          :table-names [(:name table)]))
              (:fields (driver/describe-table driver/*driver* db table)))))
 
 (deftest ^:parallel describe-fields-or-table-test

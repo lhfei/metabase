@@ -5,10 +5,9 @@ import _ from "underscore";
 import type {
   DatePickerExtractionUnit,
   DatePickerOperator,
-  DatePickerUnit,
   ExcludeDatePickerOperator,
   ExcludeDatePickerValue,
-} from "metabase/querying/filters/types";
+} from "../types";
 
 import { EXCLUDE_OPERATOR_OPTIONS, EXCLUDE_UNIT_OPTIONS } from "./constants";
 import type {
@@ -18,8 +17,8 @@ import type {
 } from "./types";
 
 export function getExcludeUnitOptions(
-  availableOperators: DatePickerOperator[],
-  availableUnits: DatePickerUnit[],
+  availableOperators: ReadonlyArray<DatePickerOperator>,
+  availableUnits: ReadonlyArray<DatePickerExtractionUnit>,
 ): ExcludeUnitOption[] {
   if (!availableOperators.includes("!=")) {
     return [];
@@ -31,7 +30,7 @@ export function getExcludeUnitOptions(
 }
 
 export function getExcludeOperatorOptions(
-  availableOperators: DatePickerOperator[],
+  availableOperators: ReadonlyArray<DatePickerOperator>,
 ): ExcludeOperatorOption[] {
   return EXCLUDE_OPERATOR_OPTIONS.filter(option =>
     availableOperators.includes(option.operator),
@@ -57,8 +56,8 @@ export function getExcludeValueOptionGroups(
       return [_.range(1, 8).map(getExcludeDayOption)];
     case "month-of-year":
       return [
-        _.range(1, 7).map(getExcludeMonthOption),
-        _.range(7, 13).map(getExcludeMonthOption),
+        _.range(0, 6).map(getExcludeMonthOption),
+        _.range(6, 12).map(getExcludeMonthOption),
       ];
     case "quarter-of-year":
       return [getExcludeQuarterOptions()];
@@ -76,8 +75,7 @@ function getExcludeDayOption(day: number): ExcludeValueOption {
 }
 
 function getExcludeMonthOption(month: number): ExcludeValueOption {
-  // month is 1-12, but dayjs accepts 0-11
-  const date = dayjs().month(month - 1);
+  const date = dayjs().month(month);
   return { value: month, label: date.format("MMMM") };
 }
 

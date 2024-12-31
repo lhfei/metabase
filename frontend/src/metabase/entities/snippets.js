@@ -1,4 +1,4 @@
-import { snippetApi, useGetSnippetQuery } from "metabase/api";
+import { snippetApi } from "metabase/api";
 import { createEntity, entityCompatibleQuery } from "metabase/lib/entities";
 
 /**
@@ -12,12 +12,6 @@ const Snippets = createEntity({
     getFetched: (state, props) =>
       getFetched(state, props) || getObject(state, props),
   }),
-
-  rtk: {
-    getUseGetQuery: () => ({
-      useGetQuery,
-    }),
-  },
 
   api: {
     list: (entityQuery, dispatch) =>
@@ -49,9 +43,5 @@ const Snippets = createEntity({
     },
   },
 });
-
-const useGetQuery = ({ id }) => {
-  return useGetSnippetQuery(id);
-};
 
 export default Snippets;

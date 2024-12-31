@@ -1,66 +1,26 @@
-import { MetabaseProvider, defineMetabaseTheme } from "embedding-sdk";
-import { storybookSdkAuthDefaultConfig } from "embedding-sdk/test/CommonSdkStoryWrapper";
-import { getSdkStorybookDarkTheme } from "embedding-sdk/test/storybook-dark-theme";
+import type { ComponentStory } from "@storybook/react";
 
-import {
-  EditableDashboard,
-  type EditableDashboardProps,
-} from "./EditableDashboard";
+import { CommonSdkStoryWrapper } from "embedding-sdk/test/CommonSdkStoryWrapper";
+
+import { EditableDashboard } from "./EditableDashboard";
 
 const DASHBOARD_ID = (window as any).DASHBOARD_ID || 1;
 
-const darkTheme = getSdkStorybookDarkTheme();
-
+// eslint-disable-next-line import/no-default-export
 export default {
   title: "EmbeddingSDK/EditableDashboard",
   component: EditableDashboard,
   parameters: {
     layout: "fullscreen",
   },
+  decorators: [CommonSdkStoryWrapper],
 };
 
-export const Default = {
-  render(args: EditableDashboardProps) {
-    return (
-      <MetabaseProvider authConfig={storybookSdkAuthDefaultConfig}>
-        <EditableDashboard {...args} />
-      </MetabaseProvider>
-    );
-  },
-
-  args: { dashboardId: DASHBOARD_ID },
+const Template: ComponentStory<typeof EditableDashboard> = args => {
+  return <EditableDashboard {...args} />;
 };
 
-export const WithCustomGridColor = {
-  render(args: EditableDashboardProps) {
-    const theme = defineMetabaseTheme({
-      components: { dashboard: { gridBorderColor: "#95A5A6" } },
-    });
-
-    return (
-      <MetabaseProvider
-        authConfig={storybookSdkAuthDefaultConfig}
-        theme={theme}
-      >
-        <EditableDashboard {...args} />
-      </MetabaseProvider>
-    );
-  },
-
-  args: { dashboardId: DASHBOARD_ID },
-};
-
-export const WithDarkTheme = {
-  render(args: EditableDashboardProps) {
-    return (
-      <MetabaseProvider
-        authConfig={storybookSdkAuthDefaultConfig}
-        theme={darkTheme}
-      >
-        <EditableDashboard {...args} />
-      </MetabaseProvider>
-    );
-  },
-
-  args: { dashboardId: DASHBOARD_ID },
+export const Default = Template.bind({});
+Default.args = {
+  dashboardId: DASHBOARD_ID,
 };

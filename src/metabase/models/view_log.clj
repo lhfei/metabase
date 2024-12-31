@@ -3,7 +3,6 @@
   (:require
    [metabase.analytics.sdk :as sdk]
    [metabase.models.interface :as mi]
-   [metabase.models.view-log-impl :as view-log-impl]
    [metabase.util.malli :as mu]
    [metabase.util.malli.fn :as mu.fn]
    [metabase.util.malli.registry :as mr]
@@ -22,7 +21,8 @@
   (derive ::mi/read-policy.always-allow)
   (derive ::mi/write-policy.always-allow))
 
-(mr/def ::context [:maybe view-log-impl/context])
+(mr/def ::context
+  [:maybe [:enum :dashboard :question :collection]])
 
 (t2/define-before-insert :model/ViewLog
   [log-entry]

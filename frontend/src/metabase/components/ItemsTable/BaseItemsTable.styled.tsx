@@ -46,12 +46,13 @@ Table.defaultProps = { className: AdminS.ContentTable };
 export const hideResponsively = ({
   hideAtContainerBreakpoint,
   containerName,
-}: ResponsiveProps) => css`
-  ${getContainerQuery({
-    hideAtContainerBreakpoint,
-    containerName,
-  })}
-`;
+}: ResponsiveProps) =>
+  css`
+    ${getContainerQuery({
+      hideAtContainerBreakpoint,
+      containerName,
+    })}
+  `;
 
 export const ColumnHeader = styled.th<ResponsiveProps>`
   th& {
@@ -164,6 +165,11 @@ export const RowActionsContainer = styled.div`
     display: flex;
     align-items: center;
   }
+`;
+
+export const TableItemSecondaryField = styled.span`
+  font-size: 0.95em;
+  color: var(--mb-color-text-medium);
 `;
 
 export const TBody = styled.tbody`

@@ -32,14 +32,14 @@ const getLinkTargetName = (clickBehavior: CustomDestinationClickBehavior) => {
   }
   if (clickBehavior.linkType === "question") {
     return (
-      <Quoted key="link-question">
+      <Quoted>
         <Questions.Name id={targetId} />
       </Quoted>
     );
   }
   if (clickBehavior.linkType === "dashboard") {
     return (
-      <Quoted key="link-dashboard">
+      <Quoted>
         <Dashboards.Name id={targetId} />
       </Quoted>
     );

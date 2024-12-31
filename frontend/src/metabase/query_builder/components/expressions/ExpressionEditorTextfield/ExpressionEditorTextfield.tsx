@@ -1,18 +1,18 @@
 import type { Ace } from "ace-builds";
 import * as ace from "ace-builds/src-noconflict/ace";
-import cx from "classnames";
+import type { RefObject } from "react";
 import * as React from "react";
 import type { ICommand, IMarker } from "react-ace";
 import AceEditor from "react-ace";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
 import { getColumnIcon } from "metabase/common/utils/columns";
 import ExplicitSize from "metabase/components/ExplicitSize";
-import { connect } from "metabase/lib/redux";
 import { getMetadata } from "metabase/selectors/metadata";
 import { getShowMetabaseLinks } from "metabase/selectors/whitelabel";
-import { Box, Flex, type IconName } from "metabase/ui";
+import type { IconName } from "metabase/ui";
 import * as Lib from "metabase-lib";
 import { isExpression } from "metabase-lib/v1/expressions";
 import { diagnose } from "metabase-lib/v1/expressions/diagnostics";
@@ -37,7 +37,11 @@ import { ExpressionEditorHelpText } from "../ExpressionEditorHelpText";
 import { ExpressionEditorSuggestions } from "../ExpressionEditorSuggestions";
 import ExpressionMode from "../ExpressionMode";
 
-import ExpressionEditorTextfieldS from "./ExpressionEditorTextfield.module.css";
+import {
+  EditorContainer,
+  EditorEqualsSign,
+  ErrorMessageContainer,
+} from "./ExpressionEditorTextfield.styled";
 
 ace.config.set("basePath", "/assets/ui/");
 ace.config.set("useStrictCSP", true);
@@ -111,14 +115,15 @@ const ACE_OPTIONS = {
 };
 
 interface ExpressionEditorTextfieldProps {
-  expression: Expression | undefined | null;
-  clause: Lib.ExpressionClause | undefined | null;
+  expression: Expression | undefined;
+  clause: Lib.ExpressionClause | undefined;
   name: string;
   query: Lib.Query;
   stageIndex: number;
-  startRule?: "expression" | "aggregation" | "boolean";
+  metadata: Metadata;
+  startRule: "expression" | "aggregation" | "boolean";
   expressionIndex?: number;
-  width: number;
+  width?: number;
   reportTimezone?: string;
   textAreaId?: string;
 
@@ -126,17 +131,15 @@ interface ExpressionEditorTextfieldProps {
     expression: Expression | null,
     expressionClause: Lib.ExpressionClause | null,
   ) => void;
-  onError: (error: ErrorWithMessage | string | null) => void;
+  onError: (error: ErrorWithMessage | null) => void;
+  onBlankChange: (isBlank: boolean) => void;
   onCommit: (
     expression: Expression | null,
     expressionClause: Lib.ExpressionClause | null,
   ) => void;
-  shortcuts?: SuggestionShortcut[];
-}
-
-interface StateProps {
-  metadata: Metadata;
+  helpTextTarget: RefObject<HTMLElement>;
   showMetabaseLinks: boolean;
+  shortcuts?: SuggestionShortcut[];
 }
 
 interface ExpressionEditorTextfieldState {
@@ -150,12 +153,12 @@ interface ExpressionEditorTextfieldState {
 }
 
 function transformPropsToState(
-  props: ExpressionEditorTextfieldProps & StateProps,
+  props: ExpressionEditorTextfieldProps,
 ): ExpressionEditorTextfieldState {
   const {
-    expression: legacyExpression = ExpressionEditorTextfieldInner.defaultProps
+    expression: legacyExpression = ExpressionEditorTextfield.defaultProps
       .expression,
-    startRule = ExpressionEditorTextfieldInner.defaultProps.startRule,
+    startRule = ExpressionEditorTextfield.defaultProps.startRule,
     clause,
     query,
     stageIndex,
@@ -208,8 +211,8 @@ const mapStateToProps = (state: State) => ({
 
 const CURSOR_DEBOUNCE_INTERVAL = 10;
 
-class ExpressionEditorTextfieldInner extends React.Component<
-  ExpressionEditorTextfieldProps & StateProps,
+class ExpressionEditorTextfield extends React.Component<
+  ExpressionEditorTextfieldProps,
   ExpressionEditorTextfieldState
 > {
   input = React.createRef<AceEditor>();
@@ -222,7 +225,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
     startRule: "expression",
   } as const;
 
-  constructor(props: ExpressionEditorTextfieldProps & StateProps) {
+  constructor(props: ExpressionEditorTextfieldProps) {
     super(props);
 
     this.state = transformPropsToState(props);
@@ -233,13 +236,13 @@ class ExpressionEditorTextfieldInner extends React.Component<
   }
 
   UNSAFE_componentWillReceiveProps(
-    newProps: Readonly<ExpressionEditorTextfieldProps & StateProps>,
+    newProps: Readonly<ExpressionEditorTextfieldProps>,
   ) {
     // we only refresh our state if we had no previous state OR if our expression changed
     const {
       expression,
       clause,
-      startRule = ExpressionEditorTextfieldInner.defaultProps.startRule,
+      startRule,
       query,
       stageIndex,
       expressionIndex,
@@ -283,28 +286,6 @@ class ExpressionEditorTextfieldInner extends React.Component<
     this.handleEnter();
   };
 
-  handleKeyDownCapture = (event: KeyboardEvent) => {
-    // We want the Tab key to cause focus change when there are no suggestions shown.
-    // If there are suggestions shown, it means 1 of them is selected, and in that case
-    // we want the Tab key to apply that suggestion - we let Ace take care of that.
-    // Ace handles Shift + Tab correctly, so we don't handle that case here.
-    if (
-      event.key === "Tab" &&
-      !event.shiftKey &&
-      this.state.suggestions.length === 0
-    ) {
-      // Do not let Ace editor get this event.
-      event.stopPropagation();
-
-      // Redispatch the event from parent node of the Ace editor
-      // so that listeners up in the tree can still handle it, e.g.
-      // to contain focus within the popover/modal.
-      this.suggestionTarget.current?.dispatchEvent(
-        new KeyboardEvent("keydown", event),
-      );
-    }
-  };
-
   textarea() {
     return this.input.current?.refEditor?.getElementsByTagName("textarea")[0];
   }
@@ -322,12 +303,6 @@ class ExpressionEditorTextfieldInner extends React.Component<
       // Without this hack, popups get blocked since they are not
       // considered by the browser to be in response to a user action.
       this.textarea()?.addEventListener("keypress", this.handleKeypress);
-
-      // HACK: Ace will sometimes unexpectedly prevent changing focus with the Tab key.
-      // See https://github.com/metabase/metabase/issues/49036
-      this.textarea()?.addEventListener("keydown", this.handleKeyDownCapture, {
-        capture: true, // otherwise Ace will call preventDefault() on this event in its own keydown handler
-      });
 
       editor.getSession().setMode(mode);
 
@@ -393,7 +368,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
         // e.g. source is "isnull(A" and suggested is "isempty("
         // the result should be "isempty(A" and NOT "isempty((A"
         const openParen = _.last(suggested) === "(";
-        const alreadyOpenParen = _.first(postfix.trimStart()) === "(";
+        const alreadyOpenParen = _.first(postfix.trimLeft()) === "(";
         const extraTrim = openParen && alreadyOpenParen ? 1 : 0;
         const replacement = suggested.slice(0, suggested.length - extraTrim);
 
@@ -417,30 +392,28 @@ class ExpressionEditorTextfieldInner extends React.Component<
   handleArrowUp = () => {
     const { highlightedSuggestionIndex, suggestions } = this.state;
 
-    // Do not hijack up/down arrow keys for autocomplete suggestions navigation when there's only 1 suggestion
-    if (suggestions.length > 1) {
+    if (suggestions.length) {
       this.setState({
         highlightedSuggestionIndex:
           (highlightedSuggestionIndex + suggestions.length - 1) %
           suggestions.length,
       });
     } else {
-      this.input.current?.editor.navigateUp();
+      this.input.current?.editor.navigateLineEnd();
     }
   };
 
   handleArrowDown = () => {
     const { highlightedSuggestionIndex, suggestions } = this.state;
 
-    // Do not hijack up/down arrow keys for autocomplete suggestions navigation when there's only 1 suggestion
-    if (suggestions.length > 1) {
+    if (suggestions.length) {
       this.setState({
         highlightedSuggestionIndex:
           (highlightedSuggestionIndex + suggestions.length + 1) %
           suggestions.length,
       });
     } else {
-      this.input.current?.editor.navigateDown();
+      this.input.current?.editor.navigateLineEnd();
     }
   };
 
@@ -515,11 +488,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
     } else {
       const compiledExpression = this.compileExpression();
 
-      if (
-        compiledExpression &&
-        compiledExpression.expression != null &&
-        compiledExpression.expressionClause != null
-      ) {
+      if (compiledExpression) {
         const { expression, expressionClause } = compiledExpression;
 
         if (!isExpression(expression)) {
@@ -528,9 +497,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
 
         onChange(expression, expressionClause);
       } else {
-        const errorWithMessage = { message: t`Invalid expression` };
-        this.setState({ errorMessage: errorWithMessage });
-        onError(errorWithMessage);
+        onError({ message: t`Invalid expression` });
       }
     }
   };
@@ -550,15 +517,10 @@ class ExpressionEditorTextfieldInner extends React.Component<
   ) {
     this.setState({ suggestions });
 
-    const { highlightedSuggestionIndex } = this.state;
-
-    if (highlightedSuggestionIndex >= suggestions.length) {
-      this.setState({ highlightedSuggestionIndex: 0 });
-    }
-
     // Correctly bind Tab depending on whether suggestions are available or not
     if (this.input.current) {
       const { editor } = this.input.current;
+      const { suggestions } = this.state;
       const tabBinding = editor.commands.commandKeyBinding.tab;
       if (suggestions.length > 0) {
         // Something to suggest? Tab is for choosing one of them
@@ -575,13 +537,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
 
   compileExpression() {
     const { source } = this.state;
-    const {
-      query,
-      stageIndex,
-      startRule = ExpressionEditorTextfieldInner.defaultProps.startRule,
-      name,
-      expressionIndex,
-    } = this.props;
+    const { query, stageIndex, startRule, name, expressionIndex } = this.props;
     if (!source || source.length === 0) {
       return null;
     }
@@ -600,7 +556,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
   diagnoseExpression(): ErrorWithMessage | null {
     const { source } = this.state;
     const {
-      startRule = ExpressionEditorTextfieldInner.defaultProps.startRule,
+      startRule = ExpressionEditorTextfield.defaultProps.startRule,
       name,
       query,
       stageIndex,
@@ -627,7 +583,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
     const {
       query,
       stageIndex,
-      startRule = ExpressionEditorTextfieldInner.defaultProps.startRule,
+      startRule = ExpressionEditorTextfield.defaultProps.startRule,
       onCommit,
       onError,
       expressionIndex,
@@ -671,6 +627,9 @@ class ExpressionEditorTextfieldInner extends React.Component<
     }
 
     this.setState({ source, errorMessage: null });
+    if (this.props.onBlankChange) {
+      this.props.onBlankChange(source.length === 0);
+    }
   };
 
   handleCursorChange = _.debounce((selection: Ace.Selection) => {
@@ -682,7 +641,7 @@ class ExpressionEditorTextfieldInner extends React.Component<
       stageIndex,
       metadata,
       expressionIndex,
-      startRule = ExpressionEditorTextfieldInner.defaultProps.startRule,
+      startRule = ExpressionEditorTextfield.defaultProps.startRule,
       showMetabaseLinks,
       shortcuts = [],
     } = this.props;
@@ -784,19 +743,13 @@ class ExpressionEditorTextfieldInner extends React.Component<
           open={isFocused}
           ref={this.popupMenuTarget}
         >
-          <Flex
-            className={cx(
-              "expression-editor-textfield",
-              ExpressionEditorTextfieldS.EditorContainer,
-              {
-                [ExpressionEditorTextfieldS.isFocused]: isFocused,
-                [ExpressionEditorTextfieldS.hasError]: errorMessage,
-              },
-            )}
+          <EditorContainer
+            isFocused={isFocused}
+            hasError={Boolean(errorMessage)}
             ref={this.suggestionTarget}
             data-testid="expression-editor-textfield"
           >
-            <Box className={ExpressionEditorTextfieldS.EditorEqualsSign}>=</Box>
+            <EditorEqualsSign>=</EditorEqualsSign>
             <AceEditor
               commands={this.commands}
               mode="text"
@@ -814,12 +767,10 @@ class ExpressionEditorTextfieldInner extends React.Component<
               onCursorChange={this.handleCursorChange}
               width="100%"
             />
-          </Flex>
+          </EditorContainer>
         </ExpressionEditorSuggestions>
         {errorMessage && hasChanges && (
-          <Box className={ExpressionEditorTextfieldS.ErrorMessageContainer}>
-            {errorMessage.message}
-          </Box>
+          <ErrorMessageContainer>{errorMessage.message}</ErrorMessageContainer>
         )}
         <ExpressionEditorHelpText
           target={this.helpTextTarget}
@@ -831,7 +782,8 @@ class ExpressionEditorTextfieldInner extends React.Component<
   }
 }
 
-export const ExpressionEditorTextfield =
-  ExplicitSize<ExpressionEditorTextfieldProps>()(
-    connect(mapStateToProps)(ExpressionEditorTextfieldInner),
-  );
+// eslint-disable-next-line import/no-default-export -- deprecated usage
+export default _.compose(
+  ExplicitSize(),
+  connect(mapStateToProps),
+)(ExpressionEditorTextfield);

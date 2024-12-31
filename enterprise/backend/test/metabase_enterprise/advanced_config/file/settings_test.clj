@@ -13,8 +13,7 @@
 
 (defsetting config-from-file-settings-test-setting
   "Internal test setting."
-  :visibility :internal
-  :encryption :no)
+  :visibility :internal)
 
 (deftest settings-test
   (testing "Should be able to set settings with config-from-file"

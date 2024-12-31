@@ -1,40 +1,43 @@
-import cx from "classnames";
 import { useCallback } from "react";
 import { t } from "ttag";
 
 import { color } from "metabase/lib/colors";
-import SidebarContent from "metabase/query_builder/components/SidebarContent";
-import type { UpdateQueryHookProps } from "metabase/query_builder/hooks/types";
-import { useDefaultQueryAggregation } from "metabase/query_builder/hooks/use-default-query-aggregation";
 import { Divider } from "metabase/ui";
+import type * as Lib from "metabase-lib";
 
 import {
   SummarizeAggregationItemList,
   SummarizeBreakoutColumnList,
+  useSummarizeQuery,
 } from "./SummarizeContent";
-import SummarizeSidebarS from "./SummarizeSidebar.module.css";
+import { SidebarView } from "./SummarizeSidebar.styled";
 
-type SummarizeSidebarProps = {
+interface SummarizeSidebarProps {
   className?: string;
+  query: Lib.Query;
+  onQueryChange: (query: Lib.Query) => void;
   onClose: () => void;
-} & UpdateQueryHookProps;
+}
 
 export function SummarizeSidebar({
   className,
   query: initialQuery,
   onQueryChange,
   onClose,
-  stageIndex,
 }: SummarizeSidebarProps) {
   const {
     query,
-    onUpdateQuery: onDefaultQueryChange,
-    onAggregationChange,
+    stageIndex,
+    aggregations,
     hasAggregations,
-  } = useDefaultQueryAggregation({
+    handleQueryChange,
+    handleAddBreakout,
+    handleUpdateBreakout,
+    handleRemoveBreakout,
+    handleReplaceBreakouts,
+  } = useSummarizeQuery({
     query: initialQuery,
     onQueryChange,
-    stageIndex,
   });
 
   const handleDoneClick = useCallback(() => {
@@ -43,8 +46,8 @@ export function SummarizeSidebar({
   }, [query, onQueryChange, onClose]);
 
   return (
-    <SidebarContent
-      className={cx(SummarizeSidebarS.SidebarView, className)}
+    <SidebarView
+      className={className}
       title={t`Summarize by`}
       color={color("summarize")}
       onDone={handleDoneClick}
@@ -52,18 +55,22 @@ export function SummarizeSidebar({
       <SummarizeAggregationItemList
         px="lg"
         query={query}
-        onQueryChange={onAggregationChange}
         stageIndex={stageIndex}
+        aggregations={aggregations}
+        onQueryChange={handleQueryChange}
       />
       <Divider my="lg" />
       {hasAggregations && (
         <SummarizeBreakoutColumnList
           px="lg"
           query={query}
-          onQueryChange={onDefaultQueryChange}
           stageIndex={stageIndex}
+          onAddBreakout={handleAddBreakout}
+          onUpdateBreakout={handleUpdateBreakout}
+          onRemoveBreakout={handleRemoveBreakout}
+          onReplaceBreakouts={handleReplaceBreakouts}
         />
       )}
-    </SidebarContent>
+    </SidebarView>
   );
 }

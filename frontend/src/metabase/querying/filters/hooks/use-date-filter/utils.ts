@@ -1,16 +1,15 @@
-import type {
-  DatePickerOperator,
-  DatePickerUnit,
-  DatePickerValue,
-  ExcludeDatePickerValue,
-  RelativeDatePickerValue,
-  SpecificDatePickerValue,
-} from "metabase/querying/filters/types";
-import {
-  isDatePickerOperator,
-  isDatePickerUnit,
-} from "metabase/querying/filters/utils";
 import * as Lib from "metabase-lib";
+
+import {
+  type DatePickerExtractionUnit,
+  type DatePickerOperator,
+  type DatePickerValue,
+  type ExcludeDatePickerValue,
+  type RelativeDatePickerValue,
+  type SpecificDatePickerValue,
+  isDatePickerExtractionUnit,
+  isDatePickerOperator,
+} from "../../components/DatePicker";
 
 export function getPickerValue(
   query: Lib.Query,
@@ -62,9 +61,9 @@ function getRelativeDateValue(
 
   return {
     type: "relative",
-    unit: filterParts.unit,
+    unit: filterParts.bucket,
     value: filterParts.value,
-    offsetUnit: filterParts.offsetUnit ?? undefined,
+    offsetUnit: filterParts.offsetBucket ?? undefined,
     offsetValue: filterParts.offsetValue ?? undefined,
     options: filterParts.options,
   };
@@ -87,7 +86,7 @@ function getExcludeDateValue(
   return {
     type: "exclude",
     operator: filterParts.operator,
-    unit: filterParts.unit ?? undefined,
+    unit: filterParts.bucket ?? undefined,
     values: filterParts.values,
   };
 }
@@ -128,9 +127,9 @@ function getRelativeFilterClause(
 ): Lib.ExpressionClause {
   return Lib.relativeDateFilterClause({
     column,
-    unit: value.unit,
+    bucket: value.unit,
     value: value.value,
-    offsetUnit: value.offsetUnit ?? null,
+    offsetBucket: value.offsetUnit ?? null,
     offsetValue: value.offsetValue ?? null,
     options: value.options ?? {},
   });
@@ -142,9 +141,9 @@ function getExcludeFilterClause(
   column: Lib.ColumnMetadata,
   value: ExcludeDatePickerValue,
 ): Lib.ExpressionClause {
-  return Lib.excludeDateFilterClause({
+  return Lib.excludeDateFilterClause(query, stageIndex, {
     operator: value.operator,
-    unit: value.unit ?? null,
+    bucket: value.unit ?? null,
     column,
     values: value.values,
   });
@@ -164,8 +163,8 @@ export function getPickerUnits(
   query: Lib.Query,
   stageIndex: number,
   column: Lib.ColumnMetadata,
-): DatePickerUnit[] {
+): DatePickerExtractionUnit[] {
   return Lib.availableTemporalBuckets(query, stageIndex, column)
     .map(operator => Lib.displayInfo(query, stageIndex, operator).shortName)
-    .filter(isDatePickerUnit);
+    .filter(isDatePickerExtractionUnit);
 }

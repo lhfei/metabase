@@ -1,42 +1,67 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  cartesianChartCircleWithColors,
+  checkExpressionEditorHelperPopoverPosition,
+  enterCustomColumnDetails,
+  expressionEditorWidget,
+  filter,
+  filterField,
+  filterFieldPopover,
+  getNotebookStep,
+  join,
+  joinTable,
+  openNotebook,
+  openOrdersTable,
+  openPeopleTable,
+  openProductsTable,
+  openReviewsTable,
+  popover,
+  queryBuilderMain,
+  restore,
+  selectFilterOperator,
+  setupBooleanQuery,
+  summarize,
+  tableHeaderClick,
+  visitQuestionAdhoc,
+  visualize,
+} from "e2e/support/helpers";
 
 const { ORDERS, ORDERS_ID, PRODUCTS, PRODUCTS_ID, REVIEWS, REVIEWS_ID } =
   SAMPLE_DATABASE;
 
 describe("scenarios > question > filter", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
   it("should filter a joined table by 'Is not' filter (metabase#13534)", () => {
-    H.openOrdersTable({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
 
-    H.join();
-    H.joinTable("Products");
+    join();
+    joinTable("Products");
 
-    H.filter({ mode: "notebook" });
-    H.popover().within(() => {
-      cy.findByText("Products").click();
+    filter({ mode: "notebook" });
+    popover().within(() => {
+      cy.findByText("Product").click();
       cy.findByText("Category").click();
-      cy.findByText("Is").click();
+      cy.findByDisplayValue("Is").click();
     });
-    cy.findByRole("menu").findByText("Is not").click();
-    H.popover().within(() => {
+    cy.findByRole("listbox").findByText("Is not").click();
+    popover().within(() => {
       cy.findByText("Gizmo").click();
       cy.button("Add filter").click();
     });
-    H.getNotebookStep("filter")
+    getNotebookStep("filter")
       .findByText("Products → Category is not Gizmo")
       .should("be.visible");
 
-    H.visualize(response => {
+    visualize(response => {
       expect(response.body.error).to.not.exist;
     });
 
-    H.queryBuilderMain().within(() => {
+    queryBuilderMain().within(() => {
       cy.contains("37.65").should("exist");
       cy.findByText("3621077291879").should("not.exist"); // one of the "Gizmo" EANs
     });
@@ -101,12 +126,10 @@ describe("scenarios > question > filter", () => {
     });
 
     // Add filter as remapped Product ID (Product name)
-    H.openOrdersTable();
-    H.filter();
+    openOrdersTable();
+    filter();
 
-    H.filterFieldPopover("Product ID")
-      .contains("Aerodynamic Linen Coat")
-      .click();
+    filterFieldPopover("Product ID").contains("Aerodynamic Linen Coat").click();
 
     cy.findByTestId("apply-filters").click();
 
@@ -191,7 +214,7 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should display original custom expression filter with dates on subsequent click (metabase#12492)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -215,7 +238,7 @@ describe("scenarios > question > filter", () => {
       .findByText("Created At is greater than Product → Created At")
       .click();
 
-    H.popover()
+    popover()
       .contains("[Created At] > [Product → Created At]")
       .should("be.visible");
   });
@@ -261,12 +284,12 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should reject Enter when the filter expression is invalid", () => {
-    H.openReviewsTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openReviewsTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
-    H.enterCustomColumnDetails({ formula: "[Rating] > 2E{enter}" }); // there should numbers after 'E'
+    enterCustomColumnDetails({ formula: "[Rating] > 2E{enter}" }); // there should numbers after 'E'
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Missing exponent");
@@ -277,13 +300,13 @@ describe("scenarios > question > filter", () => {
   it("should offer case expression in the auto-complete suggestions", () => {
     openExpressionEditorFromFreshlyLoadedPage();
 
-    H.enterCustomColumnDetails({ formula: "c", blur: false });
-    H.popover().contains(/case/i);
+    enterCustomColumnDetails({ formula: "c", blur: false });
+    popover().contains(/case/i);
 
     cy.get("@formula").type("a");
 
     // "case" is still there after typing a bit
-    H.popover().contains(/case/i);
+    popover().contains(/case/i);
   });
 
   it("should enable highlighting suggestions with keyboard up and down arrows (metabase#16210)", () => {
@@ -291,7 +314,7 @@ describe("scenarios > question > filter", () => {
 
     openExpressionEditorFromFreshlyLoadedPage();
 
-    H.enterCustomColumnDetails({ formula: "c", blur: false });
+    enterCustomColumnDetails({ formula: "c", blur: false });
 
     cy.findAllByTestId("expression-suggestions-list-item")
       .filter(":contains('case')")
@@ -314,14 +337,14 @@ describe("scenarios > question > filter", () => {
   it("should highlight the correct matching for suggestions", () => {
     openExpressionEditorFromFreshlyLoadedPage();
 
-    H.enterCustomColumnDetails({ formula: "[", blur: false });
+    enterCustomColumnDetails({ formula: "[", blur: false });
 
-    H.popover().last().findByText("Body");
+    popover().last().findByText("Body");
 
     cy.get("@formula").type("p");
 
     // only "P" (of Products etc) should be highlighted, and not "Pr"
-    H.popover()
+    popover()
       .last()
       .within(() => {
         cy.findAllByText("P").should("have.length.above", 1);
@@ -345,19 +368,19 @@ describe("scenarios > question > filter", () => {
     cy.findByText("Filter").click();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
-    H.enterCustomColumnDetails({ formula: "su", blur: false });
-    H.popover().contains(/Sum of Total/i);
+    enterCustomColumnDetails({ formula: "su", blur: false });
+    popover().contains(/Sum of Total/i);
     cy.get("@formula").type("m");
-    H.popover().contains(/Sum of Total/i);
+    popover().contains(/Sum of Total/i);
   });
 
   it("should filter using IsNull() and IsEmpty()", () => {
-    H.openReviewsTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openReviewsTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
-    H.enterCustomColumnDetails({ formula: "NOT IsNull([Rating])" });
+    enterCustomColumnDetails({ formula: "NOT IsNull([Rating])" });
 
     cy.button("Done").should("not.be.disabled").click();
 
@@ -366,25 +389,25 @@ describe("scenarios > question > filter", () => {
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
-    H.enterCustomColumnDetails({
+    enterCustomColumnDetails({
       formula: "NOT IsEmpty([Reviewer])",
     });
 
     cy.button("Done").should("not.be.disabled").click();
 
     // check that filter is applied and rows displayed
-    H.visualize();
+    visualize();
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.contains("Showing 1,112 rows");
   });
 
   it("should convert 'is empty' on a text column to a custom expression using IsEmpty()", () => {
-    H.openReviewsTable();
-    H.tableHeaderClick("Reviewer");
+    openReviewsTable();
+    tableHeaderClick("Reviewer");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Filter by this column").click();
-    H.selectFilterOperator("Is empty");
+    selectFilterOperator("Is empty");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Add filter").click();
 
@@ -408,11 +431,11 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should convert 'is empty' on a numeric column to a custom expression using IsNull()", () => {
-    H.openReviewsTable();
-    H.tableHeaderClick("Rating");
+    openReviewsTable();
+    tableHeaderClick("Rating");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Filter by this column").click();
-    H.selectFilterOperator("Is empty");
+    selectFilterOperator("Is empty");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Add filter").click();
 
@@ -439,7 +462,7 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should convert negative filter to custom expression (metabase#14880)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -466,7 +489,7 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should convert negative filter to custom expression (metabase#14880)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -493,10 +516,10 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should be able to convert time interval filter to custom expression (metabase#12457)", () => {
-    H.openOrdersTable({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
 
-    H.filter({ mode: "notebook" });
-    H.popover().within(() => {
+    filter({ mode: "notebook" });
+    popover().within(() => {
       cy.findByText("Created At").click();
       cy.findByText("Relative dates…").click();
       cy.findByText("Previous").click();
@@ -504,11 +527,11 @@ describe("scenarios > question > filter", () => {
       cy.button("Add filter").click();
     });
 
-    H.getNotebookStep("filter")
+    getNotebookStep("filter")
       .findByText("Created At is in the previous 30 days")
       .click();
 
-    H.popover().within(() => {
+    popover().within(() => {
       cy.button("Back").click();
       cy.button("Back").click();
       cy.findByText("Custom Expression").click();
@@ -516,17 +539,17 @@ describe("scenarios > question > filter", () => {
     });
 
     // Back to GUI and "Include today" should be still checked
-    H.getNotebookStep("filter")
+    getNotebookStep("filter")
       .findByText("Created At is in the previous 30 days")
       .click();
 
-    H.popover()
+    popover()
       .findByTestId("include-current-interval-option")
       .should("have.attr", "aria-checked", "true");
   });
 
   it("should be able to convert case-insensitive filter to custom expression (metabase#14959)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -561,12 +584,12 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should reject a number literal", () => {
-    H.openProductsTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openProductsTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
-    H.enterCustomColumnDetails({ formula: "3.14159" });
+    enterCustomColumnDetails({ formula: "3.14159" });
 
     cy.button("Done").should("be.disabled");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -574,12 +597,12 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should reject a string literal", () => {
-    H.openProductsTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openProductsTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
-    H.enterCustomColumnDetails({ formula: '"TheAnswer"' });
+    enterCustomColumnDetails({ formula: '"TheAnswer"' });
 
     cy.button("Done").should("be.disabled");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -587,7 +610,7 @@ describe("scenarios > question > filter", () => {
   });
 
   it.skip("column filters should work for metrics (metabase#15333)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -612,23 +635,23 @@ describe("scenarios > question > filter", () => {
   });
 
   it("custom expression filter should reference fields by their name, not by their id (metabase#15748)", () => {
-    H.openOrdersTable({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
 
-    H.filter({ mode: "notebook" });
-    H.popover().within(() => {
+    filter({ mode: "notebook" });
+    popover().within(() => {
       cy.findByText("Custom Expression").click();
-      H.enterCustomColumnDetails({ formula: "[Total] < [Subtotal]" });
+      enterCustomColumnDetails({ formula: "[Total] < [Subtotal]" });
       cy.button("Done").click();
     });
 
-    H.getNotebookStep("filter")
+    getNotebookStep("filter")
       .findByText("Total is less than Subtotal")
       .should("be.visible");
   });
 
   it("custom expression filter should allow the use of parentheses in combination with logical operators (metabase#15754)", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
     cy.get(".ace_text-input")
@@ -644,8 +667,8 @@ describe("scenarios > question > filter", () => {
   it("custom expression filter should refuse to work with numeric value before an operator (metabase#15893)", () => {
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.openOrdersTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
     cy.get(".ace_text-input").type("0 < [ID]").blur();
@@ -654,8 +677,8 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should allow switching focus with Tab", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
     cy.get(".ace_text-input").type("[Tax] > 0");
@@ -667,8 +690,8 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should allow choosing a suggestion with Tab", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
@@ -691,8 +714,8 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should allow hiding the suggestion list with Escape", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Custom Expression").click();
 
@@ -710,7 +733,7 @@ describe("scenarios > question > filter", () => {
   });
 
   it("should work on twice summarized questions and preserve both summaries (metabase#15620)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         database: SAMPLE_DB_ID,
         type: "query",
@@ -730,37 +753,41 @@ describe("scenarios > question > filter", () => {
     });
 
     cy.findByTestId("scalar-value").contains("5.41");
-    H.filter();
+    filter();
 
-    H.filterField("Category").findByText("Gizmo").click();
+    filterField("Category").findByText("Gizmo").click();
 
     cy.findByTestId("apply-filters").click();
-    H.openNotebook();
+    openNotebook();
 
-    H.verifyNotebookQuery("Products", [
-      {
-        filters: ["Category is Gizmo"],
-        aggregations: ["Count"],
-        breakouts: ["Created At: Month"],
-      },
-      {
-        aggregations: ["Average of Count"],
-      },
-    ]);
+    // filter
+    getNotebookStep("filter").should("contain", "Category is Gizmo");
+
+    // summarize 1
+    getNotebookStep("summarize", { stage: 0, index: 0 }).should(
+      "contain",
+      "Created At: Month",
+    );
+
+    // summarize 2
+    getNotebookStep("summarize", { stage: 1, index: 0 }).should(
+      "contain",
+      "Average of Count",
+    );
   });
 
   it("user shouldn't need to scroll to add filter (metabase#14307)", () => {
     cy.viewport(1280, 720);
-    H.openPeopleTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
-    H.popover().findByText("State").click({ force: true });
+    openPeopleTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
+    popover().findByText("State").click({ force: true });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("AL").click();
     cy.button("Add filter").isVisibleInPopover();
   });
 
   it("should retain all data series after saving a question where custom expression formula is the first metric (metabase#15882)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         database: SAMPLE_DB_ID,
         query: {
@@ -788,22 +815,16 @@ describe("scenarios > question > filter", () => {
     });
 
     assertOnLegendLabels();
-    H.cartesianChartCircleWithColors(["#88BF4D", "#509EE3", "#A989C5"]);
+    cartesianChartCircleWithColors(["#88BF4D", "#509EE3", "#A989C5"]);
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Save").click();
-    cy.findByTestId("save-question-modal")
-      .findByLabelText(/Where do you want to save this/)
-      .click();
-    H.pickEntity({
-      tab: "Browse",
-      path: ["Our analytics"],
+    cy.findByTestId("save-question-modal").within(modal => {
+      cy.findByText("Save").click();
     });
-    H.entityPickerModal().findByText("Select this collection").click();
-    cy.findByTestId("save-question-modal").button("Save").click();
-
+    cy.button("Not now").click();
     assertOnLegendLabels();
 
-    H.cartesianChartCircleWithColors(["#88BF4D", "#509EE3", "#A989C5"]);
+    cartesianChartCircleWithColors(["#88BF4D", "#509EE3", "#A989C5"]);
 
     function assertOnLegendLabels() {
       cy.findAllByTestId("legend-item")
@@ -817,7 +838,7 @@ describe("scenarios > question > filter", () => {
     it("shouldn't display chosen category in a breadcrumb (metabase#16198-1)", () => {
       const chosenCategory = "Gizmo";
 
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           database: SAMPLE_DB_ID,
           query: {
@@ -839,8 +860,8 @@ describe("scenarios > question > filter", () => {
     });
 
     it("adding an ID filter shouldn't cause page error and page reload (metabase#16198-2)", () => {
-      H.openOrdersTable({ mode: "notebook" });
-      H.filter({ mode: "notebook" });
+      openOrdersTable({ mode: "notebook" });
+      filter({ mode: "notebook" });
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Custom Expression").click();
       cy.get(".ace_text-input").type("[Total] < [Product → Price]").blur();
@@ -850,7 +871,7 @@ describe("scenarios > question > filter", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText(/^Total/);
       cy.icon("add").last().click();
-      H.popover().findByText(/^ID$/i).click();
+      popover().findByText(/^ID$/i).click();
       cy.findByPlaceholderText("Enter an ID").type("1");
       cy.button("Add filter").click();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -860,19 +881,19 @@ describe("scenarios > question > filter", () => {
     });
 
     it("removing first filter in a sequence shouldn't result in an empty page (metabase#16198-3)", () => {
-      H.openOrdersTable({ mode: "notebook" });
+      openOrdersTable({ mode: "notebook" });
 
-      H.filter({ mode: "notebook" });
-      H.popover().findByText("Total").click();
-      H.selectFilterOperator("Equal to");
-      H.popover().within(() => {
+      filter({ mode: "notebook" });
+      popover().findByText("Total").click();
+      selectFilterOperator("Equal to");
+      popover().within(() => {
         cy.findByPlaceholderText("Enter a number").type("123");
         cy.button("Add filter").click();
       });
 
-      H.getNotebookStep("filter").icon("add").click();
+      getNotebookStep("filter").icon("add").click();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Custom Expression").click();
         cy.get(".ace_text-input").type("[Total] < [Product → Price]").blur();
         cy.button("Done").click();
@@ -880,7 +901,7 @@ describe("scenarios > question > filter", () => {
 
       // cy.findByText(/^Total/);
       cy.icon("add").last().click();
-      H.popover().findByText(/^ID$/i).click();
+      popover().findByText(/^ID$/i).click();
       cy.findByPlaceholderText("Enter an ID").type("1");
       cy.button("Add filter").click();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -889,7 +910,7 @@ describe("scenarios > question > filter", () => {
         .find(".Icon-close")
         .click();
 
-      H.visualize();
+      visualize();
     });
   });
 
@@ -899,14 +920,14 @@ describe("scenarios > question > filter", () => {
     const integerAssociatedWithCondition = condition === "True" ? "0" : "1";
 
     describe(`should be able to filter on the boolean column ${condition.toUpperCase()} (metabase#16386)`, () => {
-      beforeEach(H.setupBooleanQuery);
+      beforeEach(setupBooleanQuery);
 
       it("from the column popover (metabase#16386-1)", () => {
-        H.tableHeaderClick("boolean");
+        tableHeaderClick("boolean");
 
-        H.popover().findByText("Filter by this column").click();
+        popover().findByText("Filter by this column").click();
 
-        H.popover().within(() => {
+        popover().within(() => {
           // Not sure exactly what this popover will look like when this issue is fixed.
           // In one of the previous versions it said "Update filter" instead of "Add filter".
           // If that's the case after the fix, this part of the test might need to be updated accordingly.
@@ -921,33 +942,33 @@ describe("scenarios > question > filter", () => {
       });
 
       it("from the custom question (metabase#16386-3)", () => {
-        H.openNotebook();
+        openNotebook();
 
-        H.filter({ mode: "notebook" });
+        filter({ mode: "notebook" });
 
-        H.popover().within(() => {
+        popover().within(() => {
           cy.findByText("boolean").click();
           addBooleanFilter();
         });
 
-        H.visualize(() => {
+        visualize(() => {
           assertOnTheResult();
         });
       });
 
       it("from custom expressions", () => {
-        H.openNotebook();
+        openNotebook();
 
-        H.filter({ mode: "notebook" });
+        filter({ mode: "notebook" });
 
-        H.popover().contains("Custom Expression").click();
-        H.expressionEditorWidget().within(() => {
-          H.enterCustomColumnDetails({ formula: `boolean = ${condition}` });
+        popover().contains("Custom Expression").click();
+        expressionEditorWidget().within(() => {
+          enterCustomColumnDetails({ formula: `boolean = ${condition}` });
 
           cy.button("Done").click();
         });
 
-        H.visualize(() => {
+        visualize(() => {
           assertOnTheResult();
         });
       });
@@ -972,41 +993,41 @@ describe("scenarios > question > filter", () => {
   });
 
   describe("should handle boolean arguments", () => {
-    beforeEach(H.setupBooleanQuery);
+    beforeEach(setupBooleanQuery);
 
     it("with case", () => {
-      H.openNotebook();
+      openNotebook();
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Custom column").click();
-      H.enterCustomColumnDetails({
+      enterCustomColumnDetails({
         formula: "Case(boolean, 45, -10)",
         name: "Test",
       });
 
       cy.button("Done").click();
 
-      H.filter({ mode: "notebook" });
+      filter({ mode: "notebook" });
 
-      H.popover().contains("Custom Expression").click();
-      H.expressionEditorWidget().within(() => {
-        H.enterCustomColumnDetails({ formula: "boolean = true" });
+      popover().contains("Custom Expression").click();
+      expressionEditorWidget().within(() => {
+        enterCustomColumnDetails({ formula: "boolean = true" });
 
         cy.button("Done").click();
       });
 
-      H.visualize(() => {
+      visualize(() => {
         cy.contains("45").should("exist");
         cy.contains("-10").should("not.exist");
       });
     });
 
     it("with CountIf", () => {
-      H.openNotebook();
-      H.summarize({ mode: "notebook" });
-      H.popover().contains("Custom Expression").click();
-      H.expressionEditorWidget().within(() => {
-        H.enterCustomColumnDetails({
+      openNotebook();
+      summarize({ mode: "notebook" });
+      popover().contains("Custom Expression").click();
+      expressionEditorWidget().within(() => {
+        enterCustomColumnDetails({
           formula: "CountIf(boolean)",
           name: "count if boolean is true",
         });
@@ -1015,7 +1036,7 @@ describe("scenarios > question > filter", () => {
       cy.findByTestId("aggregate-step")
         .contains("count if boolean is true")
         .should("exist");
-      H.visualize(() => {
+      visualize(() => {
         cy.contains("2").should("exist");
       });
     });
@@ -1023,21 +1044,21 @@ describe("scenarios > question > filter", () => {
 
   // TODO: fixme!
   it.skip("should render custom expression helper near the custom expression field", () => {
-    H.openReviewsTable({ mode: "notebook" });
-    H.filter({ mode: "notebook" });
+    openReviewsTable({ mode: "notebook" });
+    filter({ mode: "notebook" });
 
-    H.expressionEditorWidget().within(() => {
+    expressionEditorWidget().within(() => {
       cy.findByText("Custom Expression").click();
 
-      H.enterCustomColumnDetails({ formula: "floor" });
+      enterCustomColumnDetails({ formula: "floor" });
 
-      H.checkExpressionEditorHelperPopoverPosition();
+      checkExpressionEditorHelperPopoverPosition();
     });
   });
 });
 
 function openExpressionEditorFromFreshlyLoadedPage() {
-  H.openReviewsTable({ mode: "notebook" });
-  H.filter({ mode: "notebook" });
+  openReviewsTable({ mode: "notebook" });
+  filter({ mode: "notebook" });
   cy.findByText("Custom Expression").click();
 }

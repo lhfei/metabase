@@ -1,8 +1,10 @@
 (ns metabase.util.malli.schema
   "TODO: Consider refacor this namespace by defining custom schema with [[mr/def]] instead.
 
-  For example the PositiveInt can be defined as (mr/def ::positive-int pos-int?)"
+  For example the PositiveInt can be defined as (mr/def ::positive-int pos-int?)
+  "
   (:require
+   [cheshire.core :as json]
    [clojure.string :as str]
    [malli.core :as mc]
    [metabase.legacy-mbql.normalize :as mbql.normalize]
@@ -13,7 +15,6 @@
    [metabase.util :as u]
    [metabase.util.date-2 :as u.date]
    [metabase.util.i18n :as i18n :refer [deferred-tru]]
-   [metabase.util.json :as json]
    [metabase.util.malli :as mu]
    [metabase.util.password :as u.password]))
 
@@ -57,14 +58,6 @@
                      count)))]
        maps-schema]
       (deferred-tru "value must be seq of maps in which {0}s are unique" (name k))))))
-
-(defn enum-keywords-and-strings
-  "Returns an enum schema that accept both keywords and strings.
-    (enum-keywords-and-strings :foo :bar)
-    ;; => [:enum :foo :bar \"foo\" \"bar\"]"
-  [& keywords]
-  (assert (every? keyword? keywords))
-  (vec (concat [:enum] keywords (map u/qualified-name keywords))))
 
 ;;; -------------------------------------------------- Schemas --------------------------------------------------
 
@@ -260,7 +253,7 @@
    [:and
     :string
     [:fn #(try
-            (json/decode %)
+            (json/parse-string %)
             true
             (catch Throwable _
               false))]]
@@ -268,15 +261,14 @@
 
 (def ^:private keyword-or-non-blank-str-malli
   (mc/schema
-   [:or {:json-schema {:type "string" :minLength 1}} :keyword NonBlankString]))
+   [:or :keyword NonBlankString]))
 
 (def BooleanValue
   "Schema for a valid representation of a boolean
   (one of `\"true\"` or `true` or `\"false\"` or `false`.).
   Used by [[metabase.api.common/defendpoint]] to coerce the value for this schema to a boolean.
    Garanteed to evaluate to `true` or `false` when passed through a json decoder."
-  (-> [:enum {:decode/json (fn [b] (contains? #{"true" true} b))
-              :json-schema {:type "boolean"}}
+  (-> [:enum {:decode/json (fn [b] (contains? #{"true" true} b))}
        "true" "false" true false]
       (mu/with-api-error-message
        (deferred-tru "value must be a valid boolean string (''true'' or ''false'')."))))
@@ -284,8 +276,7 @@
 (def MaybeBooleanValue
   "Same as above, but allows distinguishing between `nil` (the user did not specify a value)
   and `false` (the user specified `false`)."
-  (-> [:enum {:decode/json (fn [b] (some->> b (contains? #{"true" true})))
-              :json-schema {:type "boolean" :optional true}}
+  (-> [:enum {:decode/json (fn [b] (some->> b (contains? #{"true" true})))}
        "true" "false" true false nil]
       (mu/with-api-error-message
        (deferred-tru "value must be a valid boolean string (''true'' or ''false'')."))))

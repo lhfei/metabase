@@ -95,28 +95,13 @@
     #{[target-type [:template-tag (:name tag)]]
       [target-type [:template-tag {:id (:id tag)}]]}))
 
-(defn- tag-target-pred
-  "Returns a predicate recognizing parameter targets pointing to `tag`."
-  [tag]
-  (let [targets (tag-targets tag)]
-    (fn tag-target? [param-target]
-      (and (vector? param-target)
-           (> (count param-target) 1)
-           (targets (subvec param-target 0 2))
-           ;; legacy dimension params come without stage-number, 0 is the default
-           (= (get-in param-target [2 :stage-number] 0)
-              ;; Currently, we have no multi-stage native queries, so the stage-number is always 0.
-              ;; If in the future we introduce such queries, we can specify the stage-number of tags
-              ;; and they should match the stage-number of the parameter target.
-              (get tag :stage-number 0))))))
-
 (mu/defn- tag-params
   "Return params from the provided `params` list targeting the provided `tag`."
   [tag    :- mbql.s/TemplateTag
    params :- [:maybe [:sequential mbql.s/Parameter]]]
-  (let [tag-target? (tag-target-pred tag)]
+  (let [targets (tag-targets tag)]
     (seq (for [param params
-               :when (tag-target? (:target param))]
+               :when (contains? targets (:target param))]
            param))))
 
 ;;; FieldFilter Params (Field Filters) (e.g. WHERE {{x}})

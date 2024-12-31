@@ -7,7 +7,3 @@ export const openSharingMenu = (menuItemText?: string) => {
     sharingMenu().findByText(menuItemText).click();
   }
 };
-
-export const toggleAlertChannel = channel => {
-  cy.findByText(channel).parent().find("input").click({ force: true });
-};

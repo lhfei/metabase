@@ -26,7 +26,6 @@ import { TokenFieldAddon, TokenFieldItem } from "../TokenFieldItem";
 import {
   PrefixContainer,
   TokenFieldContainer,
-  TokenInputControl,
   TokenInputItem,
 } from "./TokenField.styled";
 
@@ -550,7 +549,6 @@ class _TokenField extends Component<TokenFieldProps, TokenFieldState> {
           "TokenField--focused": isFocused,
         })}
         onMouseDownCapture={this.onMouseDownCapture}
-        data-testid="token-field"
       >
         {!!prefix && (
           <PrefixContainer data-testid="input-prefix">{prefix}</PrefixContainer>
@@ -581,7 +579,7 @@ class _TokenField extends Component<TokenFieldProps, TokenFieldState> {
         ))}
         {canAddItems && (
           <TokenInputItem>
-            <TokenInputControl
+            <input
               ref={this.inputRef}
               style={{ ...defaultStyleValue, ...valueStyle }}
               className={cx(CS.full, FormS.noFocus, CS.borderless, CS.px1)}
@@ -604,7 +602,6 @@ class _TokenField extends Component<TokenFieldProps, TokenFieldState> {
     const optionsList =
       filteredOptions.length === 0 ? null : (
         <ul
-          role="listbox"
           className={cx(
             optionsClassName,
             CS.overflowAuto,

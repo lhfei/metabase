@@ -1,6 +1,7 @@
-(ns ^:mb/driver-tests metabase.driver.druid.query-processor-test
+(ns metabase.driver.druid.query-processor-test
   "Some tests to make sure the Druid Query Processor is generating sane Druid queries when compiling MBQL."
   (:require
+   [cheshire.core :as json]
    [clojure.test :refer :all]
    [clojure.tools.macro :as tools.macro]
    [java-time.api :as t]
@@ -14,7 +15,6 @@
    [metabase.test :as mt]
    [metabase.timeseries-query-processor-test.util :as tqpt]
    [metabase.util.date-2 :as u.date]
-   [metabase.util.json :as json]
    [toucan2.core :as t2]))
 
 (defn- str->absolute-dt [s]
@@ -263,7 +263,7 @@
                    (table-rows-sample)))))))))
 
 (def ^:private native-query-1
-  (json/encode
+  (json/generate-string
    {:queryType   :scan
     :dataSource  :checkins
     :intervals   ["1900-01-01/2100-01-01"]
@@ -326,7 +326,7 @@
              (m/dissoc-in [:data :insights]))))))
 
 (def ^:private native-query-2
-  (json/encode
+  (json/generate-string
    {:intervals    ["1900-01-01/2100-01-01"]
     :granularity  {:type     :period
                    :period   :P1M

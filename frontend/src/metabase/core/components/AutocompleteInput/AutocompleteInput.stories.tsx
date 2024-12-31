@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 import { useState } from "react";
 
 import AutocompleteInput from "./AutocompleteInput";
@@ -8,7 +8,7 @@ export default {
   component: AutocompleteInput,
 };
 
-const Template: StoryFn<typeof AutocompleteInput> = args => {
+const Template: ComponentStory<typeof AutocompleteInput> = args => {
   const [value, setValue] = useState("");
   return (
     <AutocompleteInput
@@ -31,25 +31,22 @@ const Template: StoryFn<typeof AutocompleteInput> = args => {
   );
 };
 
-export const Default = {
-  render: Template,
-};
+export const Default = Template.bind({});
 
-export const CustomFilter = {
-  render: Template,
-
-  args: {
-    filterOptions: (value: string | undefined, options: string[]) => {
-      if (!value) {
-        return [];
-      } else {
-        return options.filter(o => o.includes(value[0]));
-      }
-    },
+export const CustomFilter = Template.bind({});
+CustomFilter.args = {
+  filterOptions: (value: string | undefined, options: string[]) => {
+    if (!value) {
+      return [];
+    } else {
+      return options.filter(o => o.includes(value[0]));
+    }
   },
 };
 
-const CustomOptionClickTemplate: StoryFn<typeof AutocompleteInput> = args => {
+const CustomOptionClickTemplate: ComponentStory<
+  typeof AutocompleteInput
+> = args => {
   const [value, setValue] = useState("");
 
   const handleOptionSelect = (option: string) => {
@@ -75,7 +72,4 @@ const CustomOptionClickTemplate: StoryFn<typeof AutocompleteInput> = args => {
     />
   );
 };
-
-export const CustomOptionClick = {
-  render: CustomOptionClickTemplate,
-};
+export const CustomOptionClick = CustomOptionClickTemplate.bind({});

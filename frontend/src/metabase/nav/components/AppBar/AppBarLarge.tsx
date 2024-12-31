@@ -1,5 +1,3 @@
-import { t } from "ttag";
-
 import type { CollectionId } from "metabase-types/api";
 
 import CollectionBreadcrumbs from "../../containers/CollectionBreadcrumbs";
@@ -75,9 +73,12 @@ const AppBarLarge = ({
       {(isSearchVisible || isNewButtonVisible || isProfileLinkVisible) && (
         <AppBarRightContainer>
           {isSearchVisible && (isEmbedded ? <SearchBar /> : <SearchButton />)}
-          {isNewButtonVisible && <NewItemButton collectionId={collectionId} />}
+
+          {/* 隐藏新右上角的新建按钮 */}
+          {/* {isNewButtonVisible && <NewItemButton collectionId={collectionId} />} */}
+
           {isProfileLinkVisible && (
-            <AppBarProfileLinkContainer aria-label={t`Settings menu`}>
+            <AppBarProfileLinkContainer>
               <ProfileLink onLogout={onLogout} />
             </AppBarProfileLinkContainer>
           )}

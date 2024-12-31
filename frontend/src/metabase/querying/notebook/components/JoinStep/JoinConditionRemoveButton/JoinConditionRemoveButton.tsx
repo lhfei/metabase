@@ -1,9 +1,8 @@
-import cx from "classnames";
 import { t } from "ttag";
 
 import { Icon } from "metabase/ui";
 
-import S from "./JoinConditionRemoveButton.module.css";
+import { RemoveButton } from "./JoinConditionRemoveButton.styled";
 
 interface JoinConditionRemoveButtonProps {
   isConditionComplete: boolean;
@@ -15,14 +14,12 @@ export function JoinConditionRemoveButton({
   onClick,
 }: JoinConditionRemoveButtonProps) {
   return (
-    <button
-      className={cx(S.RemoveButton, {
-        [S.isConditionComplete]: isConditionComplete,
-      })}
+    <RemoveButton
+      isConditionComplete={isConditionComplete}
       aria-label={t`Remove condition`}
       onClick={onClick}
     >
       {<Icon name="close" size={16} />}
-    </button>
+    </RemoveButton>
   );
 }

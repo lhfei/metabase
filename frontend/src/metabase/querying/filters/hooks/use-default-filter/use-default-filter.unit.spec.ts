@@ -15,13 +15,13 @@ import {
 import { useDefaultFilter } from "./use-default-filter";
 
 interface CreateFilterCase {
-  operator: Lib.DefaultFilterOperator;
+  operator: Lib.DefaultFilterOperatorName;
   expectedDisplayName: string;
 }
 
 interface UpdateFilterCase {
   expression: Lib.ExpressionClause;
-  operator: Lib.DefaultFilterOperator;
+  operator: Lib.DefaultFilterOperatorName;
   expectedDisplayName: string;
 }
 

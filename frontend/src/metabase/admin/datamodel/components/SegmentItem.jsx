@@ -1,11 +1,12 @@
 import cx from "classnames";
 import PropTypes from "prop-types";
 import { Component } from "react";
+import { t } from "ttag";
 
 import CS from "metabase/css/core/index.css";
 import { Icon } from "metabase/ui";
 
-import SegmentActionSelect from "./SegmentActionSelect";
+import ObjectActionSelect from "./ObjectActionSelect";
 
 export default class SegmentItem extends Component {
   static propTypes = {
@@ -28,7 +29,12 @@ export default class SegmentItem extends Component {
           {segment.definition_description}
         </td>
         <td className={cx(CS.px1, CS.py1, CS.textCentered)}>
-          <SegmentActionSelect object={segment} onRetire={onRetire} />
+          <ObjectActionSelect
+            object={segment}
+            objectType="segment"
+            objectTypeLocalized={t`Segment`}
+            onRetire={onRetire}
+          />
         </td>
       </tr>
     );

@@ -2,15 +2,14 @@
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders, screen, within } from "__support__/ui";
-import { DashboardChartSettings } from "metabase/visualizations/components/ChartSettings";
+import ChartSettings from "metabase/visualizations/components/ChartSettings";
 import registerVisualizations from "metabase/visualizations/register";
-import { createMockCard } from "metabase-types/api/mocks";
 
 registerVisualizations();
 
 function getSeries(display, index, changeSeriesName) {
   return {
-    card: createMockCard({
+    card: {
       display,
       visualization_settings: changeSeriesName
         ? {
@@ -20,7 +19,7 @@ function getSeries(display, index, changeSeriesName) {
           }
         : {},
       name: `Test ${index}`,
-    }),
+    },
     data: {
       rows: [
         ["a", 1],
@@ -36,7 +35,7 @@ const setup = (seriesDisplay, numberOfSeries = 1, changeSeriesName = false) => {
     .fill(1)
     .map((s, index) => getSeries(seriesDisplay, index, changeSeriesName));
   return renderWithProviders(
-    <DashboardChartSettings
+    <ChartSettings
       series={series}
       initial={{ section: "Display" }}
       isDashboard={true}

@@ -1,6 +1,7 @@
 import cx from "classnames";
 import PropTypes from "prop-types";
 import { Fragment, useEffect } from "react";
+import { connect } from "react-redux";
 import { usePrevious } from "react-use";
 import { msgid, ngettext, t } from "ttag";
 import _ from "underscore";
@@ -11,7 +12,6 @@ import CS from "metabase/css/core/index.css";
 import Group from "metabase/entities/groups";
 import Users from "metabase/entities/users";
 import { useConfirmation } from "metabase/hooks/use-confirmation";
-import { connect } from "metabase/lib/redux";
 import { PLUGIN_GROUP_MANAGERS } from "metabase/plugins";
 import { getUser, getUserIsAdmin } from "metabase/selectors/user";
 import { Icon } from "metabase/ui";

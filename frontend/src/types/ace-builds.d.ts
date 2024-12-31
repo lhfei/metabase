@@ -9,13 +9,11 @@ declare module "ace-builds" {
     interface TextInput {
       getElement(): HTMLTextAreaElement;
     }
-    interface Popup {
-      isOpen: boolean;
-      container: HTMLElement;
-    }
     interface Editor {
       completer?: {
-        getPopup: () => Popup;
+        popup?: {
+          isOpen: boolean;
+        };
       };
     }
     interface EditSession {

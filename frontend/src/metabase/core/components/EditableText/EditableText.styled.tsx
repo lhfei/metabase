@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
-interface EditableTextRootProps {
+export interface EditableTextRootProps {
   isEditing?: boolean;
   isDisabled: boolean;
   isEditingMarkdown?: boolean;
@@ -9,7 +9,7 @@ interface EditableTextRootProps {
 
 export const EditableTextRoot = styled.div<EditableTextRootProps>`
   position: relative;
-  color: var(--mb-color-text-primary);
+  color: var(--mb-color-text-dark);
   padding: 0.25rem;
   border: 1px solid transparent;
   border-radius: 4px;

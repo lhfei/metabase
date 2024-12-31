@@ -1,9 +1,6 @@
 import { useState } from "react";
 
-import {
-  useCreateCardPublicLinkMutation,
-  useDeleteCardPublicLinkMutation,
-} from "metabase/api";
+import { useDispatch } from "metabase/lib/redux";
 import {
   exportFormats,
   publicQuestion as getPublicQuestionUrl,
@@ -12,6 +9,10 @@ import {
   trackPublicLinkCopied,
   trackPublicLinkRemoved,
 } from "metabase/public/lib/analytics";
+import {
+  createPublicLink,
+  deletePublicLink,
+} from "metabase/query_builder/actions";
 import type Question from "metabase-lib/v1/Question";
 
 import { PublicLinkPopover } from "./PublicLinkPopover";
@@ -28,6 +29,8 @@ export const QuestionPublicLinkPopover = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const dispatch = useDispatch();
+
   const uuid = question.publicUUID();
 
   const [extension, setExtension] = useState<ExportFormatType | null>(null);
@@ -39,18 +42,15 @@ export const QuestionPublicLinkPopover = ({
       })
     : null;
 
-  const [createPublicQuestionLink] = useCreateCardPublicLinkMutation();
-  const [deletePublicQuestionLink] = useDeleteCardPublicLinkMutation();
-
-  const handleCreatePublicQuestionLink = async () => {
-    await createPublicQuestionLink({ id: question.id() });
+  const createPublicQuestionLink = async () => {
+    await dispatch(createPublicLink(question.card()));
   };
-  const handleDeletePublicQuestionLink = async () => {
+  const deletePublicQuestionLink = async () => {
     trackPublicLinkRemoved({
       artifact: "question",
       source: "public-share",
     });
-    await deletePublicQuestionLink({ id: question.id() });
+    await dispatch(deletePublicLink(question.card()));
   };
 
   const onCopyLink = () => {
@@ -65,8 +65,8 @@ export const QuestionPublicLinkPopover = ({
       target={target}
       isOpen={isOpen}
       onClose={onClose}
-      createPublicLink={handleCreatePublicQuestionLink}
-      deletePublicLink={handleDeletePublicQuestionLink}
+      createPublicLink={createPublicQuestionLink}
+      deletePublicLink={deletePublicQuestionLink}
       url={url}
       extensions={exportFormats}
       selectedExtension={extension}

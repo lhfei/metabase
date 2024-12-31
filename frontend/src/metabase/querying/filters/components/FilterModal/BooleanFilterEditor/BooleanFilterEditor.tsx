@@ -39,7 +39,7 @@ export function BooleanFilterEditor({
     filter,
   });
 
-  const handleOperatorChange = (newOperator: Lib.BooleanFilterOperator) => {
+  const handleOperatorChange = (newOperator: Lib.BooleanFilterOperatorName) => {
     const newValues = getDefaultValues();
     setOperator(newOperator);
     setValues(newValues);

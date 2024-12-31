@@ -1,3 +1,5 @@
+import { t } from "ttag";
+
 import * as Lib from "metabase-lib";
 
 import type { ColumnGroupItem, ColumnItem } from "./types";
@@ -35,16 +37,17 @@ function getGroupsWithColumns(
   columns: Lib.ColumnMetadata[],
 ): ColumnGroupItem[] {
   const groups = Lib.groupColumns(columns);
-  return groups.map(group => {
+  return groups.map((group, groupIndex) => {
     const groupInfo = Lib.displayInfo(query, stageIndex, group);
     const columnItems = getColumnItems(query, stageIndex, group);
 
     return {
       columnItems,
-      displayName: groupInfo.displayName,
+      displayName:
+        groupInfo.fkReferenceName || groupInfo.displayName || t`Question`,
       isSelected: columnItems.every(({ isSelected }) => isSelected),
       isDisabled: columnItems.every(({ isDisabled }) => isDisabled),
-      isMainGroup: groupInfo.isMainGroup ?? false,
+      isSourceGroup: groupIndex === 0,
     };
   });
 }
@@ -53,7 +56,7 @@ function disableOnlySelectedQueryColumn(
   groupItems: ColumnGroupItem[],
 ): ColumnGroupItem[] {
   return groupItems.map(groupItem => {
-    if (!groupItem.isMainGroup) {
+    if (!groupItem.isSourceGroup) {
       return groupItem;
     }
 
@@ -139,10 +142,10 @@ export function toggleColumnGroupInQuery(
   groupItem: ColumnGroupItem,
 ) {
   if (groupItem.isSelected) {
-    // always leave 1 column in the main group selected to prevent creating queries without columns
+    // always leave 1 column in the first group selected to prevent creating queries without columns
     return groupItem.columnItems
       .filter(columnItem => columnItem.isSelected && !columnItem.isDisabled)
-      .filter((_, columnIndex) => !groupItem.isMainGroup || columnIndex !== 0)
+      .filter((_, columnIndex) => !groupItem.isSourceGroup || columnIndex !== 0)
       .reduce(
         (query, { column }) => Lib.removeField(query, stageIndex, column),
         query,

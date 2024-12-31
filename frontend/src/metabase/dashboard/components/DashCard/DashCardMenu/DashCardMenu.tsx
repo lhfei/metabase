@@ -2,9 +2,8 @@ import { useDisclosure } from "@mantine/hooks";
 import cx from "classnames";
 import { isValidElement, useState } from "react";
 
-import type { MetabasePluginsConfig } from "embedding-sdk";
+import type { SdkPluginsConfig } from "embedding-sdk";
 import { useInteractiveDashboardContext } from "embedding-sdk/components/public/InteractiveDashboard/context";
-import { transformSdkQuestion } from "embedding-sdk/lib/transform-question";
 import CS from "metabase/css/core/index.css";
 import {
   canDownloadResults,
@@ -51,8 +50,8 @@ export type DashCardMenuItem = {
   disabled?: boolean;
 } & MenuItemProps;
 
-function isDashCardMenuEmpty(plugins?: MetabasePluginsConfig) {
-  const dashcardMenu = plugins?.dashboard?.dashboardCardMenu;
+function isDashCardMenuEmpty(plugins?: SdkPluginsConfig) {
+  const dashcardMenu = plugins?.dashboard?.dashcardMenu;
 
   if (!plugins || !dashcardMenu || typeof dashcardMenu !== "object") {
     return false;
@@ -98,14 +97,12 @@ export const DashCardMenu = ({
   }
 
   const getMenuContent = () => {
-    if (typeof plugins?.dashboard?.dashboardCardMenu === "function") {
-      return plugins.dashboard.dashboardCardMenu({
-        question: transformSdkQuestion(question),
-      });
+    if (typeof plugins?.dashboard?.dashcardMenu === "function") {
+      return plugins.dashboard.dashcardMenu({ question: question.card() });
     }
 
-    if (isValidElement(plugins?.dashboard?.dashboardCardMenu)) {
-      return plugins.dashboard.dashboardCardMenu;
+    if (isValidElement(plugins?.dashboard?.dashcardMenu)) {
+      return plugins.dashboard.dashcardMenu;
     }
 
     if (menuView === "download") {

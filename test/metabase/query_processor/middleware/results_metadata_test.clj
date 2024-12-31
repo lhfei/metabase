@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.query-processor.middleware.results-metadata-test
+(ns metabase.query-processor.middleware.results-metadata-test
   (:require
    [clojure.string :as str]
    [clojure.test :refer :all]
@@ -98,11 +98,7 @@
         (when-not (= :completed (:status result))
           (throw (ex-info "Query failed." result))))
       (is (= (round-to-2-decimals (default-card-results-native))
-             (-> card card-metadata round-to-2-decimals)))
-
-      ;; updated_at should not be modified when saving result metadata
-      (is (= (:updated_at card)
-             (t2/select-one-fn :updated_at :model/Card :id (u/the-id card)))))))
+             (-> card card-metadata round-to-2-decimals))))))
 
 (deftest save-result-metadata-test-2
   (testing "check that using a Card as your source doesn't overwrite the results metadata..."
@@ -197,16 +193,18 @@
     (t2.with-temp/with-temp [Card card]
       (qp/process-query
        (qp/userland-query
-        (merge (mt/mbql-query checkins
-                 {:aggregation  [[:count]]
-                  :breakout     [[:field (mt/id :checkins :date) {:temporal-unit :year}]]})
-               {:info {:card-id    (u/the-id card)
-                       :query-hash (qp.util/query-hash {})}})))
+        {:database (mt/id)
+         :type     :query
+         :query    {:source-table (mt/id :checkins)
+                    :aggregation  [[:count]]
+                    :breakout     [[:field (mt/id :checkins :date) {:temporal-unit :year}]]}
+         :info     {:card-id    (u/the-id card)
+                    :query-hash (qp.util/query-hash {})}}))
       (is (=? [{:base_type    :type/Date
                 :effective_type    :type/Date
                 :visibility_type :normal
                 :coercion_strategy nil
-                :display_name "Date: Year"
+                :display_name "Date"
                 :name         "DATE"
                 :unit         :year
                 :settings     nil

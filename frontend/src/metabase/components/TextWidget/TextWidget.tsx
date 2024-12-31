@@ -4,7 +4,7 @@ import { t } from "ttag";
 
 import { forceRedraw } from "metabase/lib/dom";
 
-export type TextWidgetProps = {
+type Props = {
   value: string | number;
   setValue: (v: string | number | null) => void;
   className?: string;
@@ -20,14 +20,14 @@ type State = {
   isFocused: boolean;
 };
 
-export class TextWidget extends Component<TextWidgetProps, State> {
+export class TextWidget extends Component<Props, State> {
   static defaultProps = {
     isEditing: false,
     commitImmediately: false,
     disabled: false,
   };
 
-  constructor(props: TextWidgetProps) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -40,7 +40,7 @@ export class TextWidget extends Component<TextWidgetProps, State> {
     this.UNSAFE_componentWillReceiveProps(this.props);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: TextWidgetProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value !== this.props.value) {
       this.setState({ value: nextProps.value }, () => {
         // HACK: Address Safari rendering bug which causes https://github.com/metabase/metabase/issues/5335

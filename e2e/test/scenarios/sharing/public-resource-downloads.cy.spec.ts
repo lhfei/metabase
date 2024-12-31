@@ -1,19 +1,33 @@
-import { H } from "e2e/support";
 import {
   ORDERS_BY_YEAR_QUESTION_ID,
   ORDERS_DASHBOARD_DASHCARD_ID,
   ORDERS_DASHBOARD_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  assertNotEmptyObject,
+  describeWithSnowplowEE,
+  downloadAndAssert,
+  expectGoodSnowplowEvent,
+  expectNoBadSnowplowEvents,
+  getDashboardCardMenu,
+  main,
+  openSharingMenu,
+  popover,
+  resetSnowplow,
+  restore,
+  setTokenFeatures,
+  showDashboardCardActions,
+} from "e2e/support/helpers";
 
 /** These tests are about the `downloads` flag for public dashboards and questions.
  *  Unless the product changes, these should test the same things as `embed-resource-downloads.cy.spec.ts`
  */
 
-H.describeWithSnowplowEE(
+describeWithSnowplowEE(
   "Public dashboards/questions downloads (results and export as pdf)",
   () => {
     beforeEach(() => {
-      H.resetSnowplow();
+      resetSnowplow();
       cy.deleteDownloadsFolder();
     });
 
@@ -21,17 +35,17 @@ H.describeWithSnowplowEE(
       let publicLink: string;
 
       before(() => {
-        H.restore("default");
+        restore("default");
         cy.signInAsAdmin();
-        H.setTokenFeatures("all");
+        setTokenFeatures("all");
 
         cy.visit(`/dashboard/${ORDERS_DASHBOARD_ID}`);
 
-        H.openSharingMenu("Create a public link");
+        openSharingMenu("Create a public link");
 
-        H.popover()
+        popover()
           .findByTestId("public-link-input")
-          .should("contain.value", "/public/")
+          .should("not.have.value", "")
           .invoke("val")
           .then(url => {
             publicLink = url as string;
@@ -41,7 +55,7 @@ H.describeWithSnowplowEE(
       });
 
       afterEach(() => {
-        H.expectNoBadSnowplowEvents();
+        expectNoBadSnowplowEvents();
       });
 
       it("#downloads=false should disable both PDF downloads and dashcard results downloads", () => {
@@ -52,7 +66,7 @@ H.describeWithSnowplowEE(
         cy.findByText("Export as PDF").should("not.exist");
 
         // we should not have any dashcard action in a public/embed scenario, so the menu should not be there
-        H.getDashboardCardMenu().should("not.exist");
+        getDashboardCardMenu().should("not.exist");
       });
 
       it("should be able to download a public dashboard as PDF", () => {
@@ -63,7 +77,7 @@ H.describeWithSnowplowEE(
 
         cy.verifyDownload("Orders in a dashboard.pdf");
 
-        H.expectGoodSnowplowEvent({
+        expectGoodSnowplowEvent({
           event: "dashboard_pdf_exported",
           dashboard_id: 0,
           dashboard_accessed_via: "public-link",
@@ -74,11 +88,11 @@ H.describeWithSnowplowEE(
         cy.visit(`${publicLink}`);
         waitLoading();
 
-        H.showDashboardCardActions();
+        showDashboardCardActions();
 
         const uuid = publicLink.split("/").at(-1);
 
-        H.downloadAndAssert(
+        downloadAndAssert(
           {
             publicUuid: uuid,
             fileType: "csv",
@@ -86,10 +100,10 @@ H.describeWithSnowplowEE(
             isDashboard: true,
             dashcardId: ORDERS_DASHBOARD_DASHCARD_ID,
           },
-          H.assertNotEmptyObject,
+          assertNotEmptyObject,
         );
 
-        H.expectGoodSnowplowEvent({
+        expectGoodSnowplowEvent({
           event: "download_results_clicked",
           resource_type: "dashcard",
           accessed_via: "public-link",
@@ -102,17 +116,16 @@ H.describeWithSnowplowEE(
       let publicLink: string;
 
       before(() => {
-        H.restore("default");
+        restore("default");
         cy.signInAsAdmin();
-        H.setTokenFeatures("all");
+        setTokenFeatures("all");
 
         cy.visit(`/question/${ORDERS_BY_YEAR_QUESTION_ID}`);
 
-        H.openSharingMenu("Create a public link");
+        openSharingMenu("Create a public link");
 
-        H.popover()
+        popover()
           .findByTestId("public-link-input")
-          .should("contain.value", "/public/")
           .invoke("val")
           .then(url => {
             publicLink = url as string;
@@ -133,14 +146,11 @@ H.describeWithSnowplowEE(
         waitLoading();
 
         cy.findByTestId("download-button").click();
-        H.popover().within(() => {
-          cy.findByText(".png").click();
-          cy.findByTestId("download-results-button").click();
-        });
+        popover().findByText(".png").click();
 
         cy.verifyDownload(".png", { contains: true });
 
-        H.expectGoodSnowplowEvent({
+        expectGoodSnowplowEvent({
           event: "download_results_clicked",
           resource_type: "question",
           accessed_via: "public-link",
@@ -156,17 +166,17 @@ H.describeWithSnowplowEE(
 
         const uuid = publicLink.split("/").at(-1);
 
-        H.downloadAndAssert(
+        downloadAndAssert(
           {
             publicUuid: uuid,
             fileType: "csv",
             questionId: ORDERS_BY_YEAR_QUESTION_ID,
             isDashboard: false,
           },
-          H.assertNotEmptyObject,
+          assertNotEmptyObject,
         );
 
-        H.expectGoodSnowplowEvent({
+        expectGoodSnowplowEvent({
           event: "download_results_clicked",
           resource_type: "question",
           accessed_via: "public-link",
@@ -177,4 +187,4 @@ H.describeWithSnowplowEE(
   },
 );
 
-const waitLoading = () => H.main().findByText("Loading...").should("not.exist");
+const waitLoading = () => main().findByText("Loading...").should("not.exist");

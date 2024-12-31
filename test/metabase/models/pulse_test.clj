@@ -8,7 +8,7 @@
             PulseChannel PulseChannelRecipient Table User]]
    [metabase.models.interface :as mi]
    [metabase.models.permissions :as perms]
-   [metabase.models.pulse :as models.pulse]
+   [metabase.models.pulse :as pulse]
    [metabase.models.pulse-channel-test :as pulse-channel-test]
    [metabase.test :as mt]
    [metabase.test.mock.util :refer [pulse-channel-defaults]]
@@ -37,16 +37,16 @@
 ;; create a channel then select its details
 (defn- create-pulse-then-select!
   [pulse-name creator cards channels skip-if-empty? & [dashboard-id]]
-  (-> (models.pulse/create-pulse! cards channels
-                                  {:name          pulse-name
-                                   :creator_id    (u/the-id creator)
-                                   :skip_if_empty skip-if-empty?
-                                   :dashboard_id dashboard-id})
+  (-> (pulse/create-pulse! cards channels
+                           {:name          pulse-name
+                            :creator_id    (u/the-id creator)
+                            :skip_if_empty skip-if-empty?
+                            :dashboard_id dashboard-id})
       remove-uneeded-pulse-keys))
 
 (defn- update-pulse-then-select!
   [pulse]
-  (-> (models.pulse/update-pulse! pulse)
+  (-> (pulse/update-pulse! pulse)
       remove-uneeded-pulse-keys))
 
 (def ^:private pulse-defaults
@@ -79,7 +79,6 @@
                              :include_csv        false
                              :include_xls        false
                              :format_rows        true
-                             :pivot_results      false
                              :dashboard_card_id  nil
                              :dashboard_id       nil
                              :parameter_mappings nil}]
@@ -90,7 +89,7 @@
                                     :details       {:other "stuff"}
                                     :recipients    [{:email "foo@bar.com"}
                                                     (dissoc (user-details :rasta) :is_superuser :is_qbnewb)]})]})
-             (-> (dissoc (models.pulse/retrieve-pulse pulse-id) :id :pulse_id :created_at :updated_at)
+             (-> (dissoc (pulse/retrieve-pulse pulse-id) :id :pulse_id :created_at :updated_at)
                  (update :creator  dissoc :date_joined :last_login)
                  (update :entity_id boolean)
                  (update :cards    (fn [cards] (for [card cards]
@@ -112,7 +111,7 @@
                               1 card-1
                               2 card-2
                               3 card-3))]
-                (models.pulse/update-notification-cards! pulse (map models.pulse/card->ref cards)))
+                (pulse/update-notification-cards! pulse (map pulse/card->ref cards)))
               (when-let [card-ids (seq (t2/select-fn-set :card_id PulseCard, :pulse_id (u/the-id pulse)))]
                 (t2/select-fn-set :name Card, :id [:in card-ids])))]
       (doseq [[cards expected] {[]    nil
@@ -146,7 +145,6 @@
                              :include_csv        false
                              :include_xls        false
                              :format_rows        true
-                             :pivot_results      false
                              :dashboard_card_id  nil
                              :dashboard_id       nil
                              :parameter_mappings nil}]})
@@ -154,7 +152,7 @@
               (create-pulse-then-select!
                "Booyah!"
                (mt/user->id :rasta)
-               [(models.pulse/card->ref card)]
+               [(pulse/card->ref card)]
                [{:channel_type  :email
                  :schedule_type :daily
                  :schedule_hour 18
@@ -167,15 +165,15 @@
     (t2.with-temp/with-temp [Card card {:name "Test Card"}]
       (mt/with-model-cleanup [Pulse]
         (mt/with-premium-features #{:audit-app}
-          (let [pulse (models.pulse/create-pulse! [(models.pulse/card->ref card)]
-                                                  [{:channel_type  :email
-                                                    :schedule_type :daily
-                                                    :schedule_hour 18
-                                                    :enabled       true
-                                                    :recipients    [{:email "foo@bar.com"}]}]
-                                                  {:name          "pulse-name"
-                                                   :creator_id    (mt/user->id :rasta)
-                                                   :skip_if_empty false})]
+          (let [pulse (pulse/create-pulse! [(pulse/card->ref card)]
+                                           [{:channel_type  :email
+                                             :schedule_type :daily
+                                             :schedule_hour 18
+                                             :enabled       true
+                                             :recipients    [{:email "foo@bar.com"}]}]
+                                           {:name          "pulse-name"
+                                            :creator_id    (mt/user->id :rasta)
+                                            :skip_if_empty false})]
             (is (= {:topic    :subscription-create
                     :user_id  nil
                     :model    "Pulse"
@@ -204,7 +202,7 @@
                 (create-pulse-then-select!
                  "Abnormal Pulse"
                  (mt/user->id :rasta)
-                 [(assoc (models.pulse/card->ref card) :dashboard_card_id dashcard-id)]
+                 [(assoc (pulse/card->ref card) :dashboard_card_id dashcard-id)]
                  [{:channel_type  :email
                    :schedule_type :daily
                    :schedule_hour 18
@@ -238,7 +236,6 @@
                                    :include_csv        false
                                    :include_xls        false
                                    :format_rows        true
-                                   :pivot_results      false
                                    :dashboard_card_id  nil
                                    :dashboard_id       nil
                                    :parameter_mappings nil}
@@ -249,7 +246,6 @@
                                    :include_csv        false
                                    :include_xls        false
                                    :format_rows        true
-                                   :pivot_results      false
                                    :dashboard_card_id  nil
                                    :dashboard_id       nil
                                    :parameter_mappings nil}]
@@ -262,7 +258,7 @@
              (mt/derecordize
               (update-pulse-then-select! {:id            (u/the-id pulse)
                                           :name          "We like to party"
-                                          :cards         (map models.pulse/card->ref [card-2 card-1])
+                                          :cards         (map pulse/card->ref [card-2 card-1])
                                           :channels      [{:channel_type  :email
                                                            :schedule_type :daily
                                                            :schedule_hour 18
@@ -280,7 +276,7 @@
                          :parameters   [],
                          :channel      ["email"],
                          :schedule     ["daily"],
-                         :recipients   [[{:email "foo@bar.com"}
+                         :recipients   [[{:email       "foo@bar.com"}
                                          {:first_name  "Crowberto"
                                           :last_name   "Corv"
                                           :email       "crowberto@metabase.com"
@@ -306,7 +302,7 @@
                    PulseCard _ {:pulse_id (u/the-id pulse) :card_id (u/the-id card-1) :position 0}
                    PulseCard _ {:pulse_id (u/the-id pulse) :card_id (u/the-id card-2) :position 1}]
       (is (= 1
-             (count (:cards (models.pulse/retrieve-pulse (u/the-id pulse)))))))))
+             (count (:cards (pulse/retrieve-pulse (u/the-id pulse)))))))))
 
 (deftest archive-pulse-when-last-user-unsubscribes-test
   (letfn [(do-with-objects [f]

@@ -1,5 +1,4 @@
 (ns metabase.api.routes
-  #_{:clj-kondo/ignore [:deprecated-namespace]}
   (:require
    [compojure.core :refer [GET]]
    [compojure.route :as route]
@@ -11,7 +10,6 @@
    [metabase.api.bookmark :as api.bookmark]
    [metabase.api.cache :as api.cache]
    [metabase.api.card :as api.card]
-   [metabase.api.cards :as api.cards]
    [metabase.api.channel :as api.channel]
    [metabase.api.cloud-migration :as api.cloud-migration]
    [metabase.api.collection :as api.collection]
@@ -36,7 +34,6 @@
    [metabase.api.preview-embed :as api.preview-embed]
    [metabase.api.public :as api.public]
    [metabase.api.pulse :as api.pulse]
-   [metabase.api.pulse.unsubscribe :as api.pulse.unsubscribe]
    [metabase.api.revision :as api.revision]
    [metabase.api.routes.common
     :refer [+auth +message-only-exceptions +public-exceptions +static-apikey]]
@@ -53,7 +50,6 @@
    [metabase.api.timeline :as api.timeline]
    [metabase.api.timeline-event :as api.timeline-event]
    [metabase.api.user :as api.user]
-   [metabase.api.user-key-value :as api.user-key-value]
    [metabase.api.util :as api.util]
    [metabase.config :as config]
    [metabase.plugins.classloader :as classloader]
@@ -91,8 +87,9 @@
                          :body    ""}
       "/"               (-> (respond "index.html")
                             ;; Better would be to append this to our CSP, but there is no good way right now and it's
-                            ;; just a single page. Necessary for Scalar to work, script injects styles in runtime.
-                            (assoc-in [:headers "Content-Security-Policy"] "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net"))
+                            ;; just a single page. Necessary for rapidoc to work, script injects styles in runtime.
+                            (assoc-in [:headers "Content-Security-Policy"] "script-src 'self' 'unsafe-inline'"))
+      "/rapidoc-min.js" (respond "rapidoc-min.js")
       "/openapi.json"   (merge
                          (api/openapi-object (resolve 'metabase.api.routes/routes))
                          {:openapi "3.1.0"
@@ -111,7 +108,6 @@
   (context "/automagic-dashboards" [] (+auth api.magic/routes))
   (context "/bookmark"             [] (+auth api.bookmark/routes))
   (context "/card"                 [] (+auth api.card/routes))
-  (context "/cards"                [] (+auth api.cards/routes))
   (context "/cloud-migration"      [] (+auth api.cloud-migration/routes))
   (context "/collection"           [] (+auth api.collection/routes))
   (context "/channel"              [] (+auth api.channel/routes))
@@ -134,7 +130,6 @@
   (context "/premium-features"     [] (+auth api.premium-features/routes))
   (context "/preview_embed"        [] (+auth api.preview-embed/routes))
   (context "/public"               [] (+public-exceptions api.public/routes))
-  (context "/pulse/unsubscribe"    [] api.pulse.unsubscribe/routes)
   (context "/pulse"                [] (+auth api.pulse/routes))
   (context "/revision"             [] (+auth api.revision/routes))
   (context "/search"               [] (+auth api.search/routes))
@@ -154,7 +149,6 @@
   (context "/timeline"             [] (+auth api.timeline/routes))
   (context "/timeline-event"       [] (+auth api.timeline-event/routes))
   (context "/user"                 [] (+auth api.user/routes))
-  (context "/user-key-value"       [] (+auth api.user-key-value/routes))
   (context "/api-key"              [] (+auth api.api-key/routes))
   (context "/util"                 [] api.util/routes)
   (route/not-found (constantly {:status 404, :body (deferred-tru "API endpoint does not exist.")})))

@@ -1,14 +1,9 @@
-import {
-  type HTMLAttributes,
-  type ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { useState } from "react";
 import { useMount } from "react-use";
 import { t } from "ttag";
 
+import BodyComponent from "metabase/components/BodyComponent";
 import { Ellipsified } from "metabase/core/components/Ellipsified";
-import ZIndex from "metabase/css/core/z-index.module.css";
 import { capitalize, inflect } from "metabase/lib/formatting";
 import { useDispatch, useSelector } from "metabase/lib/redux";
 import {
@@ -17,7 +12,7 @@ import {
   performUndo,
   resumeUndo,
 } from "metabase/redux/undo";
-import { Portal, Progress, Transition } from "metabase/ui";
+import { Progress, Transition } from "metabase/ui";
 import type { Undo } from "metabase-types/store/undo";
 
 import CS from "./UndoListing.module.css";
@@ -64,18 +59,13 @@ const slideIn = {
 
 const TOAST_TRANSITION_DURATION = 300;
 
-interface UndoToastProps extends HTMLAttributes<HTMLDivElement> {
+interface UndoToastProps {
   undo: Undo;
   onUndo: () => void;
   onDismiss: () => void;
 }
 
-export function UndoToast({
-  undo,
-  onUndo,
-  onDismiss,
-  ...divProps
-}: UndoToastProps) {
+export function UndoToast({ undo, onUndo, onDismiss }: UndoToastProps) {
   const dispatch = useDispatch();
   const [mounted, setMounted] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -119,7 +109,6 @@ export function UndoToast({
           className={CS.toast}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          {...divProps}
         >
           {undo.showProgress && (
             <Progress
@@ -165,25 +154,12 @@ export function UndoToast({
     </Transition>
   );
 }
-
-export function UndoListing() {
+function UndoListingInner() {
   const dispatch = useDispatch();
   const undos = useSelector(state => state.undo);
 
-  const [lastId, setLastId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLastId(`${undos.at(-1)?.id}`);
-  }, [undos]);
-
   return (
-    <UndoListOverlay
-      key={
-        // Remount the list when an undo is added so that the
-        // listing appears on top
-        lastId
-      }
-    >
+    <UndoList data-testid="undo-list" aria-label="undo-list">
       {undos.map(undo => (
         <UndoToast
           key={undo._domId}
@@ -192,20 +168,8 @@ export function UndoListing() {
           onDismiss={() => dispatch(dismissUndo({ undoId: undo.id }))}
         />
       ))}
-    </UndoListOverlay>
+    </UndoList>
   );
 }
 
-export const UndoListOverlay = ({ children }: { children: ReactNode }) => {
-  return (
-    <Portal>
-      <UndoList
-        data-testid="undo-list"
-        aria-label="undo-list"
-        className={ZIndex.Overlay}
-      >
-        {children}
-      </UndoList>
-    </Portal>
-  );
-};
+export const UndoListing = BodyComponent(UndoListingInner);

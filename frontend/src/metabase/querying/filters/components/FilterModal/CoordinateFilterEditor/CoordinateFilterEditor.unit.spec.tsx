@@ -258,7 +258,7 @@ describe("CoordinateFilterEditor", () => {
 });
 
 interface QueryWithFilterOpts {
-  operator: Lib.CoordinateFilterOperator;
+  operator: Lib.CoordinateFilterOperatorName;
   values: number[];
 }
 

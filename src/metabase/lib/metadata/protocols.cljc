@@ -9,7 +9,7 @@
 
 (#?(:clj p/defprotocol+ :cljs defprotocol) MetadataProvider
   "Protocol for something that we can get information about Tables and Fields
-  from. This can be provided in various ways:
+  from. This can be provided in various ways various ways:
 
   1. By raw metadata attached to the query itself
 

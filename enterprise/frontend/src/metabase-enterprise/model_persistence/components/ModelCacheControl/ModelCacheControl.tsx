@@ -1,75 +1,85 @@
+import { useCallback, useState } from "react";
 import { t } from "ttag";
 
-import {
-  skipToken,
-  useGetDatabaseQuery,
-  usePersistModelMutation,
-  useUnpersistModelMutation,
-} from "metabase/api";
-import { DelayedLoadingAndErrorWrapper } from "metabase/components/LoadingAndErrorWrapper/DelayedLoadingAndErrorWrapper";
-import { Switch, Tooltip } from "metabase/ui";
+import LoadingSpinner from "metabase/components/LoadingSpinner";
+import Button from "metabase/core/components/Button";
+import Databases from "metabase/entities/databases";
+import { delay } from "metabase/lib/promise";
+import { CardApi } from "metabase/services";
 import type Question from "metabase-lib/v1/Question";
-import type { ModelCacheRefreshStatus } from "metabase-types/api";
+import type Database from "metabase-lib/v1/metadata/Database";
 
-export function ModelCacheToggle({
-  persistedModel,
-  model,
-}: {
-  persistedModel?: ModelCacheRefreshStatus;
+import { SpinnerContainer } from "./ModelCacheControl.styled";
+
+interface ModelCacheControlProps {
   model: Question;
-}) {
-  const [persistModel] = usePersistModelMutation();
-  const [unpersistModel] = useUnpersistModelMutation();
-  const {
-    data: database,
-    isLoading: isLoadingDb,
-    error: dbError,
-  } = useGetDatabaseQuery(
-    model.databaseId() ? { id: model.databaseId() as number } : skipToken,
-  );
+  size?: number;
+  onChange?: (isPersisted: boolean) => void;
+}
 
-  if (isLoadingDb || dbError) {
-    return (
-      <DelayedLoadingAndErrorWrapper loading={isLoadingDb} error={dbError} />
-    );
+type DatabaseEntityLoaderProps = {
+  database?: Database;
+};
+
+export const toggleModelPersistence = async (
+  model: Question,
+  onChange?: (isPersisted: boolean) => void,
+) => {
+  const id = model.id();
+  const isPersisted = model.isPersisted();
+  try {
+    if (isPersisted) {
+      await CardApi.unpersist({ id });
+    } else {
+      await CardApi.persist({ id });
+    }
+    onChange?.(!isPersisted);
+  } catch (err) {
+    console.warn("Failed to persist/unpersist model");
+  } finally {
+    await delay(200);
   }
+};
 
-  const isPersisted = persistedModel && persistedModel.state !== "off";
-  const modelId = model.id();
-  const userCanPersist = model.canManageDB();
-  const canPersistDatabase = database?.settings?.["persist-models-enabled"];
+function ModelCacheControl({
+  model,
+  size,
+  onChange,
+  ...props
+}: ModelCacheControlProps) {
+  const [isLoading, setLoading] = useState(false);
+  const label = model.isPersisted() ? t`Unpersist model` : t`Persist model`;
 
-  if (!canPersistDatabase || !userCanPersist) {
-    const tooltipLabel = !canPersistDatabase
-      ? t`Model persistence is disabled for this database`
-      : t`You don't have permission to modify model persistence`;
-
-    return (
-      <Tooltip label={tooltipLabel}>
-        {/* need this div so that disabled input doesn't swallow pointer events */}
-        <div>
-          <Switch
-            label={t`Persist model data`}
-            size="sm"
-            checked={isPersisted}
-            disabled
-          />
-        </div>
-      </Tooltip>
-    );
-  }
-
-  const toggleModelPersistence = isPersisted
-    ? () => unpersistModel(modelId)
-    : () => persistModel(modelId);
+  const handleClick = useCallback(async () => {
+    setLoading(true);
+    toggleModelPersistence(model, onChange);
+    setLoading(false);
+  }, [model, onChange]);
 
   return (
-    <Switch
-      label={t`Persist model data`}
-      size="sm"
-      checked={isPersisted}
-      onChange={toggleModelPersistence}
-      disabled={false}
-    />
+    <Databases.Loader id={model.databaseId()} loadingAndErrorWrapper={false}>
+      {({ database }: DatabaseEntityLoaderProps) => {
+        if (!database || !database["can-manage"]) {
+          return null;
+        }
+        return isLoading ? (
+          <SpinnerContainer>
+            <LoadingSpinner size={size} />
+          </SpinnerContainer>
+        ) : (
+          <Button
+            {...props}
+            icon="database"
+            onClick={handleClick}
+            iconSize={size}
+          >
+            {label}
+          </Button>
+        );
+      }}
+    </Databases.Loader>
   );
 }
+
+// eslint-disable-next-line import/no-default-export -- deprecated usage
+export default ModelCacheControl;

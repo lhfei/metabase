@@ -1,5 +1,6 @@
 (ns metabase.driver.druid.execute
   (:require
+   [cheshire.core :as json]
    [clojure.math.numeric-tower :as math]
    [java-time.api :as t]
    [medley.core :as m]
@@ -12,7 +13,6 @@
    [metabase.util :as u]
    [metabase.util.date-2 :as u.date]
    [metabase.util.i18n :refer [tru]]
-   [metabase.util.json :as json]
    [metabase.util.malli :as mu]))
 
 (set! *warn-on-reflection* true)
@@ -155,7 +155,7 @@
   {:pre [query]}
   (let [details    (:details (lib.metadata/database (qp.store/metadata-provider)))
         query      (if (string? query)
-                     (json/decode+kw query)
+                     (json/parse-string query keyword)
                      query)
         query-type (or query-type
                        (keyword (namespace ::druid.qp/query) (name (:queryType query))))

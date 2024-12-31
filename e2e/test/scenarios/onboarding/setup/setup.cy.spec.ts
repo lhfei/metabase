@@ -1,5 +1,17 @@
-import { H } from "e2e/support";
 import { USERS } from "e2e/support/cypress_data";
+import {
+  blockSnowplow,
+  describeEE,
+  describeWithSnowplow,
+  expectGoodSnowplowEvent,
+  expectGoodSnowplowEvents,
+  expectNoBadSnowplowEvents,
+  isEE,
+  main,
+  popover,
+  resetSnowplow,
+  restore,
+} from "e2e/support/helpers";
 import { SUBSCRIBE_URL } from "metabase/setup/constants";
 
 const { admin } = USERS;
@@ -9,7 +21,7 @@ const locales = ["en", "xx"];
 
 describe("scenarios > setup", () => {
   locales.forEach(locale => {
-    beforeEach(() => H.restore("blank"));
+    beforeEach(() => restore("blank"));
 
     it(
       `should allow you to sign up using "${locale}" browser locale`,
@@ -192,7 +204,7 @@ describe("scenarios > setup", () => {
 
     cy.location("pathname").should("eq", "/");
 
-    H.main().findByText("Embed Metabase in your app").should("not.exist");
+    main().findByText("Embed Metabase in your app").should("not.exist");
 
     cy.wait("@subscribe").then(({ request }) => {
       const formData = request.body;
@@ -218,29 +230,6 @@ describe("scenarios > setup", () => {
         "have.value",
         "Epic Team",
       );
-    });
-  });
-
-  it("should pre-fill user info for hosted instances (infra-frontend#1109)", () => {
-    H.onlyOnEE();
-    H.setTokenFeatures("none");
-    H.mockSessionProperty("is-hosted?", true);
-
-    cy.visit(
-      "/setup?first_name=John&last_name=Doe&email=john@doe.test&site_name=Doe%20Unlimited",
-    );
-
-    skipWelcomePage();
-    selectPreferredLanguageAndContinue();
-
-    cy.findByTestId("setup-forms").within(() => {
-      cy.findByDisplayValue("John").should("exist");
-      cy.findByDisplayValue("Doe").should("exist");
-      cy.findByDisplayValue("john@doe.test").should("exist");
-      cy.findByDisplayValue("Doe Unlimited").should("exist");
-      cy.findByLabelText("Create a password")
-        .should("be.focused")
-        .and("be.empty");
     });
   });
 
@@ -372,31 +361,40 @@ describe("scenarios > setup", () => {
         .click();
     });
 
+    cy.log(
+      "Make sure the embedding secret key is set after embedding has been autoenabled",
+    );
+    cy.wait("@properties").then(request => {
+      expect(request.response?.body["embedding-secret-key"]?.length).to.equal(
+        64,
+      );
+    });
+
     cy.location("pathname").should("eq", "/");
 
-    H.main()
+    main()
       .findByText("Get started with Embedding Metabase in your app")
       .should("exist");
 
     // should persist page loads
     cy.reload();
 
-    H.main()
+    main()
       .findByText("Get started with Embedding Metabase in your app")
       .should("exist");
 
-    H.main().findByText("Hide these").realHover();
+    main().findByText("Hide these").realHover();
 
-    H.popover().findByText("Embedding done, all good").click();
+    popover().findByText("Embedding done, all good").click();
 
-    H.main()
+    main()
       .findByText("Get started with Embedding Metabase in your app")
       .should("not.exist");
   });
 });
 
-H.describeEE("scenarios > setup (EE)", () => {
-  beforeEach(() => H.restore("blank"));
+describeEE("scenarios > setup (EE)", () => {
+  beforeEach(() => restore("blank"));
 
   it("should ask for a license token on self-hosted", () => {
     cy.visit("/setup");
@@ -429,7 +427,7 @@ H.describeEE("scenarios > setup (EE)", () => {
 
     cy.visit("/admin/settings/license");
 
-    H.main().findByText("Looking for more?").should("exist");
+    main().findByText("Looking for more?").should("exist");
 
     cy.wait("@tokenStatus").then(request => {
       expect(request.response?.body.valid).to.equal(true);
@@ -437,14 +435,14 @@ H.describeEE("scenarios > setup (EE)", () => {
   });
 });
 
-H.describeWithSnowplow("scenarios > setup", () => {
+describeWithSnowplow("scenarios > setup", () => {
   beforeEach(() => {
-    H.restore("blank");
-    H.resetSnowplow();
+    restore("blank");
+    resetSnowplow();
   });
 
   afterEach(() => {
-    H.expectNoBadSnowplowEvents();
+    expectNoBadSnowplowEvents();
   });
 
   it("should send snowplow events", () => {
@@ -455,7 +453,7 @@ H.describeWithSnowplow("scenarios > setup", () => {
     cy.visit("/setup");
 
     goodEvents++; // 3 - setup/step_seen "welcome"
-    H.expectGoodSnowplowEvent({
+    expectGoodSnowplowEvent({
       event: "step_seen",
       step_number: 0,
       step: "welcome",
@@ -463,7 +461,7 @@ H.describeWithSnowplow("scenarios > setup", () => {
     skipWelcomePage();
 
     goodEvents++; // 4 - setup/step_seen  "language"
-    H.expectGoodSnowplowEvent({
+    expectGoodSnowplowEvent({
       event: "step_seen",
       step_number: 1,
       step: "language",
@@ -471,7 +469,7 @@ H.describeWithSnowplow("scenarios > setup", () => {
     selectPreferredLanguageAndContinue();
 
     goodEvents++; // 5 - setup/step_seen "user_info"
-    H.expectGoodSnowplowEvent({
+    expectGoodSnowplowEvent({
       event: "step_seen",
       step_number: 2,
       step: "user_info",
@@ -485,7 +483,7 @@ H.describeWithSnowplow("scenarios > setup", () => {
 
       cy.findByText("What will you use Metabase for?").should("exist");
       goodEvents++; // 6 - setup/step_seen "usage_question"
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "step_seen",
         step_number: 3,
         step: "usage_question",
@@ -493,13 +491,13 @@ H.describeWithSnowplow("scenarios > setup", () => {
       cy.button("Next").click();
 
       goodEvents++; // 7 - setup/usage_reason_selected
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "usage_reason_selected",
         usage_reason: "self-service-analytics",
       });
 
       goodEvents++; // 8 - setup/step_seen "db_connection"
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "step_seen",
         step_number: 4,
         step: "db_connection",
@@ -507,14 +505,14 @@ H.describeWithSnowplow("scenarios > setup", () => {
       cy.findByText("I'll add my data later").click();
 
       goodEvents++; // 9/10 - setup/add_data_later_clicked
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "add_data_later_clicked",
       });
 
       // This step is only visile on EE builds
-      if (H.isEE) {
+      if (isEE) {
         goodEvents++; // 10/11 - setup/step_seen "commercial_license"
-        H.expectGoodSnowplowEvent({
+        expectGoodSnowplowEvent({
           event: "step_seen",
           step_number: 5,
           step: "license_token",
@@ -522,16 +520,16 @@ H.describeWithSnowplow("scenarios > setup", () => {
 
         cy.button("Skip").click();
         goodEvents++; // 11/12 - setup/step_seen "commercial_license"
-        H.expectGoodSnowplowEvent({
+        expectGoodSnowplowEvent({
           event: "license_token_step_submitted",
           valid_token_present: false,
         });
       }
 
       goodEvents++; // 11/12 - setup/step_seen "data_usage"
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "step_seen",
-        step_number: H.isEE ? 6 : 5,
+        step_number: isEE ? 6 : 5,
         step: "data_usage",
       });
 
@@ -539,43 +537,23 @@ H.describeWithSnowplow("scenarios > setup", () => {
       goodEvents++; // 12/13- - new_user_created (from BE)
 
       goodEvents++; // 13/14- setup/step_seen "completed"
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "step_seen",
-        step_number: H.isEE ? 7 : 6,
+        step_number: isEE ? 7 : 6,
         step: "completed",
       });
 
-      H.expectGoodSnowplowEvents(goodEvents);
-
-      cy.findByText(
-        "Get infrequent emails about new releases and feature updates.",
-      ).click();
-
-      H.expectGoodSnowplowEvent({
-        event: "newsletter-toggle-clicked",
-        triggered_from: "setup",
-        event_detail: "opted-in",
-      });
-
-      cy.findByText(
-        "Get infrequent emails about new releases and feature updates.",
-      ).click();
-
-      H.expectGoodSnowplowEvent({
-        event: "newsletter-toggle-clicked",
-        triggered_from: "setup",
-        event_detail: "opted-out",
-      });
+      expectGoodSnowplowEvents(goodEvents);
     });
   });
 
   it("should ignore snowplow failures and work as normal", () => {
-    H.blockSnowplow();
+    blockSnowplow();
     cy.visit("/setup");
     skipWelcomePage();
 
     // 1 event is sent from the BE, which isn't blocked by blockSnowplow()
-    H.expectGoodSnowplowEvents(1);
+    expectGoodSnowplowEvents(1);
   });
 });
 
@@ -629,7 +607,7 @@ const fillUserAndContinue = ({
 };
 
 const skipLicenseStepOnEE = () => {
-  if (H.isEE) {
+  if (isEE) {
     cy.findByText("Activate your commercial license").should("exist");
     cy.button("Skip").click();
   }

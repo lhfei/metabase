@@ -12,7 +12,6 @@ describe("StrategyEditorForDatabases", () => {
   beforeEach(() => {
     setup();
   });
-
   it("lets user change the default policy to 'Adaptive', then 'No caching'", async () => {
     expect(
       screen.queryByRole("button", { name: "Save changes" }),

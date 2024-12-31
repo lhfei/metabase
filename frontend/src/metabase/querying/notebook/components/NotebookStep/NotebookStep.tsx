@@ -6,7 +6,6 @@ import ExpandingContent from "metabase/components/ExpandingContent";
 import CS from "metabase/css/core/index.css";
 import { useToggle } from "metabase/hooks/use-toggle";
 import { color as c } from "metabase/lib/colors";
-import { Box, Flex } from "metabase/ui";
 import type { Query } from "metabase-lib";
 
 import type {
@@ -15,7 +14,14 @@ import type {
 } from "../../types";
 
 import { NotebookActionButton } from "./NotebookActionButton";
-import S from "./NotebookStep.module.css";
+import {
+  PreviewButton,
+  StepActionsContainer,
+  StepBody,
+  StepButtonContainer,
+  StepContent,
+  StepRoot,
+} from "./NotebookStep.styled";
 import { NotebookStepPreview } from "./NotebookStepPreview";
 import { getStepConfig } from "./utils";
 
@@ -98,11 +104,11 @@ export function NotebookStep({
 
   return (
     <ExpandingContent isInitiallyOpen={!isLastOpened} isOpen>
-      <Box
-        className={cx(CS.hoverParent, CS.hoverVisibility, S.StepRoot)}
+      <StepRoot
+        className={cx(CS.hoverParent, CS.hoverVisibility)}
         data-testid={step.testID}
       >
-        <Box w={`${(11 / 12) * 100}%`} maw="75rem">
+        <StepContent>
           <StepHeader
             step={step}
             title={title}
@@ -110,10 +116,10 @@ export function NotebookStep({
             canRevert={canRevert}
             onRevert={handleClickRevert}
           />
-        </Box>
+        </StepContent>
 
-        <Flex align="center">
-          <Box w={`${(11 / 12) * 100}%`} maw="75rem">
+        <StepBody>
+          <StepContent>
             <Step
               step={step}
               query={step.query}
@@ -124,35 +130,33 @@ export function NotebookStep({
               reportTimezone={reportTimezone}
               readOnly={readOnly}
             />
-          </Box>
+          </StepContent>
           {!readOnly && (
-            <Box w={`${(1 / 12) * 100}%`}>
-              <Box
-                className={cx(S.PreviewButton, {
-                  [S.noPreviewButton]: !hasPreviewButton,
-                })}
-                component={NotebookActionButton}
+            <StepButtonContainer>
+              <PreviewButton
+                as={NotebookActionButton}
                 icon="play"
                 title={t`Preview`}
                 color={c("text-light")}
                 transparent
+                hasPreviewButton={hasPreviewButton}
                 onClick={openPreview}
                 data-testid="step-preview-button"
               />
-            </Box>
+            </StepButtonContainer>
           )}
-        </Flex>
+        </StepBody>
 
         {canPreview && isPreviewOpen && (
           <NotebookStepPreview step={step} onClose={closePreview} />
         )}
 
         {actionButtons.length > 0 && !readOnly && (
-          <Box mt="sm" data-testid="action-buttons">
+          <StepActionsContainer data-testid="action-buttons">
             {actionButtons}
-          </Box>
+          </StepActionsContainer>
         )}
-      </Box>
+      </StepRoot>
     </ExpandingContent>
   );
 }

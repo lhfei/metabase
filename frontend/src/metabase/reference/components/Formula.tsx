@@ -52,8 +52,7 @@ export const Formula = ({
           <div className={S.formulaDefinition}>
             <QueryDefinition
               className={S.formulaDefinitionInner}
-              definition={entity.definition}
-              tableId={entity.table_id}
+              object={entity}
             />
           </div>
         </CSSTransition>

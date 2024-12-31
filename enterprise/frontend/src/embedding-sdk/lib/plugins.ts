@@ -1,44 +1,42 @@
 import type { ReactNode } from "react";
 
-import type { MetabaseQuestion } from "embedding-sdk/types/public/question";
 import type { DashCardMenuItem } from "metabase/dashboard/components/DashCard/DashCardMenu/DashCardMenu";
 import type { ClickAction, ClickObject } from "metabase/visualizations/types";
+import type { Card as QuestionType } from "metabase-types/api";
 
-export type MetabaseDataPointObject = Pick<
+export type SdkDataPointObject = Pick<
   ClickObject,
   "value" | "column" | "data" | "event"
 >;
 
-export type MetabaseClickActionPluginsConfig = (
+export type SdkClickActionPluginsConfig = (
   clickActions: ClickAction[],
-  clickedDataPoint: MetabaseDataPointObject,
+  clickedDataPoint: SdkDataPointObject,
 ) => ClickAction[];
 
-export type DashboardCardMenuCustomElement = ({
+export type DashCardMenuCustomElement = ({
   question,
 }: {
-  question: MetabaseQuestion;
+  question: QuestionType;
 }) => ReactNode;
 
-export type CustomDashboardCardMenuItem = ({
+export type CustomDashCardMenuItem = ({
   question,
 }: {
-  question?: MetabaseQuestion;
+  question?: QuestionType;
 }) => DashCardMenuItem;
 
-export type DashboardCardCustomMenuItem = {
+export type DashCardCustomMenuItem = {
   withDownloads?: boolean;
   withEditLink?: boolean;
-  customItems?: (DashCardMenuItem | CustomDashboardCardMenuItem)[];
+  customItems?: (DashCardMenuItem | CustomDashCardMenuItem)[];
 };
 
-export type MetabaseDashboardPluginsConfig = {
-  dashboardCardMenu?:
-    | DashboardCardMenuCustomElement
-    | DashboardCardCustomMenuItem;
+export type SdkDashCardMenuPluginsConfig = {
+  dashcardMenu?: DashCardMenuCustomElement | DashCardCustomMenuItem;
 };
 
-export type MetabasePluginsConfig = {
-  mapQuestionClickActions?: MetabaseClickActionPluginsConfig;
-  dashboard?: MetabaseDashboardPluginsConfig;
+export type SdkPluginsConfig = {
+  mapQuestionClickActions?: SdkClickActionPluginsConfig;
+  dashboard?: SdkDashCardMenuPluginsConfig;
 };

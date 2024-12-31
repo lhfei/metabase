@@ -2,11 +2,7 @@ import { updateIn } from "icepick";
 import { t } from "ttag";
 import _ from "underscore";
 
-import {
-  timelineApi,
-  timelineEventApi,
-  useGetTimelineQuery,
-} from "metabase/api";
+import { timelineApi, timelineEventApi } from "metabase/api";
 import { canonicalCollectionId } from "metabase/collections/utils";
 import {
   createEntity,
@@ -26,12 +22,6 @@ const Timelines = createEntity({
   nameOne: "timeline",
   path: "/api/timeline",
   schema: TimelineSchema,
-
-  rtk: {
-    getUseGetQuery: () => ({
-      useGetQuery: useGetTimelineQuery,
-    }),
-  },
 
   api: {
     list: ({ collectionId, ...params } = {}, dispatch) =>

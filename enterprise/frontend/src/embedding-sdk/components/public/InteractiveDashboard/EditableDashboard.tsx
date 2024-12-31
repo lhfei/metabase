@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import type { MetabasePluginsConfig } from "embedding-sdk";
+import type { SdkPluginsConfig } from "embedding-sdk";
 import { InteractiveAdHocQuestion } from "embedding-sdk/components/private/InteractiveAdHocQuestion";
 import { StyledPublicComponentWrapper } from "embedding-sdk/components/public/InteractiveDashboard/EditableDashboard.styled";
 import {
@@ -20,8 +20,8 @@ import { InteractiveDashboardProvider } from "./context";
 import { useCommonDashboardParams } from "./use-common-dashboard-params";
 
 export type EditableDashboardProps = {
-  drillThroughQuestionHeight?: number;
-  plugins?: MetabasePluginsConfig;
+  questionHeight?: number;
+  plugins?: SdkPluginsConfig;
   className?: string;
   style?: CSSProperties;
 } & Omit<SdkDashboardDisplayProps, "withTitle" | "hiddenParameters"> &
@@ -29,9 +29,9 @@ export type EditableDashboardProps = {
 
 export const EditableDashboard = ({
   dashboardId,
-  initialParameters = {},
-  withDownloads = false,
-  drillThroughQuestionHeight,
+  initialParameterValues = {},
+  withDownloads = true,
+  questionHeight,
   plugins,
   onLoad,
   onLoadWithoutCards,
@@ -50,7 +50,7 @@ export const EditableDashboard = ({
     withDownloads,
     withTitle: true,
     hiddenParameters: undefined,
-    initialParameters,
+    initialParameterValues,
   });
 
   const {
@@ -72,8 +72,8 @@ export const EditableDashboard = ({
       {adhocQuestionUrl ? (
         <InteractiveAdHocQuestion
           questionPath={adhocQuestionUrl}
-          title={true}
-          height={drillThroughQuestionHeight}
+          withTitle
+          height={questionHeight}
           plugins={plugins}
           onNavigateBack={onNavigateBackToDashboard}
         />
@@ -85,13 +85,12 @@ export const EditableDashboard = ({
         >
           <ConnectedDashboard
             dashboardId={dashboardId}
-            parameterQueryParams={initialParameters}
+            parameterQueryParams={initialParameterValues}
             refreshPeriod={refreshPeriod}
             onRefreshPeriodChange={onRefreshPeriodChange}
             setRefreshElapsedHook={setRefreshElapsedHook}
             isFullscreen={isFullscreen}
             onFullscreenChange={onFullscreenChange}
-            noLoaderWrapper
             onNavigateToNewCardFromDashboard={onNavigateToNewCardFromDashboard}
             downloadsEnabled={withDownloads}
             onLoad={onLoad}

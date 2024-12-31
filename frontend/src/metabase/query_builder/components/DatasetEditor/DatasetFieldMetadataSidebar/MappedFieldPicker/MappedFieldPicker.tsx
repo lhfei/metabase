@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef } from "react";
 import { t } from "ttag";
 
 import { useGetFieldQuery } from "metabase/api";
-import SelectButton from "metabase/core/components/SelectButton";
 import CS from "metabase/css/core/index.css";
 import { SchemaTableAndFieldDataSelector } from "metabase/query_builder/components/DataSelector";
 import { Text } from "metabase/ui";
@@ -12,11 +11,10 @@ import Field from "metabase-lib/v1/metadata/Field";
 import { isVirtualCardId } from "metabase-lib/v1/metadata/utils/saved-questions";
 import type { FieldId } from "metabase-types/api";
 
-import MappedFieldPickerS from "./MappedFieldPicker.module.css";
+import { StyledSelectButton } from "./MappedFieldPicker.styled";
 
 type MappedFieldPickerProps = {
   name: string;
-  className?: string;
   databaseId: number | null;
   tabIndex?: number;
   label: string;
@@ -24,7 +22,6 @@ type MappedFieldPickerProps = {
 };
 
 function MappedFieldPicker({
-  className,
   databaseId = null,
   onChange,
   name,
@@ -65,28 +62,16 @@ function MappedFieldPicker({
     const tableName = fieldObject?.table?.display_name;
 
     return (
-      <SelectButton
-        classNames={{
-          root: cx(
-            MappedFieldPickerS.StyledSelectButton,
-            {
-              [MappedFieldPickerS.hasValue]: fieldObject,
-            },
-            className,
-          ),
-          icon: MappedFieldPickerS.StyledSelectIcon,
-        }}
+      <StyledSelectButton
         hasValue={!!fieldObject}
         tabIndex={tabIndex}
         ref={selectButtonRef as any}
         onClear={() => onChange(null)}
       >
-        <span className={MappedFieldPickerS.StyledSelectButtonContent}>
-          {`${tableName ? `${tableName} → ` : ""}${label}`}
-        </span>
-      </SelectButton>
+        {`${tableName ? `${tableName} → ` : ""}${label}`}
+      </StyledSelectButton>
     );
-  }, [className, fieldObject, onChange, tabIndex]);
+  }, [fieldObject, onChange, tabIndex]);
 
   // DataSelector doesn't handle selectedTableId change prop nicely.
   // During the initial load, fieldObject might have `table_id` set to `card__$ID` (retrieved from metadata)

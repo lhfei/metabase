@@ -18,8 +18,6 @@ const BUILD_PATH = __dirname + "/resources/embedding-sdk";
 const ENTERPRISE_SRC_PATH =
   __dirname + "/enterprise/frontend/src/metabase-enterprise";
 
-const skipDTS = process.env.SKIP_DTS === "true";
-
 // default WEBPACK_BUNDLE to development
 const WEBPACK_BUNDLE = process.env.WEBPACK_BUNDLE || "development";
 const isDevMode = WEBPACK_BUNDLE !== "production";
@@ -29,7 +27,9 @@ const sdkPackageTemplateJson = fs.readFileSync(
   "utf-8",
 );
 const sdkPackageTemplateJsonContent = JSON.parse(sdkPackageTemplateJson);
-const EMBEDDING_SDK_VERSION = sdkPackageTemplateJsonContent.version;
+const EMBEDDING_SDK_VERSION = JSON.stringify(
+  sdkPackageTemplateJsonContent.version,
+);
 
 // TODO: Reuse babel and css configs from webpack.config.js
 // Babel:
@@ -149,17 +149,17 @@ module.exports = env => {
       }),
       new webpack.EnvironmentPlugin({
         EMBEDDING_SDK_VERSION,
-        IS_EMBEDDING_SDK: true,
+        IS_EMBEDDING_SDK_BUILD: true,
       }),
-      !skipDTS &&
-        new ForkTsCheckerWebpackPlugin({
-          async: isDevMode,
-          typescript: {
-            configFile: resolve(__dirname, "./tsconfig.sdk.json"),
-            mode: "write-dts",
-            memoryLimit: 4096,
-          },
-        }),
+      new ForkTsCheckerWebpackPlugin({
+        async: isDevMode,
+        typescript: {
+          configFile: resolve(__dirname, "./tsconfig.sdk.json"),
+          mode: "write-dts",
+          memoryLimit: 4096,
+        },
+      }),
+
       shouldAnalyzeBundles &&
         new BundleAnalyzerPlugin({
           analyzerMode: "static",

@@ -1,7 +1,7 @@
 import { updateIn } from "icepick";
 import { t } from "ttag";
 
-import { cardApi, datasetApi, useGetCardQuery } from "metabase/api";
+import { cardApi, datasetApi } from "metabase/api";
 import {
   canonicalCollectionId,
   isRootTrashCollection,
@@ -17,7 +17,7 @@ import {
   undo,
 } from "metabase/lib/entities";
 import { compose, withAction, withNormalize } from "metabase/lib/redux";
-import * as Urls from "metabase/lib/urls/questions";
+import * as Urls from "metabase/lib/urls";
 import { PLUGIN_MODERATION } from "metabase/plugins";
 import {
   API_UPDATE_QUESTION,
@@ -31,8 +31,6 @@ import {
 
 const FETCH_METADATA = "metabase/entities/questions/FETCH_METADATA";
 const FETCH_ADHOC_METADATA = "metabase/entities/questions/FETCH_ADHOC_METADATA";
-export const INJECT_RTK_QUERY_QUESTION_VALUE =
-  "metabase/entities/questions/FETCH_ADHOC_METADATA";
 
 /**
  * @deprecated use "metabase/api" instead
@@ -41,12 +39,6 @@ const Questions = createEntity({
   name: "questions",
   nameOne: "question",
   path: "/api/card",
-
-  rtk: {
-    getUseGetQuery: () => ({
-      useGetQuery: useGetCardQuery,
-    }),
-  },
 
   api: {
     list: (entityQuery, dispatch) =>
@@ -57,24 +49,18 @@ const Questions = createEntity({
         dispatch,
         cardApi.endpoints.getCard,
       ),
-    create: (entityQuery, dispatch) => {
-      const { dashboard_id, collection_id, ...rest } = entityQuery;
-
-      const destination = dashboard_id ? { dashboard_id } : { collection_id };
-
-      return entityCompatibleQuery(
-        { ...rest, ...destination },
+    create: (entityQuery, dispatch) =>
+      entityCompatibleQuery(
+        entityQuery,
         dispatch,
         cardApi.endpoints.createCard,
-      );
-    },
-    update: (entityQuery, dispatch) => {
-      return entityCompatibleQuery(
+      ),
+    update: (entityQuery, dispatch) =>
+      entityCompatibleQuery(
         entityQuery,
         dispatch,
         cardApi.endpoints.updateCard,
-      );
-    },
+      ),
     delete: ({ id }, dispatch) =>
       entityCompatibleQuery(id, dispatch, cardApi.endpoints.deleteCard),
   },
@@ -123,31 +109,15 @@ const Questions = createEntity({
         undo(opts, getLabel(card), archived ? t`trashed` : t`restored`),
       ),
 
-    // NOTE: standard questions (i.e. not models, metrics, etc.) can live in dashboards as well as collections.
-    // this function name is incorrectly but maintained for consistency with other entities.
-    setCollection: (card, destination, opts) => {
+    setCollection: (card, collection, opts) => {
       return async dispatch => {
-        const archived =
-          destination.model === "collection" &&
-          isRootTrashCollection(destination);
-
-        const update =
-          destination.model === "dashboard"
-            ? {
-                dashboard_id: destination.id,
-                archived,
-                delete_old_dashcards: true,
-              }
-            : {
-                collection_id: canonicalCollectionId(destination.id),
-                dashboard_id: null,
-                archived,
-              };
-
         const result = await dispatch(
           Questions.actions.update(
             { id: card.id },
-            update,
+            {
+              collection_id: canonicalCollectionId(collection && collection.id),
+              archived: isRootTrashCollection(collection),
+            },
             undo(opts, getLabel(card), t`moved`),
           ),
         );
@@ -219,12 +189,6 @@ const Questions = createEntity({
         }));
       }
     }
-
-    if (type === INJECT_RTK_QUERY_QUESTION_VALUE) {
-      const { id } = payload;
-
-      return updateIn(state, [id], question => ({ ...question, ...payload }));
-    }
     return state;
   },
 
@@ -243,11 +207,9 @@ const Questions = createEntity({
     "enable_embedding",
     "embedding_params",
     "collection_id",
-    "dashboard_id",
     "collection_position",
     "collection_preview",
     "result_metadata",
-    "delete_old_dashcards",
   ],
 
   getAnalyticsMetadata([object], { action }, getState) {

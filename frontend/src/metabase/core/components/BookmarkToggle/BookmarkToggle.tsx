@@ -46,7 +46,12 @@ const BookmarkToggle = forwardRef(function BookmarkToggle(
       tooltip={isBookmarked ? t`Remove from bookmarks` : t`Bookmark`}
       placement={tooltipPlacement}
     >
-      <BookmarkButton {...props} ref={ref} onClick={handleClick}>
+      <BookmarkButton
+        {...props}
+        ref={ref}
+        isBookmarked={isBookmarked}
+        onClick={handleClick}
+      >
         <BookmarkIcon
           name={iconName}
           isBookmarked={isBookmarked}

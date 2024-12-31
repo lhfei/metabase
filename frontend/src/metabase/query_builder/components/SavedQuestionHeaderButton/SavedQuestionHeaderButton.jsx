@@ -1,11 +1,8 @@
 import PropTypes from "prop-types";
 import { t } from "ttag";
 
-import EditableText from "metabase/core/components/EditableText";
-import { Flex } from "metabase/ui";
-
 import { CollectionIcon } from "./CollectionIcon";
-import SavedQuestionHeaderButtonS from "./SavedQuestionHeaderButton.module.css";
+import { HeaderRoot, HeaderTitle } from "./SavedQuestionHeaderButton.styled";
 
 SavedQuestionHeaderButton.propTypes = {
   className: PropTypes.string,
@@ -15,9 +12,8 @@ SavedQuestionHeaderButton.propTypes = {
 
 function SavedQuestionHeaderButton({ question, onSave }) {
   return (
-    <Flex align="center" gap="0.25rem">
-      <EditableText
-        className={SavedQuestionHeaderButtonS.HeaderTitle}
+    <HeaderRoot>
+      <HeaderTitle
         isDisabled={!question.canWrite() || question.isArchived()}
         initialValue={question.displayName()}
         placeholder={t`Add title`}
@@ -29,8 +25,10 @@ function SavedQuestionHeaderButton({ question, onSave }) {
         collection={question?._card?.collection}
         question={question}
       />
-    </Flex>
+    </HeaderRoot>
   );
 }
 
-export default SavedQuestionHeaderButton;
+export default Object.assign(SavedQuestionHeaderButton, {
+  Root: HeaderRoot,
+});

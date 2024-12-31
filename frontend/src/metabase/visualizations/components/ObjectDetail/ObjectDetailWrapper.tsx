@@ -27,6 +27,7 @@ export function ObjectDetailWrapper({
     return (
       <RootModal
         isOpen
+        full={false}
         onClose={closeObjectDetail}
         className="" // need an empty className to override the Modal default width
       >

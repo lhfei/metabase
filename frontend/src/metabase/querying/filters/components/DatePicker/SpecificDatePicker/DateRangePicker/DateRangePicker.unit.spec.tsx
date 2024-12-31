@@ -13,8 +13,7 @@ const END_DATE_TIME = new Date(2020, 1, 9, 20, 30);
 
 interface SetupOpts {
   value?: DateRangePickerValue;
-  submitButtonLabel?: string;
-  hasTimeToggle?: boolean;
+  isNew?: boolean;
 }
 
 const userEvent = _userEvent.setup({
@@ -23,8 +22,7 @@ const userEvent = _userEvent.setup({
 
 function setup({
   value = { dateRange: [START_DATE, END_DATE], hasTime: false },
-  submitButtonLabel = "Apply",
-  hasTimeToggle = false,
+  isNew = false,
 }: SetupOpts = {}) {
   const onChange = jest.fn();
   const onSubmit = jest.fn();
@@ -32,8 +30,7 @@ function setup({
   renderWithProviders(
     <DateRangePicker
       value={value}
-      submitButtonLabel={submitButtonLabel}
-      hasTimeToggle={hasTimeToggle}
+      isNew={isNew}
       onChange={onChange}
       onSubmit={onSubmit}
     />,
@@ -68,7 +65,6 @@ describe("SingleDatePicker", () => {
         dateRange: [START_DATE_TIME, END_DATE_TIME],
         hasTime: true,
       },
-      hasTimeToggle: true,
     });
 
     const calendars = screen.getAllByRole("table");
@@ -104,7 +100,6 @@ describe("SingleDatePicker", () => {
         dateRange: [START_DATE_TIME, END_DATE],
         hasTime: true,
       },
-      hasTimeToggle: true,
     });
 
     const input = screen.getByLabelText("Start date");
@@ -140,7 +135,6 @@ describe("SingleDatePicker", () => {
         dateRange: [START_DATE, END_DATE_TIME],
         hasTime: true,
       },
-      hasTimeToggle: true,
     });
 
     const input = screen.getByLabelText("End date");
@@ -155,9 +149,7 @@ describe("SingleDatePicker", () => {
   });
 
   it("should be able to add time", async () => {
-    const { onChange, onSubmit } = setup({
-      hasTimeToggle: true,
-    });
+    const { onChange, onSubmit } = setup();
     expect(screen.queryByLabelText("Start time")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("End time")).not.toBeInTheDocument();
 
@@ -175,7 +167,6 @@ describe("SingleDatePicker", () => {
         dateRange: [START_DATE_TIME, END_DATE_TIME],
         hasTime: true,
       },
-      hasTimeToggle: true,
     });
 
     const input = screen.getByLabelText("Start time");
@@ -195,7 +186,6 @@ describe("SingleDatePicker", () => {
         dateRange: [START_DATE_TIME, END_DATE_TIME],
         hasTime: true,
       },
-      hasTimeToggle: true,
     });
 
     const input = screen.getByLabelText("End time");
@@ -215,7 +205,6 @@ describe("SingleDatePicker", () => {
         dateRange: [START_DATE_TIME, END_DATE_TIME],
         hasTime: true,
       },
-      hasTimeToggle: true,
     });
 
     await userEvent.click(screen.getByText("Remove time"));
@@ -225,13 +214,5 @@ describe("SingleDatePicker", () => {
       hasTime: false,
     });
     expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it("should not allow to add time when the time toggle is disabled", () => {
-    setup({
-      value: { dateRange: [START_DATE_TIME, END_DATE_TIME], hasTime: false },
-      hasTimeToggle: false,
-    });
-    expect(screen.queryByText("Add time")).not.toBeInTheDocument();
   });
 });

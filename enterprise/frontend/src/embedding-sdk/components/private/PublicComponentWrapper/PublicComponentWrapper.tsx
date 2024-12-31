@@ -5,26 +5,27 @@ import { PublicComponentStylesWrapper } from "embedding-sdk/components/private/P
 import { SdkError } from "embedding-sdk/components/private/PublicComponentWrapper/SdkError";
 import { SdkLoader } from "embedding-sdk/components/private/PublicComponentWrapper/SdkLoader";
 import { useSdkSelector } from "embedding-sdk/store";
-import { getLoginStatus, getUsageProblem } from "embedding-sdk/store/selectors";
+import { getLoginStatus } from "embedding-sdk/store/selectors";
 
-import { RenderOnlyInSdkProvider } from "../SdkContext";
-
-export type PublicComponentWrapperProps = {
+type PublicComponentWrapperProps = {
   children: React.ReactNode;
   className?: string;
   style?: CSSProperties;
 };
-const PublicComponentWrapperInner = React.forwardRef<
+export const PublicComponentWrapper = React.forwardRef<
   HTMLDivElement,
   PublicComponentWrapperProps
 >(function PublicComponentWrapper({ children, className, style }, ref) {
   const loginStatus = useSdkSelector(getLoginStatus);
-  const usageProblem = useSdkSelector(getUsageProblem);
 
   let content = children;
 
   if (loginStatus.status === "uninitialized") {
     content = <div>{t`Initializing…`}</div>;
+  }
+
+  if (loginStatus.status === "validated") {
+    content = <div>{t`JWT is valid.`}</div>;
   }
 
   if (loginStatus.status === "loading") {
@@ -35,25 +36,9 @@ const PublicComponentWrapperInner = React.forwardRef<
     content = <SdkError message={loginStatus.error.message} />;
   }
 
-  // The SDK components should not load if there is a license error.
-  if (usageProblem?.severity === "error") {
-    content = null;
-  }
-
   return (
     <PublicComponentStylesWrapper className={className} style={style} ref={ref}>
       {content}
     </PublicComponentStylesWrapper>
-  );
-});
-
-export const PublicComponentWrapper = React.forwardRef<
-  HTMLDivElement,
-  PublicComponentWrapperProps
->(function PublicComponentWrapper(props, ref) {
-  return (
-    <RenderOnlyInSdkProvider>
-      <PublicComponentWrapperInner ref={ref} {...props} />
-    </RenderOnlyInSdkProvider>
   );
 });

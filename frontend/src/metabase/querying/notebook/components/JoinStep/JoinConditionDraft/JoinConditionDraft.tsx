@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useState } from "react";
 
 import { Box, Flex } from "metabase/ui";
 import * as Lib from "metabase-lib";
@@ -8,7 +8,7 @@ import { JoinConditionOperatorPicker } from "../JoinConditionOperatorPicker";
 import { JoinConditionRemoveButton } from "../JoinConditionRemoveButton";
 import { updateTemporalBucketing } from "../utils";
 
-import S from "./JoinConditionDraft.module.css";
+import { JoinConditionRoot } from "./JoinConditionDraft.styled";
 import { getDefaultJoinConditionOperator } from "./utils";
 
 interface JoinConditionDraftProps {
@@ -16,7 +16,6 @@ interface JoinConditionDraftProps {
   stageIndex: number;
   joinable: Lib.JoinOrJoinable;
   lhsTableName: string;
-  rhsTable?: Lib.Joinable;
   rhsTableName: string | undefined;
   isReadOnly: boolean;
   isRemovable: boolean;
@@ -30,7 +29,6 @@ export function JoinConditionDraft({
   stageIndex,
   joinable,
   lhsTableName,
-  rhsTable,
   rhsTableName,
   isReadOnly,
   isRemovable,
@@ -79,15 +77,8 @@ export function JoinConditionDraft({
     handleColumnChange(lhsColumn, newRhsColumn);
   };
 
-  useLayoutEffect(() => {
-    setLhsColumn(undefined);
-    setRhsColumn(undefined);
-    setIsLhsOpened(true);
-    setIsRhsOpened(false);
-  }, [rhsTable]);
-
   return (
-    <Flex className={S.JoinConditionRoot}>
+    <JoinConditionRoot>
       <Flex align="center" gap="xs" mih="47px" p="xs">
         <Box ml={!lhsColumn ? "xs" : undefined}>
           <JoinConditionColumnPicker
@@ -134,6 +125,6 @@ export function JoinConditionDraft({
           onClick={onRemove}
         />
       )}
-    </Flex>
+    </JoinConditionRoot>
   );
 }

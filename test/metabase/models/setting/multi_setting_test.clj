@@ -12,8 +12,7 @@
 (multi-setting/define-multi-setting ^:private multi-setting-test-bird-name
   "A test Setting."
   (fn [] *parakeet*)
-  :visibility :internal
-  :encryption :no)
+  :visibility :internal)
 
 (multi-setting/define-multi-setting-impl multi-setting-test-bird-name :green-friend
   :getter (constantly "Green Friend")

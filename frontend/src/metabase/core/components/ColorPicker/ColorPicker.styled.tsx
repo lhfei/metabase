@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
 
+export const TriggerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
 export const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -50,7 +56,7 @@ export const HueContainer = styled.div`
   overflow: hidden;
 `;
 
-const ControlsPointer = styled.div`
+export const ControlsPointer = styled.div`
   border: 2px solid var(--mb-color-bg-white);
   border-radius: 50%;
   pointer-events: none;

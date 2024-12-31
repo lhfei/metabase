@@ -1,6 +1,5 @@
 .ModalContainer {
-  position: absolute;
-  z-index: var(--mb-overlay-z-index);
+  z-index: 4;
 }
 
 .Modal {
@@ -46,6 +45,7 @@
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 3;
 }
 
 .ModalBackdrop {
@@ -94,9 +94,7 @@
 
 .ModalBackdrop.ModalAppearActive .Modal,
 .ModalBackdrop.ModalEnterActive .Modal {
-  transition:
-    opacity 200ms linear 100ms,
-    transform 200ms ease-in-out 100ms;
+  transition: opacity 200ms linear 100ms, transform 200ms ease-in-out 100ms;
   opacity: 1;
   transform: translate(0, 0);
 }
@@ -107,9 +105,7 @@
 }
 
 .ModalBackdrop.ModalExitActive .Modal {
-  transition:
-    opacity 200ms linear,
-    transform 200ms ease-in-out;
+  transition: opacity 200ms linear, transform 200ms ease-in-out;
   opacity: 0.01;
   transform: translate(0, -40px);
 }

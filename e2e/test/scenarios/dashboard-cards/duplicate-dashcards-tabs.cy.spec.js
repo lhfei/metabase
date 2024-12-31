@@ -1,5 +1,20 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  dashboardCards,
+  describeWithSnowplow,
+  duplicateTab,
+  enableTracking,
+  expectGoodSnowplowEvent,
+  expectNoBadSnowplowEvents,
+  filterWidget,
+  findDashCardAction,
+  getDashboardCard,
+  popover,
+  resetSnowplow,
+  restore,
+  saveDashboard,
+  visitDashboard,
+} from "e2e/support/helpers";
 import {
   createMockDashboardCard,
   createMockParameter,
@@ -48,12 +63,12 @@ const EVENTS = {
   saveDashboard: { event: "dashboard_saved" },
 };
 
-H.describeWithSnowplow("scenarios > dashboard cards > duplicate", () => {
+describeWithSnowplow("scenarios > dashboard cards > duplicate", () => {
   beforeEach(() => {
-    H.restore();
-    H.resetSnowplow();
+    restore();
+    resetSnowplow();
     cy.signInAsAdmin();
-    H.enableTracking();
+    enableTracking();
 
     cy.createQuestion(MAPPED_QUESTION_CREATE_INFO).then(
       ({ body: { id: mappedQuestionId } }) => {
@@ -71,24 +86,24 @@ H.describeWithSnowplow("scenarios > dashboard cards > duplicate", () => {
   });
 
   afterEach(() => {
-    H.expectNoBadSnowplowEvents();
+    expectNoBadSnowplowEvents();
   });
 
   it("should allow the user to duplicate a dashcard", () => {
     // 1. Confirm duplication works
-    H.visitDashboard("@dashboardId");
+    visitDashboard("@dashboardId");
     cy.findByLabelText("Edit dashboard").click();
 
-    H.findDashCardAction(H.getDashboardCard(0), "Duplicate").click();
-    H.expectGoodSnowplowEvent(EVENTS.duplicateDashcard);
-    H.saveDashboard();
-    H.expectGoodSnowplowEvent(EVENTS.saveDashboard);
+    findDashCardAction(getDashboardCard(0), "Duplicate").click();
+    expectGoodSnowplowEvent(EVENTS.duplicateDashcard);
+    saveDashboard();
+    expectGoodSnowplowEvent(EVENTS.saveDashboard);
 
     cy.findAllByText("Products").should("have.length", 2);
 
     // 2. Confirm filter still works
-    H.filterWidget().click();
-    H.popover().within(() => {
+    filterWidget().click();
+    popover().within(() => {
       cy.findByText("Gadget").click();
     });
     cy.button("Add filter").click();
@@ -98,31 +113,31 @@ H.describeWithSnowplow("scenarios > dashboard cards > duplicate", () => {
 
   it("should allow the user to duplicate a tab", () => {
     // 1. Confirm duplication works
-    H.visitDashboard("@dashboardId");
+    visitDashboard("@dashboardId");
     cy.findByLabelText("Edit dashboard").click();
 
-    H.duplicateTab("Tab 1");
-    H.expectGoodSnowplowEvent(EVENTS.duplicateTab);
-    H.getDashboardCard().within(() => {
+    duplicateTab("Tab 1");
+    expectGoodSnowplowEvent(EVENTS.duplicateTab);
+    getDashboardCard().within(() => {
       cy.findByText("Products").should("exist");
       cy.findByText("Category").should("exist");
       cy.findByText(/(Problem|Error)/i).should("not.exist");
     });
-    H.saveDashboard();
-    H.expectGoodSnowplowEvent(EVENTS.saveDashboard);
+    saveDashboard();
+    expectGoodSnowplowEvent(EVENTS.saveDashboard);
 
-    H.dashboardCards().within(() => {
+    dashboardCards().within(() => {
       cy.findByText("Products");
     });
 
     // 2. Confirm filter still works
-    H.filterWidget().click();
-    H.popover().within(() => {
+    filterWidget().click();
+    popover().within(() => {
       cy.findByText("Gadget").click();
     });
     cy.button("Add filter").click();
 
-    H.dashboardCards().within(() => {
+    dashboardCards().within(() => {
       cy.findByText("Incredible Bronze Pants");
     });
   });

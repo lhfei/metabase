@@ -1,24 +1,16 @@
-import cx from "classnames";
+import styled from "@emotion/styled";
 import PropTypes from "prop-types";
 import { memo, useMemo, useState } from "react";
 
 import { isReducedMotionPreferred } from "metabase/lib/dom";
 import NativeQueryEditor from "metabase/query_builder/components/NativeQueryEditor";
-import { Box } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import { DatasetNotebook } from "./DatasetNotebook";
-import S from "./DatasetQueryEditor.module.css";
+import ResizableNotebook from "./ResizableNotebook";
 
-// eslint-disable-next-line react/prop-types
-const QueryEditorContainer = ({ isActive, ...props }) => {
-  return (
-    <Box
-      className={cx(S.QueryEditorContainer, { [S.isHidden]: !isActive })}
-      {...props}
-    />
-  );
-};
+const QueryEditorContainer = styled.div`
+  visibility: ${props => (props.isActive ? "visible" : "hidden")};
+`;
 
 const SMOOTH_RESIZE_STYLE = { transition: "height 0.25s" };
 
@@ -83,10 +75,15 @@ function DatasetQueryEditor({
           hasEditingSidebar={isActive}
           hasParametersList={false}
           resizableBoxProps={resizableBoxProps}
+          // We need to rerun the query after saving changes or canceling edits
+          // By default, NativeQueryEditor cancels an active query on unmount,
+          // which can also cancel the expected query rerun
+          // (see https://github.com/metabase/metabase/issues/19180)
+          cancelQueryOnLeave={false}
           onSetDatabaseId={onSetDatabaseId}
         />
       ) : (
-        <DatasetNotebook
+        <ResizableNotebook
           {...props}
           question={question}
           isResizing={isResizing}

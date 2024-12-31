@@ -1,5 +1,17 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  cartesianChartCircle,
+  changeBinningForDimension,
+  chartPathWithFillColor,
+  echartsContainer,
+  entityPickerModal,
+  entityPickerModalTab,
+  restore,
+  startNewQuestion,
+  summarize,
+  tableHeaderClick,
+  visualize,
+} from "e2e/support/helpers";
 
 const { ORDERS_ID, ORDERS, PEOPLE_ID, PEOPLE, PRODUCTS_ID, PRODUCTS } =
   SAMPLE_DATABASE;
@@ -11,7 +23,7 @@ const { ORDERS_ID, ORDERS, PEOPLE_ID, PEOPLE, PRODUCTS_ID, PRODUCTS } =
  */
 describe("scenarios > binning > from a saved QB question with explicit joins", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
     cy.createQuestion({
       name: "QB Binning",
@@ -55,19 +67,19 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
 
   context("via simple mode", () => {
     beforeEach(() => {
-      H.startNewQuestion();
+      startNewQuestion();
 
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").click();
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Saved questions").click();
         cy.findByText("QB Binning").click();
       });
 
-      H.visualize();
-      H.summarize();
+      visualize();
+      summarize();
     });
 
     it("should work for time series", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "People → Birth Date",
         fromBinning: "by month",
         toBinning: "Year",
@@ -85,7 +97,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
       cy.findByText("Quarter").click();
 
       cy.wait("@dataset");
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", "Q1 1968")
         .and("contain", "Q1 1978")
@@ -94,7 +106,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
     });
 
     it("should work for number", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "Products → Price",
         fromBinning: "Auto bin",
         toBinning: "50 bins",
@@ -107,7 +119,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
     });
 
     it("should work for longitude", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "People → Longitude",
         fromBinning: "Auto bin",
         toBinning: "Bin every 20 degrees",
@@ -122,15 +134,15 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
 
   context("via notebook mode", () => {
     beforeEach(() => {
-      H.startNewQuestion();
+      startNewQuestion();
 
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").click();
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Saved questions").click();
         cy.findByText("QB Binning").click();
       });
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
-      cy.findByText("Pick a function or metric").click();
+      cy.findByText("Pick the metric you want to see").click();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count of rows").click();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -138,7 +150,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
     });
 
     it("should work for time series", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "People → Birth Date",
         fromBinning: "by month",
         toBinning: "Year",
@@ -157,7 +169,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
       cy.findByText("Quarter").click();
 
       cy.wait("@dataset");
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", "Q1 1965")
         .and("contain", "Q1 1972")
@@ -165,7 +177,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
     });
 
     it("should work for number", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "Products → Price",
         fromBinning: "Auto bin",
         toBinning: "50 bins",
@@ -179,7 +191,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
     });
 
     it("should work for longitude", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "People → Longitude",
         fromBinning: "Auto bin",
         toBinning: "Bin every 20 degrees",
@@ -195,18 +207,18 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
 
   context("via column popover", () => {
     beforeEach(() => {
-      H.startNewQuestion();
+      startNewQuestion();
 
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").click();
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Saved questions").click();
         cy.findByText("QB Binning").click();
       });
 
-      H.visualize();
+      visualize();
     });
 
     it("should work for time series", () => {
-      H.tableHeaderClick("People → Birth Date");
+      tableHeaderClick("People → Birth Date");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Distribution").click();
 
@@ -216,14 +228,14 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
 
       assertOnXYAxisLabels({ xLabel: "People → Birth Date", yLabel: "Count" });
 
-      H.echartsContainer()
+      echartsContainer()
         .get("text", { timeout: 1000 })
         .should("contain", "January 1968")
         .and("contain", "January 1978")
         .and("contain", "January 1988")
         .and("contain", "January 1998");
 
-      H.cartesianChartCircle();
+      cartesianChartCircle();
 
       // Make sure time series footer works as well
       cy.findByTestId("timeseries-bucket-button").contains("Month").click();
@@ -234,7 +246,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by People → Birth Date: Quarter");
 
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", "Q1 1965")
         .and("contain", "Q1 1972")
@@ -245,7 +257,7 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
     });
 
     it("should work for number", () => {
-      H.tableHeaderClick("Products → Price");
+      tableHeaderClick("Products → Price");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Distribution").click();
 
@@ -260,11 +272,11 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("25");
 
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
 
     it("should work for longitude", () => {
-      H.tableHeaderClick("People → Longitude");
+      tableHeaderClick("People → Longitude");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Distribution").click();
 
@@ -282,15 +294,15 @@ describe("scenarios > binning > from a saved QB question with explicit joins", (
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("160° W");
 
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
   });
 });
 
 function assertOnXYAxisLabels({ xLabel, yLabel } = {}) {
-  H.echartsContainer().get("text").contains(xLabel);
+  echartsContainer().get("text").contains(xLabel);
 
-  H.echartsContainer().get("text").contains(yLabel);
+  echartsContainer().get("text").contains(yLabel);
 }
 
 function waitAndAssertOnRequest(requestAlias) {
@@ -305,22 +317,22 @@ function assertQueryBuilderState({
   mode = null,
   values,
 } = {}) {
-  mode === "notebook" ? H.visualize() : waitAndAssertOnRequest("@dataset");
+  mode === "notebook" ? visualize() : waitAndAssertOnRequest("@dataset");
 
   const visualizationSelector = columnType === "time" ? "circle" : "bar";
 
   if (visualizationSelector === "circle") {
-    H.cartesianChartCircle();
+    cartesianChartCircle();
   } else {
-    H.chartPathWithFillColor("#509EE3");
+    chartPathWithFillColor("#509EE3");
   }
 
   cy.findByText(title);
 
-  H.echartsContainer().get("text").should("contain", "Count");
+  echartsContainer().get("text").should("contain", "Count");
 
   values &&
-    H.echartsContainer().within(() => {
+    echartsContainer().within(() => {
       values.forEach(value => {
         cy.findByText(value);
       });

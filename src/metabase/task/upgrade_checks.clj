@@ -1,17 +1,15 @@
 (ns metabase.task.upgrade-checks
   "Contains a Metabase task which periodically checks for the availability of new Metabase versions."
   (:require
+   [cheshire.core :as json]
    [clj-http.client :as http]
-   [clojure.string :as str]
    [clojurewerkz.quartzite.jobs :as jobs]
    [clojurewerkz.quartzite.schedule.cron :as cron]
    [clojurewerkz.quartzite.triggers :as triggers]
    [java-time.api :as t]
-   [medley.core :as m]
    [metabase.config :as config]
    [metabase.public-settings :as public-settings]
    [metabase.task :as task]
-   [metabase.util.json :as json]
    [metabase.util.log :as log]))
 
 (set! *warn-on-reflection* true)
@@ -22,14 +20,10 @@
         {:keys [status body]} (http/get version-info-url (merge
                                                           {:content-type "application/json"}
                                                           (when config/is-prod?
-                                                            {:query-params (m/remove-vals
-                                                                            str/blank?
-                                                                            {"instance" (public-settings/site-uuid-for-version-info-fetching)
-                                                                             "current-version" (:tag config/mb-version-info)
-                                                                             "channel" (public-settings/update-channel)})})))]
+                                                            {:query-params {"instance" (public-settings/site-uuid-for-version-info-fetching)}})))]
     (when (not= status 200)
       (throw (Exception. (format "[%d]: %s" status body))))
-    (json/decode+kw body)))
+    (json/parse-string body keyword)))
 
 (jobs/defjob ^{:doc "Simple job which looks up all databases and runs a sync on them"} CheckForNewVersions [_]
   (when (public-settings/check-for-updates)

@@ -1,6 +1,5 @@
 import type { FormikHelpers } from "formik";
-import { useMemo } from "react";
-import { c, jt, t } from "ttag";
+import { jt, t } from "ttag";
 import * as Yup from "yup";
 
 import { useTestChannelMutation } from "metabase/api/channel";
@@ -16,22 +15,10 @@ import { useActionButtonLabel } from "metabase/hooks/use-action-button-label";
 import { getResponseErrorMessage } from "metabase/lib/errors";
 import { useSelector } from "metabase/lib/redux";
 import { getDocsUrl } from "metabase/selectors/settings";
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  Flex,
-  Group,
-  Icon,
-  ScrollArea,
-  Text,
-  Title,
-} from "metabase/ui";
-import {
-  type NotificationAuthMethods,
-  type NotificationAuthType,
-  isNotificationChannelTestErrorResponse,
+import { Alert, Button, Chip, Flex, Group, Icon, Text } from "metabase/ui";
+import type {
+  NotificationAuthMethods,
+  NotificationAuthType,
 } from "metabase-types/api";
 
 import { buildAuthInfo } from "./utils";
@@ -140,7 +127,7 @@ const renderAuthSection = (type: string) => {
             <FormTextInput
               name="auth-info-key"
               label={t`Key`}
-              placeholder={t`X-API-KEY`}
+              placeholder={t`API Key`}
               {...styles}
               mb="1.5rem"
             />
@@ -173,13 +160,7 @@ export const WebhookForm = ({
 }) => {
   const { label: testButtonLabel, setLabel: setTestButtonLabel } =
     useActionButtonLabel({ defaultLabel: t`Send a test` });
-  const [testChannel, { error }] = useTestChannelMutation();
-
-  const errorData = useMemo(() => {
-    if (isNotificationChannelTestErrorResponse(error)) {
-      return error.data.data;
-    }
-  }, [error]);
+  const [testChannel] = useTestChannelMutation();
 
   const docsUrl = useSelector(state =>
     getDocsUrl(state, { page: "questions/sharing/alerts" }),
@@ -229,57 +210,27 @@ export const WebhookForm = ({
             radius="0.5rem"
           >
             <Text>{jt`You can send the payload of any Alert to this destination whenever the Alert is triggered. ${(
-              <ExternalLink key="link" href={docsUrl}>
+              <ExternalLink href={docsUrl}>
                 {t`Learn about Alerts`}
               </ExternalLink>
             )}`}</Text>
           </Alert>
-          <Box mb="1.5rem">
-            <Flex align="end" gap="1rem">
-              <FormTextInput
-                name="url"
-                label={t`Webhook URL`}
-                placeholder="http://hooks.example.com/hooks/catch/"
-                style={{ flexGrow: 1 }}
-                {...styles}
-                maw="21rem"
-              />
-              <Button
-                h="2.5rem"
-                onClick={() => handleTest(values, setFieldError)}
-              >
-                {testButtonLabel}
-              </Button>
-            </Flex>
-            {!!errorData && (
-              //@ts-expect-error - I think the typing for ScrollArea.Autosize is wrong. It seems to want every single style prop for Box
-              <ScrollArea.Autosize mah={200} mt="0.75rem">
-                <Title order={6} mb="0.75rem" lh="1rem">
-                  {c("The response returned by an API Request")
-                    .t`Test response`}
-                </Title>
-                <Box
-                  py="0.5rem"
-                  px="1.5rem"
-                  bg="bg-light"
-                  style={{ borderRadius: "0.5rem" }}
-                  data-testid="notification-test-response"
-                >
-                  <pre
-                    style={{
-                      margin: 0,
-                      fontSize: "0.75rem",
-                      lineHeight: "1rem",
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {JSON.stringify(errorData, null, 2)}
-                  </pre>
-                </Box>
-              </ScrollArea.Autosize>
-            )}
-          </Box>
-
+          <Flex align="end" mb="1.5rem" gap="1rem">
+            <FormTextInput
+              name="url"
+              label={t`Webhook URL`}
+              placeholder="http://hooks.example.com/hooks/catch/"
+              style={{ flexGrow: 1 }}
+              {...styles}
+              maw="21rem"
+            />
+            <Button
+              h="2.5rem"
+              onClick={() => handleTest(values, setFieldError)}
+            >
+              {testButtonLabel}
+            </Button>
+          </Flex>
           <FormTextInput
             name="name"
             label={t`Give it a name`}

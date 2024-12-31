@@ -2,11 +2,9 @@ import fs from "fs/promises";
 
 import { input } from "@inquirer/prompts";
 
-import { GENERATED_COMPONENTS_DEFAULT_PATH } from "../constants/config";
 import { getGeneratedComponentFilesMessage } from "../constants/messages";
 import { ANALYTICS_CSS_SNIPPET } from "../snippets/analytics-css-snippet";
 import type { CliStepMethod } from "../types/cli";
-import { checkIsInTypeScriptProject } from "../utils/check-typescript-project";
 import { getComponentSnippets } from "../utils/get-component-snippets";
 import { printError, printSuccess } from "../utils/print";
 
@@ -26,7 +24,7 @@ export const generateReactComponentFiles: CliStepMethod = async state => {
   while (true) {
     path = await input({
       message: "Where do you want to save the example React components?",
-      default: GENERATED_COMPONENTS_DEFAULT_PATH,
+      default: "./components/metabase",
     });
 
     // Create a directory if it doesn't already exist.
@@ -50,13 +48,9 @@ export const generateReactComponentFiles: CliStepMethod = async state => {
     userSwitcherEnabled: !!token,
   });
 
-  const isInTypeScriptProject = await checkIsInTypeScriptProject();
-  const fileExtension = isInTypeScriptProject ? "ts" : "js";
-  const componentExtension = isInTypeScriptProject ? "tsx" : "jsx";
-
   // Generate sample components files in the specified directory.
   for (const { name, content } of sampleComponents) {
-    await fs.writeFile(`${path}/${name}.${componentExtension}`, content);
+    await fs.writeFile(`${path}/${name}.jsx`, content);
   }
 
   // Generate analytics.css sample styles.
@@ -68,7 +62,7 @@ export const generateReactComponentFiles: CliStepMethod = async state => {
     .join("\n")
     .trim();
 
-  await fs.writeFile(`${path}/index.${fileExtension}`, exportIndexContent);
+  await fs.writeFile(`${path}/index.js`, exportIndexContent);
 
   printSuccess(getGeneratedComponentFilesMessage(path));
 

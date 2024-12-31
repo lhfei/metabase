@@ -54,7 +54,6 @@ interface SourceFilters {
 
 interface ExtraData {
   dashboard?: Dashboard;
-  parameters?: Parameter[];
   dashboards?: Record<Dashboard["id"], Dashboard>;
 }
 
@@ -146,13 +145,12 @@ export function getTargetsForQuestion(question: Question): Target[] {
 }
 
 function getTargetsForStructuredQuestion(question: Question): Target[] {
-  const { query, columns } = getParameterColumns(question);
+  const { query, stageIndex, columns } = getParameterColumns(question);
 
-  return columns.map(({ column: targetColumn, stageIndex }) => {
+  return columns.map(targetColumn => {
     const dimension: ClickBehaviorDimensionTarget["dimension"] = [
       "dimension",
       Lib.legacyRef(query, stageIndex, targetColumn),
-      { "stage-number": stageIndex },
     ];
     const id = JSON.stringify(dimension);
     const target: ClickBehaviorTarget = { type: "dimension", id, dimension };
@@ -164,7 +162,6 @@ function getTargetsForStructuredQuestion(question: Question): Target[] {
       sourceFilters: {
         column: (sourceColumn, sourceQuestion) => {
           const sourceQuery = sourceQuestion.query();
-          const stageIndex = -1;
 
           return Lib.isAssignableType(
             Lib.fromLegacyColumn(sourceQuery, stageIndex, sourceColumn),
@@ -419,7 +416,7 @@ export function formatSourceForTarget(
     }
   }
 
-  return parameter ? parseParameterValue(datum.value, parameter) : datum.value;
+  return datum.value;
 }
 
 function formatDateForParameterType(
@@ -473,7 +470,7 @@ function getParameter(
   },
 ): Parameter | undefined {
   if (clickBehavior.type === "crossfilter") {
-    const parameters = extraData.parameters ?? [];
+    const parameters = extraData.dashboard?.parameters || [];
     return parameters.find(parameter => parameter.id === target.id);
   }
 
@@ -483,11 +480,9 @@ function getParameter(
     (clickBehavior.linkType === "dashboard" ||
       clickBehavior.linkType === "question")
   ) {
-    const dashboardId = clickBehavior.targetId as DashboardId;
-    const parameters =
-      extraData.dashboard?.id === dashboardId
-        ? (extraData.parameters ?? [])
-        : (extraData.dashboards?.[dashboardId]?.parameters ?? []);
+    const dashboard =
+      extraData.dashboards?.[clickBehavior.targetId as DashboardId];
+    const parameters = dashboard?.parameters || [];
     return parameters.find(parameter => parameter.id === target.id);
   }
 

@@ -10,14 +10,18 @@ import TimelineEvents from "metabase/entities/timeline-events";
 import { copy } from "metabase/lib/utils";
 
 import {
+  ADD_CHAT,
   API_CREATE_QUESTION,
   API_UPDATE_QUESTION,
+  CANCEL_DATASET_CHANGES,
   CANCEL_QUERY,
-  CANCEL_QUESTION_CHANGES,
+  CLEAR_CHAT_LIST,
   CLEAR_OBJECT_DETAIL_FK_REFERENCES,
   CLEAR_QUERY_RESULT,
   CLOSE_QB,
   CLOSE_QB_NEWB_MODAL,
+  CREATE_PUBLIC_LINK,
+  DELETE_PUBLIC_LINK,
   DESELECT_TIMELINE_EVENTS,
   HIDE_TIMELINE_EVENTS,
   INITIALIZE_QB,
@@ -26,6 +30,7 @@ import {
   QUERY_COMPLETED,
   QUERY_ERRORED,
   RELOAD_CARD,
+  REMOVE_CHAT,
   RESET_QB,
   RESET_ROW_ZOOM,
   RESET_UI_CONTROLS,
@@ -46,14 +51,17 @@ import {
   SET_UI_CONTROLS,
   SHOW_CHART_SETTINGS,
   SHOW_TIMELINE_EVENTS,
+  SOFT_RELOAD_CARD,
   TOGGLE_DATA_REFERENCE,
   TOGGLE_SNIPPET_SIDEBAR,
   TOGGLE_TEMPLATE_TAGS_EDITOR,
+  UPDATE_EMBEDDING_PARAMS,
+  UPDATE_ENABLE_EMBEDDING,
+  UPDATE_QUESTION,
   ZOOM_IN_ROW,
   onCloseChartSettings,
   onCloseChartType,
   onCloseQuestionInfo,
-  onCloseQuestionSettings,
   onCloseSidebars,
   onCloseSummary,
   onCloseTimelines,
@@ -61,17 +69,89 @@ import {
   onOpenChartSettings,
   onOpenChartType,
   onOpenQuestionInfo,
-  onOpenQuestionSettings,
   onOpenTimelines,
 } from "./actions";
-import {
-  CLOSED_NATIVE_EDITOR_SIDEBARS,
-  DEFAULT_DASHBOARD_STATE,
-  DEFAULT_LOADING_CONTROLS,
-  DEFAULT_QUERY_STATUS,
-  DEFAULT_UI_CONTROLS,
-  UI_CONTROLS_SIDEBAR_DEFAULTS,
-} from "./defaults";
+import { testData } from "./testmd";
+
+// added by lsh
+const DEFAULT_CHAT_LIST = [
+  // {
+  //   type: "user",
+  //   question: "查询商品表中各商品的价格，用柱状图展示",
+  //   id: 1,
+  //   card: {
+  //     creationType: "native_question",
+  //     dataset_query: {
+  //       type: "native",
+  //       native: {
+  //         query: "SELECT * FROM Products WHERE price > 90;",
+  //         "template-tags": {},
+  //       },
+  //       database: 1,
+  //     },
+  //     display: "bar",
+  //     type: "question",
+  //     visualization_settings: {
+  //       "graph.dimensions": ["TITLE"],
+  //       "graph.metrics": ["PRICE"],
+  //     },
+  //     parameters: [],
+  //   },
+  // },
+  // { type: "gpt", markdown: testData, id: 2 },
+];
+
+const DEFAULT_UI_CONTROLS = {
+  dataReferenceStack: null,
+  isModifiedFromNotebook: false,
+  isShowingDataReference: false,
+  isShowingTemplateTagsEditor: false,
+  isShowingNewbModal: false,
+  isRunning: false,
+  isQueryComplete: false,
+  isShowingSummarySidebar: false,
+  isShowingChartTypeSidebar: false,
+  isShowingChartSettingsSidebar: false,
+  isShowingQuestionInfoSidebar: false,
+  isShowingTimelineSidebar: false,
+  isNativeEditorOpen: false,
+  initialChartSetting: null,
+  isShowingRawTable: false, // table/viz toggle
+  queryBuilderMode: false, // "view" | "notebook" | "dataset"
+  previousQueryBuilderMode: false,
+  snippetCollectionId: null,
+  datasetEditorTab: "query", // "query" / "metadata"
+  chatList: DEFAULT_CHAT_LIST, // added by lsh
+};
+
+const DEFAULT_LOADING_CONTROLS = {
+  showLoadCompleteFavicon: false,
+  documentTitle: "",
+  timeoutId: "",
+};
+
+const DEFAULT_DASHBOARD_STATE = {
+  dashboardId: null,
+  isEditing: false,
+};
+
+const DEFAULT_QUERY_STATUS = "idle";
+
+const UI_CONTROLS_SIDEBAR_DEFAULTS = {
+  isShowingSummarySidebar: false,
+  isShowingChartSettingsSidebar: false,
+  isShowingChartTypeSidebar: false,
+  isShowingTimelineSidebar: false,
+  isShowingQuestionInfoSidebar: false,
+};
+
+// this is used to close other sidebar when one is updated
+const CLOSED_NATIVE_EDITOR_SIDEBARS = {
+  isShowingTemplateTagsEditor: false,
+  isShowingSnippetSidebar: false,
+  isShowingDataReference: false,
+  isShowingTimelineSidebar: false,
+};
 
 function setUIControls(state, changes) {
   const { queryBuilderMode: currentQBMode, ...currentState } = state;
@@ -99,6 +179,26 @@ function setUIControls(state, changes) {
 
 export const uiControls = handleActions(
   {
+    /*************added by lsh************** */
+    [ADD_CHAT]: {
+      next: (state, { payload }) => ({
+        ...state,
+        chatList: [...state.chatList, payload],
+      }),
+    },
+    [REMOVE_CHAT]: {
+      next: (state, { payload }) => ({
+        ...state,
+        chatList: state.chatList.filter(chat => chat.id !== payload),
+      }),
+    },
+    [CLEAR_CHAT_LIST]: {
+      next: (state, { payload }) => ({
+        ...state,
+        chatList: DEFAULT_CHAT_LIST,
+      }),
+    },
+    /*************added by lsh************** */
     [SET_UI_CONTROLS]: {
       next: (state, { payload }) => setUIControls(state, payload),
     },
@@ -248,16 +348,6 @@ export const uiControls = handleActions(
       ...state,
       isShowingQuestionInfoSidebar: false,
     }),
-    [onOpenQuestionSettings]: state =>
-      setUIControls(state, {
-        ...UI_CONTROLS_SIDEBAR_DEFAULTS,
-        isShowingQuestionSettingsSidebar: true,
-        queryBuilderMode: "view",
-      }),
-    [onCloseQuestionSettings]: state => ({
-      ...state,
-      isShowingQuestionSettingsSidebar: false,
-    }),
     [onOpenTimelines]: state => ({
       ...state,
       ...UI_CONTROLS_SIDEBAR_DEFAULTS,
@@ -313,6 +403,55 @@ export const zoomedRowObjectId = handleActions(
     },
     [RESET_ROW_ZOOM]: { next: () => null },
     [RESET_QB]: { next: () => null },
+  },
+  null,
+);
+
+// the card that is actively being worked on
+export const card = handleActions(
+  {
+    [RESET_QB]: { next: (state, { payload }) => null },
+    [INITIALIZE_QB]: {
+      next: (state, { payload }) => (payload ? payload.card : null),
+    },
+    [SOFT_RELOAD_CARD]: { next: (state, { payload }) => payload },
+    [RELOAD_CARD]: { next: (state, { payload }) => payload },
+    [SET_CARD_AND_RUN]: { next: (state, { payload }) => payload.card },
+    [API_CREATE_QUESTION]: { next: (state, { payload }) => payload },
+    [API_UPDATE_QUESTION]: { next: (state, { payload }) => payload },
+
+    [CANCEL_DATASET_CHANGES]: { next: (state, { payload }) => payload.card },
+
+    [UPDATE_QUESTION]: (state, { payload: { card } }) => card,
+
+    [QUERY_COMPLETED]: {
+      next: (state, { payload: { card } }) => ({
+        ...state,
+        display: card.display,
+        result_metadata: card.result_metadata,
+        visualization_settings: card.visualization_settings,
+      }),
+    },
+
+    [CREATE_PUBLIC_LINK]: {
+      next: (state, { payload }) => ({ ...state, public_uuid: payload.uuid }),
+    },
+    [DELETE_PUBLIC_LINK]: {
+      next: (state, { payload }) => ({ ...state, public_uuid: null }),
+    },
+    [UPDATE_ENABLE_EMBEDDING]: {
+      next: (state, { payload }) => ({
+        ...state,
+        enable_embedding: payload.enable_embedding,
+      }),
+    },
+    [UPDATE_EMBEDDING_PARAMS]: {
+      next: (state, { payload }) => ({
+        ...state,
+        embedding_params: payload.embedding_params,
+        initially_published_at: payload.initially_published_at,
+      }),
+    },
   },
   null,
 );
@@ -393,7 +532,7 @@ export const metadataDiff = handleActions(
         };
       },
     },
-    [CANCEL_QUESTION_CHANGES]: { next: () => ({}) },
+    [CANCEL_DATASET_CHANGES]: { next: () => ({}) },
   },
   {},
 );
@@ -495,5 +634,3 @@ export const selectedTimelineEventIds = handleActions(
   },
   [],
 );
-
-export * from "./reducers-typed";

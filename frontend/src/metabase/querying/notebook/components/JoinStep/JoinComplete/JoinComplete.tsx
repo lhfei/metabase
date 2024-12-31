@@ -4,18 +4,14 @@ import { t } from "ttag";
 import { Box, Flex, Text } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import {
-  NotebookCell,
-  NotebookCellAdd,
-  NotebookCellItem,
-} from "../../NotebookCell";
+import { NotebookCellAdd, NotebookCellItem } from "../../NotebookCell";
 import { JoinCondition } from "../JoinCondition";
 import { JoinConditionDraft } from "../JoinConditionDraft";
 import { JoinStrategyPicker } from "../JoinStrategyPicker";
 import { JoinTableColumnPicker } from "../JoinTableColumnPicker";
 import { JoinTablePicker } from "../JoinTablePicker";
 
-import S from "./JoinComplete.module.css";
+import { JoinCell, JoinConditionCell } from "./JoinComplete.styled";
 
 interface JoinCompleteProps {
   query: Lib.Query;
@@ -73,7 +69,6 @@ export function JoinComplete({
     } else {
       onDraftRhsTableChange(newTable);
     }
-    setIsAddingNewCondition(false);
   };
 
   const handleAddCondition = (newCondition: Lib.JoinCondition) => {
@@ -102,7 +97,7 @@ export function JoinComplete({
 
   return (
     <Flex miw="100%" gap="1rem">
-      <NotebookCell className={S.JoinConditionCell} color={color}>
+      <JoinCell color={color}>
         <Flex direction="row" gap={6}>
           <NotebookCellItem color={color} disabled aria-label={t`Left table`}>
             {lhsTableName}
@@ -131,11 +126,11 @@ export function JoinComplete({
             onChange={handleTableChange}
           />
         </Flex>
-      </NotebookCell>
+      </JoinCell>
       <Box mt="1.5rem">
         <Text color="brand" weight="bold">{t`on`}</Text>
       </Box>
-      <NotebookCell className={S.JoinConditionCell} color={color}>
+      <JoinConditionCell color={color}>
         {conditions.map((condition, index) => {
           const testId = `join-condition-${index}`;
           const isLast = index === conditions.length - 1;
@@ -182,7 +177,7 @@ export function JoinComplete({
             />
           </Flex>
         )}
-      </NotebookCell>
+      </JoinConditionCell>
     </Flex>
   );
 }

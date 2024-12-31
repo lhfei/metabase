@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-interface GaugeArcPathProps {
+export interface GaugeArcPathProps {
   isClickable: boolean;
 }
 

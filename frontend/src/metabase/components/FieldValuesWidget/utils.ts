@@ -323,9 +323,10 @@ export function isNumeric(field: Field, parameter?: Parameter) {
   return field.isNumeric();
 }
 
+export function getLabel(option: FieldValue): string | undefined {
+  return option[1];
+}
+
 export function getValue(option: FieldValue): RowValue {
-  if (Array.isArray(option)) {
-    return option[0];
-  }
-  return option;
+  return option[0];
 }

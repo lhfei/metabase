@@ -3,17 +3,33 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const appConfig = require("../webpack.config");
 const fs = require("fs");
 const path = require("path");
+const { features } = require("process");
+
+const isEmbeddingSDK = process.env.IS_EMBEDDING_SDK === "true";
 
 const mainAppStories = [
   "../frontend/**/*.stories.mdx",
   "../frontend/**/*.stories.@(js|jsx|ts|tsx)",
 ];
 
+const embeddingSdkStories = [
+  "../enterprise/frontend/src/embedding-sdk/**/*.stories.tsx",
+];
+
+const sdkPackageTemplateJson = fs.readFileSync(
+  path.resolve("./enterprise/frontend/src/embedding-sdk/package.template.json"),
+  "utf-8",
+);
+const sdkPackageTemplateJsonContent = JSON.parse(sdkPackageTemplateJson);
+const EMBEDDING_SDK_VERSION = JSON.stringify(
+  sdkPackageTemplateJsonContent.version,
+);
+
 module.exports = {
   core: {
     builder: "webpack5",
   },
-  stories: mainAppStories,
+  stories: isEmbeddingSDK ? embeddingSdkStories : mainAppStories,
   staticDirs: ["../resources/frontend_client"],
   addons: [
     "@storybook/addon-essentials",
@@ -38,7 +54,8 @@ module.exports = {
         Buffer: ["buffer", "Buffer"],
       }),
       new webpack.EnvironmentPlugin({
-        IS_EMBEDDING_SDK: false,
+        EMBEDDING_SDK_VERSION,
+        IS_EMBEDDING_SDK_BUILD: isEmbeddingSDK,
       }),
     ],
     module: {
@@ -54,9 +71,7 @@ module.exports = {
     },
     resolve: {
       ...storybookConfig.resolve,
-      alias: {
-        ...appConfig.resolve.alias,
-      },
+      alias: appConfig.resolve.alias,
       extensions: appConfig.resolve.extensions,
     },
   }),

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useAsync } from "react-use";
 import _ from "underscore";
 
@@ -44,6 +44,7 @@ const SavedQuestionLoader = ({
 }) => {
   const metadata = useSelector(getMetadata);
   const dispatch = useDispatch();
+  const [question, setQuestion] = useState(null);
 
   const cardMetadataState = useAsync(async () => {
     if (loadedQuestion?.id() == null) {
@@ -53,16 +54,23 @@ const SavedQuestionLoader = ({
     await dispatch(loadMetadataForCard(loadedQuestion.card()));
   }, [loadedQuestion?.id()]);
 
-  const question = useMemo(() => {
+  useEffect(() => {
+    if (loadedQuestion?.id() == null) {
+      return;
+    }
+
     const hasCardMetadataLoaded =
       !cardMetadataState.loading && cardMetadataState.error == null;
 
-    if (!loadedQuestion || !hasCardMetadataLoaded) {
-      return null;
+    if (!hasCardMetadataLoaded) {
+      setQuestion(null);
+      return;
     }
 
-    return new Question(loadedQuestion.card(), metadata);
-  }, [cardMetadataState, loadedQuestion, metadata]);
+    if (!question) {
+      setQuestion(new Question(loadedQuestion.card(), metadata));
+    }
+  }, [loadedQuestion, metadata, cardMetadataState, question]);
 
   return (
     children?.({

@@ -4,10 +4,13 @@ import { t } from "ttag";
 import IconButtonWrapper from "metabase/components/IconButtonWrapper";
 import SelectList from "metabase/components/SelectList";
 import type { IconName } from "metabase/ui";
-import { Icon, Popover } from "metabase/ui";
+import { Popover } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import S from "./JoinStrategyPicker.module.css";
+import {
+  JoinStrategyIcon,
+  JoinStrategyList,
+} from "./JoinStrategyPicker.styled";
 
 interface JoinStrategyPickerProps {
   query: Lib.Query;
@@ -44,8 +47,7 @@ export function JoinStrategyPicker({
           aria-label={t`Change join type`}
           onClick={() => setIsOpened(!isOpened)}
         >
-          <Icon
-            className={S.JoinStrategyIcon}
+          <JoinStrategyIcon
             name={JOIN_ICON[strategyInfo.shortName]}
             tooltip={t`Change join type`}
             size={32}
@@ -87,7 +89,7 @@ function JoinStrategyDropdown({
   );
 
   return (
-    <SelectList className={S.JoinStrategyList}>
+    <JoinStrategyList>
       {items.map((item, index) => (
         <SelectList.Item
           id={index}
@@ -98,7 +100,7 @@ function JoinStrategyDropdown({
           onSelect={() => onChange(item.strategy)}
         />
       ))}
-    </SelectList>
+    </JoinStrategyList>
   );
 }
 

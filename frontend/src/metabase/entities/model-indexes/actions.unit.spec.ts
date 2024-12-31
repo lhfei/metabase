@@ -63,7 +63,6 @@ describe("Entities > model-indexes > actions", () => {
       });
     });
   });
-
   describe("updateModelIndexes", () => {
     it("should not do anything if there are no fields with should_index flag", async () => {
       const model = createModelWithResultMetadata([

@@ -1,8 +1,14 @@
-import { H } from "e2e/support";
+import {
+  entityPickerModal,
+  entityPickerModalTab,
+  popover,
+  restore,
+  startNewQuestion,
+} from "e2e/support/helpers";
 
 describe("scenarios > reference > databases", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -78,16 +84,14 @@ describe("scenarios > reference > databases", () => {
     });
 
     it("should sort databases in new UI based question data selection popover", () => {
-      H.startNewQuestion();
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Tables").click();
-        cy.findByTestId("item-picker-level-0").within(() => {
-          cy.get("[data-index='0']").should("contain.text", "a");
-          cy.get("[data-index='1']").should("contain.text", "b");
-          cy.get("[data-index='2']").should("contain.text", "c");
-          cy.get("[data-index='3']").should("contain.text", "d");
-          cy.get("[data-index='4']").should("contain.text", "Sample Database");
-        });
+      startNewQuestion();
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Tables").click();
+        cy.get("[data-index='0']").should("have.text", "a");
+        cy.get("[data-index='1']").should("have.text", "b");
+        cy.get("[data-index='2']").should("have.text", "c");
+        cy.get("[data-index='3']").should("have.text", "d");
+        cy.get("[data-index='4']").should("have.text", "Sample Database");
       });
     });
 
@@ -107,8 +111,8 @@ function checkQuestionSourceDatabasesOrder() {
   const lastDatabaseIndex = -1;
   const selector = "[data-element-id=list-item]-title";
 
-  H.startNewQuestion();
-  H.popover().within(() => {
+  startNewQuestion();
+  popover().within(() => {
     cy.findByText("Raw Data").click();
     cy.get(selector).as("databaseName").eq(1).should("have.text", "a");
     cy.get("@databaseName")

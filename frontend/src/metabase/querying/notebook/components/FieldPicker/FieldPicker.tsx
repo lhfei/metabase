@@ -1,14 +1,16 @@
 import { useMemo } from "react";
 import { t } from "ttag";
 
-import {
-  HoverParent,
-  QueryColumnInfoIcon,
-} from "metabase/components/MetadataInfo/ColumnInfoIcon";
 import { Checkbox, DelayGroup } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import S from "./FieldPicker.module.css";
+import {
+  ItemIcon,
+  ItemList,
+  ItemTitle,
+  Label,
+  ToggleItem,
+} from "./FieldPicker.styled";
 
 export interface FieldPickerItem {
   column: Lib.ColumnMetadata;
@@ -68,42 +70,39 @@ export const FieldPicker = ({
   };
 
   return (
-    <ul className={S.ItemList} data-testid={props["data-testid"]}>
-      <li className={S.ToggleItem}>
-        <HoverParent as="label" className={S.Label}>
+    <ItemList data-testid={props["data-testid"]}>
+      <ToggleItem>
+        <Label as="label">
           <Checkbox
             variant="stacked"
             checked={isAll}
             indeterminate={!isAll && !isNone}
             onChange={handleLabelToggle}
           />
-          <div className={S.ItemTitle}>
-            {isAll ? t`Select none` : t`Select all`}
-          </div>
-        </HoverParent>
-      </li>
+          <ItemTitle>{isAll ? t`Select none` : t`Select all`}</ItemTitle>
+        </Label>
+      </ToggleItem>
       <DelayGroup>
         {items.map(item => (
           <li key={item.columnInfo.longDisplayName}>
-            <HoverParent className={S.Label} as="label">
+            <Label as="label">
               <Checkbox
                 checked={item.isSelected}
                 disabled={item.isDisabled}
                 onChange={event => onToggle(item.column, event.target.checked)}
               />
-              <QueryColumnInfoIcon
-                className={S.ItemIcon}
+              <ItemIcon
                 query={query}
                 stageIndex={stageIndex}
                 column={item.column}
                 position="top-start"
                 size={16}
               />
-              <div className={S.ItemTitle}>{item.columnInfo.displayName}</div>
-            </HoverParent>
+              <ItemTitle>{item.columnInfo.displayName}</ItemTitle>
+            </Label>
           </li>
         ))}
       </DelayGroup>
-    </ul>
+    </ItemList>
   );
 };

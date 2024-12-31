@@ -46,7 +46,7 @@ export const getCheckboxOverrides = (): MantineThemeOverride["components"] => ({
         height: getSize({ size, sizes: SIZES }),
         cursor: "pointer",
         borderRadius: theme.radius.xs,
-        border: "1px solid var(--mb-color-bg-dark)",
+        border: "1px solid var(--mb-color-text-secondary)",
         backgroundColor: "var(--mb-color-background)",
 
         "&:checked": {
@@ -81,32 +81,38 @@ export const getCheckboxOverrides = (): MantineThemeOverride["components"] => ({
       },
     }),
     variants: {
-      stacked: theme => ({
+      stacked: (theme, { labelPosition }) => ({
         inner: {
           position: "relative",
           zIndex: 0,
         },
+        label: {
+          paddingLeft: labelPosition === "right" ? "0.75rem" : "0.5rem",
+        },
+        description: {
+          paddingLeft: labelPosition === "right" ? "0.75rem" : "0.5rem",
+        },
         input: {
           "&:after": {
             content: "''",
-            border: `${rem(1)} solid ${theme.fn.themeColor("bg-dark")}`,
+            border: `1px solid ${theme.fn.themeColor("bg-dark")}`,
             position: "absolute",
-            top: rem(-2),
-            left: rem(2),
+            top: rem(-4),
+            left: rem(4),
             height: "100%",
             width: "100%",
             borderRadius: rem(4),
             zIndex: -1,
-            backgroundColor: theme.fn.themeColor("bg-white"),
+            backgroundColor: theme.white,
             boxSizing: "border-box",
           },
 
           "&:checked:not([disabled]):after": {
-            border: `${rem(1)} solid ${theme.fn.themeColor("brand")}`,
+            border: `${rem(2)} solid ${theme.fn.themeColor("brand")}`,
           },
 
           "&:disabled:after": {
-            border: `${rem(1)} solid ${theme.fn.themeColor("border")}`,
+            border: `${rem(2)} solid ${theme.fn.themeColor("border")}`,
           },
         },
         labelWrapper: {

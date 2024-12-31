@@ -1,5 +1,5 @@
 import * as ML from "cljs/metabase.lib.js";
-import type { CardId, DatasetColumn, RowValue } from "metabase-types/api";
+import type { DatasetColumn, RowValue } from "metabase-types/api";
 
 import type {
   AggregationDrillDetails,
@@ -17,7 +17,6 @@ import type {
 export function availableDrillThrus(
   query: Query,
   stageIndex: number,
-  cardId: CardId | undefined,
   column: DatasetColumn | undefined,
   value: RowValue | undefined,
   row: ClickObjectDataRow[] | undefined,
@@ -26,7 +25,6 @@ export function availableDrillThrus(
   return ML.available_drill_thrus(
     query,
     stageIndex,
-    cardId,
     column,
     value,
     row,
@@ -38,21 +36,14 @@ export function availableDrillThrus(
 export function drillThru(
   query: Query,
   stageIndex: number,
-  cardId: CardId | undefined,
   drillThru: DrillThru,
   ...args: unknown[]
 ): Query {
-  return ML.drill_thru(query, stageIndex, cardId, drillThru, ...args);
+  return ML.drill_thru(query, stageIndex, drillThru, ...args);
 }
 
 export function filterDrillDetails(drillThru: DrillThru): FilterDrillDetails {
   return ML.filter_drill_details(drillThru);
-}
-
-export function combineColumnDrillDetails(
-  drillThru: DrillThru,
-): FilterDrillDetails {
-  return ML.combine_column_drill_details(drillThru);
 }
 
 export function aggregationDrillDetails(

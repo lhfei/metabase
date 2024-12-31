@@ -1,5 +1,6 @@
 (ns metabase.driver.druid-jdbc
   (:require
+   [cheshire.core :as json]
    [clj-http.client :as http]
    [clojure.string :as str]
    [clojure.walk :as walk]
@@ -13,11 +14,9 @@
    [metabase.driver.sql.query-processor.util :as sql.qp.u]
    [metabase.lib.field :as lib.field]
    [metabase.lib.metadata :as lib.metadata]
-   [metabase.models.secret :as secret]
    [metabase.query-processor.store :as qp.store]
    [metabase.query-processor.util.add-alias-info :as add]
    [metabase.util.honey-sql-2 :as h2x]
-   [metabase.util.json :as json]
    [metabase.util.log :as log])
   (:import
    (java.sql ResultSet Types)
@@ -32,13 +31,10 @@
   (defmethod driver/database-supports? [:druid-jdbc feature] [_driver _feature _db] supported?))
 
 (defmethod sql-jdbc.conn/connection-details->spec :druid-jdbc
-  [_driver {:keys [host port auth-enabled auth-username] :as db-details}]
+  [_driver {:keys [host port] :as _db-details}]
   (merge {:classname   "org.apache.calcite.avatica.remote.Driver"
           :subprotocol "avatica:remote"
           :subname     (str "url=" host ":" port "/druid/v2/sql/avatica/;transparent_reconnection=true")}
-         (when auth-enabled
-           {:user auth-username
-            :password (secret/get-secret-string db-details "auth-password")})
          (when (some? (driver/report-timezone))
            {:sqlTimeZone (driver/report-timezone)
             :timeZone (driver/report-timezone)})))
@@ -178,7 +174,7 @@
   (let [{:keys [host port]} (:details database)]
     (try (let [version (-> (http/get (format "%s:%s/status" host port))
                            :body
-                           json/decode
+                           json/parse-string
                            (get "version"))
                [maj-min maj min] (re-find #"^(\d+)\.(\d+)" version)
                semantic (mapv #(Integer/parseInt %) [maj min])]

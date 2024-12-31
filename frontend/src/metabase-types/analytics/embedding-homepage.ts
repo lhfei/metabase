@@ -24,6 +24,7 @@ export type EmbeddingHomepageQuickstartClickEvent = ValidateEvent<{
 
 export type EmbeddingHomepageExampleDashboardClickEvent = ValidateEvent<{
   event: "embedding_homepage_example_dashboard_click";
+  initial_tab: "static" | "interactive";
 }>;
 
 export type EmbeddingHomepageEvent =

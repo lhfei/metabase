@@ -64,6 +64,12 @@ export const getIcon = (item: ObjectWithModel): IconData => {
     };
   }
 
+  if (item.model === "dataset" && item.moderated_status === "verified") {
+    return {
+      name: "model_with_badge",
+    };
+  }
+
   return getIconBase(item);
 };
 

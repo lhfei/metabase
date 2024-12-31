@@ -79,8 +79,8 @@ export const ColumnFormattingAction: LegacyDrill = ({ question, clicked }) => {
       icon: "gear",
       tooltip: t`Column formatting`,
       popoverProps: {
-        position: "right-start",
-        offset: 20,
+        placement: "right-end",
+        offset: [0, 20],
       },
       popover: FormatPopover,
     },

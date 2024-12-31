@@ -49,7 +49,7 @@ const QuestionLastUpdatedBody = ({
         aria-label={longExplanation}
         {...flexProps}
       >
-        <FixedSizeIcon name="time_history" />
+        <FixedSizeIcon name="calendar" />
         {shortExplanation}
       </Flex>
     </Tooltip>

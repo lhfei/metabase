@@ -2,6 +2,7 @@ import { t } from "ttag";
 
 import { getColumnIcon } from "metabase/common/utils/columns";
 import type { IconName } from "metabase/ui";
+import * as Lib from "metabase-lib";
 
 import type {
   QueryColumnInfoPopoverProps,
@@ -26,16 +27,20 @@ type QueryColumnInfoIconProps = QueryColumnInfoPopoverProps & {
 
 export function QueryColumnInfoIcon({
   className,
+  delay,
   size,
   icon,
   color,
   ...props
 }: QueryColumnInfoIconProps) {
-  const { column } = props;
+  const { query, stageIndex, column } = props;
+  const { description = "" } = query
+    ? Lib.displayInfo(query, stageIndex, column)
+    : {};
 
   return (
     <>
-      <QueryColumnInfoPopover {...props}>
+      <QueryColumnInfoPopover {...props} delay={delay}>
         <span aria-label={t`More info`}>
           <PopoverDefaultIcon
             className={className}
@@ -46,6 +51,7 @@ export function QueryColumnInfoIcon({
           <PopoverHoverTarget
             className={className}
             name="info_filled"
+            hasDescription={Boolean(description)}
             size={size}
           />
         </span>
@@ -64,6 +70,7 @@ type TableColumnInfoIconProps = TableColumnInfoPopoverProps & {
 
 export function TableColumnInfoIcon({
   className,
+  delay,
   field,
   icon,
   size,
@@ -71,7 +78,7 @@ export function TableColumnInfoIcon({
   ...props
 }: TableColumnInfoIconProps) {
   return (
-    <TableColumnInfoPopover {...props} field={field}>
+    <TableColumnInfoPopover {...props} field={field} delay={delay}>
       <span aria-label={t`More info`}>
         <PopoverDefaultIcon
           className={className}
@@ -82,6 +89,7 @@ export function TableColumnInfoIcon({
         <PopoverHoverTarget
           className={className}
           name="info_filled"
+          hasDescription={Boolean(field.description)}
           size={size}
         />
       </span>

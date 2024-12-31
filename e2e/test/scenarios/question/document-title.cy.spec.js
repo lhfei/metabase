@@ -1,17 +1,16 @@
-import { H } from "e2e/support";
+import { restore, visitQuestionAdhoc } from "e2e/support/helpers";
 
 const PG_DB_ID = 2;
-
 describe("question loading changes document title", () => {
   beforeEach(() => {
-    H.restore("postgres-12");
+    restore("postgres-12");
     cy.signInAsNormalUser();
   });
 
   it("should verify document title changes while loading a slow question (metabase#40051)", () => {
     cy.log("run a slow question");
 
-    H.visitQuestionAdhoc(
+    visitQuestionAdhoc(
       {
         dataset_query: {
           type: "native",

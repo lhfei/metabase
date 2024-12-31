@@ -43,7 +43,6 @@
     :model/BookmarkOrdering
     :model/CacheConfig
     :model/CardBookmark
-    :model/ChannelTemplate
     :model/CollectionBookmark
     :model/DashboardBookmark
     :model/DataPermissions
@@ -57,10 +56,6 @@
     :model/ModelIndex
     :model/ModelIndexValue
     :model/ModerationReview
-    :model/Notification
-    :model/NotificationSubscription
-    :model/NotificationHandler
-    :model/NotificationRecipient
     :model/ParameterCard
     :model/Permissions
     :model/PermissionsGroup
@@ -79,7 +74,6 @@
     :model/QueryTable
     :model/RecentViews
     :model/Revision
-    :model/SearchIndexMetadata
     :model/Secret
     :model/Session
     :model/TablePrivileges
@@ -87,7 +81,6 @@
     :model/TimelineEvent
     :model/User
     :model/UserParameterValue
-    :model/UserKeyValue
     :model/ViewLog
     :model/GroupTableAccessPolicy
     :model/ConnectionImpersonation

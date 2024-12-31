@@ -2,6 +2,7 @@
 
 import PropTypes from "prop-types";
 import { Component } from "react";
+import { connect } from "react-redux";
 import _ from "underscore";
 
 import LoadingAndErrorWrapper from "metabase/components/LoadingAndErrorWrapper";
@@ -12,27 +13,22 @@ import {
   cleanPulse,
   createChannel,
 } from "metabase/lib/pulse";
-import { connect } from "metabase/lib/redux";
-import {
-  AddEditEmailSidebar,
-  AddEditSlackSidebar,
-} from "metabase/notifications/AddEditSidebar/AddEditSidebar";
-import { NewPulseSidebar } from "metabase/notifications/NewPulseSidebar";
-import PulsesListSidebar from "metabase/notifications/PulsesListSidebar";
 import {
   cancelEditingPulse,
   fetchPulseFormInput,
   saveEditingPulse,
   testPulse,
   updateEditingPulse,
-} from "metabase/notifications/pulse/actions";
-import {
-  getEditingPulse,
-  getPulseFormInput,
-} from "metabase/notifications/pulse/selectors";
+} from "metabase/pulse/actions";
+import { getEditingPulse, getPulseFormInput } from "metabase/pulse/selectors";
 import { getUser, getUserIsAdmin } from "metabase/selectors/user";
 import { UserApi } from "metabase/services";
-import { isVirtualCardDisplayType } from "metabase-types/api/visualization";
+import {
+  AddEditEmailSidebar,
+  AddEditSlackSidebar,
+} from "metabase/sharing/components/AddEditSidebar/AddEditSidebar";
+import { NewPulseSidebar } from "metabase/sharing/components/NewPulseSidebar";
+import PulsesListSidebar from "metabase/sharing/components/PulsesListSidebar";
 
 export const CHANNEL_ICONS = {
   email: "mail",
@@ -70,9 +66,9 @@ const cardsFromDashboard = dashboard => {
   }));
 };
 
-export const getSupportedCardsForSubscriptions = dashboard => {
+const getSupportedCardsForSubscriptions = dashboard => {
   return cardsFromDashboard(dashboard).filter(
-    card => !isVirtualCardDisplayType(card.display),
+    card => !["text", "heading", "action", "link"].includes(card.display),
   );
 };
 
@@ -82,7 +78,6 @@ const cardsToPulseCards = (cards, pulseCards) => {
     return {
       ...card,
       format_rows: pulseCard.format_rows,
-      pivot_results: pulseCard.pivot_results,
       include_csv: pulseCard.include_csv,
       include_xls: pulseCard.include_xls,
     };

@@ -39,7 +39,9 @@
   ;; * `result-chan` will get the result of `(f)`, *after* `done-chan` is closed
   (let [done-chan   (a/promise-chan)
         result-chan (a/promise-chan)
-        thunk*      (^:once fn []
+        binds       (clojure.lang.Var/getThreadBindingFrame)
+        thunk*      (^:once fn* []
+                      (clojure.lang.Var/resetThreadBindingFrame binds)
                       (let [result (try
                                      (thunk)
                                      (catch Throwable e

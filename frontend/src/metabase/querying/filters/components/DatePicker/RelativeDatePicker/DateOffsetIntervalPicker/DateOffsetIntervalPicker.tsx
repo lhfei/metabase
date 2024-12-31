@@ -1,9 +1,7 @@
 import type { FormEvent } from "react";
 import { t } from "ttag";
 
-import type { DatePickerUnit } from "metabase/querying/filters/types";
 import {
-  Box,
   Button,
   Divider,
   Group,
@@ -21,7 +19,7 @@ import {
   setInterval,
 } from "../utils";
 
-import S from "./DateOffsetIntervalPicker.module.css";
+import { PickerGrid } from "./DateOffsetIntervalPicker.styled";
 import {
   getDirectionText,
   getOffsetInterval,
@@ -34,23 +32,21 @@ import {
 
 interface DateOffsetIntervalPickerProps {
   value: DateOffsetIntervalValue;
-  availableUnits: DatePickerUnit[];
-  submitButtonLabel: string;
+  isNew: boolean;
   onChange: (value: DateIntervalValue) => void;
   onSubmit: () => void;
 }
 
 export function DateOffsetIntervalPicker({
   value,
-  availableUnits,
-  submitButtonLabel,
+  isNew,
   onChange,
   onSubmit,
 }: DateOffsetIntervalPickerProps) {
   const interval = getInterval(value);
-  const unitOptions = getUnitOptions(value, availableUnits);
+  const unitOptions = getUnitOptions(value);
   const offsetInterval = getOffsetInterval(value);
-  const offsetUnitOptions = getOffsetUnitOptions(value, availableUnits);
+  const offsetUnitOptions = getOffsetUnitOptions(value);
   const directionText = getDirectionText(value);
   const dateRangeText = formatDateRange(value);
 
@@ -91,7 +87,7 @@ export function DateOffsetIntervalPicker({
 
   return (
     <form onSubmit={handleSubmit}>
-      <Box className={S.PickerGrid} p="md">
+      <PickerGrid p="md">
         <Text>{directionText}</Text>
         <NumberInput
           value={interval}
@@ -126,7 +122,7 @@ export function DateOffsetIntervalPicker({
           aria-label={t`Remove offset`}
           onClick={handleOffsetRemove}
         />
-      </Box>
+      </PickerGrid>
       <Divider />
       <Group px="md" py="sm" spacing="sm" position="apart">
         <Group c="text-medium" spacing="sm">
@@ -134,7 +130,7 @@ export function DateOffsetIntervalPicker({
           <Text c="inherit">{dateRangeText}</Text>
         </Group>
         <Button variant="filled" type="submit">
-          {submitButtonLabel}
+          {isNew ? t`Add filter` : t`Update filter`}
         </Button>
       </Group>
     </form>

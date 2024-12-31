@@ -5,14 +5,6 @@ export const ANALYTICS_CSS_SNIPPET = `
   cursor: pointer;
 }
 
-.analytics-root.theme-light {
-  background: #F9FBFC;
-}
-
-.analytics-root.theme-dark {
-  background: #2D353A;
-}
-
 .analytics-container {
   width: 100%;
   max-width: 1000px;
@@ -44,7 +36,6 @@ export const ANALYTICS_CSS_SNIPPET = `
 
 .analytics-header-right > a {
   color: #509EE3;
-  text-decoration: none;
 }
 
 .dashboard-select {
@@ -52,7 +43,7 @@ export const ANALYTICS_CSS_SNIPPET = `
   color: #509EE3;
   border: none;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
 }
 

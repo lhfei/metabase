@@ -1,19 +1,15 @@
 import { PLUGIN_CONTENT_VERIFICATION } from "metabase/plugins";
 import { hasPremiumFeature } from "metabase-enterprise/settings";
 
+import { ModelFilterControls } from "./ModelFilterControls";
 import { VerifiedFilter } from "./VerifiedFilter";
-import { MetricFilterControls, getDefaultMetricFilters } from "./metrics";
-import { ModelFilterControls, getDefaultModelFilters } from "./models";
+import { availableModelFilters, useModelFilterSettings } from "./utils";
 
 if (hasPremiumFeature("content_verification")) {
   Object.assign(PLUGIN_CONTENT_VERIFICATION, {
-    contentVerificationEnabled: true,
     VerifiedFilter,
-
     ModelFilterControls,
-    getDefaultModelFilters,
-
-    getDefaultMetricFilters,
-    MetricFilterControls,
+    availableModelFilters,
+    useModelFilterSettings,
   });
 }

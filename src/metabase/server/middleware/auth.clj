@@ -4,7 +4,7 @@
   (:require
    [clojure.string :as str]
    [metabase.models.setting :refer [defsetting]]
-   [metabase.request.core :as request]
+   [metabase.server.request.util :as req.util]
    [metabase.util.i18n :refer [deferred-trs]]))
 
 (def ^:private ^:const ^String static-metabase-api-key-header "x-metabase-apikey")
@@ -16,7 +16,7 @@
    (fn [{:keys [metabase-user-id] :as request} respond raise]
      (if metabase-user-id
        (handler request respond raise)
-       (respond request/response-unauthentic)))
+       (respond req.util/response-unauthentic)))
    (meta handler)))
 
 (defn- wrap-static-api-key* [{:keys [headers], :as request}]
@@ -28,14 +28,11 @@
   "Middleware that sets the `:static-metabase-api-key` keyword on the request if a valid API Key can be found. We check
   the request headers for `X-METABASE-APIKEY` and if it's not found then no keyword is bound to the request."
   [handler]
-  (with-meta
-   (fn [request respond raise]
-     (handler (wrap-static-api-key* request) respond raise))
-   (meta handler)))
+  (fn [request respond raise]
+    (handler (wrap-static-api-key* request) respond raise)))
 
 (defsetting api-key
   "When set, this API key is required for all API requests."
-  :encryption :when-encryption-key-set
   :visibility :internal
   :doc "Middleware that enforces validation of the client via the request header X-Metabase-Apikey.
         If the header is available, then it’s validated against MB_API_KEY.
@@ -67,17 +64,15 @@
 
   This variable only works for /api/notify/db/:id endpoint"
   [handler]
-  (with-meta
-   (fn [{:keys [static-metabase-api-key], :as request} respond raise]
-     (cond (str/blank? (static-api-key))
-           (respond key-not-set-response)
+  (fn [{:keys [static-metabase-api-key], :as request} respond raise]
+    (cond (str/blank? (static-api-key))
+          (respond key-not-set-response)
 
-           (not static-metabase-api-key)
-           (respond request/response-forbidden)
+          (not static-metabase-api-key)
+          (respond req.util/response-forbidden)
 
-           (= (static-api-key) static-metabase-api-key)
-           (handler request respond raise)
+          (= (static-api-key) static-metabase-api-key)
+          (handler request respond raise)
 
-           :else
-           (respond request/response-forbidden)))
-   (meta handler)))
+          :else
+          (respond req.util/response-forbidden))))

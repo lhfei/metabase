@@ -58,17 +58,9 @@
           (log/tracef "Already fetched %s: %s" metadata-type (pr-str (sort (set/intersection (set ids) existing-ids))))
           (when (seq missing-ids)
             (log/tracef "Need to fetch %s: %s" metadata-type (pr-str (sort missing-ids)))
-            (let [fetched-metadatas (lib.metadata.protocols/metadatas uncached-provider metadata-type missing-ids)
-                  fetched-ids       (map :id fetched-metadatas)
-                  unfetched-ids     (set/difference (set missing-ids) (set fetched-ids))]
-              (when (seq fetched-ids)
-                (log/tracef "Fetched %s: %s" metadata-type (pr-str (sort fetched-ids)))
-                (doseq [instance fetched-metadatas]
-                  (store-in-cache! cache [metadata-type (:id instance)] instance)))
-              (when (seq unfetched-ids)
-                (log/tracef "Failed to fetch %s: %s" metadata-type (pr-str (sort unfetched-ids)))
-                (doseq [unfetched-id unfetched-ids]
-                  (store-in-cache! cache [metadata-type unfetched-id] ::nil))))))))
+            ;; TODO -- we should probably store `::nil` markers for things we tried to fetch that didn't exist
+            (doseq [instance (lib.metadata.protocols/metadatas uncached-provider metadata-type missing-ids)]
+              (store-in-cache! cache [metadata-type (:id instance)] instance))))))
     (into []
           (keep (fn [id]
                   (get-in-cache cache [metadata-type id])))

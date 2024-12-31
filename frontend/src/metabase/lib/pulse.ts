@@ -8,7 +8,6 @@ import {
 } from "metabase-lib/v1/parameters/utils/parameter-values";
 import type {
   Channel,
-  ChannelApiResponse,
   ChannelSpec,
   Pulse,
   PulseParameter,
@@ -185,10 +184,13 @@ export function createChannel(
   channelSpec: ChannelSpec,
   opts?: Partial<Channel>,
 ): Channel {
+  const details = {};
+
   return {
     channel_type: channelSpec.type,
     enabled: true,
     recipients: [],
+    details: details,
     schedule_type: channelSpec.schedules[0],
     schedule_day: "mon",
     schedule_hour: 8,
@@ -215,20 +217,3 @@ export function getActivePulseParameters(
     (parameter: any) => parameter.value != null,
   );
 }
-
-export const getHasConfiguredAnyChannel = (
-  formInput: Partial<ChannelApiResponse>,
-) =>
-  (formInput.channels &&
-    _.some(Object.values(formInput.channels), c => c.configured)) ||
-  false;
-
-export const getHasConfiguredEmailChannel = (
-  formInput: Partial<ChannelApiResponse>,
-) =>
-  (formInput.channels &&
-    _.some(
-      Object.values(formInput.channels),
-      c => c.type === "email" && c.configured,
-    )) ||
-  false;

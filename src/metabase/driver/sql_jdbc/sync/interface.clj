@@ -2,7 +2,6 @@
   (:require
    [honey.sql :as sql]
    [metabase.driver :as driver]
-   [metabase.driver.sql-jdbc.quoting :refer [with-quoting  quote-identifier]]
    [metabase.driver.sql.query-processor :as sql.qp]))
 
 (defmulti active-tables
@@ -136,13 +135,9 @@
 
 (defmethod alter-columns-sql :sql-jdbc
   [driver table-name column-definitions]
-  (with-quoting driver
-    (first (sql/format {:alter-table  (keyword table-name)
-                        :alter-column (map (fn [[column-name type-and-constraints]]
-                                             (vec (cons (quote-identifier column-name)
-                                                        (if (string? type-and-constraints)
-                                                          [[:raw type-and-constraints]]
-                                                          type-and-constraints))))
-                                           column-definitions)}
-                       :quoted true
-                       :dialect (sql.qp/quote-style driver)))))
+  (first (sql/format {:alter-table  (keyword table-name)
+                      :alter-column (map (fn [[column-name type-and-constraints]]
+                                           (vec (cons column-name type-and-constraints)))
+                                         column-definitions)}
+                     :quoted true
+                     :dialect (sql.qp/quote-style driver))))

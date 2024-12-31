@@ -1,11 +1,10 @@
-import cx from "classnames";
 import { t } from "ttag";
 
-import { Flex, Icon } from "metabase/ui";
+import { Icon } from "metabase/ui";
 import { getIconForVisualizationType } from "metabase/visualizations";
 import type Question from "metabase-lib/v1/Question";
 
-import QuestionDisplayToggleS from "./QuestionDisplayToggle.module.css";
+import { ToggleIcon, Well } from "./QuestionDisplayToggle.styled";
 
 export interface QuestionDisplayToggleProps {
   className?: string;
@@ -22,27 +21,20 @@ const QuestionDisplayToggle = ({
 }: QuestionDisplayToggleProps) => {
   const vizIcon = getIconForVisualizationType(question.display());
   return (
-    <Flex
-      className={cx(QuestionDisplayToggleS.Well, className)}
+    <Well
+      className={className}
       onClick={() => onToggleRawTable(!isShowingRawTable)}
     >
-      <Flex
-        className={cx(QuestionDisplayToggleS.ToggleIcon, {
-          [QuestionDisplayToggleS.active]: isShowingRawTable,
-        })}
-        aria-label={t`Switch to data`}
-      >
+      <ToggleIcon active={isShowingRawTable} aria-label={t`Switch to data`}>
         <Icon name="table2" />
-      </Flex>
-      <Flex
-        className={cx(QuestionDisplayToggleS.ToggleIcon, {
-          [QuestionDisplayToggleS.active]: !isShowingRawTable,
-        })}
+      </ToggleIcon>
+      <ToggleIcon
+        active={!isShowingRawTable}
         aria-label={t`Switch to visualization`}
       >
         <Icon name={vizIcon} />
-      </Flex>
-    </Flex>
+      </ToggleIcon>
+    </Well>
   );
 };
 

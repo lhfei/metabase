@@ -13,6 +13,7 @@ export interface ActionParametersInputFormProps {
   action: WritebackAction;
   mappedParameters?: WritebackParameter[];
   initialValues?: ParametersForActionExecution;
+  prefetchesInitialValues?: boolean;
   onSubmit: OnSubmitActionForm;
   onSubmitSuccess?: (
     actions: FormikHelpers<ParametersForActionExecution>,
@@ -24,6 +25,7 @@ function ActionParametersInputForm({
   action,
   mappedParameters = [],
   initialValues = {},
+  prefetchesInitialValues,
   onCancel,
   onSubmit,
   onSubmitSuccess,
@@ -61,6 +63,7 @@ function ActionParametersInputForm({
     <ActionForm
       action={action}
       initialValues={initialValues}
+      prefetchesInitialValues={prefetchesInitialValues}
       hiddenFields={hiddenFields}
       onSubmit={handleSubmit}
       onClose={onCancel}

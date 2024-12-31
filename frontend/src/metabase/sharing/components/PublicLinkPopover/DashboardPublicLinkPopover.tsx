@@ -1,7 +1,5 @@
-import {
-  useCreateDashboardPublicLinkMutation,
-  useDeleteDashboardPublicLinkMutation,
-} from "metabase/api";
+import { createPublicLink, deletePublicLink } from "metabase/dashboard/actions";
+import { useDispatch } from "metabase/lib/redux";
 import { publicDashboard as getPublicDashboardUrl } from "metabase/lib/urls";
 import {
   trackPublicLinkCopied,
@@ -22,26 +20,21 @@ export const DashboardPublicLinkPopover = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const dispatch = useDispatch();
+
   const uuid = dashboard.public_uuid;
 
   const url = uuid ? getPublicDashboardUrl(uuid) : null;
 
-  const [createPublicDashboardLink] = useCreateDashboardPublicLinkMutation();
-  const [deletePublicDashboardLink] = useDeleteDashboardPublicLinkMutation();
-
-  const handleCreatePublicDashboardLink = async () => {
-    await createPublicDashboardLink({
-      id: dashboard.id,
-    });
+  const createPublicDashboardLink = async () => {
+    await dispatch(createPublicLink(dashboard));
   };
-  const handleDeletePublicDashboardLink = () => {
+  const deletePublicDashboardLink = () => {
     trackPublicLinkRemoved({
       artifact: "dashboard",
       source: "public-share",
     });
-    deletePublicDashboardLink({
-      id: dashboard.id,
-    });
+    dispatch(deletePublicLink(dashboard));
   };
 
   const onCopyLink = () => {
@@ -55,8 +48,8 @@ export const DashboardPublicLinkPopover = ({
       target={target}
       isOpen={isOpen}
       onClose={onClose}
-      createPublicLink={handleCreatePublicDashboardLink}
-      deletePublicLink={handleDeletePublicDashboardLink}
+      createPublicLink={createPublicDashboardLink}
+      deletePublicLink={deletePublicDashboardLink}
       url={url}
       onCopyLink={onCopyLink}
     />

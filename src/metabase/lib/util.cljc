@@ -15,7 +15,6 @@
    [metabase.lib.database.methods :as lib.database.methods]
    [metabase.lib.dispatch :as lib.dispatch]
    [metabase.lib.hierarchy :as lib.hierarchy]
-   [metabase.lib.ident :as lib.ident]
    [metabase.lib.metadata.protocols :as lib.metadata.protocols]
    [metabase.lib.options :as lib.options]
    [metabase.lib.schema :as lib.schema]
@@ -25,8 +24,8 @@
    [metabase.lib.schema.metadata :as lib.schema.metadata]
    [metabase.lib.schema.ref :as lib.schema.ref]
    [metabase.lib.util.match :as lib.util.match]
+   [metabase.shared.util.i18n :as i18n]
    [metabase.util :as u]
-   [metabase.util.i18n :as i18n]
    [metabase.util.malli :as mu]))
 
 #?(:clj
@@ -95,8 +94,7 @@
          clause])
       (lib.options/update-options (fn [opts]
                                     (-> opts
-                                        (assoc :lib/expression-name a-name
-                                               :ident (lib.ident/random-ident))
+                                        (assoc :lib/expression-name a-name)
                                         (dissoc :name :display-name))))))
 
 (defmulti custom-name-method
@@ -124,10 +122,8 @@
   [stage location target-clause new-clause]
   {:pre [((some-fn clause? #(= (:lib/type %) :mbql/join)) target-clause)]}
   (let [new-clause (if (= :expressions (first location))
-                     (-> new-clause
-                         (top-level-expression-clause (or (custom-name new-clause)
-                                                          (expression-name target-clause)))
-                         (lib.common/preserve-ident-of target-clause))
+                     (top-level-expression-clause new-clause (or (custom-name new-clause)
+                                                                 (expression-name target-clause)))
                      new-clause)]
     (m/update-existing-in
      stage
@@ -348,19 +344,12 @@
         stages'                     (apply update (vec stages) stage-number' f args)]
     (assoc query :stages stages')))
 
-(defn native-stage?
-  "Is this query stage a native stage?"
-  [query stage-number]
-  (-> (query-stage query stage-number)
-      :lib/type
-      (= :mbql.stage/native)))
-
 (mu/defn ensure-mbql-final-stage :- ::lib.schema/query
   "Convert query to a pMBQL (pipeline) query, and make sure the final stage is an `:mbql` one."
   [query]
   (let [query (pipeline query)]
     (cond-> query
-      (native-stage? query -1)
+      (= (:lib/type (query-stage query -1)) :mbql.stage/native)
       (update :stages conj {:lib/type :mbql.stage/mbql}))))
 
 (defn join-strings-with-conjunction
@@ -555,10 +544,7 @@
                    query stage-number
                    update location
                    (fn [summary-clauses]
-                     (->> a-summary-clause
-                          lib.common/->op-arg
-                          lib.common/ensure-ident
-                          (conj (vec summary-clauses)))))]
+                     (conj (vec summary-clauses) (lib.common/->op-arg a-summary-clause))))]
     (if new-summary?
       (-> new-query
           (update-query-stage

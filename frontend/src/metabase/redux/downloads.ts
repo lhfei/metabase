@@ -24,7 +24,6 @@ export interface DownloadQueryResultsOpts {
   question: Question;
   result: Dataset;
   enableFormatting?: boolean;
-  enablePivot?: boolean;
   dashboardId?: DashboardId;
   dashcardId?: DashCardId;
   uuid?: string;
@@ -67,8 +66,8 @@ const getDownloadedResourceType = ({
   const defaultAccessedVia = process.env.EMBEDDING_SDK_VERSION
     ? "sdk-embed"
     : isInIframe
-      ? "interactive-iframe-embed"
-      : "internal";
+    ? "interactive-iframe-embed"
+    : "internal";
 
   if (dashcardId != null && token != null) {
     return { resourceType: "dashcard", accessedVia: "static-embed" };
@@ -154,8 +153,7 @@ const getDatasetParams = ({
   question,
   dashboardId,
   dashcardId,
-  enableFormatting = false,
-  enablePivot = false,
+  enableFormatting,
   uuid,
   token,
   params = {},
@@ -164,10 +162,8 @@ const getDatasetParams = ({
 }: DownloadQueryResultsOpts): DownloadQueryResultsParams => {
   const cardId = question.id();
 
-  const exportParams = {
-    format_rows: enableFormatting,
-    pivot_results: enablePivot,
-  };
+  // Formatting is always enabled for Excel
+  const format_rows = enableFormatting && type !== "xlsx" ? "true" : "false";
 
   const { accessedVia, resourceType: resource } = getDownloadedResourceType({
     dashboardId,
@@ -183,9 +179,9 @@ const getDatasetParams = ({
       return {
         method: "POST",
         url: `/api/public/dashboard/${dashboardId}/dashcard/${dashcardId}/card/${cardId}/${type}`,
+        params: new URLSearchParams({ format_rows }),
         body: {
           parameters: result?.json_query?.parameters ?? [],
-          ...exportParams,
         },
       };
     }
@@ -195,6 +191,7 @@ const getDatasetParams = ({
         url: Urls.publicQuestion({ uuid, type, includeSiteUrl: false }),
         params: new URLSearchParams({
           parameters: JSON.stringify(result?.json_query?.parameters ?? []),
+          format_rows,
         }),
       };
     }
@@ -206,23 +203,19 @@ const getDatasetParams = ({
       return {
         method: "GET",
         url: `/api/embed/dashboard/${token}/dashcard/${dashcardId}/card/${cardId}/${type}`,
-        params: new URLSearchParams({
-          parameters: JSON.stringify(params),
-          ..._.mapObject(exportParams, value => String(value)),
-        }),
+        params: Urls.getEncodedUrlSearchParams({ ...params, format_rows }),
       };
     }
 
     if (resource === "question" && token) {
+      // For whatever wacky reason the /api/embed endpoint expect params like ?key=value instead
+      // of like ?params=<json-encoded-params-array> like the other endpoints do.
       const params = new URLSearchParams(window.location.search);
-
+      params.set("format_rows", format_rows);
       return {
         method: "GET",
         url: Urls.embedCard(token, type),
-        params: new URLSearchParams({
-          parameters: JSON.stringify(Object.fromEntries(params)),
-          ..._.mapObject(exportParams, value => String(value)),
-        }),
+        params,
       };
     }
   }
@@ -233,9 +226,9 @@ const getDatasetParams = ({
     return {
       method: "POST",
       url: `/api/dashboard/${dashboardId}/dashcard/${dashcardId}/card/${cardId}/query/${type}`,
+      params: new URLSearchParams({ format_rows }),
       body: {
         parameters: result?.json_query?.parameters ?? [],
-        ...exportParams,
       },
     };
   }
@@ -244,9 +237,9 @@ const getDatasetParams = ({
     return {
       method: "POST",
       url: `/api/card/${cardId}/query/${type}`,
+      params: new URLSearchParams({ format_rows }),
       body: {
         parameters: result?.json_query?.parameters ?? [],
-        ...exportParams,
       },
     };
   }
@@ -254,10 +247,10 @@ const getDatasetParams = ({
     return {
       method: "POST",
       url: `/api/dataset/${type}`,
+      params: new URLSearchParams({ format_rows }),
       body: {
         query: _.omit(result?.json_query ?? {}, "constraints"),
         visualization_settings: visualizationSettings ?? {},
-        ...exportParams,
       },
     };
   }

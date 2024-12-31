@@ -3,9 +3,14 @@ import type * as React from "react";
 
 import PopoverS from "metabase/components/Popover/Popover.module.css";
 import FormS from "metabase/css/components/form.module.css";
-import { Box, Group, Icon, Text, Tooltip } from "metabase/ui";
 
-import { Root } from "./ChartSettingsWidget.styled";
+import {
+  Description,
+  InfoIcon,
+  InfoIconContainer,
+  Root,
+  Title,
+} from "./ChartSettingsWidget.styled";
 
 type Props = {
   title?: string;
@@ -56,33 +61,29 @@ const ChartSettingsWidget = ({
       })}
       inline={inline}
       marginBottom={marginBottom}
-      data-testid={dataTestId ?? `chart-settings-widget-${extraWidgetProps.id}`}
-      data-field-title={title}
+      data-testid={dataTestId}
       borderBottom={borderBottom}
     >
       {title && (
-        <Group align="center" spacing="xs" mb={inline && !hidden ? 0 : "sm"}>
-          <Text
-            component="label"
-            fw="bold"
-            fz={isFormField ? "0.88em" : undefined}
-            lh={variant === "default" ? "normal" : "0.875rem"}
-            htmlFor={extraWidgetProps.id}
-          >
-            {title}
-          </Text>
+        <Title
+          variant={variant}
+          className={cx({ [FormS.FormLabel]: isFormField })}
+          htmlFor={extraWidgetProps.id}
+        >
+          {title}
           {hint && (
-            <Tooltip label={hint}>
-              <Icon name="info" size={14} />
-            </Tooltip>
+            <InfoIconContainer>
+              <InfoIcon
+                name="info"
+                variant={variant}
+                size={isFormField ? 12 : 14}
+                tooltip={hint}
+              />
+            </InfoIconContainer>
           )}
-        </Group>
+        </Title>
       )}
-      {description && (
-        <Box component="span" mb="sm">
-          {description}
-        </Box>
-      )}
+      {description && <Description>{description}</Description>}
       {Widget && <Widget {...extraWidgetProps} {...props} />}
     </Root>
   );

@@ -1,15 +1,14 @@
 /* This class should be set to the ECharts tooltip root element via option to override ECharts defaults */
 .ChartTooltipRoot {
   font: unset !important;
-  background-color: var(--mb-color-tooltip-background) !important;
+  background-color: var(--mb-color-bg-black) !important;
   border: none !important;
   padding: 0 !important;
-  color: var(--mb-color-tooltip-text) !important;
+  color: var(--mb-color-text-white) !important;
 }
 
 .Table {
   min-width: 240px;
-  width: 100%;
   border-collapse: collapse;
   margin: 0.25rem 0 0.875rem 0;
 }
@@ -23,20 +22,15 @@
   margin: 1rem 1rem 0.25rem 1rem;
   font-weight: 400;
   font-size: 13px;
-  color: var(--mb-color-tooltip-text-secondary);
-}
-
-.Row {
-  font-size: 14px;
-}
-
-.SecondaryRow {
-  color: var(--mb-color-tooltip-text-secondary);
-  font-size: 12px;
+  color: var(--mb-color-text-light);
 }
 
 .RowFocused {
-  background: var(--mb-color-tooltip-background-focused);
+  background-color: color-mix(
+    in srgb,
+    var(--mb-color-bg-black) 50%,
+    #000
+  ) !important;
 }
 
 .Cell {
@@ -65,17 +59,19 @@
 .NameCell {
   padding-left: 0.375rem;
   font-weight: 400;
+  font-size: 14px;
   text-align: left;
 }
 
 .MainValueCell {
   width: 1px;
+  font-size: 14px;
 }
 
 .SecondaryValueCell {
   width: 1px;
   font-weight: 600;
-  color: var(--mb-color-tooltip-text-secondary);
+  color: var(--mb-color-text-light);
 }
 
 .IndicatorCell {
@@ -93,8 +89,4 @@
 
 .FooterRow .Cell {
   padding-top: 0.75rem;
-}
-
-.SecondaryRow .NameCell {
-  color: color-mix(in srgb, #fff 90%, var(--mb-color-tooltip-background));
 }

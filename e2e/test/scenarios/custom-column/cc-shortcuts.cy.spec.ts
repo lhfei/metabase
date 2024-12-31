@@ -1,6 +1,17 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  addCustomColumn,
+  describeWithSnowplow,
+  expectGoodSnowplowEvent,
+  expectNoBadSnowplowEvents,
+  expressionEditorWidget,
+  openOrdersTable,
+  openTable,
+  popover,
+  resetSnowplow,
+  restore,
+} from "e2e/support/helpers";
 
 const { ORDERS_ID, ORDERS } = SAMPLE_DATABASE;
 
@@ -17,11 +28,11 @@ function selectCombineColumns() {
 }
 
 function selectColumn(index: number, table: string, name?: string) {
-  H.expressionEditorWidget().within(() => {
+  expressionEditorWidget().within(() => {
     cy.findAllByTestId("column-input").eq(index).click();
   });
 
-  H.popover()
+  popover()
     .last()
     .within(() => {
       if (name) {
@@ -117,7 +128,7 @@ describe("scenarios > question > custom column > expression shortcuts > extract"
   ];
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // Make the PRODUCT_ID column a URL column for these tests, to avoid having to create a new model
@@ -128,92 +139,92 @@ describe("scenarios > question > custom column > expression shortcuts > extract"
 
   for (const extraction of EXTRACTIONS) {
     it(`should be possible to use the ${extraction.name} extraction on ${extraction.column}`, () => {
-      H.openTable({ mode: "notebook", limit: 1, table: extraction.table });
-      H.addCustomColumn();
+      openTable({ mode: "notebook", limit: 1, table: extraction.table });
+      addCustomColumn();
       selectExtractColumn();
 
       cy.findAllByTestId("dimension-list-item")
         .contains(extraction.column)
         .click();
-      H.popover().findAllByRole("button").contains(extraction.name).click();
+      popover().findAllByRole("button").contains(extraction.name).click();
 
       cy.findByTestId("expression-editor-textfield").should(
         "contain",
         `${extraction.fn}(`,
       );
 
-      H.expressionEditorWidget()
+      expressionEditorWidget()
         .findByTestId("expression-name")
         .should("have.value", extraction.name);
     });
   }
 
   it("should be possible to create the same extraction multiple times", () => {
-    H.openOrdersTable({ mode: "notebook", limit: 5 });
-    H.addCustomColumn();
+    openOrdersTable({ mode: "notebook", limit: 5 });
+    addCustomColumn();
     selectExtractColumn();
 
     cy.findAllByTestId("dimension-list-item").contains("Created At").click();
-    H.popover().findAllByRole("button").contains("Hour of day").click();
+    popover().findAllByRole("button").contains("Hour of day").click();
 
-    H.expressionEditorWidget()
+    expressionEditorWidget()
       .findByTestId("expression-name")
       .should("have.value", "Hour of day");
 
-    H.expressionEditorWidget().button("Done").click();
+    expressionEditorWidget().button("Done").click();
 
     cy.findAllByTestId("notebook-cell-item").last().click();
     selectExtractColumn();
 
     cy.findAllByTestId("dimension-list-item").contains("Created At").click();
-    H.popover().findAllByRole("button").contains("Hour of day").click();
+    popover().findAllByRole("button").contains("Hour of day").click();
 
-    H.expressionEditorWidget()
+    expressionEditorWidget()
       .findByTestId("expression-name")
       .should("have.value", "Hour of day (1)");
   });
 
   it("should be possible to edit a previous stages' columns when an aggregation is present (metabase#43226)", () => {
-    H.openOrdersTable({ mode: "notebook", limit: 5 });
+    openOrdersTable({ mode: "notebook", limit: 5 });
 
     cy.button("Summarize").click();
-    H.popover().findByText("Count of rows").click();
+    popover().findByText("Count of rows").click();
 
-    H.addCustomColumn();
+    addCustomColumn();
     selectExtractColumn();
 
     cy.findAllByTestId("dimension-list-item").contains("Created At").click();
-    H.popover().findAllByRole("button").contains("Hour of day").click();
+    popover().findAllByRole("button").contains("Hour of day").click();
 
-    H.expressionEditorWidget()
+    expressionEditorWidget()
       .findByTestId("expression-name")
       .should("have.value", "Hour of day");
   });
 });
 
-H.describeWithSnowplow(
+describeWithSnowplow(
   "scenarios > question > custom column > expression shortcuts > extract",
   () => {
     beforeEach(() => {
-      H.restore();
-      H.resetSnowplow();
+      restore();
+      resetSnowplow();
       cy.signInAsNormalUser();
     });
 
     afterEach(() => {
-      H.expectNoBadSnowplowEvents();
+      expectNoBadSnowplowEvents();
     });
 
     it("should track column extraction via shortcut", () => {
-      H.openTable({ mode: "notebook", limit: 1, table: ORDERS_ID });
-      H.addCustomColumn();
+      openTable({ mode: "notebook", limit: 1, table: ORDERS_ID });
+      addCustomColumn();
       selectExtractColumn();
 
       cy.findAllByTestId("dimension-list-item").contains("Created At").click();
 
-      H.popover().findAllByRole("button").contains("Hour of day").click();
+      popover().findAllByRole("button").contains("Hour of day").click();
 
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "column_extract_via_shortcut",
         custom_expressions_used: ["get-hour"],
         database_id: SAMPLE_DB_ID,
@@ -225,28 +236,28 @@ H.describeWithSnowplow(
 
 describe("scenarios > question > custom column > expression shortcuts > combine", () => {
   function addColumn() {
-    H.expressionEditorWidget().within(() => {
+    expressionEditorWidget().within(() => {
       cy.findByText("Add column").click();
     });
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsNormalUser();
   });
 
   it("should be possible to select a combine columns shortcut", () => {
-    H.openOrdersTable({ mode: "notebook", limit: 5 });
-    H.addCustomColumn();
+    openOrdersTable({ mode: "notebook", limit: 5 });
+    addCustomColumn();
     selectCombineColumns();
 
     selectColumn(0, "Total");
 
-    H.expressionEditorWidget().findByText("Total").should("exist");
+    expressionEditorWidget().findByText("Total").should("exist");
 
     selectColumn(1, "Product", "Rating");
 
-    H.expressionEditorWidget().within(() => {
+    expressionEditorWidget().within(() => {
       cy.findByText("Product → Rating").should("exist");
 
       cy.findByTestId("combine-example").should(
@@ -276,14 +287,14 @@ describe("scenarios > question > custom column > expression shortcuts > combine"
   });
 
   it("should be possible to cancel when using the combine column shortcut", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.addCustomColumn();
+    openOrdersTable({ mode: "notebook" });
+    addCustomColumn();
     selectCombineColumns();
 
     selectColumn(0, "Total");
     selectColumn(1, "Product", "Rating");
 
-    H.expressionEditorWidget().within(() => {
+    expressionEditorWidget().within(() => {
       // Click the back button, in the header
       cy.findByText("Select columns to combine").click();
     });
@@ -293,8 +304,8 @@ describe("scenarios > question > custom column > expression shortcuts > combine"
   });
 
   it("should be possible to add and remove more than one column", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.addCustomColumn();
+    openOrdersTable({ mode: "notebook" });
+    addCustomColumn();
     selectCombineColumns();
 
     selectColumn(0, "Total");
@@ -316,13 +327,13 @@ describe("scenarios > question > custom column > expression shortcuts > combine"
   });
 
   it("should pick the correct default separator based on the type of the first column", () => {
-    H.openOrdersTable({ mode: "notebook" });
-    H.addCustomColumn();
+    openOrdersTable({ mode: "notebook" });
+    addCustomColumn();
     selectCombineColumns();
 
     selectColumn(0, "User", "Email");
 
-    H.expressionEditorWidget().within(() => {
+    expressionEditorWidget().within(() => {
       cy.findByText("Separated by (empty)").should("exist");
       cy.findByText(/Separated by/).click();
 
@@ -331,18 +342,18 @@ describe("scenarios > question > custom column > expression shortcuts > combine"
   });
 
   it("should be possible to edit a previous stages' columns when there is an aggregation (metabase#43226)", () => {
-    H.openOrdersTable({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
 
     cy.button("Summarize").click();
 
-    H.popover().findByText("Count of rows").click();
+    popover().findByText("Count of rows").click();
 
-    H.addCustomColumn();
+    addCustomColumn();
     selectCombineColumns();
 
     selectColumn(0, "User", "Email");
 
-    H.expressionEditorWidget().within(() => {
+    expressionEditorWidget().within(() => {
       cy.findByText("Separated by (empty)").should("exist");
       cy.findByText(/Separated by/).click();
 
@@ -351,30 +362,30 @@ describe("scenarios > question > custom column > expression shortcuts > combine"
   });
 });
 
-H.describeWithSnowplow(
+describeWithSnowplow(
   "scenarios > question > custom column > combine shortcuts",
   () => {
     beforeEach(() => {
-      H.restore();
-      H.resetSnowplow();
+      restore();
+      resetSnowplow();
       cy.signInAsNormalUser();
     });
 
     afterEach(() => {
-      H.expectNoBadSnowplowEvents();
+      expectNoBadSnowplowEvents();
     });
 
     it("should send an event for combine columns", () => {
-      H.openOrdersTable({ mode: "notebook" });
-      H.addCustomColumn();
+      openOrdersTable({ mode: "notebook" });
+      addCustomColumn();
       selectCombineColumns();
 
       selectColumn(0, "User", "Email");
       selectColumn(1, "User", "Email");
 
-      H.expressionEditorWidget().button("Done").click();
+      expressionEditorWidget().button("Done").click();
 
-      H.expectGoodSnowplowEvent({
+      expectGoodSnowplowEvent({
         event: "column_combine_via_shortcut",
         custom_expressions_used: ["concat"],
         database_id: SAMPLE_DB_ID,

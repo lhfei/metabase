@@ -65,7 +65,7 @@ describe("SearchResult > Collections", () => {
       });
       expect(screen.getByText("Regular Collection")).toBeInTheDocument();
       expect(getIcon("folder")).toBeInTheDocument();
-      expect(queryIcon("official_collection")).not.toBeInTheDocument();
+      expect(queryIcon("badge")).not.toBeInTheDocument();
     });
 
     it("renders official collections as regular", async () => {
@@ -80,7 +80,7 @@ describe("SearchResult > Collections", () => {
       });
       expect(screen.getByText("Official Collection")).toBeInTheDocument();
       expect(getIcon("folder")).toBeInTheDocument();
-      expect(queryIcon("official_collection")).not.toBeInTheDocument();
+      expect(queryIcon("badge")).not.toBeInTheDocument();
     });
   });
 
@@ -108,7 +108,7 @@ describe("SearchResult > Collections", () => {
 
       expect(screen.getByText("Regular Collection")).toBeInTheDocument();
       expect(getIcon("folder")).toBeInTheDocument();
-      expect(queryIcon("official_collection")).not.toBeInTheDocument();
+      expect(queryIcon("badge")).not.toBeInTheDocument();
     });
 
     it("renders official collections correctly", async () => {
@@ -124,7 +124,7 @@ describe("SearchResult > Collections", () => {
       });
 
       expect(screen.getByText("Official Collection")).toBeInTheDocument();
-      expect(getIcon("official_collection")).toBeInTheDocument();
+      expect(getIcon("badge")).toBeInTheDocument();
       expect(queryIcon("folder")).not.toBeInTheDocument();
     });
   });

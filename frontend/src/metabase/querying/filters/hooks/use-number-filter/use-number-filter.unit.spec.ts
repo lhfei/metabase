@@ -17,33 +17,33 @@ import {
 import { useNumberFilter } from "./use-number-filter";
 
 interface CreateFilterCase {
-  operator: Lib.NumberFilterOperator;
+  operator: Lib.NumberFilterOperatorName;
   values: number[];
   expectedDisplayName: string;
 }
 
 interface UpdateFilterCase {
-  operator: Lib.NumberFilterOperator;
+  operator: Lib.NumberFilterOperatorName;
   expression: Lib.ExpressionClause;
   values: number[];
   expectedDisplayName: string;
 }
 
 interface CoerceFilterCase {
-  operator: Lib.NumberFilterOperator;
+  operator: Lib.NumberFilterOperatorName;
   values: (number | "")[];
   expectedDisplayName: string;
 }
 
 interface ValidateFilterCase {
-  operator: Lib.NumberFilterOperator;
+  operator: Lib.NumberFilterOperatorName;
   values: (number | "")[];
 }
 
 interface DefaultOperatorCase {
   title: string;
   column: Lib.ColumnMetadata;
-  expectedOperator: Lib.NumberFilterOperator;
+  expectedOperator: Lib.NumberFilterOperatorName;
 }
 
 const METADATA = createMockMetadata({
@@ -56,7 +56,7 @@ const METADATA = createMockMetadata({
             createOrdersProductIdField(),
             createOrdersTotalField(),
             createOrdersQuantityField({
-              semantic_type: null,
+              semantic_type: "type/Category",
             }),
           ],
         }),
@@ -269,7 +269,7 @@ describe("useNumberFilter", () => {
       expectedOperator: "=",
     },
     {
-      title: "column with field values",
+      title: "category column",
       column: findColumn("ORDERS", "QUANTITY"),
       expectedOperator: "=",
     },

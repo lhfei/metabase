@@ -1,5 +1,4 @@
 import { useMergedRef } from "@mantine/hooks";
-import cx from "classnames";
 import {
   type MouseEvent,
   type ReactNode,
@@ -9,20 +8,17 @@ import {
   useRef,
 } from "react";
 import { t } from "ttag";
+import _ from "underscore";
 
 import { QueryColumnInfoIcon } from "metabase/components/MetadataInfo/ColumnInfoIcon";
-import {
-  HoverParent,
-  PopoverHoverTarget,
-} from "metabase/components/MetadataInfo/InfoIcon";
+import { HoverParent } from "metabase/components/MetadataInfo/InfoIcon";
 import { Popover as InfoPopover } from "metabase/components/MetadataInfo/Popover";
 import CS from "metabase/css/core/index.css";
 import { color } from "metabase/lib/colors";
 import { isObscured } from "metabase/lib/dom";
 import {
-  Box,
+  DEFAULT_POPOVER_Z_INDEX,
   DelayGroup,
-  Flex,
   Icon,
   type IconName,
   Popover,
@@ -40,7 +36,15 @@ import type {
   SuggestionShortcut,
 } from "../ExpressionEditorTextfield";
 
-import ExpressionEditorSuggestionsS from "./ExpressionEditorSuggestions.module.css";
+import {
+  ExpressionList,
+  ExpressionListFooter,
+  ExpressionListItem,
+  GroupTitle,
+  PopoverHoverTarget,
+  SuggestionMatch,
+  SuggestionTitle,
+} from "./ExpressionEditorSuggestions.styled";
 
 type WithIndex<T> = T & {
   index: number;
@@ -103,6 +107,7 @@ export const ExpressionEditorSuggestions = forwardRef<
       opened={open && suggestions.length > 0}
       radius="xs"
       withinPortal
+      zIndex={DEFAULT_POPOVER_Z_INDEX}
       middlewares={{
         flip: false,
         shift: false,
@@ -112,9 +117,7 @@ export const ExpressionEditorSuggestions = forwardRef<
       <Popover.Target>{children}</Popover.Target>
       <Popover.Dropdown>
         <DelayGroup>
-          <Box
-            component="ul"
-            miw={250}
+          <ExpressionList
             data-testid="expression-suggestions-list"
             ref={mergedRef}
             onMouseDownCapture={handleMouseDown}
@@ -154,7 +157,7 @@ export const ExpressionEditorSuggestions = forwardRef<
               onSuggestionMouseDown={onSuggestionMouseDown}
               onHighlightSuggestion={onHighlightSuggestion}
             />
-          </Box>
+          </ExpressionList>
           {footers.map(suggestion => (
             <Footer
               key={suggestion.index}
@@ -195,15 +198,7 @@ function ExpressionEditorSuggestionsListGroup({
   return (
     <>
       {definition?.displayName && (
-        <Box
-          component="li"
-          className={cx(
-            ExpressionEditorSuggestionsS.ExpressionListItem,
-            ExpressionEditorSuggestionsS.GroupTitle,
-          )}
-        >
-          {definition.displayName}
-        </Box>
+        <GroupTitle isHighlighted={false}>{definition.displayName}</GroupTitle>
       )}
       {suggestions.map((suggestion: SuggestionWithIndex) => (
         <ExpressionEditorSuggestionsListItem
@@ -241,7 +236,7 @@ function ExpressionEditorSuggestionsListItem({
   const { icon, helpText, range = [] } = suggestion;
   const [start = 0, end = 0] = range;
 
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLLIElement>(null);
   useEffect(() => {
     if (!isHighlighted || !ref.current || !isObscured(ref.current)) {
       return;
@@ -265,13 +260,12 @@ function ExpressionEditorSuggestionsListItem({
 
   return (
     <HoverParent as="li">
-      <Flex
-        className={cx(ExpressionEditorSuggestionsS.ExpressionListItem, {
-          [ExpressionEditorSuggestionsS.isHighlighted]: isHighlighted,
-        })}
+      <ExpressionListItem
+        as="div"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         ref={ref}
+        isHighlighted={isHighlighted}
         data-testid="expression-suggestions-list-item"
       >
         {icon && (helpText || !suggestion.column) && (
@@ -291,13 +285,11 @@ function ExpressionEditorSuggestionsListItem({
             className={CS.mr1}
           />
         )}
-        <Box mr="1.5rem" component="span">
+        <SuggestionTitle>
           {suggestion.name.slice(0, start)}
-          <Box component="span" fw="bold">
-            {suggestion.name.slice(start, end)}
-          </Box>
+          <SuggestionMatch>{suggestion.name.slice(start, end)}</SuggestionMatch>
           {suggestion.name.slice(end)}
-        </Box>
+        </SuggestionTitle>
         {helpText && (
           <InfoPopover
             position="right"
@@ -305,13 +297,13 @@ function ExpressionEditorSuggestionsListItem({
             width={450}
           >
             <PopoverHoverTarget
-              className={ExpressionEditorSuggestionsS.PopoverHoverTarget}
               name="info_filled"
+              hasDescription
               aria-label={t`More info`}
             />
           </InfoPopover>
         )}
-      </Flex>
+      </ExpressionListItem>
     </HoverParent>
   );
 }
@@ -339,15 +331,12 @@ function Footer({
   const isHighlighted = highlightedIndex === suggestion.index;
 
   return (
-    <Box
-      component="a"
-      className={cx(ExpressionEditorSuggestionsS.ExpressionListFooter, {
-        [ExpressionEditorSuggestionsS.isHighlighted]: isHighlighted,
-      })}
+    <ExpressionListFooter
       target="_blank"
       href={suggestion.href}
       onMouseDownCapture={handleMouseDownCapture}
       onMouseMove={handleMouseMove}
+      isHighlighted={isHighlighted}
       data-testid="expression-suggestions-list-item"
     >
       <Icon
@@ -355,10 +344,8 @@ function Footer({
         color={isHighlighted ? color("brand-white") : color("text-light")}
         className={CS.mr1}
       />
-      <Box mr="1.5rem" component="span">
-        {suggestion.name}
-      </Box>
-    </Box>
+      <SuggestionTitle>{suggestion.name}</SuggestionTitle>
+    </ExpressionListFooter>
   );
 }
 

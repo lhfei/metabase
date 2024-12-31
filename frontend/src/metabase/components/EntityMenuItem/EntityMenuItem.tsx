@@ -15,6 +15,7 @@ import {
 export interface EntityMenuItemProps {
   title?: string;
   icon?: IconName;
+  iconColor?: ColorName;
   action?: (event: MouseEvent<HTMLDivElement>) => void;
   link?: string;
   externalLink?: boolean;
@@ -23,12 +24,14 @@ export interface EntityMenuItemProps {
   hoverColor?: ColorName;
   hoverBgColor?: ColorName;
   disabled?: boolean;
+  isSelected?: boolean;
   onClose?: () => void;
 }
 
 const EntityMenuItem = ({
   title,
   icon,
+  iconColor,
   action,
   link,
   externalLink,
@@ -37,6 +40,7 @@ const EntityMenuItem = ({
   color,
   hoverColor,
   hoverBgColor,
+  isSelected,
   onClose,
 }: EntityMenuItemProps): JSX.Element | null => {
   if (link && action) {
@@ -50,8 +54,15 @@ const EntityMenuItem = ({
       color={color}
       hoverColor={hoverColor}
       hoverBgColor={hoverBgColor}
+      isSelected={isSelected}
     >
-      {icon && <MenuItemIcon name={icon} size={16} />}
+      {icon && (
+        <MenuItemIcon
+          style={{ color: iconColor || "unset" }}
+          name={icon}
+          size={16}
+        />
+      )}
       <MenuItemTitle>{title}</MenuItemTitle>
     </MenuItemContent>
   );

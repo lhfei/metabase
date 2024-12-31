@@ -1,4 +1,4 @@
-import { currency } from "cljs/metabase.util.currency";
+import { currency } from "cljs/metabase.shared.util.currency";
 
 let currencyMapCache;
 

@@ -5,7 +5,12 @@ import { createMockMetadata } from "__support__/metadata";
 import { createMockEntitiesState } from "__support__/store";
 import { renderWithProviders, screen } from "__support__/ui";
 import * as Lib from "metabase-lib";
-import { createQuery, createQueryWithClauses } from "metabase-lib/test-helpers";
+import {
+  columnFinder,
+  createQuery,
+  createQueryWithClauses,
+  findAggregationOperator,
+} from "metabase-lib/test-helpers";
 import type Metadata from "metabase-lib/v1/metadata/Metadata";
 import {
   COMMON_DATABASE_FEATURES,
@@ -13,13 +18,10 @@ import {
 } from "metabase-types/api/mocks";
 import {
   ORDERS,
+  PRODUCTS,
   SAMPLE_DB_ID,
-  createOrdersIdField,
-  createOrdersProductIdField,
   createOrdersTable,
   createPeopleTable,
-  createProductsCategoryField,
-  createProductsIdField,
   createProductsTable,
   createReviewsTable,
   createSampleDatabase,
@@ -32,14 +34,20 @@ import {
 
 import { AggregationPicker } from "./AggregationPicker";
 
-function createQueryWithCountAggregation() {
+function createQueryWithCountAggregation({
+  metadata,
+}: { metadata?: Metadata } = {}) {
   return createQueryWithClauses({
+    query: createQuery({ metadata }),
     aggregations: [{ operatorName: "count" }],
   });
 }
 
-function createQueryWithCountAndSumAggregations() {
+function createQueryWithCountAndSumAggregations({
+  metadata,
+}: { metadata?: Metadata } = {}) {
   return createQueryWithClauses({
+    query: createQuery({ metadata }),
     aggregations: [
       { operatorName: "count" },
       { operatorName: "sum", columnName: "PRICE", tableName: "PRODUCTS" },
@@ -47,12 +55,18 @@ function createQueryWithCountAndSumAggregations() {
   });
 }
 
-function createQueryWithMaxAggregation() {
-  return createQueryWithClauses({
-    aggregations: [
-      { operatorName: "max", tableName: "ORDERS", columnName: "QUANTITY" },
-    ],
-  });
+function createQueryWithMaxAggregation({
+  metadata,
+}: { metadata?: Metadata } = {}) {
+  const initialQuery = createQuery({ metadata });
+  const max = findAggregationOperator(initialQuery, "max");
+  const findColumn = columnFinder(
+    initialQuery,
+    Lib.aggregationOperatorColumns(max),
+  );
+  const quantity = findColumn("ORDERS", "QUANTITY");
+  const clause = Lib.aggregationClause(max, quantity);
+  return Lib.aggregate(initialQuery, 0, clause);
 }
 
 function createQueryWithInlineExpression() {
@@ -91,32 +105,44 @@ function createQueryWithInlineExpressionWithOperator() {
   });
 }
 
-function createQueryWithOpaqueBreakoutAndAggregation() {
-  const metadata = createMockMetadata({
-    databases: [
-      createSampleDatabase({
-        tables: [
-          createOrdersTable({
-            fields: [createOrdersIdField(), createOrdersProductIdField()],
-          }),
-          createProductsTable({
-            fields: [createProductsIdField(), createProductsCategoryField()],
-          }),
+function createQueryWithDateExpressionAndAggregation() {
+  return createQuery({
+    query: {
+      database: SAMPLE_DB_ID,
+      type: "query",
+      query: {
+        expressions: {
+          "Created At plus one month": [
+            "datetime-add",
+            [
+              "field",
+              PRODUCTS.CREATED_AT,
+              {
+                "base-type": "type/DateTime",
+              },
+            ],
+            1,
+            "month",
+          ],
+        },
+        aggregation: [["count"]],
+        breakout: [
+          [
+            "expression",
+            "Created At plus one month",
+            {
+              "base-type": "type/DateTime",
+            },
+          ],
         ],
-      }),
-    ],
-  });
-
-  return createQueryWithClauses({
-    query: createQuery({ metadata }),
-    aggregations: [{ operatorName: "count" }],
-    breakouts: [{ tableName: "PRODUCTS", columnName: "CATEGORY" }],
+      },
+    },
   });
 }
 
 function createMetadata({
-  allowCustomExpressions,
-}: { allowCustomExpressions?: boolean } = {}) {
+  hasExpressionSupport = true,
+}: { hasExpressionSupport?: boolean } = {}) {
   return createMockMetadata({
     databases: [
       createSampleDatabase({
@@ -126,7 +152,7 @@ function createMetadata({
           createProductsTable(),
           createReviewsTable(),
         ],
-        features: allowCustomExpressions
+        features: hasExpressionSupport
           ? COMMON_DATABASE_FEATURES
           : _.without(COMMON_DATABASE_FEATURES, "expression-aggregations"),
       }),
@@ -138,8 +164,7 @@ type SetupOpts = {
   state?: State;
   metadata?: Metadata;
   query?: Lib.Query;
-  allowCustomExpressions?: boolean;
-  allowTemporalComparisons?: boolean;
+  hasExpressionInput?: boolean;
 };
 
 function setup({
@@ -153,8 +178,7 @@ function setup({
   }),
   metadata = createMetadata(),
   query = createQuery({ metadata }),
-  allowCustomExpressions,
-  allowTemporalComparisons,
+  hasExpressionInput = true,
 }: SetupOpts = {}) {
   const stageIndex = 0;
   const clause = Lib.aggregations(query, stageIndex)[0];
@@ -172,8 +196,7 @@ function setup({
       clause={clause}
       stageIndex={stageIndex}
       operators={operators}
-      allowCustomExpressions={allowCustomExpressions}
-      allowTemporalComparisons={allowTemporalComparisons}
+      hasExpressionInput={hasExpressionInput}
       onQueryChange={onQueryChange}
     />,
     { storeInitialState: state },
@@ -207,7 +230,7 @@ describe("AggregationPicker", () => {
     it("should list basic operators", () => {
       setup();
 
-      expect(screen.getByText("Basic functions")).toBeInTheDocument();
+      expect(screen.getByText("Basic Metrics")).toBeInTheDocument();
 
       [
         "Count of rows",
@@ -349,7 +372,7 @@ describe("AggregationPicker", () => {
 
   describe("custom expressions", () => {
     it("should allow to enter a custom expression containing an aggregation", async () => {
-      const { getRecentClauseInfo } = setup({ allowCustomExpressions: true });
+      const { getRecentClauseInfo } = setup();
 
       const expression = "count + 1";
       const expressionName = "My expression";
@@ -393,20 +416,20 @@ describe("AggregationPicker", () => {
             card: createMockCard(),
           }),
         }),
-        metadata: createMetadata({ allowCustomExpressions: false }),
+        metadata: createMetadata({ hasExpressionSupport: false }),
       });
       expect(screen.queryByText("Custom Expression")).not.toBeInTheDocument();
     });
 
-    it("shouldn't be shown if `allowCustomExpressions` prop is false", () => {
-      setup({ allowCustomExpressions: false });
+    it("shouldn't be shown if `hasExpressionInput` prop is false", () => {
+      setup({ hasExpressionInput: false });
       expect(screen.queryByText("Custom Expression")).not.toBeInTheDocument();
     });
 
-    it("should open the editor even if `allowCustomExpressions` prop is false if expression is used", () => {
+    it("should open the editor even if `hasExpressionInput` prop is false if expression is used", () => {
       setup({
         query: createQueryWithInlineExpression(),
-        allowCustomExpressions: false,
+        hasExpressionInput: false,
       });
 
       expect(screen.getByText("Custom Expression")).toBeInTheDocument();
@@ -414,54 +437,32 @@ describe("AggregationPicker", () => {
     });
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  describe.skip("column compare shortcut", () => {
+  describe("column compare shortcut", () => {
     it("does not display the shortcut if there are no aggregations", () => {
-      setup({ allowCustomExpressions: true, allowTemporalComparisons: true });
+      setup();
       expect(screen.queryByText(/compare/i)).not.toBeInTheDocument();
     });
 
     it("does not display the shortcut if there are no possible breakouts to use", () => {
       setup({
-        query: createQueryWithOpaqueBreakoutAndAggregation(),
-        allowCustomExpressions: true,
-        allowTemporalComparisons: true,
-      });
-      expect(screen.queryByText(/compare/i)).not.toBeInTheDocument();
-    });
-
-    it("does not display the shortcut if `allowTemporalComparisons` is not set", () => {
-      setup({
-        query: createQueryWithCountAggregation(),
-        allowCustomExpressions: true,
-        allowTemporalComparisons: false,
+        query: createQueryWithDateExpressionAndAggregation(),
       });
       expect(screen.queryByText(/compare/i)).not.toBeInTheDocument();
     });
 
     it("displays the shortcut with correct label if there is 1 aggregation", () => {
-      setup({
-        query: createQueryWithCountAggregation(),
-        allowCustomExpressions: true,
-        allowTemporalComparisons: true,
-      });
+      setup({ query: createQueryWithCountAggregation() });
       expect(screen.getByText("Compare to the past")).toBeInTheDocument();
     });
 
     it("displays the shortcut with correct label if there are multiple aggregation", () => {
-      setup({
-        query: createQueryWithCountAndSumAggregations(),
-        allowCustomExpressions: true,
-        allowTemporalComparisons: true,
-      });
+      setup({ query: createQueryWithCountAndSumAggregations() });
       expect(screen.getByText("Compare to the past")).toBeInTheDocument();
     });
 
     it("calls 'onQueryChange' on submit", async () => {
       const { onQueryChange } = setup({
         query: createQueryWithCountAggregation(),
-        allowCustomExpressions: true,
-        allowTemporalComparisons: true,
       });
 
       await userEvent.click(screen.getByText("Compare to the past"));

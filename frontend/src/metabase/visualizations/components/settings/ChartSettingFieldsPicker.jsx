@@ -7,7 +7,7 @@ import { DragDropContext } from "metabase/core/components/DragDropContext";
 import CS from "metabase/css/core/index.css";
 import { moveElement } from "metabase/lib/arrays";
 
-import { ChartSettingFieldPicker } from "./ChartSettingFieldPicker";
+import ChartSettingFieldPicker from "./ChartSettingFieldPicker";
 import { AddAnotherContainer } from "./ChartSettingFieldsPicker.styled";
 
 const ChartSettingFieldsPicker = ({
@@ -17,7 +17,6 @@ const ChartSettingFieldsPicker = ({
   addAnother,
   showColumnSetting,
   showColumnSettingForIndicies,
-  fieldSettingWidgets = [],
   ...props
 }) => {
   const handleDragEnd = ({ source, destination }) => {
@@ -94,7 +93,6 @@ const ChartSettingFieldsPicker = ({
                                 : null
                             }
                             showDragHandle={fields.length > 1}
-                            fieldSettingWidget={fieldSettingWidgets[fieldIndex]}
                           />
                         </div>
                       )}

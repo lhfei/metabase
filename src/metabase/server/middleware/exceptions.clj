@@ -18,34 +18,30 @@
   "Catch any exceptions other than 404 thrown in the request handler body and rethrow a generic 400 exception instead.
   This minimizes information available to bad actors when exceptions occur on public endpoints."
   [handler]
-  (with-meta
-   (fn [request respond _raise]
-     (let [raise (fn [e]
-                   (log/warn e "Exception in API call")
-                   (if (= 404 (:status-code (ex-data e)))
-                     (respond {:status 404, :body (deferred-tru "Not found.")})
-                     (respond {:status 400, :body (deferred-tru "An error occurred.")})))]
-       (try
-         (handler request respond raise)
-         (catch Throwable e
-           (raise e)))))
-   (meta handler)))
+  (fn [request respond _raise]
+    (let [raise (fn [e]
+                  (log/warn e "Exception in API call")
+                  (if (= 404 (:status-code (ex-data e)))
+                    (respond {:status 404, :body (deferred-tru "Not found.")})
+                    (respond {:status 400, :body (deferred-tru "An error occurred.")})))]
+      (try
+        (handler request respond raise)
+        (catch Throwable e
+          (raise e))))))
 
 (defn message-only-exceptions
   "Catch any exceptions thrown in the request handler body and rethrow a 400 exception that only has the message from
   the original instead (i.e., don't rethrow the original stacktrace). This reduces the information available to bad
   actors but still provides some information that will prove useful in debugging errors."
   [handler]
-  (with-meta
-   (fn [request respond _raise]
-     (let [raise (fn [^Throwable e]
-                   (respond {:status 400, :body (ex-message e)}))]
-       (try
-         (handler request respond raise)
-         (catch Throwable e
-           (log/error e "Exception in API call")
-           (raise e)))))
-   (meta handler)))
+  (fn [request respond _raise]
+    (let [raise (fn [^Throwable e]
+                  (respond {:status 400, :body (ex-message e)}))]
+      (try
+        (handler request respond raise)
+        (catch Throwable e
+          (log/error e "Exception in API call")
+          (raise e))))))
 
 (defmulti api-exception-response
   "Convert an uncaught exception from an API endpoint into an appropriate format to be returned by the REST API (e.g. a

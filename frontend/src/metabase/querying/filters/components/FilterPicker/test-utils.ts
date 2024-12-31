@@ -176,7 +176,6 @@ type CoordinateFilterQueryOpts = Partial<Lib.CoordinateFilterParts> & {
 export function createQueryWithCoordinateFilter({
   query = createQuery(),
   column = findLatitudeColumn(query),
-  longitudeColumn = null,
   operator = "=",
   values = [0],
   ...parts
@@ -184,7 +183,6 @@ export function createQueryWithCoordinateFilter({
   const clause = Lib.coordinateFilterClause({
     operator,
     column,
-    longitudeColumn,
     values,
     ...parts,
   });
@@ -272,17 +270,17 @@ export function createQueryWithRelativeDateFilter({
   query = createQuery(),
   column = findDateTimeColumn(query),
   value = -20,
-  unit = "day",
+  bucket = "day",
   offsetValue = null,
-  offsetUnit = null,
+  offsetBucket = null,
   options = {},
 }: RelativeDateFilterOpts = {}) {
   const clause = Lib.relativeDateFilterClause({
     column,
     value,
-    unit,
+    bucket,
     offsetValue,
-    offsetUnit,
+    offsetBucket,
     options,
   });
   return createFilteredQuery(query, clause);
@@ -298,13 +296,13 @@ export function createQueryWithExcludeDateFilter({
   column = findDateTimeColumn(query),
   operator = "!=",
   values = [1],
-  unit = "day-of-week",
+  bucket = "day-of-week",
 }: ExcludeDateFilterOpts = {}) {
-  const clause = Lib.excludeDateFilterClause({
+  const clause = Lib.excludeDateFilterClause(query, 0, {
     column,
     operator,
     values,
-    unit,
+    bucket,
   });
   return createFilteredQuery(query, clause);
 }

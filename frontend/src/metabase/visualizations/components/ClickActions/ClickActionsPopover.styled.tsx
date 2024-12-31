@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 
+import TippyPopover from "metabase/components/Popover/TippyPopover";
+
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -8,6 +10,13 @@ export const Container = styled.div`
   font-weight: 700;
 `;
 
+export const FlexTippyPopover = styled(TippyPopover)`
+  display: flex;
+
+  &.tippy-box {
+    border: none;
+  }
+`;
 export const Divider = styled.div`
   height: 1px;
   background-color: var(--mb-color-border);

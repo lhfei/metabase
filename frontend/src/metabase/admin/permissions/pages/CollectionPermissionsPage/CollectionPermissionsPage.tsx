@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import { connect } from "react-redux";
 import type { Route } from "react-router";
 import { push } from "react-router-redux";
 import { t } from "ttag";
@@ -7,7 +8,6 @@ import _ from "underscore";
 import { CollectionPermissionsHelp } from "metabase/admin/permissions/components/CollectionPermissionsHelp";
 import Collections from "metabase/entities/collections";
 import Groups from "metabase/entities/groups";
-import { connect } from "metabase/lib/redux";
 import type { Collection, CollectionId, GroupId } from "metabase-types/api";
 import type { State } from "metabase-types/store";
 

@@ -3,16 +3,14 @@ import _ from "underscore";
 
 import type {
   DatasetData,
-  RawSeries,
   Series,
   TransformedSeries,
-  VisualizationDisplay,
 } from "metabase-types/api";
 
 import type { RemappingHydratedDatasetColumn } from "./types";
 import type { Visualization } from "./types/visualization";
 
-const visualizations = new Map<VisualizationDisplay, Visualization>();
+const visualizations = new Map<string, Visualization>();
 const aliases = new Map<string, Visualization>();
 visualizations.get = function (key) {
   return (
@@ -60,15 +58,13 @@ export function registerVisualization(visualization: Visualization) {
   }
 }
 
-type SeriesLike = Array<{ card: { display: VisualizationDisplay } }>;
+type SeriesLike = Array<{ card: { display: string } }>;
 
 export function getVisualizationRaw(series: SeriesLike) {
   return visualizations.get(series[0].card.display);
 }
 
-export function getVisualizationTransformed(
-  series: RawSeries | TransformedSeries,
-) {
+export function getVisualizationTransformed(series: TransformedSeries) {
   // don't transform if we don't have the data
   if (
     _.any(series, s => s.data == null) ||
@@ -99,7 +95,7 @@ export function getVisualizationTransformed(
   return { series, visualization };
 }
 
-export function getIconForVisualizationType(display: VisualizationDisplay) {
+export function getIconForVisualizationType(display: string) {
   const viz = visualizations.get(display);
   return viz?.iconName ?? "unknown";
 }
@@ -112,22 +108,22 @@ export const extractRemappings = (series: Series) => {
   return se;
 };
 
-export function getMaxMetricsSupported(display: VisualizationDisplay) {
+export function getMaxMetricsSupported(display: string) {
   const visualization = visualizations.get(display);
   return visualization?.maxMetricsSupported || Infinity;
 }
 
-export function getMaxDimensionsSupported(display: VisualizationDisplay) {
+export function getMaxDimensionsSupported(display: string) {
   const visualization = visualizations.get(display);
   return visualization?.maxDimensionsSupported || 2;
 }
 
-export function canSavePng(display: VisualizationDisplay) {
+export function canSavePng(display: string) {
   const visualization = visualizations.get(display);
   return visualization?.canSavePng ?? true;
 }
 
-export function getDefaultSize(display: VisualizationDisplay) {
+export function getDefaultSize(display: string) {
   const visualization = visualizations.get(display);
   return visualization?.defaultSize;
 }

@@ -8,7 +8,7 @@ import { JoinConditionOperatorPicker } from "../JoinConditionOperatorPicker";
 import { JoinConditionRemoveButton } from "../JoinConditionRemoveButton";
 import { updateTemporalBucketing } from "../utils";
 
-import S from "./JoinCondition.module.css";
+import { JoinConditionRoot } from "./JoinCondition.styled";
 
 interface JoinConditionProps {
   query: Lib.Query;
@@ -71,7 +71,7 @@ export function JoinCondition({
   };
 
   return (
-    <Flex className={S.JoinConditionRoot}>
+    <JoinConditionRoot>
       <Flex align="center" gap="xs" mih="47px" p="xs">
         <JoinConditionColumnPicker
           query={query}
@@ -114,6 +114,6 @@ export function JoinCondition({
           onClick={onRemove}
         />
       )}
-    </Flex>
+    </JoinConditionRoot>
   );
 }

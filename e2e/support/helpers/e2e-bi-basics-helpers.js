@@ -1,10 +1,9 @@
-import { popover, queryBuilderMain, selectDropdown } from "e2e/support/helpers";
+import { popover, queryBuilderMain } from "e2e/support/helpers";
 
 /**
  * Initiate Summarize action
  *
- * @param {Object} options
- * @param {("notebook"|undefined)} options.mode
+ * @param {(undefined|"notebook")} mode
  */
 export function summarize({ mode } = {}) {
   initiateAction("Summarize", mode);
@@ -69,9 +68,9 @@ export function filterFieldPopover(
   });
 
   if (value) {
-    changeValue(selectDropdown(), value, placeholder);
+    changeValue(popover(), value, placeholder);
   }
-  return selectDropdown();
+  return popover();
 }
 
 function getFilterField(fieldName, order = 0) {

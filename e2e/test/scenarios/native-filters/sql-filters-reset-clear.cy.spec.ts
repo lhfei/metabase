@@ -1,5 +1,5 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import { createNativeQuestion, popover, restore } from "e2e/support/helpers";
 import type { TemplateTag } from "metabase-types/api";
 
 type SectionId =
@@ -21,7 +21,7 @@ const DEFAULT_REQUIRED = "default value, required";
 
 describe("scenarios > filters > sql filters > reset & clear", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -211,12 +211,12 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
       otherValue: "{backspace}Gadget",
       otherValueFormatted: "Gadget",
       setValue: value => {
-        H.popover().findByRole("textbox").clear().type(value).blur();
-        H.popover().button("Add filter").click();
+        popover().findByRole("searchbox").clear().type(value).blur();
+        popover().button("Add filter").click();
       },
       updateValue: value => {
-        H.popover().findByRole("textbox").clear().type(value).blur();
-        H.popover().button("Update filter").click();
+        popover().findByRole("searchbox").clear().type(value).blur();
+        popover().button("Update filter").click();
       },
     });
 
@@ -225,12 +225,8 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
       otherValue: "{backspace}Gadget",
       otherValueFormatted: "Gadget",
       setValue: value => {
-        H.popover().findByRole("textbox").clear().type(value).blur();
-        H.popover().button("Add filter").click();
-      },
-      updateValue: value => {
-        H.popover().findByRole("textbox").clear().type(value).blur();
-        H.popover().button("Update filter").click();
+        popover().findByRole("searchbox").clear().type(value).blur();
+        popover().button("Add filter").click();
       },
     });
   });
@@ -238,7 +234,7 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
   function createNativeQuestionWithParameters(
     templateTags: Record<SectionId, TemplateTag>,
   ) {
-    H.createNativeQuestion(
+    createNativeQuestion(
       {
         native: {
           query:
@@ -540,49 +536,43 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
     cy.log(NO_DEFAULT_NON_REQUIRED);
     filterSection("no_default_non_required").within(() => {
       filter("Default filter widget value").scrollIntoView();
-      filter("Default filter widget value").should(
-        "have.text",
-        "Select a default value…",
-      );
+      filterInput("Default filter widget value").should("have.value", "");
       checkStatusIcon("Default filter widget value", "chevron");
       filter("Default filter widget value").click();
     });
 
-    H.popover().findByRole("textbox").clear().type(otherValue).blur();
-    H.popover().button("Add filter").click();
+    popover().findByRole("textbox").clear().type(otherValue).blur();
+    popover().button("Add filter").click();
 
     filterSection("no_default_non_required").within(() => {
-      filter("Default filter widget value").should(
-        "have.text",
+      filterInput("Default filter widget value").should(
+        "have.value",
         otherValueFormatted,
       );
       checkStatusIcon("Default filter widget value", "clear");
 
       clearIcon("Default filter widget value").click();
-      filter("Default filter widget value").should(
-        "have.text",
-        "Select a default value…",
-      );
+      filterInput("Default filter widget value").should("have.value", "");
       checkStatusIcon("Default filter widget value", "chevron");
     });
 
     cy.log(NO_DEFAULT_REQUIRED);
     filterSection("no_default_required").within(() => {
       filter("Default filter widget value (required)").scrollIntoView();
-      filter("Default filter widget value (required)").should(
-        "have.text",
-        "Select a default value…",
+      filterInput("Default filter widget value (required)").should(
+        "have.value",
+        "",
       );
       checkStatusIcon("Default filter widget value (required)", "chevron");
       filter("Default filter widget value (required)").click();
     });
 
-    H.popover().findByRole("textbox").clear().type(otherValue).blur();
-    H.popover().button("Add filter").click();
+    popover().findByRole("textbox").clear().type(otherValue).blur();
+    popover().button("Add filter").click();
 
     filterSection("no_default_required").within(() => {
-      filter("Default filter widget value").should(
-        "have.text",
+      filterInput("Default filter widget value").should(
+        "have.value",
         otherValueFormatted,
       );
       checkStatusIcon("Default filter widget value", "clear");
@@ -594,27 +584,24 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
     cy.log(DEFAULT_NON_REQUIRED);
     filterSection("default_non_required").within(() => {
       filter("Default filter widget value").scrollIntoView();
-      filter("Default filter widget value").should(
-        "have.text",
+      filterInput("Default filter widget value").should(
+        "have.value",
         defaultValueFormatted,
       );
       checkStatusIcon("Default filter widget value", "clear");
 
       clearIcon("Default filter widget value").click();
-      filter("Default filter widget value").should(
-        "have.text",
-        "Select a default value…",
-      );
+      filterInput("Default filter widget value").should("have.value", "");
       checkStatusIcon("Default filter widget value", "chevron");
       filter("Default filter widget value").click();
     });
 
-    H.popover().findByRole("textbox").clear().type(otherValue).blur();
-    H.popover().button("Add filter").click();
+    popover().findByRole("textbox").clear().type(otherValue).blur();
+    popover().button("Add filter").click();
 
     filterSection("default_non_required").within(() => {
-      filter("Default filter widget value").should(
-        "have.text",
+      filterInput("Default filter widget value").should(
+        "have.value",
         otherValueFormatted,
       );
       checkStatusIcon("Default filter widget value", "clear");
@@ -623,27 +610,27 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
     cy.log(DEFAULT_REQUIRED);
     filterSection("default_required").within(() => {
       filter("Default filter widget value").scrollIntoView();
-      filter("Default filter widget value").should(
-        "have.text",
+      filterInput("Default filter widget value").should(
+        "have.value",
         defaultValueFormatted,
       );
       checkStatusIcon("Default filter widget value", "clear");
 
       clearIcon("Default filter widget value").click();
-      filter("Default filter widget value (required)").should(
-        "have.text",
-        "Select a default value…",
+      filterInput("Default filter widget value (required)").should(
+        "have.value",
+        "",
       );
       checkStatusIcon("Default filter widget value (required)", "chevron");
       filter("Default filter widget value (required)").click();
     });
 
-    H.popover().findByRole("textbox").clear().type(otherValue).blur();
-    H.popover().button("Add filter").click();
+    popover().findByRole("textbox").clear().type(otherValue).blur();
+    popover().button("Add filter").click();
 
     filterSection("default_required").within(() => {
-      filter("Default filter widget value").should(
-        "have.text",
+      filterInput("Default filter widget value").should(
+        "have.value",
         otherValueFormatted,
       );
       checkStatusIcon("Default filter widget value", "clear");
@@ -707,7 +694,7 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
       filter("Default filter widget value (required)").click();
     });
 
-    updateValue(otherValue);
+    setValue(otherValue);
 
     filterSection("no_default_required").within(() => {
       filter("Default filter widget value").should(
@@ -812,14 +799,12 @@ describe("scenarios > filters > sql filters > reset & clear", () => {
   }
 
   function addDateFilter(value: string) {
-    H.popover().findByRole("textbox").clear().type(value).blur();
-    H.popover().button("Add filter").click();
+    popover().findByRole("textbox").clear().type(value).blur();
+    popover().button("Add filter").click();
   }
 
   function updateDateFilter(value: string) {
-    H.popover().findByRole("textbox").clear().type(value).blur();
-    H.popover()
-      .button(/(Add|Update) filter/)
-      .click();
+    popover().findByRole("textbox").clear().type(value).blur();
+    popover().button("Update filter").click();
   }
 });

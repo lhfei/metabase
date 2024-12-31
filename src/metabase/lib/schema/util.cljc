@@ -68,18 +68,19 @@
           ;; Using reduce-kv to remove namespaced keys and some other keys to perform the comparison.
           (reduce-kv (fn [acc k _]
                        (if (or (qualified-keyword? k)
-                               (#{:base-type :effective-type :ident} k))
+                               (= k :base-type)
+                               (= k :effective-type))
                          (dissoc acc k)
                          acc))
                      options options)))))))
 
-(defn remove-randomized-idents
-  "Recursively remove all uuids and `:ident`s from x."
+(defn remove-lib-uuids
+  "Recursively remove all uuids from x."
   [x]
   (walk/postwalk
    (fn [x]
      (if (map? x)
-       (dissoc x :lib/uuid :ident)
+       (dissoc x :lib/uuid)
        x))
    x))
 
@@ -87,8 +88,8 @@
   [:fn
    {:error/message "values must be distinct ignoring uuids"
     :error/fn      (fn [{:keys [value]} _]
-                     (str "Duplicate values ignoring uuids in: " (pr-str (remove-randomized-idents value))))}
-   (comp u/empty-or-distinct? remove-randomized-idents)])
+                     (str "Duplicate values ignoring uuids in: " (pr-str (remove-lib-uuids value))))}
+   (comp u/empty-or-distinct? remove-lib-uuids)])
 
 (defn distinct-ignoring-uuids
   "Add an additional constraint to `schema` that requires all elements to be distinct after removing uuids."

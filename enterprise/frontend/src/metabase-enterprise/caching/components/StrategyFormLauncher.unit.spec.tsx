@@ -68,7 +68,6 @@ describe("StrategyFormLauncher", () => {
     expect(launcher).toHaveTextContent("Default policy");
     expect(launcher).toHaveAttribute("data-testid", "strategy-form-launcher");
   });
-
   it("can render a button representing a database with a Don't cache policy", async () => {
     renderStrategyFormLauncher({
       forId: 1,
@@ -82,7 +81,6 @@ describe("StrategyFormLauncher", () => {
     expect(launcher).toHaveTextContent("Database 1");
     expect(launcher).toHaveAttribute("data-testid", "strategy-form-launcher");
   });
-
   it("can render a button representing a database that inherits root policy", async () => {
     renderStrategyFormLauncher({
       forId: 2,

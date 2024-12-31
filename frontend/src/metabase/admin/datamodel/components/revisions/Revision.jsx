@@ -15,7 +15,6 @@ export default class Revision extends Component {
     objectName: PropTypes.string.isRequired,
     revision: PropTypes.object.isRequired,
     currentUser: PropTypes.object.isRequired,
-    tableId: PropTypes.number.isRequired,
   };
 
   getAction() {
@@ -53,7 +52,7 @@ export default class Revision extends Component {
   }
 
   render() {
-    const { revision, userColor, tableId } = this.props;
+    const { revision, userColor } = this.props;
 
     let message = revision.message;
     let diffKeys = Object.keys(revision.diff || {});
@@ -75,7 +74,7 @@ export default class Revision extends Component {
             style={{ borderWidth: 2 }}
           />
         </div>
-        <div className={cx(CS.flex1, CS.mt1, CS.mb4)}>
+        <div className={cx(CS.flexFull, CS.mt1, CS.mb4)}>
           <div className={cx(CS.flex, CS.mb1, CS.textMedium)}>
             <span>
               <strong>{this.getName()}</strong> {this.getAction()}
@@ -86,12 +85,7 @@ export default class Revision extends Component {
           </div>
           {message && <p>&quot;{message}&quot;</p>}
           {diffKeys.map(key => (
-            <RevisionDiff
-              key={key}
-              property={key}
-              diff={revision.diff[key]}
-              tableId={tableId}
-            />
+            <RevisionDiff key={key} property={key} diff={revision.diff[key]} />
           ))}
         </div>
       </li>

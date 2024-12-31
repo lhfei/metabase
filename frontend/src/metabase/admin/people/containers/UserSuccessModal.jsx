@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
 import { Component } from "react";
+import { connect } from "react-redux";
 import { push } from "react-router-redux";
 import { jt, t } from "ttag";
 import _ from "underscore";
@@ -11,8 +12,7 @@ import Button from "metabase/core/components/Button";
 import Link from "metabase/core/components/Link";
 import CS from "metabase/css/core/index.css";
 import Users from "metabase/entities/users";
-import { connect } from "metabase/lib/redux";
-import { getSetting, isSsoEnabled } from "metabase/selectors/settings";
+import MetabaseSettings from "metabase/lib/settings";
 
 import { clearTemporaryPassword } from "../people";
 import { getUserTemporaryPassword } from "../selectors";
@@ -25,14 +25,10 @@ class UserSuccessModal extends Component {
   }
 
   render() {
-    const {
-      onClose,
-      user,
-      temporaryPassword,
-      isSsoEnabled,
-      isPasswordLoginEnabled,
-    } = this.props;
-    const ssoEnabled = isSsoEnabled && !isPasswordLoginEnabled;
+    const { onClose, user, temporaryPassword } = this.props;
+    const isSsoEnabled =
+      MetabaseSettings.isSsoEnabled() &&
+      !MetabaseSettings.isPasswordLoginEnabled();
     return (
       <ModalContent
         title={t`${user.common_name} has been added`}
@@ -42,7 +38,7 @@ class UserSuccessModal extends Component {
         {temporaryPassword ? (
           <PasswordSuccess user={user} temporaryPassword={temporaryPassword} />
         ) : (
-          <EmailSuccess isSsoEnabled={ssoEnabled} user={user} />
+          <EmailSuccess isSsoEnabled={isSsoEnabled} user={user} />
         )}
       </ModalContent>
     );
@@ -53,10 +49,9 @@ const EmailSuccess = ({ user, isSsoEnabled }) => {
   if (isSsoEnabled) {
     return (
       <div>{jt`We’ve sent an invite to ${(
-        <strong key="email">{user.email}</strong>
+        <strong>{user.email}</strong>
       )} with instructions to log in. If this user is unable to authenticate then you can ${(
         <Link
-          key="link"
           to={`/admin/people/${user.id}/reset`}
           className={CS.link}
         >{t`reset their password.`}</Link>
@@ -65,7 +60,7 @@ const EmailSuccess = ({ user, isSsoEnabled }) => {
   }
   return (
     <div>{jt`We’ve sent an invite to ${(
-      <strong key="email">{user.email}</strong>
+      <strong>{user.email}</strong>
     )} with instructions to set their password.`}</div>
   );
 };
@@ -74,7 +69,7 @@ const PasswordSuccess = ({ user, temporaryPassword }) => (
   <div>
     <PasswordSuccessMessage>
       {jt`We couldn’t send them an email invitation, so make sure to tell them to log in using ${(
-        <strong key="email">{user.email}</strong>
+        <strong>{user.email}</strong>
       )} and this password we’ve generated for them:`}
     </PasswordSuccessMessage>
 
@@ -84,17 +79,14 @@ const PasswordSuccess = ({ user, temporaryPassword }) => (
       className={cx(CS.pt4, CS.textCentered)}
     >
       {jt`If you want to be able to send email invites, just go to the ${(
-        <Link
-          key="link"
-          to="/admin/settings/email"
-          className={cx(CS.link, CS.textBold)}
-        >
+        <Link to="/admin/settings/email" className={cx(CS.link, CS.textBold)}>
           Email Settings
         </Link>
       )} page.`}
     </div>
   </div>
 );
+
 export default _.compose(
   Users.load({
     id: (state, props) => props.params.userId,
@@ -104,8 +96,6 @@ export default _.compose(
       temporaryPassword: getUserTemporaryPassword(state, {
         userId: props.params.userId,
       }),
-      isSsoEnabled: isSsoEnabled(state),
-      isPasswordLoginEnabled: getSetting(state, "enable-password-login"),
     }),
     {
       onClose: () => push("/admin/people"),

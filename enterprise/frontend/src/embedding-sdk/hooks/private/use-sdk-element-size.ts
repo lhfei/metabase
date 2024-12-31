@@ -1,9 +1,8 @@
 import { useElementSize } from "@mantine/hooks";
 
 import { getDefaultVizHeight } from "embedding-sdk/lib/default-height";
-import type { VisualizationDisplay } from "metabase-types/api";
 
-export const useSdkElementSize = (display?: VisualizationDisplay) => {
+export const useSdkElementSize = (display?: string) => {
   const { height, ref, width } = useElementSize();
 
   // Some of our components by default don't have a specified height (i.e. the Visualization component)

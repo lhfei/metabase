@@ -48,48 +48,38 @@ const timeParameterValueDeserializers = [
   {
     testRegex: /^past([0-9]+)([a-z]+)s-from-([0-9]+)([a-z]+)s$/,
     deserialize: (matches, fieldRef) => {
-      const base = ["time-interval", fieldRef, -Number(matches[0]), matches[1]];
-      return setStartingFrom(base, Number(matches[2]), matches[3]);
-    },
-    deserializeMBQL: (matches, fieldRef) => {
-      return [
-        "relative-time-interval",
+      const base = [
+        "time-interval",
         fieldRef,
-        -Number(matches[0]),
+        -parseInt(matches[0]),
         matches[1],
-        -Number(matches[2]),
-        matches[3],
       ];
+      return setStartingFrom(base, parseInt(matches[2]), matches[3]);
     },
   },
   {
     testRegex: /^past([0-9]+)([a-z]+)s(~)?$/,
     deserialize: (matches, fieldRef) =>
-      ["time-interval", fieldRef, -Number(matches[0]), matches[1]].concat(
+      ["time-interval", fieldRef, -parseInt(matches[0]), matches[1]].concat(
         matches[2] ? [{ "include-current": true }] : [],
       ),
   },
   {
     testRegex: /^next([0-9]+)([a-z]+)s-from-([0-9]+)([a-z]+)s$/,
     deserialize: (matches, fieldRef) => {
-      const base = ["time-interval", fieldRef, Number(matches[0]), matches[1]];
-      return setStartingFrom(base, -Number(matches[2]), matches[3]);
-    },
-    deserializeMBQL: (matches, fieldRef) => {
-      return [
-        "relative-time-interval",
+      const base = [
+        "time-interval",
         fieldRef,
-        Number(matches[0]),
+        parseInt(matches[0]),
         matches[1],
-        Number(matches[2]),
-        matches[3],
       ];
+      return setStartingFrom(base, -parseInt(matches[2]), matches[3]);
     },
   },
   {
     testRegex: /^next([0-9]+)([a-z]+)s(~)?$/,
     deserialize: (matches, fieldRef) =>
-      ["time-interval", fieldRef, Number(matches[0]), matches[1]].concat(
+      ["time-interval", fieldRef, parseInt(matches[0]), matches[1]].concat(
         matches[2] ? [{ "include-current": true }] : [],
       ),
   },
@@ -141,14 +131,7 @@ const timeParameterValueDeserializers = [
   },
 ];
 
-// legacy `DatePicker` relies on the broken MBQL produced by `deserialize`
-// we fix relative date filters with a new `deserializeMBQL` function and
-// `isDatePicker` flag
-export function dateParameterValueToMBQL(
-  parameterValue,
-  fieldRef,
-  isDatePicker = true,
-) {
+export function dateParameterValueToMBQL(parameterValue, fieldRef) {
   const deserializer = timeParameterValueDeserializers.find(des =>
     des.testRegex.test(parameterValue),
   );
@@ -157,10 +140,7 @@ export function dateParameterValueToMBQL(
     const substringMatches = deserializer.testRegex
       .exec(parameterValue)
       .splice(1);
-    const deserialize = isDatePicker
-      ? deserializer.deserialize
-      : (deserializer.deserializeMBQL ?? deserializer.deserialize);
-    return deserialize(substringMatches, fieldRef);
+    return deserializer.deserialize(substringMatches, fieldRef);
   } else {
     return null;
   }
@@ -227,7 +207,7 @@ function filterParameterToMBQL(query, stageIndex, parameter) {
   const fieldRef = Lib.legacyRef(query, stageIndex, column);
 
   if (isDateParameter(parameter)) {
-    return dateParameterValueToMBQL(parameter.value, fieldRef, false);
+    return dateParameterValueToMBQL(parameter.value, fieldRef);
   } else if (Lib.isNumeric(column)) {
     return numberParameterValueToMBQL(parameter, fieldRef);
   } else {

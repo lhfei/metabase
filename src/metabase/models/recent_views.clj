@@ -176,33 +176,26 @@
      [:model [:enum :dataset :card :metric :dashboard :collection :table]]
      [:can_write :boolean]
      [:timestamp :string]]
-    ;; database_id was commented out below because this schema was not actually being used correctly
-    ;; by [[metabase.api.activity/get-popular-items-model-and-id]] and when I fixed it in #47418
-    ;; [[metabase.api.activity-test/popular-items-test]] started failing because things don't actually come back with
-    ;; database IDs... commented out for now until someone gets a change to look at this. -- Cam
     [:multi {:dispatch :model}
      [:card [:map
              [:display :string]
-             #_[:database_id :int]
+             [:database_id :int]
              [:parent_collection ::pc]
              [:moderated_status ::verified]]]
      [:dataset [:map
-                #_[:database_id :int]
+                [:database_id :int]
                 [:parent_collection ::pc]
                 [:moderated_status ::verified]]]
      [:metric [:map
                [:display :string]
                [:parent_collection ::pc]
                [:moderated_status ::verified]]]
-     [:dashboard
-      [:map
-       [:parent_collection ::pc]
-       [:moderated_status ::verified]]]
+     [:dashboard [:map [:parent_collection ::pc]]]
      [:table [:map
               [:display_name :string]
               [:table_schema [:maybe :string]]
               [:database [:map
-                          #_[:id [:int {:min 1}]]
+                          [:id [:int {:min 1}]]
                           [:name :string]]]]]
      [:collection [:map
                    [:parent_collection ::pc]
@@ -248,8 +241,6 @@
                          :card.id
                          :card.database_id
                          :card.display
-                         [:dashboard.id :dashboard_id]
-                         [:dashboard.name :dashboard_name]
                          [:card.collection_id :entity-coll-id]
                          [:mr.status :moderated-status]
                          [:collection.id :collection_id]
@@ -265,10 +256,7 @@
                             [:collection]
                             [:and
                              [:= :collection.id :card.collection_id]
-                             [:= :collection.archived false]]
-
-                            [:report_dashboard :dashboard]
-                            [:= :dashboard.id :card.dashboard_id]]})))
+                             [:= :collection.archived false]]]})))
 
 (defn- fill-parent-coll [model-object]
   (if (:collection_id model-object)
@@ -292,9 +280,6 @@
                    (parent-collection-valid? model_object)
                    (ellide-archived model_object))]
     {:id model_id
-     :dashboard (when (:dashboard_id card)
-                  {:name (:dashboard_name card)
-                   :id (:dashboard_id card)})
      :name (:name card)
      :database_id (:database_id card)
      :description (:description card)
@@ -352,16 +337,10 @@
                          [:dash.collection_id :entity-coll-id]
                          [:c.id :collection_id]
                          [:c.name :collection_name]
-                         [:c.authority_level :collection_authority_level]
-                         [:mr.status :moderated-status]]
+                         [:c.authority_level :collection_authority_level]]
                 :from [[:report_dashboard :dash]]
                 :where [:in :dash.id dashboard-ids]
-                :left-join [[:moderation_review :mr]
-                            [:and
-                             [:= :mr.moderated_item_id :dash.id]
-                             [:= :mr.moderated_item_type "dashboard"]
-                             [:= :mr.most_recent true]]
-                            [:collection :c]
+                :left-join [[:collection :c]
                             [:and
                              [:= :c.id :dash.collection_id]
                              [:= :c.archived false]]]})))
@@ -376,7 +355,6 @@
      :model :dashboard
      :can_write (mi/can-write? dashboard)
      :timestamp (str timestamp)
-     :moderated_status (:moderated-status dashboard)
      :parent_collection (fill-parent-coll dashboard)}))
 
 ;; ================== Recent Collections ==================
@@ -437,7 +415,7 @@
     (when (and (not= "hidden" (:visibility_type table))
                (:database-name table)
                (:active table)
-               (mi/can-read? :model/Table model_id))
+               (mi/can-read? table))
       {:id model_id
        :name (:name table)
        :description (:description table)

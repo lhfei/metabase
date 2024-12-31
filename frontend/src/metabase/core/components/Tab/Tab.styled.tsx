@@ -5,7 +5,7 @@ import { alpha, color } from "metabase/lib/colors";
 import { space } from "metabase/styled-components/theme";
 import { Icon } from "metabase/ui";
 
-interface TabProps {
+export interface TabProps {
   isSelected?: boolean;
 }
 

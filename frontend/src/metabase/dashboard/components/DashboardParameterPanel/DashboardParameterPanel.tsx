@@ -1,4 +1,3 @@
-import { DASHBOARD_PARAMETERS_PDF_EXPORT_NODE_ID } from "metabase/dashboard/constants";
 import {
   getDashboardComplete,
   getIsEditing,
@@ -71,7 +70,6 @@ export function DashboardParameterPanel({
       data-testid="dashboard-parameters-widget-container"
     >
       <ParametersFixedWidthContainer
-        id={DASHBOARD_PARAMETERS_PDF_EXPORT_NODE_ID}
         isFixedWidth={dashboard?.width === "fixed"}
         data-testid="fixed-width-filters"
       >

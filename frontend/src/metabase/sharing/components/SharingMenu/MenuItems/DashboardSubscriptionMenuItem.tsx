@@ -6,7 +6,7 @@ import {
   canManageSubscriptions as canManageSubscriptionsSelector,
   getUserIsAdmin,
 } from "metabase/selectors/user";
-import { Icon, Menu, Stack, Text, Title } from "metabase/ui";
+import { Center, Icon, Menu, Stack, Text, Title } from "metabase/ui";
 import type { Dashboard } from "metabase-types/api";
 
 export function DashboardSubscriptionMenuItem({
@@ -34,7 +34,12 @@ export function DashboardSubscriptionMenuItem({
     return (
       <Menu.Item
         data-testid="dashboard-subscription-menu-item"
-        icon={<Icon name="subscription" />}
+        my="sm"
+        icon={
+          <Center mr="xs">
+            <Icon name="subscription" />
+          </Center>
+        }
         disabled
       >
         <Stack spacing="xs">
@@ -51,10 +56,15 @@ export function DashboardSubscriptionMenuItem({
   return (
     <Menu.Item
       data-testid="dashboard-subscription-menu-item"
-      icon={<Icon name="subscription" />}
+      my="sm"
+      icon={
+        <Center mr="xs">
+          <Icon name="subscription" />
+        </Center>
+      }
       onClick={onClick}
     >
-      {t`Subscriptions`}
+      <Title order={4}>{t`Subscriptions`}</Title>
     </Menu.Item>
   );
 }

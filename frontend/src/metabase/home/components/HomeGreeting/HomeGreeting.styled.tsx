@@ -19,7 +19,7 @@ export const GreetingLogo = styled(MetabotLogo)<{ isCool: boolean }>`
   }
 `;
 
-interface GreetingMessageProps {
+export interface GreetingMessageProps {
   showLogo?: boolean;
 }
 

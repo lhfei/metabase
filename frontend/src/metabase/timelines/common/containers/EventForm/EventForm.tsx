@@ -1,4 +1,5 @@
-import { connect } from "metabase/lib/redux";
+import { connect } from "react-redux";
+
 import { getSetting } from "metabase/selectors/settings";
 import type { State } from "metabase-types/store";
 

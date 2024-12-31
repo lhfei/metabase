@@ -1,8 +1,9 @@
+import type { PieArcDatum } from "d3";
+
 import type { ColumnDescriptor } from "metabase/visualizations/lib/graph/columns";
-import type { RemappingHydratedDatasetColumn } from "metabase/visualizations/types";
 
 export interface PieRow {
-  key: string;
+  key: string | number;
   name: string;
   originalName: string;
   color: string;
@@ -15,39 +16,26 @@ export interface PieRow {
 export interface PieColumnDescriptors {
   metricDesc: ColumnDescriptor;
   dimensionDesc: ColumnDescriptor;
-  middleDimensionDesc?: ColumnDescriptor;
-  outerDimensionDesc?: ColumnDescriptor;
 }
 
-export type SliceTreeNode = {
-  key: string;
-  // Display name, already formatted
-  name: string;
-  // The rendered size of this slice. Due to ECharts limitations with negative values:
-  // - When all values are negative, we use absolute values
-  // - When values are mixed (both positive and negative), negative slices are hidden
-  value: number;
-  // Real metric value of the slice displayed in tooltip or total graphic
-  rawValue: number;
+export interface PieSliceData {
+  key: string | number; // dimension value, used to lookup slices
+  name: string; // display name, already formatted
+  value: number; // size of the slice used for rendering
+  displayValue: number; // real metric value of the slice displayed in tooltip or total graphic
   normalizedPercentage: number;
-  visible: boolean;
   color: string;
-  startAngle: number;
-  endAngle: number;
-  children: SliceTree;
-  column?: RemappingHydratedDatasetColumn;
+  isOther: boolean;
+  noHover: boolean;
+  includeInLegend: boolean;
   rowIndex?: number;
-  legendHoverIndex?: number;
-  isOther?: boolean;
-  noHover?: boolean;
-  includeInLegend?: boolean;
-};
+}
 
-export type SliceTree = Map<string, SliceTreeNode>;
+export type PieSlice = PieArcDatum<PieSliceData>;
 
 export interface PieChartModel {
-  sliceTree: SliceTree;
+  slices: PieSlice[];
+  otherSlices: PieSlice[];
   total: number;
-  numRings: number;
   colDescs: PieColumnDescriptors;
 }

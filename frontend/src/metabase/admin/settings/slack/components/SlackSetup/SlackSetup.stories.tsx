@@ -1,6 +1,6 @@
-import type { StoryObj } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import SlackSetup, { type SlackSetupProps } from "./SlackSetup";
+import SlackSetup from "./SlackSetup";
 
 export default {
   title: "Admin/Settings/Slack/SlackSetup",
@@ -11,15 +11,13 @@ export default {
   },
 };
 
-export const Default: StoryObj<SlackSetupProps> = {
-  render: args => {
-    return <SlackSetup {...args} />;
-  },
+export const Default: ComponentStory<typeof SlackSetup> = args => {
+  return <SlackSetup {...args} />;
+};
 
-  args: {
-    Form: () => <div />,
-    manifest: "app: token",
-    isBot: false,
-    isValid: true,
-  },
+Default.args = {
+  Form: () => <div />,
+  manifest: "app: token",
+  isBot: false,
+  isValid: true,
 };

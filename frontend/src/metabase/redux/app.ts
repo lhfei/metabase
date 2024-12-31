@@ -1,8 +1,4 @@
-import {
-  type PayloadAction,
-  createAction,
-  createSlice,
-} from "@reduxjs/toolkit";
+import { createAction } from "@reduxjs/toolkit";
 import { LOCATION_CHANGE, push } from "react-router-redux";
 
 import {
@@ -11,12 +7,7 @@ import {
   shouldOpenInBlankWindow,
 } from "metabase/lib/dom";
 import { combineReducers, handleActions } from "metabase/lib/redux";
-import type {
-  Dispatch,
-  TempStorage,
-  TempStorageKey,
-  TempStorageValue,
-} from "metabase-types/store";
+import type { Dispatch } from "metabase-types/store";
 
 interface LocationChangeAction {
   type: string; // "@@router/LOCATION_CHANGE"
@@ -49,8 +40,7 @@ interface IOpenUrlOptions {
 }
 
 export const openUrl =
-  (url: string, options: IOpenUrlOptions = {}) =>
-  (dispatch: Dispatch) => {
+  (url: string, options: IOpenUrlOptions) => (dispatch: Dispatch) => {
     if (shouldOpenInBlankWindow(url, options)) {
       openInBlankWindow(url);
     } else {
@@ -71,9 +61,10 @@ const errorPage = handleActions(
 const PATH_WITH_COLLAPSED_NAVBAR = /\/(model\b|question|dashboard|metabot).*/;
 
 export function isNavbarOpenForPathname(pathname: string, prevState: boolean) {
-  return (
-    !isSmallScreen() && !PATH_WITH_COLLAPSED_NAVBAR.test(pathname) && prevState
-  );
+  // return (
+  //   !isSmallScreen() && !PATH_WITH_COLLAPSED_NAVBAR.test(pathname) && prevState
+  // );
+  return !isSmallScreen() && prevState;
 }
 
 export const OPEN_NAVBAR = "metabase/app/OPEN_NAVBAR";
@@ -103,38 +94,6 @@ const isNavbarOpen = handleActions(
   true,
 );
 
-export const OPEN_DIAGNOSTICS = "metabase/app/OPEN_DIAGNOSTIC_MODAL";
-export const CLOSE_DIAGNOSTICS = "metabase/app/CLOSE_DIAGNOSTIC_MODAL";
-
-export const openDiagnostics = createAction(OPEN_DIAGNOSTICS);
-export const closeDiagnostics = createAction(CLOSE_DIAGNOSTICS);
-
-const isErrorDiagnosticsOpen = handleActions(
-  {
-    [OPEN_DIAGNOSTICS]: () => true,
-    [CLOSE_DIAGNOSTICS]: () => false,
-  },
-  false,
-);
-
-const tempStorageSlice = createSlice({
-  name: "tempStorage",
-  initialState: {} as TempStorage,
-  reducers: {
-    setTempSetting: (
-      state,
-      action: PayloadAction<{
-        key: TempStorageKey;
-        value: TempStorageValue<TempStorageKey>;
-      }>,
-    ) => {
-      state[action.payload.key] = action.payload.value;
-    },
-  },
-});
-
-export const { setTempSetting } = tempStorageSlice.actions;
-
 // eslint-disable-next-line import/no-default-export -- deprecated usage
 export default combineReducers({
   errorPage,
@@ -145,6 +104,4 @@ export default combineReducers({
     }
     return true;
   },
-  isErrorDiagnosticsOpen,
-  tempStorage: tempStorageSlice.reducer,
 });

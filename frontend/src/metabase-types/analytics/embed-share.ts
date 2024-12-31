@@ -10,24 +10,15 @@ type ValidateEvent<
     Record<Exclude<keyof T, keyof EmbedShareEventSchema>, never>,
 > = T;
 
-type EmbeddingEventName =
-  | "embedding"
-  | "sdk_embedding"
-  | "interactive_embedding"
-  | "static_embedding";
-
-type EmbeddingEventEnabled = `${EmbeddingEventName}_enabled`;
-type EmbeddingEventDisabled = `${EmbeddingEventName}_disabled`;
-
 export type EmbeddingEnabledEvent = ValidateEvent<{
-  event: EmbeddingEventEnabled;
+  event: "embedding_enabled";
   authorized_origins_set: boolean;
   number_embedded_questions: number;
   number_embedded_dashboards: number;
 }>;
 
 export type EmbeddingDisabledEvent = ValidateEvent<{
-  event: EmbeddingEventDisabled;
+  event: "embedding_disabled";
   authorized_origins_set: boolean;
   number_embedded_questions: number;
   number_embedded_dashboards: number;

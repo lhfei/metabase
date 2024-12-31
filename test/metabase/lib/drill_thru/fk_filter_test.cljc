@@ -6,7 +6,8 @@
    [metabase.lib.core :as lib]
    [metabase.lib.drill-thru.test-util :as lib.drill-thru.tu]
    [metabase.lib.drill-thru.test-util.canned :as canned]
-   [metabase.lib.test-metadata :as meta]))
+   [metabase.lib.test-metadata :as meta]
+   [metabase.util :as u]))
 
 #?(:cljs (comment metabase.test-runner.assert-exprs.approximately-equal/keep-me))
 
@@ -46,29 +47,31 @@
 
 (deftest ^:parallel do-not-return-fk-filter-for-non-fk-column-test
   (testing "fk-filter should not get returned for non-fk column (#34440)"
-    (lib.drill-thru.tu/test-drill-not-returned
-     {:drill-type  :drill-thru/fk-filter
-      :click-type  :cell
-      :query-type  :aggregated
-      :column-name "max"})))
+    (let [test-case           {:click-type  :cell
+                               :query-type  :aggregated
+                               :column-name "max"}
+          {:keys [query row]} (lib.drill-thru.tu/query-and-row-for-test-case test-case)
+          context             (lib.drill-thru.tu/test-case-context query row test-case)]
+      (testing (str "\nQuery = \n"   (u/pprint-to-str query)
+                    "\nContext =\n" (u/pprint-to-str context))
+        (let [drills (into #{}
+                           (map :type)
+                           (lib/available-drill-thrus query context))]
+          (testing (str "\nAvailable drills =\n" (u/pprint-to-str drills))
+            (is (not (contains? drills :drill-thru/fk-filter)))))))))
 
 (deftest ^:parallel do-not-return-fk-filter-for-null-fk-test
   (testing "#13957 if this is an FK column but the value clicked is NULL, don't show the FK filter drill"
-    (let [test-case            {:drill-type  :drill-thru/fk-filter
-                                :click-type  :cell
+    (let [test-case            {:click-type  :cell
                                 :query-type  :unaggregated
-                                :column-name "PRODUCT_ID"
-                                :expected    {:type :drill-thru/fk-filter}}
-          ;{:keys [query row]}  (lib.drill-thru.tu/query-and-row-for-test-case test-case)
-          ;context              (lib.drill-thru.tu/test-case-context query row test-case)
-          ;drill-types          #(->> % (lib/available-drill-thrus query) (map :type) set)
-          row        (get-in lib.drill-thru.tu/test-queries ["ORDERS" :unaggregated :row])]
-      (testing "returned with non-NULL value"
-        (lib.drill-thru.tu/test-returns-drill test-case))
-      (testing "not returned with NULL value"
-        (-> test-case
-            (assoc :custom-row (assoc row "PRODUCT_ID" nil))
-            (dissoc :expected))))))
+                                :column-name "PRODUCT_ID"}
+          {:keys [query row]}  (lib.drill-thru.tu/query-and-row-for-test-case test-case)
+          context              (lib.drill-thru.tu/test-case-context query row test-case)
+          drill-types          #(->> % (lib/available-drill-thrus query) (map :type) set)]
+      (is (contains? (drill-types context)
+                     :drill-thru/fk-filter))
+      (is (not (contains? (drill-types (assoc context :value :null))
+                          :drill-thru/fk-filter))))))
 
 (deftest ^:parallel fk-filter-on-model-test
   (testing "FK filter drill should not appear on native query models (#35689, #36633)"
@@ -153,26 +156,23 @@
         :expected       {:lib/type  :metabase.lib.drill-thru/drill-thru
                          :type      :drill-thru/fk-filter
                          :column-name "User ID"
-                         :table-name  string?}
-        :expected-query {:stages [{:filters [[:= {}
-                                              [:field {} (lib.drill-thru.tu/field-key=
-                                                          "USER_ID" (meta/id :orders :user-id))]
-                                              (get-in lib.drill-thru.tu/test-queries
-                                                      ["ORDERS" :unaggregated :row "USER_ID"])]]}]}}))
+                         :table-name  "Orders"}
+        :expected-query {:stages [{:source-table (meta/id :orders)
+                                   :filters      [[:= {}
+                                                   [:field {} (meta/id :orders :user-id)]
+                                                   (get-in lib.drill-thru.tu/test-queries
+                                                           ["ORDERS" :unaggregated :row "USER_ID"])]]}]}}))
     (testing "in a new stage for an aggregated query"
       (lib.drill-thru.tu/test-drill-application
-       {:click-type      :cell
-        :query-type      :aggregated
-        :column-name     "PRODUCT_ID"
-        :drill-type      :drill-thru/fk-filter
-        :expected        {:lib/type  :metabase.lib.drill-thru/drill-thru
-                          :type      :drill-thru/fk-filter
-                          :column-name "Product ID"
-                          :table-name  string?}
-        :expected-query  {:stages [(-> (get lib.drill-thru.tu/test-queries "ORDERS") :aggregated :query :stages first)
-                                   {:filters [[:= {} [:field {} (meta/id :orders :product-id)]
-                                               (get-in lib.drill-thru.tu/test-queries
-                                                       ["ORDERS" :aggregated :row "PRODUCT_ID"])]]}]}
-        :expected-native {:stages [{:filters [[:= {} [:field {} "PRODUCT_ID"]
-                                               (get-in lib.drill-thru.tu/test-queries
-                                                       ["ORDERS" :aggregated :row "PRODUCT_ID"])]]}]}}))))
+       {:click-type     :cell
+        :query-type     :aggregated
+        :column-name    "PRODUCT_ID"
+        :drill-type     :drill-thru/fk-filter
+        :expected       {:lib/type  :metabase.lib.drill-thru/drill-thru
+                         :type      :drill-thru/fk-filter
+                         :column-name "Product ID"
+                         :table-name  "Orders"}
+        :expected-query {:stages [(-> (get lib.drill-thru.tu/test-queries "ORDERS") :aggregated :query :stages first)
+                                  {:filters [[:= {} [:field {} (meta/id :orders :product-id)]
+                                              (get-in lib.drill-thru.tu/test-queries
+                                                      ["ORDERS" :aggregated :row "PRODUCT_ID"])]]}]}}))))

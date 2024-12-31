@@ -1,6 +1,7 @@
 (ns metabase.query-processor.streaming.test-util
   "Utility functions for testing QP streaming (download) functionality."
   (:require
+   [cheshire.core :as json]
    [clojure.data.csv :as csv]
    [clojure.test :refer :all]
    [dk.ative.docjure.spreadsheet :as spreadsheet]
@@ -8,8 +9,7 @@
    [metabase.query-processor.pipeline :as qp.pipeline]
    [metabase.query-processor.streaming :as qp.streaming]
    [metabase.test :as mt]
-   [metabase.util :as u]
-   [metabase.util.json :as json])
+   [metabase.util :as u])
   (:import
    (java.io BufferedInputStream BufferedOutputStream ByteArrayInputStream ByteArrayOutputStream InputStream InputStreamReader)))
 
@@ -22,7 +22,7 @@
 (defmethod parse-result* :api
   [_ ^InputStream is _]
   (with-open [reader (InputStreamReader. is)]
-    (let [response (json/decode+kw reader)]
+    (let [response (json/parse-stream reader true)]
       (cond-> response
         (map? response) (dissoc :database_id :started_at :json_query :average_execution_time :context :running_time)))))
 
@@ -78,8 +78,7 @@
                                        (assoc-in query [:middleware :js-int-to-string?] false))
                  (mt/user-real-request :crowberto :post (format "dataset/%s" (name export-format))
                                        {:request-options {:as :byte-array}}
-                                       :query (json/encode query)
-                                       :format_rows true))]
+                                       :query (json/generate-string query)))]
     (with-open [is (ByteArrayInputStream. byytes)]
       (apply parse-result export-format is args))))
 

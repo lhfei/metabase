@@ -21,7 +21,7 @@ export const EngineListRoot = styled.ul`
   }
 `;
 
-interface EngineCardRootProps {
+export interface EngineCardRootProps {
   isActive: boolean;
 }
 

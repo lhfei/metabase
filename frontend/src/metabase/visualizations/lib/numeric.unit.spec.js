@@ -45,7 +45,6 @@ describe("visualization.lib.numeric", () => {
       });
     }
   });
-
   describe("computeNumericDataInverval", () => {
     const CASES = [
       [[0], 1],
@@ -62,7 +61,6 @@ describe("visualization.lib.numeric", () => {
       });
     }
   });
-
   describe("isMultipleOf", () => {
     [
       [1, 0.1, true],

@@ -1,10 +1,11 @@
-(ns ^:mb/driver-tests metabase.driver.sql-jdbc.actions-test
+(ns metabase.driver.sql-jdbc.actions-test
   "Most of the tests for code in [[metabase.driver.sql-jdbc.actions]] are e2e tests that live
   in [[metabase.api.action-test]]."
   (:require
    [clojure.test :refer :all]
    [metabase.actions :as actions]
    [metabase.actions.error :as actions.error]
+   [metabase.api.common :refer [*current-user-permissions-set*]]
    [metabase.driver :as driver]
    [metabase.driver.sql-jdbc.actions :as sql-jdbc.actions]
    [metabase.lib.schema.actions :as lib.schema.actions]
@@ -56,7 +57,7 @@
           (reset! parse-sql-error-called? false)
           ;; attempting to delete the `Pizza` category should fail because there are several rows in `venues` that have
           ;; this `category_id` -- it's an FK constraint violation.
-          (mt/as-admin
+          (binding [*current-user-permissions-set* (delay #{"/"})]
             (is (thrown-with-msg? Exception #"Referential integrity constraint violation:.*"
                                   (actions/perform-action! :row/delete (mt/mbql-query categories {:filter [:= $id 58]})))))
           (testing "Make sure our impl was actually called."

@@ -3,6 +3,7 @@
    [clj-kondo.hooks-api :as api]
    [clj-kondo.impl.utils]
    [clojure.edn :as edn]
+   [clojure.java.io :as io]
    [clojure.test :refer :all]
    [hooks.clojure.test]))
 
@@ -43,13 +44,9 @@
   (testing "Make sure we keep hooks.clojure.test/driver-keywords up to date"
     (let [driver-keywords (-> (slurp ".clj-kondo/config.edn")
                               edn/read-string
-                              (get-in [:linters :metabase/disallow-hardcoded-driver-names-in-tests :drivers]))
-          driver-modules (->> (slurp "modules/drivers/deps.edn")
-                              edn/read-string
-                              :deps
-                              vals
-                              (keep (comp keyword :local/root))
-                              (into #{}))]
-      (doseq [driver driver-modules]
+                              (get-in [:linters :metabase/disallow-hardcoded-driver-names-in-tests :drivers]))]
+      (doseq [^java.io.File file (.listFiles (io/file "modules/drivers"))
+              :when (.isDirectory file)
+              :let [driver (keyword (.getName file))]]
         (is (contains? driver-keywords driver)
             (format "hooks.clojure.test/driver-keywords should contain %s, please add it" driver))))))

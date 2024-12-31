@@ -2,7 +2,7 @@ import cx from "classnames";
 import { isValidElement, useMemo } from "react";
 
 import CS from "metabase/css/core/index.css";
-import { NULL_DISPLAY_VALUE } from "metabase/lib/constants";
+import { getFriendlyName } from "metabase/visualizations/lib/utils";
 import type {
   ComputedVisualizationSettings,
   DataPoint,
@@ -120,11 +120,11 @@ const getRows = (hovered: HoveredObject) => {
 
 export const getRowFromDataPoint = (data: DataPoint) => ({
   ...data,
-  key: data.key || (data?.col?.display_name ?? NULL_DISPLAY_VALUE),
+  key: data.key || (data.col && getFriendlyName(data.col)),
 });
 
 const getRowFromDimension = ({ column, value }: HoveredDimension) => ({
-  key: column?.display_name,
+  key: column && getFriendlyName(column),
   value: value,
   col: column,
 });

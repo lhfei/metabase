@@ -1,6 +1,24 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID, USER_GROUPS } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  checkFilterListSourceHasValue,
+  describeEE,
+  multiAutocompleteInput,
+  multiAutocompleteValue,
+  openNativeEditor,
+  popover,
+  restore,
+  saveQuestion,
+  setConnectedFieldSource,
+  setDropdownFilterType,
+  setFilterListSource,
+  setFilterQuestionSource,
+  setSearchBoxFilterType,
+  setTokenFeatures,
+  visitEmbeddedPage,
+  visitPublicQuestion,
+  visitQuestion,
+} from "e2e/support/helpers";
 
 import * as FieldFilter from "./helpers/e2e-field-filter-helpers";
 import * as SQLFilter from "./helpers/e2e-sql-filter-helpers";
@@ -27,9 +45,9 @@ const nativeSourceQuestion = {
 
 describe("scenarios > filters > sql filters > values source", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.updateSetting("enable-public-sharing", true);
+    cy.request("PUT", "/api/setting/enable-public-sharing", { value: true });
     cy.intercept("POST", "/api/dataset").as("dataset");
     cy.intercept("GET", "/api/session/properties").as("sessionProperties");
     cy.intercept("PUT", "/api/card/*").as("updateQuestion");
@@ -44,16 +62,13 @@ describe("scenarios > filters > sql filters > values source", () => {
     it("should be able to use a structured question source", () => {
       cy.createQuestion(structuredSourceQuestion);
 
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Field Filter");
       FieldFilter.mapTo({ table: "Products", field: "Category" });
-      H.setFilterQuestionSource({ question: "MBQL source", field: "Category" });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      setFilterQuestionSource({ question: "MBQL source", field: "Category" });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("Doohickey");
@@ -63,23 +78,20 @@ describe("scenarios > filters > sql filters > values source", () => {
       SQLFilter.toggleRequired();
       FieldFilter.openEntryForm(true);
       FieldFilter.selectFilterValueFromList("Gadget", {
-        buttonLabel: "Update filter",
+        buttonLabel: "Add filter",
       });
     });
 
     it("should be able to use a structured question source with a text tag", () => {
       cy.createQuestion(structuredSourceQuestion);
 
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery(
         "SELECT * FROM PRODUCTS WHERE CATEGORY = {{tag}}",
       );
-      H.setDropdownFilterType();
-      H.setFilterQuestionSource({ question: "MBQL source", field: "Category" });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      setDropdownFilterType();
+      setFilterQuestionSource({ question: "MBQL source", field: "Category" });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("Doohickey");
@@ -91,24 +103,20 @@ describe("scenarios > filters > sql filters > values source", () => {
 
       SQLFilter.toggleRequired();
       cy.findByTestId("sidebar-content")
-        .findByText("Enter a default value…")
+        .findByPlaceholderText("Start typing to filter…")
         .click();
-
-      H.popover().within(() => {
-        cy.findByText("Gadget").click();
-        cy.button("Update filter").click();
-      });
+      popover().findByText("Gadget").click();
     });
 
     it("should be able to use a structured question source without saving the question", () => {
       cy.createQuestion(structuredSourceQuestion);
 
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery(
         "SELECT * FROM PRODUCTS WHERE CATEGORY = {{tag}}",
       );
-      H.setDropdownFilterType();
-      H.setFilterQuestionSource({ question: "MBQL source", field: "Category" });
+      setDropdownFilterType();
+      setFilterQuestionSource({ question: "MBQL source", field: "Category" });
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("Doohickey");
@@ -118,13 +126,13 @@ describe("scenarios > filters > sql filters > values source", () => {
 
     it("should properly cache parameter values api calls", () => {
       cy.createQuestion(structuredSourceQuestion);
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery(
         "SELECT * FROM PRODUCTS WHERE CATEGORY = {{tag}}",
       );
 
-      H.setDropdownFilterType();
-      H.setFilterQuestionSource({ question: "MBQL source", field: "Category" });
+      setDropdownFilterType();
+      setFilterQuestionSource({ question: "MBQL source", field: "Category" });
       FieldFilter.openEntryForm();
       cy.wait("@parameterValues");
       checkFilterValueInList("Gizmo");
@@ -132,15 +140,12 @@ describe("scenarios > filters > sql filters > values source", () => {
       FieldFilter.openEntryForm();
       checkFilterValueInList("Gizmo");
       cy.get("@parameterValues.all").should("have.length", 1);
-      H.setFilterListSource({ values: ["A", "B"] });
+      setFilterListSource({ values: ["A", "B"] });
       FieldFilter.openEntryForm();
       cy.wait("@parameterValues");
       checkFilterValueInList("A");
 
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
       FieldFilter.openEntryForm();
       cy.wait("@cardParameterValues");
       checkFilterValueInList("A");
@@ -148,7 +153,7 @@ describe("scenarios > filters > sql filters > values source", () => {
       FieldFilter.openEntryForm();
       checkFilterValueInList("A");
       cy.get("@cardParameterValues.all").should("have.length", 1);
-      H.setFilterQuestionSource({ question: "MBQL source", field: "Category" });
+      setFilterQuestionSource({ question: "MBQL source", field: "Category" });
       updateQuestion();
       FieldFilter.openEntryForm();
       cy.wait("@cardParameterValues");
@@ -161,7 +166,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getStructuredDimensionTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+            visitEmbeddedPage(getQuestionResource(targetQuestionId));
           });
         },
       );
@@ -177,7 +182,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getStructuredTextTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+            visitEmbeddedPage(getQuestionResource(targetQuestionId));
           });
         },
       );
@@ -193,7 +198,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getStructuredDimensionTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitPublicQuestion(targetQuestionId);
+            visitPublicQuestion(targetQuestionId);
           });
         },
       );
@@ -209,7 +214,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getStructuredTextTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitPublicQuestion(targetQuestionId);
+            visitPublicQuestion(targetQuestionId);
           });
         },
       );
@@ -224,17 +229,14 @@ describe("scenarios > filters > sql filters > values source", () => {
     it("should be able to use a native question source in the query builder", () => {
       cy.createNativeQuestion(nativeSourceQuestion);
 
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Field Filter");
       FieldFilter.mapTo({ table: "Products", field: "Ean" });
       FieldFilter.setWidgetType("String");
-      H.setFilterQuestionSource({ question: "SQL source", field: "EAN" });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      setFilterQuestionSource({ question: "SQL source", field: "EAN" });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("0001664425970");
@@ -248,7 +250,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getNativeDimensionTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+            visitEmbeddedPage(getQuestionResource(targetQuestionId));
           });
         },
       );
@@ -264,7 +266,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getNativeTextTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+            visitEmbeddedPage(getQuestionResource(targetQuestionId));
           });
         },
       );
@@ -280,7 +282,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getNativeDimensionTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitPublicQuestion(targetQuestionId);
+            visitPublicQuestion(targetQuestionId);
           });
         },
       );
@@ -296,7 +298,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           cy.createNativeQuestion(
             getNativeTextTargetQuestion(sourceQuestionId),
           ).then(({ body: { id: targetQuestionId } }) => {
-            H.visitPublicQuestion(targetQuestionId);
+            visitPublicQuestion(targetQuestionId);
           });
         },
       );
@@ -309,17 +311,14 @@ describe("scenarios > filters > sql filters > values source", () => {
 
   describe("static list source (dropdown)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Field Filter");
       FieldFilter.mapTo({ table: "Products", field: "Ean" });
       FieldFilter.setWidgetType("String");
-      H.setFilterListSource({ values: ["1018947080336", "7663515285824"] });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      setFilterListSource({ values: ["1018947080336", "7663515285824"] });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("0001664425970");
@@ -334,7 +333,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: ["1018947080336", "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
@@ -349,7 +348,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: ["1018947080336", "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitPublicQuestion(targetQuestionId);
+        visitPublicQuestion(targetQuestionId);
       });
 
       FieldFilter.openEntryForm();
@@ -361,19 +360,16 @@ describe("scenarios > filters > sql filters > values source", () => {
 
   describe("static list source with custom labels (dropdown)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Field Filter");
       FieldFilter.mapTo({ table: "Products", field: "Ean" });
       FieldFilter.setWidgetType("String");
-      H.setFilterListSource({
+      setFilterListSource({
         values: [["1018947080336", "Custom Label"], "7663515285824"],
       });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("0001664425970");
@@ -389,7 +385,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: [["1018947080336", "Custom Label"], "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
@@ -405,7 +401,7 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: [["1018947080336", "Custom Label"], "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitPublicQuestion(targetQuestionId);
+        visitPublicQuestion(targetQuestionId);
       });
 
       FieldFilter.openEntryForm();
@@ -418,31 +414,28 @@ describe("scenarios > filters > sql filters > values source", () => {
 
   describe("static list source (search box)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Field Filter");
       FieldFilter.mapTo({ table: "Products", field: "Ean" });
       FieldFilter.setWidgetType("String");
 
-      H.setSearchBoxFilterType();
-      H.setFilterListSource({
+      setSearchBoxFilterType();
+      setFilterListSource({
         values: ["1018947080336", "7663515285824"],
       });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
 
-      H.fieldValuesInput().type("101");
-      H.popover().findByText("1018947080336").click();
+      multiAutocompleteInput().type("101");
+      popover().last().findByText("1018947080336").click();
 
-      H.fieldValuesValue(0)
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "1018947080336");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "1018947080336");
     });
@@ -454,17 +447,17 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: ["1018947080336", "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
 
-      H.fieldValuesInput().type("101");
-      H.popover().findByText("1018947080336").click();
-      H.fieldValuesValue(0)
+      multiAutocompleteInput().type("101");
+      popover().last().findByText("1018947080336").click();
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "1018947080336");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "1018947080336");
     });
@@ -476,17 +469,17 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: ["1018947080336", "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitPublicQuestion(targetQuestionId);
+        visitPublicQuestion(targetQuestionId);
       });
 
       FieldFilter.openEntryForm();
 
-      H.fieldValuesInput().type("101");
-      H.popover().findByText("1018947080336").click();
-      H.fieldValuesValue(0)
+      multiAutocompleteInput().type("101");
+      popover().last().findByText("1018947080336").click();
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "1018947080336");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "1018947080336");
     });
@@ -494,31 +487,28 @@ describe("scenarios > filters > sql filters > values source", () => {
 
   describe("static list source with custom labels (search box)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Field Filter");
       FieldFilter.mapTo({ table: "Products", field: "Ean" });
       FieldFilter.setWidgetType("String");
 
-      H.setSearchBoxFilterType();
-      H.setFilterListSource({
+      setSearchBoxFilterType();
+      setFilterListSource({
         values: [["1018947080336", "Custom Label"], "7663515285824"],
       });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
 
-      H.fieldValuesInput().type("Custom Label");
-      H.popover().last().findByText("1018947080336").should("not.exist");
-      H.popover().last().findByText("Custom Label").click();
-      H.fieldValuesValue(0)
+      multiAutocompleteInput().type("Custom Label");
+      popover().last().findByText("1018947080336").should("not.exist");
+      popover().last().findByText("Custom Label").click();
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "Custom Label");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Custom Label");
     });
@@ -530,18 +520,18 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: [["1018947080336", "Custom Label"], "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
 
-      H.fieldValuesInput().type("Custom Label");
-      H.popover().last().findByText("1018947080336").should("not.exist");
-      H.popover().last().findByText("Custom Label").click();
-      H.fieldValuesValue(0)
+      multiAutocompleteInput().type("Custom Label");
+      popover().last().findByText("1018947080336").should("not.exist");
+      popover().last().findByText("Custom Label").click();
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "Custom Label");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Custom Label");
     });
@@ -553,30 +543,29 @@ describe("scenarios > filters > sql filters > values source", () => {
           values: [["1018947080336", "Custom Label"], "7663515285824"],
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitPublicQuestion(targetQuestionId);
+        visitPublicQuestion(targetQuestionId);
       });
 
       FieldFilter.openEntryForm();
 
-      H.fieldValuesInput().type("Custom Label");
-      H.popover().last().findByText("1018947080336").should("not.exist");
-      H.popover().last().findByText("Custom Label").click();
-      H.fieldValuesValue(0)
+      multiAutocompleteInput().type("Custom Label");
+      popover().last().findByText("1018947080336").should("not.exist");
+      popover().last().findByText("Custom Label").click();
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "Custom Label");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Custom Label");
     });
   });
 });
 
-H.describeEE("scenarios > filters > sql filters > values source", () => {
+describeEE("scenarios > filters > sql filters > values source", () => {
   beforeEach(() => {
-    H.restore();
+    restore("default-ee");
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
-    H.blockUserGroupPermissions(USER_GROUPS.ALL_USERS_GROUP);
+    setTokenFeatures("all");
     cy.intercept("POST", "/api/dataset/parameter/values").as("parameterValues");
     cy.intercept("GET", "/api/card/*/params/*/values").as(
       "cardParameterValues",
@@ -596,7 +585,7 @@ H.describeEE("scenarios > filters > sql filters > values source", () => {
     cy.sandboxTable({
       table_id: PRODUCTS_ID,
       attribute_remappings: {
-        attr_cat: ["dimension", ["field", PRODUCTS.CATEGORY, null]],
+        attr_uid: ["dimension", ["field", PRODUCTS.ID, null]],
       },
     });
 
@@ -607,7 +596,7 @@ H.describeEE("scenarios > filters > sql filters > values source", () => {
         ).then(({ body: { id: targetQuestionId } }) => {
           cy.signOut();
           cy.signInAsSandboxedUser();
-          H.visitQuestion(targetQuestionId);
+          visitQuestion(targetQuestionId);
         });
       },
     );
@@ -615,17 +604,16 @@ H.describeEE("scenarios > filters > sql filters > values source", () => {
     FieldFilter.openEntryForm();
     cy.wait("@cardParameterValues");
     checkFilterValueNotInList("Gadget");
-    checkFilterValueNotInList("Gizmo");
     checkFilterValueNotInList("Doohickey");
-    FieldFilter.selectFilterValueFromList("Widget");
+    FieldFilter.selectFilterValueFromList("Gizmo");
   });
 });
 
 describe("scenarios > filters > sql filters > values source > number parameter", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.updateSetting("enable-public-sharing", true);
+    cy.request("PUT", "/api/setting/enable-public-sharing", { value: true });
     cy.intercept("POST", "/api/dataset").as("dataset");
     cy.intercept("GET", "/api/session/properties").as("sessionProperties");
     cy.intercept("PUT", "/api/card/*").as("updateQuestion");
@@ -638,19 +626,16 @@ describe("scenarios > filters > sql filters > values source > number parameter",
 
   describe("static list source (dropdown)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT {{ x }}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Number");
 
-      H.setDropdownFilterType();
-      H.setFilterListSource({
+      setDropdownFilterType();
+      setFilterListSource({
         values: [["10", "Ten"], ["20", "Twenty"], "30"],
       });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
       checkFilterValueNotInList("10");
@@ -671,7 +656,7 @@ describe("scenarios > filters > sql filters > values source > number parameter",
           },
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
@@ -692,7 +677,7 @@ describe("scenarios > filters > sql filters > values source > number parameter",
           },
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitPublicQuestion(targetQuestionId);
+        visitPublicQuestion(targetQuestionId);
       });
 
       FieldFilter.openEntryForm();
@@ -704,25 +689,22 @@ describe("scenarios > filters > sql filters > values source > number parameter",
 
   describe("static list source with custom labels (dropdown)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT * FROM {{ tag }}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Number");
-      H.setSearchBoxFilterType();
-      H.setFilterListSource({
+      setSearchBoxFilterType();
+      setFilterListSource({
         values: [["10", "Ten"], ["20", "Twenty"], "30"],
       });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
-      H.fieldValuesInput().type("Tw");
+      multiAutocompleteInput().type("Tw");
       checkFilterValueNotInList("10");
       checkFilterValueNotInList("20");
-      H.popover().last().findByText("Twenty").click();
-      H.popover().button("Add filter").click();
+      popover().last().findByText("Twenty").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Twenty");
       SQLFilter.runQuery("cardQuery");
@@ -740,16 +722,16 @@ describe("scenarios > filters > sql filters > values source > number parameter",
           },
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
-      H.multiAutocompleteInput().type("Tw");
+      multiAutocompleteInput().type("Tw");
       checkFilterValueNotInList("10");
       checkFilterValueNotInList("20");
 
-      H.popover().last().findByText("Twenty").click();
-      H.popover().button("Add filter").click();
+      popover().last().findByText("Twenty").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Twenty");
     });
@@ -766,16 +748,16 @@ describe("scenarios > filters > sql filters > values source > number parameter",
           },
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitPublicQuestion(targetQuestionId);
+        visitPublicQuestion(targetQuestionId);
       });
 
       FieldFilter.openEntryForm();
-      H.multiAutocompleteInput().type("Tw");
+      multiAutocompleteInput().type("Tw");
       checkFilterValueNotInList("10");
       checkFilterValueNotInList("20");
 
-      H.popover().last().findByText("Twenty").click();
-      H.popover().button("Add filter").click();
+      popover().last().findByText("Twenty").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Twenty");
     });
@@ -783,29 +765,26 @@ describe("scenarios > filters > sql filters > values source > number parameter",
 
   describe("static list source (search box)", () => {
     it("should be able to use a static list source in the query builder", () => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery("SELECT {{ tag }}");
       SQLFilter.openTypePickerFromDefaultFilterType();
       SQLFilter.chooseType("Number");
 
-      H.setSearchBoxFilterType();
-      H.setFilterListSource({
+      setSearchBoxFilterType();
+      setFilterListSource({
         values: [["10", "Ten"], ["20", "Twenty"], "30"],
       });
-      H.saveQuestion("SQL filter", undefined, {
-        tab: "Browse",
-        path: ["Our analytics"],
-      });
+      saveQuestion("SQL filter");
 
       FieldFilter.openEntryForm();
 
-      H.multiAutocompleteInput().type("Tw");
-      H.popover().last().findByText("Twenty").click();
+      multiAutocompleteInput().type("Tw");
+      popover().last().findByText("Twenty").click();
 
-      H.multiAutocompleteValue(0)
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "Twenty");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Twenty");
     });
@@ -822,81 +801,72 @@ describe("scenarios > filters > sql filters > values source > number parameter",
           },
         }),
       ).then(({ body: { id: targetQuestionId } }) => {
-        H.visitEmbeddedPage(getQuestionResource(targetQuestionId));
+        visitEmbeddedPage(getQuestionResource(targetQuestionId));
       });
 
       FieldFilter.openEntryForm();
 
-      H.multiAutocompleteInput().type("Tw");
-      H.popover().last().findByText("Twenty").click();
-      H.multiAutocompleteValue(0)
+      multiAutocompleteInput().type("Twenty");
+      popover().last().findByText("Twenty").click();
+      multiAutocompleteValue(0)
         .should("be.visible")
         .should("contain", "Twenty");
-      H.popover().button("Add filter").click();
+      popover().button("Add filter").click();
 
       cy.findByLabelText("Tag").should("contain.text", "Twenty");
     });
   });
 
   it("should show the values when picking the default value", () => {
-    H.openNativeEditor();
+    openNativeEditor();
     SQLFilter.enterParameterizedQuery("SELECT {{ x }}");
     SQLFilter.openTypePickerFromDefaultFilterType();
     SQLFilter.chooseType("Number");
 
-    H.setDropdownFilterType();
-    H.setFilterListSource({
+    setDropdownFilterType();
+    setFilterListSource({
       values: [["10", "Ten"], ["20", "Twenty"], "30"],
     });
 
     cy.findByTestId("sidebar-content")
-      .findByText("Enter a default value…")
+      .findByPlaceholderText("Select a default value…")
       .click();
 
-    H.popover().within(() => {
-      cy.findByText("Twenty").click();
-      cy.button("Add filter").click();
-    });
+    popover().findByText("Twenty").click();
 
-    H.saveQuestion("SQL filter", undefined, {
-      tab: "Browse",
-      path: ["Our analytics"],
-    });
+    saveQuestion("SQL filter");
 
     cy.findByLabelText("X").should("contain.text", "Twenty");
     SQLFilter.runQuery("cardQuery");
   });
 
   it("should clear the value type and config when changing the template tag type and restore them when changing the type back", () => {
-    H.openNativeEditor();
+    openNativeEditor();
     SQLFilter.enterParameterizedQuery("SELECT * FROM PRODUCTS WHERE {{tag}}");
     SQLFilter.openTypePickerFromDefaultFilterType();
     SQLFilter.chooseType("Text");
-    H.setSearchBoxFilterType();
-    H.setFilterListSource({
+    setSearchBoxFilterType();
+    setFilterListSource({
       values: ["Foo", "Bar"],
     });
-    H.saveQuestion("SQL filter", undefined, {
-      tab: "Browse",
-      path: ["Our analytics"],
-    });
+    saveQuestion("SQL filter");
 
     SQLFilter.openTypePickerFromSelectedFilterType("Text");
     SQLFilter.chooseType("Number");
 
     cy.get("[data-checked='true']").should("have.text", "Input box");
 
-    H.setSearchBoxFilterType();
-    H.checkFilterListSourceHasValue({ values: [] });
+    setSearchBoxFilterType();
+    checkFilterListSourceHasValue({ values: [] });
 
     SQLFilter.openTypePickerFromSelectedFilterType("Number");
     SQLFilter.chooseType("Field Filter");
-    H.setConnectedFieldSource("Orders", "Total");
+    setConnectedFieldSource("Orders", "Total");
 
     SQLFilter.openTypePickerFromSelectedFilterType("Number");
     SQLFilter.chooseType("Text");
     cy.get("[data-checked='true']").should("have.text", "Search box");
-    H.checkFilterListSourceHasValue({ values: ["Foo", "Bar"] });
+    checkFilterListSourceHasValue({ values: ["Foo", "Bar"] });
   });
 });
 
@@ -1063,7 +1033,7 @@ const updateQuestion = () => {
 };
 
 const checkFilterValueInList = value => {
-  H.popover()
+  popover()
     .last()
     .within(() => {
       cy.findByText(value).should("exist");
@@ -1071,7 +1041,7 @@ const checkFilterValueInList = value => {
 };
 
 const checkFilterValueNotInList = value => {
-  H.popover()
+  popover()
     .last()
     .within(() => {
       cy.findByText(value).should("not.exist");

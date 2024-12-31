@@ -1,7 +1,7 @@
 import type { ComponentType, PropsWithChildren } from "react";
 
 import { Badge } from "metabase/components/Badge";
-import Collections from "metabase/entities/collections";
+import Collection from "metabase/entities/collections";
 import { PLUGIN_COLLECTIONS } from "metabase/plugins";
 import type {
   CollectionId,
@@ -57,11 +57,12 @@ const CollectionBadgeInner = ({
   );
 };
 
-export const CollectionBadge = Collections.load({
+export const CollectionBadge = Collection.load({
   id: (state: State, props: { collectionId?: CollectionId }) =>
     props.collectionId || "root",
   wrapped: true,
   loadingAndErrorWrapper: false,
+  properties: ["name", "authority_level"],
 })(CollectionBadgeInner) as ComponentType<
   PropsWithChildren<
     {

@@ -13,16 +13,14 @@ import {
 } from "metabase-types/api/mocks";
 import { createMockState } from "metabase-types/store/mocks";
 
-import type { SearchItem } from "../../types";
-
-import { ResultItem } from "./ResultItem";
+import { ResultItem, type ResultItemType } from "./ResultItem";
 
 function setup({
   item,
   isSelected = false,
   onClick = jest.fn(),
 }: {
-  item: SearchItem;
+  item: ResultItemType;
   isSelected?: boolean;
   onClick?: () => void;
 }) {
@@ -49,7 +47,7 @@ function setup({
   );
 }
 
-const collectionItemWithInvalidParent: SearchItem = {
+const collectionItemWithInvalidParent: ResultItemType = {
   id: 301,
   model: "collection",
   name: "Foo Collection",
@@ -60,7 +58,7 @@ const collectionItemWithInvalidParent: SearchItem = {
   display: null,
 };
 
-const collectionItemWithValidParent: SearchItem = {
+const collectionItemWithValidParent: ResultItemType = {
   id: 302,
   model: "collection",
   name: "Foo Collection",
@@ -71,8 +69,7 @@ const collectionItemWithValidParent: SearchItem = {
   display: null,
 };
 
-const questionItem: SearchItem = {
-  id: 303,
+const questionItem: ResultItemType = {
   model: "card",
   name: "My Bar Chart",
   description: "",
@@ -82,8 +79,7 @@ const questionItem: SearchItem = {
   display: "bar",
 };
 
-const dashboardItem: SearchItem = {
-  id: 304,
+const dashboardItem: ResultItemType = {
   model: "dashboard",
   name: "My Awesome Dashboard ",
   description: "This dashboard contains awesome stuff",
@@ -93,8 +89,7 @@ const dashboardItem: SearchItem = {
   display: null,
 };
 
-const questionInOfficialCollection: SearchItem = {
-  id: 305,
+const questionInOfficialCollection: ResultItemType = {
   model: "card",
   name: "My Line Chart",
   description: "",
@@ -108,8 +103,7 @@ const questionInOfficialCollection: SearchItem = {
   display: "line",
 };
 
-const verifiedModelItem: SearchItem = {
-  id: 306,
+const verifiedModelItem: ResultItemType = {
   model: "dataset",
   name: "My Verified Model",
   description: "",
@@ -119,20 +113,18 @@ const verifiedModelItem: SearchItem = {
   display: null,
 };
 
-const tableItem: SearchItem = {
-  id: 307,
+const tableItem: ResultItemType = {
   model: "table",
   name: "My Flat Table",
-  description: null,
   database_name: "My Database",
 };
 
-const tableItemWithSchema: SearchItem = {
+const tableItemWithSchema: ResultItemType = {
   ...tableItem,
   table_schema: "my_schema",
 };
 
-const tableItemWithEmptySchema: SearchItem = {
+const tableItemWithEmptySchema: ResultItemType = {
   ...tableItem,
   table_schema: "",
 };
@@ -209,7 +201,7 @@ describe("EntityPicker > ResultItem", () => {
     expect(
       screen.getByText("in My official parent collection"),
     ).toBeInTheDocument();
-    expect(getIcon("official_collection")).toBeInTheDocument();
+    expect(getIcon("badge")).toBeInTheDocument();
   });
 
   it("should render a verified model item", () => {
@@ -218,8 +210,7 @@ describe("EntityPicker > ResultItem", () => {
     });
     expect(screen.getByText("My Verified Model")).toBeInTheDocument();
 
-    expect(getIcon("model")).toBeInTheDocument();
-    expect(getIcon("verified_filled")).toBeInTheDocument();
+    expect(getIcon("model_with_badge")).toBeInTheDocument();
     expect(screen.getByText("in My parent collection")).toBeInTheDocument();
   });
 

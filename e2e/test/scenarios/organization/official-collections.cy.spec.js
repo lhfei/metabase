@@ -1,5 +1,15 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  commandPaletteSearch,
+  describeEE,
+  getCollectionActions,
+  navigationSidebar,
+  openCollectionMenu,
+  openNewCollectionItemFlowFor,
+  popover,
+  restore,
+  setTokenFeatures,
+} from "e2e/support/helpers";
 
 const { ORDERS, ORDERS_ID } = SAMPLE_DATABASE;
 
@@ -11,9 +21,9 @@ const TEST_QUESTION_QUERY = {
   breakout: [["field", ORDERS.CREATED_AT, { "temporal-unit": "hour-of-day" }]],
 };
 
-H.describeEE("official collections", () => {
+describeEE("official collections", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -29,8 +39,8 @@ H.describeEE("official collections", () => {
           authority_level: "official",
         },
       }).then(({ body, status, statusText }) => {
-        expect(body).to.deep.include(
-          H.getPartialPremiumFeatureError("Official Collections"),
+        expect(body).to.eq(
+          "Official Collections is a paid feature not currently available to your instance. Please upgrade to use it. Learn more at metabase.com/upgrade/",
         );
         expect(status).to.eq(402);
         expect(statusText).to.eq("Payment Required");
@@ -39,27 +49,27 @@ H.describeEE("official collections", () => {
       // Gate the UI
       cy.visit("/collection/root");
 
-      H.openNewCollectionItemFlowFor("collection");
+      openNewCollectionItemFlowFor("collection");
       cy.findByTestId("new-collection-modal").then(modal => {
         assertNoCollectionTypeInput();
         cy.findByLabelText("Close").click();
       });
 
       openCollection("First collection");
-      H.openCollectionMenu();
+      openCollectionMenu();
       assertNoCollectionTypeOption();
     });
   });
 
   context("premium token with paid features", () => {
-    beforeEach(() => H.setTokenFeatures("all"));
+    beforeEach(() => setTokenFeatures("all"));
 
     it("should be able to manage collection authority level", () => {
       cy.visit("/collection/root");
 
       createAndOpenOfficialCollection({ name: COLLECTION_NAME });
       cy.findByTestId("official-collection-marker");
-      assertSidebarIcon(COLLECTION_NAME, "official_collection");
+      assertSidebarIcon(COLLECTION_NAME, "badge");
 
       changeCollectionTypeTo("regular");
       cy.findByTestId("official-collection-marker").should("not.exist");
@@ -67,7 +77,7 @@ H.describeEE("official collections", () => {
 
       changeCollectionTypeTo("official");
       cy.findByTestId("official-collection-marker");
-      assertSidebarIcon(COLLECTION_NAME, "official_collection");
+      assertSidebarIcon(COLLECTION_NAME, "badge");
     });
 
     it("displays official badge throughout the application", () => {
@@ -84,14 +94,14 @@ H.describeEE("official collections", () => {
 
       openCollection("First collection");
 
-      H.openNewCollectionItemFlowFor("collection");
+      openNewCollectionItemFlowFor("collection");
       cy.findByTestId("new-collection-modal").then(modal => {
         assertNoCollectionTypeInput();
         cy.findByLabelText("Close").click();
       });
 
-      H.openCollectionMenu();
-      H.popover().within(() => {
+      openCollectionMenu();
+      popover().within(() => {
         assertNoCollectionTypeOption();
       });
     });
@@ -100,14 +110,14 @@ H.describeEE("official collections", () => {
       cy.visit("/collection/root");
 
       openCollection("Your personal collection");
-      H.getCollectionActions().within(() => {
+      getCollectionActions().within(() => {
         cy.icon("ellipsis").should("exist");
         cy.icon("ellipsis").click();
       });
 
-      H.popover().findByText("Make collection official").should("exist");
+      popover().findByText("Make collection official").should("exist");
 
-      H.openNewCollectionItemFlowFor("collection");
+      openNewCollectionItemFlowFor("collection");
       cy.findByTestId("new-collection-modal").then(modal => {
         assertHasCollectionTypeInput();
         cy.findByPlaceholderText("My new fantastic collection").type(
@@ -118,13 +128,13 @@ H.describeEE("official collections", () => {
 
       openCollection("Personal collection child");
 
-      H.getCollectionActions().within(() => {
+      getCollectionActions().within(() => {
         cy.icon("ellipsis").should("exist");
         cy.icon("ellipsis").click();
       });
-      H.popover().findByText("Make collection official").should("exist");
+      popover().findByText("Make collection official").should("exist");
 
-      H.openNewCollectionItemFlowFor("collection");
+      openNewCollectionItemFlowFor("collection");
       cy.findByTestId("new-collection-modal").then(modal => {
         assertHasCollectionTypeInput();
         cy.findByLabelText("Close").click();
@@ -133,8 +143,7 @@ H.describeEE("official collections", () => {
   });
 
   context("token expired or removed", () => {
-    beforeEach(() => H.setTokenFeatures("all"));
-
+    beforeEach(() => setTokenFeatures("all"));
     it("should not display official collection icon anymore", () => {
       testOfficialBadgePresence(false);
     });
@@ -161,7 +170,7 @@ function testOfficialBadgePresence(expectBadge = true) {
       collection_id: collectionId,
     });
 
-    !expectBadge && H.setTokenFeatures("none");
+    !expectBadge && setTokenFeatures("none");
     cy.visit(`/collection/${collectionId}`);
   });
 
@@ -193,7 +202,7 @@ function testOfficialBadgeInSearch({
   question,
   expectBadge,
 }) {
-  H.commandPaletteSearch(searchQuery);
+  commandPaletteSearch(searchQuery);
 
   cy.findByTestId("search-app").within(() => {
     assertSearchResultBadge(collection, {
@@ -221,35 +230,35 @@ function testOfficialQuestionBadgeInRegularDashboard(expectBadge = true) {
     });
   });
 
-  !expectBadge && H.setTokenFeatures("none");
+  !expectBadge && setTokenFeatures("none");
 
   cy.visit("/collection/root");
   cy.findByText("Regular Dashboard").click();
 
   cy.findByTestId("dashboard-grid")
-    .icon("official_collection")
+    .icon("badge")
     .should(expectBadge ? "exist" : "not.exist");
 }
 
 function openCollection(collectionName) {
-  H.navigationSidebar().findByText(collectionName).click();
+  navigationSidebar().findByText(collectionName).click();
 }
 
 function createAndOpenOfficialCollection({ name }) {
-  H.openNewCollectionItemFlowFor("collection");
+  openNewCollectionItemFlowFor("collection");
   cy.findByTestId("new-collection-modal").then(modal => {
     cy.findByPlaceholderText("My new fantastic collection").type(name);
     cy.findByText("Official").click();
     cy.findByText("Create").click();
   });
-  H.navigationSidebar().within(() => {
+  navigationSidebar().within(() => {
     cy.findByText(name).click();
   });
 }
 
 function changeCollectionTypeTo(type) {
-  H.openCollectionMenu();
-  H.popover().within(() => {
+  openCollectionMenu();
+  popover().within(() => {
     if (type === "official") {
       cy.findByText("Make collection official").click();
     } else {
@@ -276,7 +285,7 @@ function assertNoCollectionTypeOption() {
 }
 
 function assertSidebarIcon(collectionName, expectedIcon) {
-  H.navigationSidebar()
+  navigationSidebar()
     .findByText(collectionName)
     .parent()
     .within(() => {
@@ -291,9 +300,7 @@ function assertSearchResultBadge(itemName, opts) {
     .parent()
     .first()
     .within(() => {
-      cy.icon("official_collection").should(
-        expectBadge ? "exist" : "not.exist",
-      );
+      cy.icon("badge").should(expectBadge ? "exist" : "not.exist");
     });
 }
 
@@ -302,11 +309,9 @@ const assertHasCollectionBadgeInNavbar = (expectBadge = true) => {
     .findByText(COLLECTION_NAME)
     .parent()
     .within(() => {
-      cy.icon("official_collection").should(
-        expectBadge ? "exist" : "not.exist",
-      );
+      cy.icon("badge").should(expectBadge ? "exist" : "not.exist");
       if (expectBadge) {
-        cy.icon("official_collection").should("be.visible");
+        cy.icon("badge").should("be.visible");
       }
     });
 };

@@ -52,7 +52,6 @@ describe("SettingTextInput (metabase/ui)", () => {
 
       return value;
     }
-
     it("should render the input", () => {
       const value = "/";
       setup({ setting, value, type: "text", normalize });

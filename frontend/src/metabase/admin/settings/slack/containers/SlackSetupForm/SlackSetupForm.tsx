@@ -1,4 +1,4 @@
-import { connect } from "metabase/lib/redux";
+import { connect } from "react-redux";
 
 import { updateSettings } from "../../actions";
 import SlackSetupForm from "../../components/SlackSetupForm";

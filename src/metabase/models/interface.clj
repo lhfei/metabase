@@ -1,19 +1,17 @@
 (ns metabase.models.interface
   (:require
    [buddy.core.codecs :as codecs]
+   [cheshire.core :as json]
+   [cheshire.generate :as json.generate]
    [clojure.core.memoize :as memoize]
    [clojure.spec.alpha :as s]
-   [clojure.string :as str]
    [clojure.walk :as walk]
    [malli.core :as mc]
    [malli.error :as me]
-   [medley.core :as m]
    [metabase.legacy-mbql.normalize :as mbql.normalize]
    [metabase.legacy-mbql.schema :as mbql.s]
-   [metabase.lib.binning :as lib.binning]
    [metabase.lib.core :as lib]
    [metabase.lib.metadata.protocols :as lib.metadata.protocols]
-   [metabase.lib.temporal-bucket :as lib.temporal-bucket]
    [metabase.models.dispatch :as models.dispatch]
    [metabase.models.json-migration :as jm]
    [metabase.plugins.classloader :as classloader]
@@ -21,7 +19,6 @@
    [metabase.util.cron :as u.cron]
    [metabase.util.encryption :as encryption]
    [metabase.util.i18n :refer [tru]]
-   [metabase.util.json :as json]
    [metabase.util.log :as log]
    [metabase.util.malli :as mu]
    [metabase.util.malli.registry :as mr]
@@ -135,12 +132,12 @@
   [obj]
   (if (string? obj)
     obj
-    (json/encode obj)))
+    (json/generate-string obj)))
 
 (defn- json-out [s keywordize-keys?]
   (if (string? s)
     (try
-      (json/decode s keywordize-keys?)
+      (json/parse-string s keywordize-keys?)
       (catch Throwable e
         (log/error e "Error parsing JSON")
         s))
@@ -217,17 +214,6 @@
   (or (mbql.normalize/normalize-fragment [:parameters] parameters)
       []))
 
-(defn- keywordize-temporal_units
-  [parameter]
-  (m/update-existing parameter :temporal_units (fn [units] (mapv keyword units))))
-
-(defn normalize-card-parameters-list
-  "Normalize `parameters` of actions, cards, and dashboards when coming out of the application database."
-  [parameters]
-  (->> parameters
-       normalize-parameters-list
-       (mapv keywordize-temporal_units)))
-
 (def transform-metabase-query
   "Transform for metabase-query."
   {:in  (comp json-in (partial maybe-normalize-query :in))
@@ -237,11 +223,6 @@
   "Transform for parameters list."
   {:in  (comp json-in normalize-parameters-list)
    :out (comp (catch-normalization-exceptions normalize-parameters-list) json-out-with-keywordization)})
-
-(def transform-card-parameters-list
-  "Transform for parameters list."
-  {:in  (comp json-in normalize-card-parameters-list)
-   :out (comp (catch-normalization-exceptions normalize-card-parameters-list) json-out-with-keywordization)})
 
 (def transform-field-ref
   "Transform field refs"
@@ -253,10 +234,7 @@
   [metadata]
   ;; TODO -- can we make this whole thing a lazy seq?
   (when-let [metadata (not-empty (json-out-with-keywordization metadata))]
-    (seq (->> (map mbql.normalize/normalize-source-metadata metadata)
-              ;; This is necessary, because in the wild, there may be cards created prior to this change.
-              (map lib.temporal-bucket/ensure-temporal-unit-in-display-name)
-              (map lib.binning/ensure-binning-in-display-name)))))
+    (seq (map mbql.normalize/normalize-source-metadata metadata))))
 
 (def transform-result-metadata
   "Transform for card.result_metadata like columns."
@@ -273,44 +251,6 @@
   {:in  json-in
    :out json-out-without-keywordization})
 
-(mu/defn assert-enum
-  "Assert that a value is one of the values in `enum`."
-  [enum :- [:set :any]
-   value]
-  (when-not (contains? enum value)
-    (throw (ex-info (format "Invalid value %s. Must be one of %s" value (str/join ", " enum)) {:status-code 400
-                                                                                               :value       value}))))
-
-(mu/defn assert-namespaced
-  "Assert that a value is a namespaced keyword under `qualified-ns`."
-  [qualified-ns :- string?
-   value]
-  (when-not (= qualified-ns (-> value keyword namespace))
-    (throw (ex-info (format "Must be a namespaced keyword under :%s, got: %s" qualified-ns value) {:status-code 400
-                                                                                                   :value       value}))))
-
-(defn transform-validator
-  "Given a transform, returns a transform that call `assert-fn` on the \"out\" value.
-
-  E.g: A keyword transfomer that throw an error if the value is not namespaced
-    (transform-validator
-      transform-keyword (fn [x]
-      (when-not (-> x namespace some?)
-        (throw (ex-info \"Value is not namespaced\")))))"
-  [tf assert-fn]
-  (-> tf
-      ;; deserialization
-      (update :out (fn [f]
-                     (fn [x]
-                       (let [out (f x)]
-                         (assert-fn out)
-                         out))))
-      ;; serialization
-      (update :in (fn [f]
-                    (fn [x]
-                      (assert-fn x)
-                      (f x))))))
-
 (def encrypted-json-in
   "Serialize encrypted json."
   (comp encryption/maybe-encrypt json-in))
@@ -320,7 +260,7 @@
   [v]
   (let [decrypted (encryption/maybe-decrypt v)]
     (try
-      (json/decode+kw decrypted)
+      (json/parse-string decrypted true)
       (catch Throwable e
         (if (or (encryption/possibly-encrypted-string? decrypted)
                 (encryption/possibly-encrypted-bytes? decrypted))
@@ -342,7 +282,7 @@
    to modern MBQL clauses so things work correctly."
   [viz-settings]
   (letfn [(normalize-column-settings-key [k]
-            (some-> k u/qualified-name json/decode mbql.normalize/normalize json/encode))
+            (some-> k u/qualified-name json/parse-string mbql.normalize/normalize json/generate-string))
           (normalize-column-settings [column-settings]
             (into {} (for [[k v] column-settings]
                        [(normalize-column-settings-key k) (walk/keywordize-keys v)])))
@@ -364,8 +304,6 @@
                    form)))
              form))]
     (cond-> (walk/keywordize-keys (dissoc viz-settings "column_settings" "graph.metrics"))
-      ;; "key" is an old unused value
-      true                                 (m/update-existing :table.columns (fn [cols] (mapv #(dissoc % :key) cols)))
       (get viz-settings "column_settings") (assoc :column_settings (normalize-column-settings (get viz-settings "column_settings")))
       true                                 normalize-mbql-clauses
       ;; exclude graph.metrics from normalization as it may start with
@@ -412,19 +350,20 @@
   {:in  validate-cron-string
    :out identity})
 
-(mr/def ::legacy-metric-segment-definition
+(def ^:private LegacyMetricSegmentDefinition
   [:map
    [:filter      {:optional true} [:maybe mbql.s/Filter]]
    [:aggregation {:optional true} [:maybe [:sequential ::mbql.s/Aggregation]]]])
 
-(defn- validate-legacy-metric-segment-definition
-  [definition]
-  (if-let [error (mr/explain ::legacy-metric-segment-definition definition)]
-    (let [humanized (me/humanize error)]
-      (throw (ex-info (tru "Invalid Metric or Segment: {0}" (pr-str humanized))
-                      {:error     error
-                       :humanized humanized})))
-    definition))
+(def ^:private ^{:arglists '([definition])} validate-legacy-metric-segment-definition
+  (let [explainer (mr/explainer LegacyMetricSegmentDefinition)]
+    (fn [definition]
+      (if-let [error (explainer definition)]
+        (let [humanized (me/humanize error)]
+          (throw (ex-info (tru "Invalid Metric or Segment: {0}" (pr-str humanized))
+                          {:error     error
+                           :humanized humanized})))
+        definition))))
 
 ;; `metric-segment-definition` is, predictably, for Metric/Segment `:definition`s, which are just the inner MBQL query
 (defn- normalize-legacy-metric-segment-definition [definition]
@@ -747,9 +686,9 @@
 (methodical/defmethod to-json :default
   "Default method for encoding instances of a Toucan model to JSON."
   [instance json-generator]
-  (json/generate-map instance json-generator))
+  (json.generate/encode-map instance json-generator))
 
-(json/add-encoder
+(json.generate/add-encoder
  Instance
  #'to-json)
 

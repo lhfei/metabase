@@ -1,4 +1,15 @@
-import { H } from "e2e/support";
+import {
+  assertEChartsTooltip,
+  chartPathWithFillColor,
+  echartsContainer,
+  filterWidget,
+  getDashboardCard,
+  multiAutocompleteInput,
+  popover,
+  removeMultiAutocompleteValue,
+  restore,
+  visitEmbeddedPage,
+} from "e2e/support/helpers";
 
 import {
   guiDashboard,
@@ -11,7 +22,7 @@ import {
 
 describe("scenarios > embedding > dashboard > linked filters (metabase#13639, metabase#13868)", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -43,59 +54,60 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: {},
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
       });
 
       cy.findByRole("heading", { name: nativeDashboardDetails.name });
-      H.getDashboardCard().contains(nativeQuestionDetails.name);
+      getDashboardCard().contains(nativeQuestionDetails.name);
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 49);
+      chartPathWithFillColor("#509EE3").should("have.length", 49);
 
       assertOnXYAxisLabels({ xLabel: "STATE", yLabel: "count" });
 
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", "TX")
         .and("contain", "AK");
 
       openFilterOptions("State");
 
-      H.popover().findByText("AK").click();
-      H.popover().button("Add filter").click();
+      popover().within(() => {
+        cy.findByText("AK").click();
+        cy.button("Add filter").click();
+      });
 
       cy.location("search").should("eq", "?city=&state=AK");
 
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", "AK")
         .and("not.contain", "TX");
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
-      H.assertEChartsTooltip({
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "68" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "68" }],
         blurAfter: true,
       });
 
       openFilterOptions("City");
 
-      searchFieldValuesFilter();
+      searchMultiAutocompleteFilter();
 
-      H.popover()
+      popover()
         .filter(":contains('Add filter')")
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
+          cy.button("Add filter").click();
         });
-
-      H.popover().button("Add filter").click();
 
       cy.location("search").should("eq", "?city=Anchorage&state=AK");
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "1" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "1" }],
       });
     });
 
@@ -110,16 +122,16 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           auto_apply_filters: false,
         });
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
       });
 
       cy.findByRole("heading", { name: nativeDashboardDetails.name });
-      H.getDashboardCard().contains(nativeQuestionDetails.name);
+      getDashboardCard().contains(nativeQuestionDetails.name);
 
       assertOnXYAxisLabels({ xLabel: "STATE", yLabel: "count" });
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 49);
-      H.echartsContainer()
+      chartPathWithFillColor("#509EE3").should("have.length", 49);
+      echartsContainer()
         .get("text")
         .should("contain", "AK")
         .and("contain", "TX");
@@ -128,48 +140,50 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
 
       cy.button("Apply").should("not.exist");
 
-      H.popover().findByText("AK").click();
-      H.popover().button("Add filter").click();
+      popover().within(() => {
+        cy.findByText("AK").click();
+        cy.button("Add filter").click();
+      });
 
       cy.button("Apply").should("be.visible").click();
       cy.button("Apply").should("not.exist");
 
       cy.location("search").should("eq", "?city=&state=AK");
 
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", "AK")
         .and("not.contain", "TX");
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "68" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "68" }],
         blurAfter: true,
       });
 
       openFilterOptions("City");
 
-      searchFieldValuesFilter();
+      searchMultiAutocompleteFilter();
 
-      H.popover()
+      popover()
         .filter(":contains('Add filter')")
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
+          cy.button("Add filter").click();
         });
-      H.popover().button("Add filter").click();
 
       cy.button("Apply").should("be.visible").click();
       cy.button("Apply").should("not.exist");
 
       cy.location("search").should("eq", "?city=Anchorage&state=AK");
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "1" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "1" }],
       });
     });
 
@@ -180,40 +194,39 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: {},
         };
 
-        H.visitEmbeddedPage(payload, {
+        visitEmbeddedPage(payload, {
           setFilters: { state: "AK" },
         });
       });
 
-      H.filterWidget().should("have.length", 2);
+      filterWidget().should("have.length", 2);
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "68" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "68" }],
         blurAfter: true,
       });
 
       openFilterOptions("City");
 
-      searchFieldValuesFilter();
+      searchMultiAutocompleteFilter();
 
-      H.popover()
+      popover()
         .filter(":contains('Add filter')")
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
+          cy.button("Add filter").click();
         });
-
-      H.popover().button("Add filter").click();
 
       cy.location("search").should("eq", "?city=Anchorage&state=AK");
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "1" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "1" }],
       });
     });
 
@@ -224,40 +237,38 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: {},
         };
 
-        H.visitEmbeddedPage(payload, {
+        visitEmbeddedPage(payload, {
           setFilters: { state: "AK" },
-          additionalHashOptions: {
-            hideFilters: ["state"],
-          },
+          hideFilters: ["state"],
         });
       });
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "68" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "68" }],
         blurAfter: true,
       });
 
-      H.filterWidget().should("have.length", 1).and("contain", "City").click();
+      filterWidget().should("have.length", 1).and("contain", "City").click();
 
-      searchFieldValuesFilter();
+      searchMultiAutocompleteFilter();
 
-      H.popover()
+      popover()
         .filter(":contains('Add filter')")
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
+          cy.button("Add filter").click();
         });
-      H.popover().button("Add filter").click();
 
       cy.location("search").should("eq", "?city=Anchorage&state=AK");
 
-      H.chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
+      chartPathWithFillColor("#509EE3").should("have.length", 1).realHover();
 
-      H.assertEChartsTooltip({
+      assertEChartsTooltip({
         header: "AK",
-        rows: [{ color: "#509EE3", name: "count", value: "1" }],
+        rows: [{ color: "#509EE3", name: "Count", value: "1" }],
       });
     });
 
@@ -275,19 +286,19 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: { state: ["AK"] },
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
       });
 
-      H.filterWidget().should("have.length", 1).and("contain", "City").click();
+      filterWidget().should("have.length", 1).and("contain", "City").click();
 
-      searchFieldValuesFilter();
+      searchMultiAutocompleteFilter();
 
-      H.popover()
+      popover()
         .filter(":contains('Add filter')")
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
+          cy.button("Add filter").click();
         });
-      H.popover().button("Add filter").click();
 
       cy.location("search").should("eq", "?city=Anchorage");
     });
@@ -320,16 +331,16 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: {},
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
       });
 
       // ID filter already comes with the default value
       cy.location("search").should("eq", "?category=&id_filter=1");
 
       // But it should still be editable, and that's why we see two filter widgets
-      H.filterWidget().should("have.length", 2).contains("Category").click();
+      filterWidget().should("have.length", 2).contains("Category").click();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Gizmo").click();
         cy.findByText("Doohickey").should("not.exist");
         cy.findByText("Gadget").should("not.exist");
@@ -352,13 +363,13 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
         };
 
         cy.log("Make sure we can override the default value");
-        H.visitEmbeddedPage(payload, { setFilters: { id_filter: 4 } });
+        visitEmbeddedPage(payload, { setFilters: { id_filter: 4 } });
 
         cy.location("search").should("eq", "?id_filter=4");
 
-        H.filterWidget().should("have.length", 2).contains("Category").click();
+        filterWidget().should("have.length", 2).contains("Category").click();
 
-        H.popover().within(() => {
+        popover().within(() => {
           cy.findByText("Doohickey").click();
           cy.findByText("Gizmo").should("not.exist");
           cy.findByText("Gadget").should("not.exist");
@@ -379,7 +390,7 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
             (win.location.search = "?category=Widget&id_filter=4&id_filter=29"),
         );
 
-        H.filterWidget()
+        filterWidget()
           .should("have.length", 2)
           .and("contain", "2 selections")
           .and("contain", "Widget");
@@ -400,7 +411,7 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
         cy.findByText("2 selections").click();
 
         // Remove one of the previously set filter values
-        H.popover().within(() => H.removeFieldValuesValue(1));
+        popover().within(() => removeMultiAutocompleteValue(1));
 
         cy.button("Update filter").click();
 
@@ -410,7 +421,7 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
 
         openFilterOptions("Category");
 
-        H.popover().within(() => {
+        popover().within(() => {
           cy.findByText("Doohickey");
           cy.findByText("Gizmo").should("not.exist");
           cy.findByText("Gadget").should("not.exist");
@@ -426,10 +437,8 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: {},
         };
 
-        H.visitEmbeddedPage(payload, {
-          additionalHashOptions: {
-            hideFilters: ["id_filter"],
-          },
+        visitEmbeddedPage(payload, {
+          hideFilters: ["id_filter"],
         });
       });
 
@@ -437,12 +446,12 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
         .should("have.length", 1)
         .and("contain", "Gizmo");
 
-      H.filterWidget()
+      filterWidget()
         .should("have.length", 1)
         .and("contain", "Category")
         .click();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Gizmo");
         cy.findByText("Doohickey").should("not.exist");
         cy.findByText("Gadget").should("not.exist");
@@ -464,19 +473,19 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
           params: { id_filter: [1] },
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
       });
 
       cy.findByTestId("table-row")
         .should("have.length", 1)
         .and("contain", "Gizmo");
 
-      H.filterWidget()
+      filterWidget()
         .should("have.length", 1)
         .and("contain", "Category")
         .click();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Gizmo");
         cy.findByText("Doohickey").should("not.exist");
         cy.findByText("Gadget").should("not.exist");
@@ -487,21 +496,21 @@ describe("scenarios > embedding > dashboard > linked filters (metabase#13639, me
 });
 
 function openFilterOptions(name) {
-  H.filterWidget().contains(name).click();
+  filterWidget().contains(name).click();
 }
 
 function assertOnXYAxisLabels({ xLabel, yLabel } = {}) {
-  H.echartsContainer().get("text").contains(xLabel);
+  echartsContainer().get("text").contains(xLabel);
 
-  H.echartsContainer().get("text").contains(yLabel);
+  echartsContainer().get("text").contains(yLabel);
 }
 
-function searchFieldValuesFilter() {
+function searchMultiAutocompleteFilter() {
   cy.findByTestId("parameter-value-dropdown").within(() => {
-    H.fieldValuesInput().type("An");
+    multiAutocompleteInput().type("An");
   });
 
-  cy.findByTestId("field-values-widget").within(() => {
+  cy.findByTestId("select-dropdown").within(() => {
     cy.findByText("Kiana");
     cy.findByText("Anacoco").should("not.exist");
     cy.findByText("Anchorage").click();

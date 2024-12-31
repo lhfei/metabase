@@ -1,4 +1,4 @@
-import type { MetabasePluginsConfig } from "embedding-sdk/lib/plugins";
+import type { SdkPluginsConfig } from "embedding-sdk/lib/plugins";
 import { queryDrill } from "metabase/querying/drills/utils/query-drill";
 import type { DrillThruDisplayInfo } from "metabase-lib";
 import type Question from "metabase-lib/v1/Question";
@@ -12,12 +12,12 @@ import type {
 export class Mode {
   _question: Question;
   _queryMode: QueryClickActionsMode;
-  _plugins?: MetabasePluginsConfig;
+  _plugins?: SdkPluginsConfig;
 
   constructor(
     question: Question,
     queryMode: QueryClickActionsMode,
-    plugins?: MetabasePluginsConfig,
+    plugins?: SdkPluginsConfig,
   ) {
     this._question = question;
     this._queryMode = queryMode;

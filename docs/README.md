@@ -28,11 +28,11 @@ Run as a JAR, using Docker, or on [Metabase Cloud](https://store.metabase.com/ch
 
 Once installed, set up your Metabase and connect to your data.
 
-### [Getting started](https://www.metabase.com/learn/metabase-basics/getting-started/index)
+### [Getting started](https://www.metabase.com/learn/getting-started/getting-started)
 
 With your data connected, get started asking questions, creating dashboards, and sharing your work.
 
-### [A tour of Metabase](https://www.metabase.com/learn/metabase-basics/overview/tour-of-metabase)
+### [A tour of Metabase](https://www.metabase.com/learn/getting-started/tour-of-metabase)
 
 Metabase is a deep product with a lot of tools to simplify business intelligence, from embeddable charts and interactive dashboards, to GUI and SQL editors, to auditing and data sandboxing, and more.
 
@@ -69,14 +69,11 @@ Metabase's reference documentation.
 ### Questions
 
 - [Questions overview](./questions/start.md)
-- [Alerts](./questions/alerts.md)
-- [Exporting data](./questions/exporting-results.md)
 
 #### Query builder
 
-- [The query editor](./questions/query-builder/editor.md)
-- [Filtering](./questions/query-builder/filters.md)
-- [Summarizing and grouping](./questions/query-builder/summarizing-and-grouping.md)
+- [Asking questions](./questions/query-builder/introduction.md)
+- [Visualizing data](./questions/sharing/visualizing-results.md)
 - [Custom expressions](./questions/query-builder/expressions.md)
 - [List of expressions](./questions/query-builder/expressions-list.md)
 - [Joining data](./questions/query-builder/join.md)
@@ -89,25 +86,12 @@ Metabase's reference documentation.
 - [SQL snippets](./questions/native-editor/sql-snippets.md)
 - [SQL snippet folder permissions](./permissions/snippets.md)
 
-#### Visualizing data
+#### Sharing
 
-- [Visualizing data](./questions/visualizations/visualizing-results.md)
-- [Combo charts](./questions/visualizations/combo-chart.md)
-- [Detail](./questions/visualizations/detail.md)
-- [Funnel charts](./questions/visualizations/detail.md)
-- [Gauge charts](./questions/visualizations/gauge.md)
-- [Line, bar, and area charts](./questions/visualizations/line-bar-and-area-charts.md)
-- [Maps](./questions/visualizations/map.md)
-- [Numbers](./questions/visualizations/numbers.md)
-- [Pie or donut charts](./questions/visualizations/pie-or-donut-chart.md)
-- [Pivot table](./questions/visualizations/pivot-table.md)
-- [Progress bar](./questions/visualizations/progress-bar.md)
-- [Sankey chart](./questions/visualizations/sankey.md)
-- [Scatterplot or bubble chart](./questions/visualizations/scatterplot-or-bubble-chart.md)
-- [Table](./questions/visualizations/table.md)
-- [Tooltips](./questions/visualizations/tooltips.md)
-- [Trend](./questions/visualizations/trend.md)
-- [Waterfall chart](./questions/visualizations/waterfall-chart.md)
+- [Sharing answers](./questions/sharing/answers.md)
+- [Alerts](./questions/sharing/alerts.md)
+- [Public sharing](./questions/sharing/public-links.md)
+- [Exporting data](./questions/sharing/exporting-results.md)
 
 ### Dashboards
 
@@ -124,12 +108,11 @@ Metabase's reference documentation.
 - [Data modeling overview](./data-modeling/start.md)
 - [Models](./data-modeling/models.md)
 - [Model persistence](./data-modeling/model-persistence.md)
-- [Metrics](./data-modeling/metrics.md)
 - [Table metadata admin settings](./data-modeling/metadata-editing.md)
 - [Field types](./data-modeling/field-types.md)
 - [Formatting defaults](./data-modeling/formatting.md)
 - [Working with JSON](./data-modeling/json-unfolding.md)
-- [Segments](./data-modeling/segments.md)
+- [Segments and metrics](./data-modeling/segments-and-metrics.md)
 
 ### Actions
 
@@ -144,11 +127,9 @@ Metabase's reference documentation.
 - [Basic exploration](./exploration-and-organization/exploration.md)
 - [Collections](./exploration-and-organization/collections.md)
 - [History](./exploration-and-organization/history.md)
-- [Trash](./exploration-and-organization/delete-and-restore.md)
 - [Data reference](./exploration-and-organization/data-model-reference.md)
 - [Events and timelines](./exploration-and-organization/events-and-timelines.md)
 - [X-rays](./exploration-and-organization/x-rays.md)
-- [Content verification](./exploration-and-organization/content-verification.md)
 
 ### People
 
@@ -169,7 +150,6 @@ Metabase's reference documentation.
   - [SAML with Google](./people-and-groups/saml-google.md)
   - [SAML with Keycloak](./people-and-groups/saml-keycloak.md)
   - [SAML with Okta](./people-and-groups/saml-okta.md)
-- [User provisioning with SCIM](./people-and-groups/user-provisioning.md)
 
 ### Permissions
 
@@ -199,7 +179,6 @@ Metabase's reference documentation.
 - [General settings](./configuring-metabase/settings.md)
 - [Email](./configuring-metabase/email.md)
 - [Slack](./configuring-metabase/slack.md)
-- [Webhooks](./configuring-metabase/webhooks.md)
 - [Environment variables](./configuring-metabase/environment-variables.md)
 - [Configuration file](./configuring-metabase/config-file.md)
 - [Metabase log configuration](./configuring-metabase/log-configuration.md)
@@ -223,7 +202,7 @@ Metabase's reference documentation.
 ### Metabase API
 
 - [Metabase API documentation](./api-documentation.md)
-- [API tutorial](https://www.metabase.com/learn/metabase-basics/administration/administration-and-operation//metabase-api)
+- [API tutorial](https://www.metabase.com/learn/administration/metabase-api)
 
 ### Troubleshooting
 
@@ -279,7 +258,7 @@ We tweet stuff.
 
 Follow us on GitHub.
 
-### [List of releases](https://github.com/metabase/metabase/releases)
+### [List of releases](./releases.md)
 
 A list of all Metabase releases, including both the Enterprise Edition and the Open Source Edition.
 

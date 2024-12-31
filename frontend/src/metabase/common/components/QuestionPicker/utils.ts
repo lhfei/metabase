@@ -1,17 +1,18 @@
 import _ from "underscore";
 
 import { PERSONAL_COLLECTIONS } from "metabase/entities/collections/constants";
-import { isNullOrUndefined } from "metabase/lib/types";
 import type {
   Card,
   CardType,
   CollectionId,
   CollectionItemModel,
+  ListCollectionItemsRequest,
 } from "metabase-types/api";
+
+import type { PickerState } from "../EntityPicker";
 
 import type {
   QuestionPickerItem,
-  QuestionPickerStatePath,
   QuestionPickerValue,
   QuestionPickerValueModel,
 } from "./types";
@@ -19,7 +20,7 @@ import type {
 export const getCollectionIdPath = (
   collection: Pick<
     QuestionPickerItem,
-    "id" | "location" | "is_personal" | "effective_location" | "model"
+    "id" | "location" | "is_personal" | "effective_location"
   >,
   userPersonalCollectionId?: CollectionId,
 ): CollectionId[] => {
@@ -45,14 +46,12 @@ export const getCollectionIdPath = (
     (collection.id === userPersonalCollectionId ||
       pathFromRoot.includes(userPersonalCollectionId));
 
-  const id = collection.model === "collection" ? collection.id : -collection.id;
-
   if (isInUserPersonalCollection) {
-    return [...pathFromRoot, id];
+    return [...pathFromRoot, collection.id];
   } else if (collection.is_personal) {
-    return ["personal", ...pathFromRoot, id];
+    return ["personal", ...pathFromRoot, collection.id];
   } else {
-    return ["root", ...pathFromRoot, id];
+    return ["root", ...pathFromRoot, collection.id];
   }
 };
 
@@ -64,35 +63,31 @@ export const getStateFromIdPath = ({
   idPath: CollectionId[];
   namespace?: "snippets";
   models?: CollectionItemModel[];
-}): QuestionPickerStatePath => {
-  const statePath: QuestionPickerStatePath = [
-    {
-      selectedItem: {
-        name: "",
-        model: "collection",
-        id: idPath[0],
+}): PickerState<QuestionPickerItem, ListCollectionItemsRequest> => {
+  const statePath: PickerState<QuestionPickerItem, ListCollectionItemsRequest> =
+    [
+      {
+        selectedItem: {
+          name: "",
+          model: "collection",
+          id: idPath[0],
+        },
       },
-    },
-  ];
+    ];
 
   idPath.forEach((id, index) => {
-    const { entityId: nextLevelId, model: nextLevelModel } = resolveEntityId(
-      idPath[index + 1],
-    );
-
-    const { entityId, model: entityModel } = resolveEntityId(id);
+    const nextLevelId = idPath[index + 1] ?? null;
 
     statePath.push({
       query: {
-        id: entityId,
+        id,
         models: ["collection", ...models],
         namespace,
       },
-      entity: entityModel,
       selectedItem: nextLevelId
         ? {
             name: "",
-            model: nextLevelModel,
+            model: "collection",
             id: nextLevelId,
           }
         : null,
@@ -102,27 +97,6 @@ export const getStateFromIdPath = ({
   return statePath;
 };
 
-const resolveEntityId = (
-  id: CollectionId,
-): {
-  model: "collection" | "dashboard";
-  entityId: CollectionId;
-} => {
-  if (typeof id === "string" || isNullOrUndefined(id)) {
-    return {
-      entityId: id,
-      model: "collection",
-    };
-  } else {
-    const isDashboard = id < 0;
-
-    return {
-      entityId: Math.abs(id),
-      model: isDashboard ? "dashboard" : "collection",
-    };
-  }
-};
-
 export const isFolder = (
   item: QuestionPickerItem,
   models: CollectionItemModel[],
@@ -130,7 +104,7 @@ export const isFolder = (
   return (
     item.id === "root" ||
     item.is_personal ||
-    ((item?.model === "collection" || item?.model === "dashboard") &&
+    (item?.model === "collection" &&
       _.intersection([...(item?.below ?? []), ...(item?.here ?? [])], models)
         .length > 0)
   );

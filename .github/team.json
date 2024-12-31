@@ -7,13 +7,13 @@
       "members": [
         "ranquild",
         "kamilmielnik",
+        "nemanjaglumac",
         "romeovs",
         "bshepherdson",
         "metamben",
         "lbrdnk",
         "appleby",
-        "uladzimirdev",
-        "wzimrin"
+        "uladzimirdev"
       ]
     },
     {
@@ -25,17 +25,17 @@
       "name": "Embedding",
       "label": ".Team/Embedding",
       "projectUrl": "https://github.com/orgs/metabase/projects/88/views/1",
-      "members": ["WiNloSt", "oisincoveney", "npretto", "heypoom"]
+      "members": ["WiNloSt", "deniskaber", "oisincoveney", "npretto", "heypoom"]
     },
     {
-      "name": "Workflows",
-      "label": ".Team/Workflows",
+      "name": "BEC",
+      "label": ".Team/BackendComponents",
       "projectUrl": "https://github.com/orgs/metabase/projects/50/views/1",
       "members": [
+        "tsmacdonald",
         "qnkhuat",
         "piranha",
-        "crisptrutski",
-        "deniskaber"
+        "crisptrutski"
       ]
     },
     {
@@ -48,8 +48,7 @@
         "johnswanson",
         "rafpaf",
         "sloansparger",
-        "iethree",
-        "nvoxland"
+        "iethree"
       ]
     },
     {
@@ -57,9 +56,9 @@
       "label": ".Team/DashViz",
       "members": [
         "alxnddr",
+        "EmmadUsmani",
         "kulyk",
-        "adam-james-v",
-        "tsplude"
+        "adam-james-v"
       ]
     },
     {

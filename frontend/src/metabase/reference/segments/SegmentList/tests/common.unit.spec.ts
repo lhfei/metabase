@@ -34,7 +34,6 @@ describe("SegmentList (OSS)", () => {
 
   describe("Non-admins", () => {
     const user = createMockUser();
-
     it("should not render help link", () => {
       setup({ user });
 

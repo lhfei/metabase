@@ -10,21 +10,19 @@ import type {
 
 export * from "./analytics-untyped";
 
-type SchemaVersion = `${number}-${number}-${number}`;
-
-const VERSIONS: Record<SchemaType, SchemaVersion> = {
+const VERSIONS: Record<SchemaType, string> = {
   account: "1-0-2",
   action: "1-0-0",
   browse_data: "1-0-0",
-  cleanup: "1-0-1",
+  cleanup: "1-0-0",
   csvupload: "1-0-3",
   dashboard: "1-1-5",
   database: "1-0-1",
   downloads: "1-0-0",
   embed_flow: "1-0-2",
-  embed_share: "1-0-1",
+  embed_share: "1-0-0",
   embedding_homepage: "1-0-0",
-  simple_event: "1-0-0",
+  event: "1-0-0",
   invite: "1-0-1",
   metabot: "1-0-1",
   model: "1-0-0",
@@ -37,8 +35,8 @@ const VERSIONS: Record<SchemaType, SchemaVersion> = {
   upsell: "1-0-0",
 };
 
-export function trackSimpleEvent(event: SimpleEvent) {
-  trackSchemaEvent("simple_event", event);
+export function trackEvent(event: SimpleEvent) {
+  trackSchemaEvent("event", event);
 }
 
 export function trackSchemaEvent(schema: SchemaType, event: SchemaEvent): void {

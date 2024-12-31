@@ -5,7 +5,7 @@ import { $ } from 'zx';
 import { issueNumberRegex } from './linked-issues';
 
 type CommitInfo = {
-  versions: string[],
+  version: string,
   message: string,
   hash: string,
   date: string,
@@ -14,34 +14,29 @@ type CommitInfo = {
 const tablePageTemplate = fs.readFileSync('./src/tablePageTemplate.html', 'utf8');
 
 export async function gitLog(majorVersion: number) {
-  const { stdout: baseCommit } = await $`git merge-base origin/release-x.${majorVersion}.x origin/master`;
-  const { stdout } = await $`git log origin/release-x.${majorVersion}.x ..${baseCommit.trim()} --pretty='format:%(decorate:prefix=,suffix=)||%s||%H||%ah'`;
+  const { stdout } = await $`git log origin/release-x.${majorVersion}.x ..v1.${majorVersion}.0-RC1 --pretty='format:%(decorate:prefix=,suffix=)||%s||%H||%ah'`;
   const processedCommits = stdout.split('\n').map(processCommit);
   return buildTable(processedCommits, majorVersion);
 }
 
-export function processCommit(commitLine: string): CommitInfo {
+function processCommit(commitLine: string): CommitInfo {
   const [refs, message, hash, date] = commitLine.split('||');
-  const tags = refs?.match(/tag: ([\w\d-_\.]+)/g) ?? '';
+  const version = refs?.match(/(v[\d\.\-RCrc]+)/)?.[1] ?? '';
 
-  const versions = tags
-    ? tags.map((v) => v.replace('tag: ', ''))
-    : [''];
-
-  return { versions, message, hash, date};
+  return { version, message, hash, date};
 }
 
 const issueLink = (issueNumber: string) => `https://github.com/metabase/metabase/issues/${issueNumber}`;
 
 function linkifyIssueNumbers(message: string) {
-  return message?.replace(issueNumberRegex, (_, issueNumber) => {
+  return message.replace(issueNumberRegex, (_, issueNumber) => {
     return `<a href="${issueLink(issueNumber)}" target="_blank">(#${issueNumber})</a>`;
-  }) ?? message ?? '';
+  });
 }
 
 function tableRow(commit: CommitInfo) {
   return `<tr>
-    <td><strong>${commit.versions.join('<br>')}</strong></td>
+    <td><strong>${commit.version}</strong></td>
     <td>${linkifyIssueNumbers(commit.message)}</td>
     <td>${commit.date}</td>
   </tr>`;
@@ -69,15 +64,11 @@ function buildTable(commits: CommitInfo[], majorVersion: number) {
     .replace(/{{current-time}}/, currentTime);
 }
 
+const version = Number(process.argv[2]);
 
-export async function generateReleaseLog() {
-  const version = Number(process.argv[2]);
-
-  if (!version) {
-    console.error('Please provide a version number (e.g. 35, 57)');
-    process.exit(1);
-  }
-
-  console.log(await gitLog(version));
+if (!version) {
+  console.error('Please provide a version number (e.g. 35, 57)');
+  process.exit(1);
 }
 
+console.log(await gitLog(version));

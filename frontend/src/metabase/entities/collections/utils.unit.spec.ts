@@ -320,7 +320,7 @@ describe("entities > collections > utils", () => {
         const [transformed] = buildCollectionTree([collection]);
         expect(transformed.icon).toEqual({
           color: expect.any(String),
-          name: "official_collection",
+          name: "badge",
           tooltip: "Official collection",
         });
       });
@@ -350,7 +350,7 @@ describe("entities > collections > utils", () => {
         expectedIcon: "person",
       },
       {
-        name: "Usage Analytics",
+        name: "Metabase Analytics",
         collection: createMockCollection({ type: "instance-analytics" }),
         expectedIcon: "audit",
       },
@@ -371,14 +371,13 @@ describe("entities > collections > utils", () => {
       {
         name: "Official collection",
         collection: createMockCollection({ authority_level: "official" }),
-        expectedIcon: "official_collection",
+        expectedIcon: "badge",
       },
     ];
 
     describe("OSS", () => {
       testCasesOSS.forEach(testCase => {
         const { name, collection, expectedIcon } = testCase;
-
         it(`returns '${expectedIcon}' for '${name}'`, () => {
           expect(getCollectionIcon(collection)).toMatchObject({
             name: expectedIcon,
@@ -394,7 +393,6 @@ describe("entities > collections > utils", () => {
 
       testCasesEE.forEach(testCase => {
         const { name, collection, expectedIcon } = testCase;
-
         it(`returns '${expectedIcon}' for '${name}'`, () => {
           expect(getCollectionIcon(collection)).toMatchObject({
             name: expectedIcon,

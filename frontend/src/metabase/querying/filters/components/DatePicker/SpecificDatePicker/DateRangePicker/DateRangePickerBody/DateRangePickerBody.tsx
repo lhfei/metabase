@@ -2,18 +2,11 @@ import { useState } from "react";
 import { t } from "ttag";
 
 import type { DateValue, DatesRangeValue } from "metabase/ui";
-import {
-  DateInput,
-  DatePicker,
-  Group,
-  Stack,
-  Text,
-  TimeInput,
-} from "metabase/ui";
+import { DatePicker, Group, Stack, Text } from "metabase/ui";
 
 import { setDatePart, setTimePart } from "../../utils";
 
-import S from "./DateRangePickerBody.module.css";
+import { FlexDateInput, FlexTimeInput } from "./DateRangePickerBody.styled";
 
 interface DateRangePickerBodyProps {
   value: [Date, Date];
@@ -55,18 +48,16 @@ export function DateRangePickerBody({
   };
 
   return (
-    <Stack className={S.Root}>
+    <Stack>
       <Group align="center">
-        <DateInput
-          className={S.FlexDateInput}
+        <FlexDateInput
           value={startDate}
           popoverProps={{ opened: false }}
           aria-label={t`Start date`}
           onChange={handleStartDateChange}
         />
         <Text c="text-light">{t`and`}</Text>
-        <DateInput
-          className={S.FlexDateInput}
+        <FlexDateInput
           value={endDate}
           popoverProps={{ opened: false }}
           aria-label={t`End date`}
@@ -75,15 +66,13 @@ export function DateRangePickerBody({
       </Group>
       {hasTime && (
         <Group align="center">
-          <TimeInput
-            className={S.FlexTimeInput}
+          <FlexTimeInput
             value={startDate}
             aria-label={t`Start time`}
             onChange={handleStartTimeChange}
           />
           <Text c="text-light">{t`and`}</Text>
-          <TimeInput
-            className={S.FlexTimeInput}
+          <FlexTimeInput
             value={endDate}
             aria-label={t`End time`}
             onChange={handleEndTimeChange}

@@ -131,9 +131,8 @@
 (def StrictApiPermissionsGraph
   "Top level strict data graph schema expected over the API. Includes revision ID for avoiding concurrent updates."
   [:map
-   [:revision {:optional true} [:maybe int?]]
-   [:force {:optional true} [:maybe boolean?]]
-   [:groups [:map-of GroupId [:maybe StrictDbGraph]]]])
+   [:groups [:map-of GroupId [:maybe StrictDbGraph]]]
+   [:revision int?]])
 
 ;;; --------------------------------------------- Execution Permissions ----------------------------------------------
 

@@ -6,7 +6,7 @@ import { Icon } from "metabase/ui";
 
 import type { AlertVariant } from "./Alert";
 
-interface AlertRootProps {
+export interface AlertRootProps {
   hasBorder?: boolean;
   variant: AlertVariant;
 }
@@ -53,4 +53,10 @@ export const AlertIcon = styled(Icon)<AlertIconProps>`
   flex-shrink: 0;
   padding: 0.5rem 1rem 0.5rem 0.5rem;
   color: ${props => colorsByVariant.icon[props.variant]};
+`;
+
+export const AlertLink = styled.a`
+  color: var(--mb-color-brand);
+  cursor: pointer;
+  font-weight: bold;
 `;

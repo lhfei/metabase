@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { t } from "ttag";
 
 import { useSendProductFeedbackMutation } from "metabase/api/product-feedback";
 import { useSetting } from "metabase/common/hooks";
 import { getPlan } from "metabase/common/utils/plan";
 import { useDispatch, useSelector } from "metabase/lib/redux";
+import { isEEBuild } from "metabase/lib/utils";
 import { addUndo } from "metabase/redux/undo";
 import { getDocsUrl, getSetting } from "metabase/selectors/settings";
 import type { EmbeddingHomepageDismissReason } from "metabase-types/api";
@@ -16,6 +17,7 @@ import { dismissEmbeddingHomepage } from "./actions";
 export const EmbedHomepage = () => {
   const [feedbackModalOpened, setFeedbackModalOpened] = useState(false);
   const dispatch = useDispatch();
+  const embeddingAutoEnabled = useSetting("setup-embedding-autoenabled");
   const licenseActiveAtSetup = useSetting("setup-license-active-at-setup");
   const exampleDashboardId = useSetting("example-dashboard-id");
   const [sendProductFeedback] = useSendProductFeedbackMutation();
@@ -46,6 +48,15 @@ export const EmbedHomepage = () => {
   );
 
   const utmTags = `?utm_source=product&source_plan=${plan}&utm_content=embedding-homepage`;
+
+  const initialTab = useMemo(() => {
+    // we want to show the interactive tab for EE builds
+    // unless it's a starter cloud plan, which is EE build but doesn't have interactive embedding
+    if (isEEBuild()) {
+      return plan === "starter" ? "static" : "interactive";
+    }
+    return "static";
+  }, [plan]);
 
   const onDismiss = (reason: EmbeddingHomepageDismissReason) => {
     if (reason === "dismissed-run-into-issues") {
@@ -82,7 +93,9 @@ export const EmbedHomepage = () => {
       <EmbedHomepageView
         onDismiss={onDismiss}
         exampleDashboardId={exampleDashboardId}
+        embeddingAutoEnabled={embeddingAutoEnabled}
         licenseActiveAtSetup={licenseActiveAtSetup}
+        initialTab={initialTab}
         interactiveEmbeddingQuickstartUrl={
           interactiveEmbeddingQuickStartUrl + utmTags
         }
@@ -93,8 +106,6 @@ export const EmbedHomepage = () => {
         }
         learnMoreInteractiveEmbedUrl={learnMoreInteractiveEmbedding + utmTags}
         learnMoreStaticEmbedUrl={learnMoreStaticEmbedding + utmTags}
-        sdkQuickstartUrl={"https://metaba.se/sdk-quick-start" + utmTags}
-        sdkDocsUrl={"https://metaba.se/sdk-docs" + utmTags}
       />
       <FeedbackModal
         opened={feedbackModalOpened}

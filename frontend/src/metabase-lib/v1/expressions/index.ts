@@ -2,6 +2,7 @@ export * from "./config";
 
 import { FK_SYMBOL } from "metabase/lib/formatting";
 import * as Lib from "metabase-lib";
+import Dimension from "metabase-lib/v1/Dimension";
 import type { Expression } from "metabase-types/api";
 
 import {
@@ -126,60 +127,38 @@ export function formatSegmentName(
  */
 export function parseDimension(
   name: string,
-  options: {
+  {
+    query,
+    stageIndex,
+    expressionIndex,
+  }: {
     query: Lib.Query;
     stageIndex: number;
+    source: string;
     expressionIndex: number | undefined;
-    startRule: string;
   },
 ) {
-  return getAvailableDimensions(options).find(({ info }) => {
+  const columns = Lib.expressionableColumns(query, stageIndex, expressionIndex);
+
+  return columns.find(column => {
+    const displayInfo = Lib.displayInfo(query, stageIndex, column);
+
     return EDITOR_FK_SYMBOLS.symbols.some(separator => {
       const displayName = getDisplayNameWithSeparator(
-        info.longDisplayName,
+        displayInfo.longDisplayName,
         separator,
       );
 
       return displayName === name;
     });
-  })?.dimension;
+  });
 }
 
-function getAvailableDimensions({
-  query,
-  stageIndex,
-  expressionIndex,
-  startRule,
-}: {
-  query: Lib.Query;
-  stageIndex: number;
-  expressionIndex: number | undefined;
-  startRule: string;
-}) {
-  const results = Lib.expressionableColumns(
-    query,
-    stageIndex,
-    expressionIndex,
-  ).map(dimension => {
-    return {
-      dimension,
-      info: Lib.displayInfo(query, stageIndex, dimension),
-    };
-  });
-
-  if (startRule === "aggregation") {
-    return [
-      ...results,
-      ...Lib.availableMetrics(query, stageIndex).map(dimension => {
-        return {
-          dimension,
-          info: Lib.displayInfo(query, stageIndex, dimension),
-        };
-      }),
-    ];
-  }
-
-  return results;
+export function formatLegacyDimensionName(
+  dimension: Dimension,
+  options: object,
+) {
+  return formatIdentifier(getDimensionName(dimension), options);
 }
 
 export function formatDimensionName(
@@ -187,6 +166,17 @@ export function formatDimensionName(
   options: Record<string, any>,
 ) {
   return formatIdentifier(getDisplayNameWithSeparator(dimensionName), options);
+}
+
+/**
+ * TODO -- this doesn't really return the dimension *name*, does it? It returns the 'rendered' dimension description
+ * with the FK symbol (→) replaced with a different character.
+ */
+function getDimensionName(
+  dimension: Dimension,
+  separator = EDITOR_FK_SYMBOLS.default,
+) {
+  return dimension.render().replace(` ${FK_SYMBOL} `, separator);
 }
 
 export function getDisplayNameWithSeparator(
@@ -284,7 +274,7 @@ export function isExpression(expr: unknown): expr is Expression {
     isBooleanLiteral(expr) ||
     isMetric(expr) ||
     isSegment(expr) ||
-    isCaseOrIf(expr)
+    isCase(expr)
   );
 }
 
@@ -308,46 +298,55 @@ export function isOperator(expr: unknown): boolean {
   return (
     Array.isArray(expr) &&
     OPERATORS.has(expr[0]) &&
-    expr.slice(1).every(arg => isExpression(arg) || isOptionsObject(arg))
+    expr
+      .slice(1, hasOptions(expr) ? -1 : 0) // skip options object at the end
+      .every(isExpression)
   );
 }
 
-export function isOptionsObject(obj: unknown): boolean {
+function isPlainObject(obj: unknown): boolean {
   return obj ? Object.getPrototypeOf(obj) === Object.prototype : false;
+}
+
+export function hasOptions(expr: unknown): boolean {
+  return Array.isArray(expr) && isPlainObject(expr[expr.length - 1]);
 }
 
 export function isFunction(expr: unknown): boolean {
   return (
     Array.isArray(expr) &&
     FUNCTIONS.has(expr[0]) &&
-    expr.slice(1).every(arg => isExpression(arg) || isOptionsObject(arg))
+    expr
+      .slice(1, hasOptions(expr) ? -1 : 0) // skip options object at the end
+      .every(isExpression)
   );
 }
 
 export function isDimension(expr: unknown): boolean {
-  return (
-    Array.isArray(expr) && (expr[0] === "field" || expr[0] === "expression")
-  );
+  // @ts-expect-error parseMBQL doesn't accept Expr
+  return !!Dimension.parseMBQL(expr);
 }
 
 export function isMetric(expr: unknown): boolean {
   return (
-    Array.isArray(expr) && expr[0] === "metric" && typeof expr[1] === "number"
+    Array.isArray(expr) &&
+    expr[0] === "metric" &&
+    (expr.length === 2 || expr.length === 3) &&
+    typeof expr[1] === "number"
   );
 }
 
 export function isSegment(expr: unknown): boolean {
   return (
-    Array.isArray(expr) && expr[0] === "segment" && typeof expr[1] === "number"
+    Array.isArray(expr) &&
+    expr[0] === "segment" &&
+    expr.length === 2 &&
+    typeof expr[1] === "number"
   );
 }
 
-export function isCaseOrIfOperator(operator: string) {
-  return operator === "case" || operator === "if";
-}
-
-export function isCaseOrIf(expr: unknown): boolean {
-  return Array.isArray(expr) && isCaseOrIfOperator(expr[0]); // && _.all(expr.slice(1), isValidArg)
+export function isCase(expr: unknown): boolean {
+  return Array.isArray(expr) && expr[0] === "case"; // && _.all(expr.slice(1), isValidArg)
 }
 
 export function isOffset(expr: unknown): boolean {

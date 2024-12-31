@@ -17,18 +17,15 @@ import {
   useSdkDispatch,
   useSdkSelector,
 } from "embedding-sdk/store";
-import { refreshTokenAsync } from "embedding-sdk/store/auth";
+import { refreshTokenAsync } from "embedding-sdk/store/reducer";
 import { getIsLoggedIn, getLoginStatus } from "embedding-sdk/store/selectors";
 import type { LoginStatusError } from "embedding-sdk/store/types";
-import { createMockAuthProviderUriConfig } from "embedding-sdk/test/mocks/config";
+import { createMockJwtConfig } from "embedding-sdk/test/mocks/config";
 import {
   createMockLoginStatusState,
   createMockSdkState,
 } from "embedding-sdk/test/mocks/state";
-import type {
-  MetabaseAuthConfig,
-  MetabaseAuthConfigWithProvider,
-} from "embedding-sdk/types";
+import type { SDKConfig, SDKConfigWithJWT } from "embedding-sdk/types";
 import { GET } from "metabase/lib/api";
 import {
   createMockSettings,
@@ -39,17 +36,17 @@ import { createMockState } from "metabase-types/store/mocks";
 
 const TEST_USER = createMockUser();
 
-const TestComponent = ({ authConfig }: { authConfig: MetabaseAuthConfig }) => {
+const TestComponent = ({ config }: { config: SDKConfig }) => {
   const dispatch = useSdkDispatch();
 
   const loginStatus = useSdkSelector(getLoginStatus);
   const isLoggedIn = useSdkSelector(getIsLoggedIn);
 
   useInitData({
-    authConfig: {
-      ...authConfig,
+    config: {
+      ...config,
       metabaseInstanceUrl: "http://localhost",
-    } as MetabaseAuthConfig,
+    } as SDKConfig,
   });
 
   const refreshToken = () =>
@@ -82,7 +79,7 @@ const setup = ({
 }: {
   isValidConfig?: boolean;
   isValidUser?: boolean;
-} & Partial<MetabaseAuthConfigWithProvider>) => {
+} & Partial<SDKConfigWithJWT>) => {
   fetchMock.get("http://TEST_URI/sso/metabase", {
     id: "TEST_JWT_TOKEN",
     exp: 1965805007,
@@ -122,12 +119,12 @@ const setup = ({
   setupSettingsEndpoints([]);
   setupPropertiesEndpoints(settingValuesWithToken);
 
-  const authConfig = createMockAuthProviderUriConfig({
-    authProviderUri: isValidConfig ? "http://TEST_URI/sso/metabase" : "",
+  const config = createMockJwtConfig({
+    jwtProviderUri: isValidConfig ? "http://TEST_URI/sso/metabase" : "",
     ...configOpts,
   });
 
-  return renderWithProviders(<TestComponent authConfig={authConfig} />, {
+  return renderWithProviders(<TestComponent config={config} />, {
     storeInitialState: state,
     customReducers: sdkReducers,
   });
@@ -135,6 +132,19 @@ const setup = ({
 
 describe("useInitData hook", () => {
   describe("before authentication", () => {
+    it("should have an error if JWT URI is not provided", async () => {
+      setup({ isValidConfig: false });
+      expect(screen.getByTestId("test-component")).toHaveAttribute(
+        "data-login-status",
+        "error",
+      );
+
+      expect(screen.getByTestId("test-component")).toHaveAttribute(
+        "data-error-message",
+        "No JWT URI or API key provided.",
+      );
+    });
+
     it("should set a context for all API requests", async () => {
       jest
         .spyOn(sdkConfigModule, "getEmbeddingSdkVersion")
@@ -159,8 +169,8 @@ describe("useInitData hook", () => {
     });
   });
 
-  describe("authProviderUri authentication", () => {
-    it("start loading data if authProviderUri and auth type are valid", async () => {
+  describe("JWT authentication", () => {
+    it("start loading data if JWT URI and auth type are valid", async () => {
       setup({ isValidConfig: true });
       expect(screen.getByTestId("test-component")).toHaveAttribute(
         "data-login-status",
@@ -194,7 +204,7 @@ describe("useInitData hook", () => {
 
       expect(screen.getByTestId("test-component")).toHaveAttribute(
         "data-error-message",
-        "Failed to fetch the user, the session might be invalid.",
+        "Could not authenticate: invalid JWT URI or JWT provider did not return a valid JWT token",
       );
     });
 
@@ -212,10 +222,7 @@ describe("useInitData hook", () => {
     });
 
     it("should use a custom fetchRefreshToken function when specified", async () => {
-      let fetchRequestToken = jest.fn(async () => ({
-        id: "foo",
-        exp: Number.MAX_SAFE_INTEGER,
-      }));
+      let fetchRequestToken = jest.fn(async () => ({ id: "foo", exp: 10 }));
 
       const { rerender } = setup({ isValidConfig: true, fetchRequestToken });
 
@@ -224,17 +231,14 @@ describe("useInitData hook", () => {
 
       // Pass in a new fetchRequestToken function
       // We expect the new function to be called when the "Refresh Token" button is clicked
-      fetchRequestToken = jest.fn(async () => ({
-        id: "bar",
-        exp: Number.MAX_SAFE_INTEGER,
-      }));
+      fetchRequestToken = jest.fn(async () => ({ id: "bar", exp: 10 }));
 
-      const authConfig = createMockAuthProviderUriConfig({
-        authProviderUri: "http://TEST_URI/sso/metabase",
+      const config = createMockJwtConfig({
+        jwtProviderUri: "http://TEST_URI/sso/metabase",
         fetchRequestToken,
       });
 
-      rerender(<TestComponent authConfig={authConfig} />);
+      rerender(<TestComponent config={config} />);
 
       await userEvent.click(screen.getByText("Refresh Token"));
 

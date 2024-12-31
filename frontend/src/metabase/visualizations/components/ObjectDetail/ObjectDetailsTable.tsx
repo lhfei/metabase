@@ -7,7 +7,7 @@ import EmptyState from "metabase/components/EmptyState";
 import { Ellipsified } from "metabase/core/components/Ellipsified";
 import CS from "metabase/css/core/index.css";
 import QueryBuilderS from "metabase/css/query_builder.module.css";
-import { displayNameForColumn, formatValue } from "metabase/lib/formatting";
+import { formatColumn, formatValue } from "metabase/lib/formatting";
 import ExpandableString from "metabase/query_builder/components/ExpandableString";
 import { findColumnIndexesForColumnSettings } from "metabase-lib/v1/queries/utils/dataset";
 import { TYPE } from "metabase-lib/v1/types/constants";
@@ -52,7 +52,7 @@ export function DetailsTableCell({
 
   const columnSettings = settings?.column?.(column) ?? {};
   const columnTitle =
-    columnSettings?.["_column_title_full"] || displayNameForColumn(column);
+    columnSettings?.["_column_title_full"] || formatColumn(column);
 
   if (isColumnName) {
     const title = column !== null ? columnTitle : null;
@@ -107,7 +107,7 @@ export function DetailsTableCell({
   };
 
   return (
-    <div data-testid="object-details-table-cell">
+    <div>
       <span
         className={cx(
           {

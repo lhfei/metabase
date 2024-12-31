@@ -1,5 +1,5 @@
 // polyfills useSyncExternalStore for React 17
-import "./lib/polyfill/use-sync-external-store";
+import "./lib/polyfill-use-sync-external-store";
 
 import "metabase/lib/dayjs";
 
@@ -12,13 +12,11 @@ export * from "./hooks/public";
 export * from "./components/public";
 export * from "./lib/plugins";
 
-export type { MetabaseAuthConfig } from "./types";
-
-export type { MetabaseQuestion } from "./types/public/question";
+export type { SDKConfig } from "./types";
 
 export type {
-  MetabaseFetchRequestTokenFn,
-  MetabaseEmbeddingSessionToken,
+  FetchRequestTokenFn,
+  EmbeddingSessionToken,
 } from "./types/refresh-token";
 
 export type {
@@ -27,4 +25,4 @@ export type {
   MetabaseComponentTheme,
 } from "./types/theme";
 
-export type { Dashboard as MetabaseDashboard } from "metabase-types/api";
+export type { Dashboard } from "metabase-types/api";

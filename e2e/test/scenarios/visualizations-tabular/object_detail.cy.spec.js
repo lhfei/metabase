@@ -1,6 +1,20 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID, WRITABLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  createQuestion,
+  getTableId,
+  openOrdersTable,
+  openPeopleTable,
+  openProductsTable,
+  popover,
+  resetTestTable,
+  restore,
+  resyncDatabase,
+  tableHeaderClick,
+  visitPublicDashboard,
+  visitPublicQuestion,
+  visitQuestionAdhoc,
+} from "e2e/support/helpers";
 
 const {
   ORDERS,
@@ -37,7 +51,7 @@ const TEST_PEOPLE_QUESTION = {
 
 describe("scenarios > question > object details", { tags: "@slow" }, () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -91,7 +105,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
       },
     };
 
-    H.createQuestion(questionDetails, { visitQuestion: true });
+    createQuestion(questionDetails, { visitQuestion: true });
     cy.findByTestId("question-row-count").should("have.text", "Showing 2 rows");
 
     cy.log("Check object details for the first row");
@@ -138,7 +152,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
       },
     };
 
-    H.createQuestion(questionDetails, { visitQuestion: true });
+    createQuestion(questionDetails, { visitQuestion: true });
 
     cy.findByRole("gridcell", { name: "3" }).should("be.visible").click();
 
@@ -170,28 +184,8 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
     assertOrderDetailView({ id: FIRST_ORDER_ID });
   });
 
-  it("calculates a row after scrolling correctly (metabase#48323)", () => {
-    H.openOrdersTable();
-    cy.get(".ReactVirtualized__Grid").eq(1).scrollTo(0, 15000);
-    cy.icon("expand").first().click();
-    cy.findByRole("dialog")
-      .should("contain", "418")
-      .and("contain", "58")
-      .and("contain", "February 14, 2026, 10:12 AM");
-  });
-
-  it("calculates a row after both vertical and horizontal scrolling correctly (metabase#51301)", () => {
-    H.openPeopleTable();
-    cy.get(".ReactVirtualized__Grid").eq(1).scrollTo(2000, 15000);
-    cy.icon("expand").first().realHover().click();
-    cy.findByRole("dialog")
-      .should("contain", "418")
-      .and("contain", "31942-31950 Oak Ridge Parkway")
-      .and("contain", "koss-ella@hotmail.com");
-  });
-
   it("handles browsing records by FKs (metabase#21756)", () => {
-    H.openOrdersTable();
+    openOrdersTable();
 
     drillFK({ id: 1 });
 
@@ -244,7 +238,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
     const PRODUCT_ID = 7;
     const EXPECTED_LINKED_ORDERS_COUNT = 92;
     const EXPECTED_LINKED_REVIEWS_COUNT = 8;
-    H.openProductsTable();
+    openProductsTable();
 
     drillPK({ id: 5 });
 
@@ -277,7 +271,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
   it("should fetch linked entities data only once per entity type when reopening the modal (metabase#32720)", () => {
     cy.intercept("POST", "/api/dataset", cy.spy().as("fetchDataset"));
 
-    H.openProductsTable();
+    openProductsTable();
     cy.get("@fetchDataset").should("have.callCount", 1);
 
     drillPK({ id: 5 });
@@ -293,7 +287,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
   });
 
   it("should not offer drill-through on the object detail records (metabase#20560)", () => {
-    H.openPeopleTable({ limit: 2 });
+    openPeopleTable({ limit: 2 });
 
     drillPK({ id: 2 });
     cy.url().should("contain", "objectId=2");
@@ -316,7 +310,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
       semantic_type: "type/PK",
     });
 
-    H.openProductsTable({ limit: 5 });
+    openProductsTable({ limit: 5 });
 
     cy.findByTestId("TableInteractive-root")
       .findByTextEnsureVisible("Rustic Paper Wallet")
@@ -360,7 +354,7 @@ describe("scenarios > question > object details", { tags: "@slow" }, () => {
         type: "query",
       },
     };
-    H.visitQuestionAdhoc(questionDetails);
+    visitQuestionAdhoc(questionDetails);
 
     cy.findByTestId("object-detail");
 
@@ -378,7 +372,7 @@ function drillPK({ id }) {
 
 function drillFK({ id }) {
   cy.get(".test-Table-FK").contains(id).first().click();
-  H.popover().findByText("View details").click();
+  popover().findByText("View details").click();
 }
 
 function assertDetailView({ id, entityName, byFK = false }) {
@@ -409,8 +403,8 @@ function getNextObjectDetailButton() {
 
 function changeSorting(columnName, direction) {
   const icon = direction === "asc" ? "arrow_up" : "arrow_down";
-  H.tableHeaderClick(columnName);
-  H.popover().within(() => {
+  tableHeaderClick(columnName);
+  popover().within(() => {
     cy.icon(icon).click();
   });
   cy.wait("@dataset");
@@ -424,14 +418,14 @@ function changeSorting(columnName, direction) {
       const TEST_TABLE = "composite_pk_table";
 
       beforeEach(() => {
-        H.resetTestTable({ type: dialect, table: TEST_TABLE });
-        H.restore(`${dialect}-writable`);
+        resetTestTable({ type: dialect, table: TEST_TABLE });
+        restore(`${dialect}-writable`);
         cy.signInAsAdmin();
-        H.resyncDatabase({ dbId: WRITABLE_DB_ID, tableName: TEST_TABLE });
+        resyncDatabase({ dbId: WRITABLE_DB_ID, tableName: TEST_TABLE });
       });
 
       it("can show object detail modal for items with composite keys", () => {
-        H.getTableId({ name: TEST_TABLE }).then(tableId => {
+        getTableId({ name: TEST_TABLE }).then(tableId => {
           cy.visit(`/question#?db=${WRITABLE_DB_ID}&table=${tableId}`);
         });
 
@@ -448,7 +442,7 @@ function changeSorting(columnName, direction) {
         // this bug only manifests on tables without single integer primary keys
         // it is also reproducible on tables with string keys
 
-        H.getTableId({ name: TEST_TABLE }).then(tableId => {
+        getTableId({ name: TEST_TABLE }).then(tableId => {
           cy.visit(`/question#?db=${WRITABLE_DB_ID}&table=${tableId}`);
         });
 
@@ -477,14 +471,14 @@ function changeSorting(columnName, direction) {
       const TEST_TABLE = "no_pk_table";
 
       beforeEach(() => {
-        H.resetTestTable({ type: dialect, table: TEST_TABLE });
-        H.restore(`${dialect}-writable`);
+        resetTestTable({ type: dialect, table: TEST_TABLE });
+        restore(`${dialect}-writable`);
         cy.signInAsAdmin();
-        H.resyncDatabase({ dbId: WRITABLE_DB_ID, tableName: TEST_TABLE });
+        resyncDatabase({ dbId: WRITABLE_DB_ID, tableName: TEST_TABLE });
       });
 
       it("can show object detail modal for items with no primary key", () => {
-        H.getTableId({ name: TEST_TABLE }).then(tableId => {
+        getTableId({ name: TEST_TABLE }).then(tableId => {
           cy.visit(`/question#?db=${WRITABLE_DB_ID}&table=${tableId}`);
         });
 
@@ -502,14 +496,14 @@ function changeSorting(columnName, direction) {
 
 describe("Object Detail > public", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
   it("can view a public object detail question", () => {
     cy.createQuestion({ ...TEST_QUESTION, display: "object" }).then(
       ({ body: { id: questionId } }) => {
-        H.visitPublicQuestion(questionId);
+        visitPublicQuestion(questionId);
       },
     );
     cy.icon("warning").should("not.exist");
@@ -528,7 +522,7 @@ describe("Object Detail > public", () => {
     cy.createQuestionAndDashboard({
       questionDetails: { ...TEST_QUESTION, display: "object" },
     }).then(({ body: { dashboard_id } }) => {
-      H.visitPublicDashboard(dashboard_id);
+      visitPublicDashboard(dashboard_id);
     });
 
     cy.icon("warning").should("not.exist");

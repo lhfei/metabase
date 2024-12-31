@@ -1,7 +1,6 @@
 import { assoc } from "icepick";
 import _ from "underscore";
 
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import {
@@ -9,6 +8,50 @@ import {
   ORDERS_DASHBOARD_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  addOrUpdateDashboardCard,
+  appBar,
+  assertDashboardFixedWidth,
+  assertDashboardFullWidth,
+  closeNavigationSidebar,
+  collectionOnTheGoModal,
+  commandPalette,
+  commandPaletteButton,
+  createDashboardWithTabs,
+  dashboardHeader,
+  describeEE,
+  describeWithSnowplow,
+  editDashboard,
+  enableTracking,
+  entityPickerModal,
+  expectGoodSnowplowEvent,
+  expectNoBadSnowplowEvents,
+  filterWidget,
+  getDashboardCard,
+  getDashboardCardMenu,
+  getDashboardCards,
+  getTextCardDetails,
+  modal,
+  openDashboardMenu,
+  openProductsTable,
+  openQuestionsSidebar,
+  openSharingMenu,
+  popover,
+  queryBuilderHeader,
+  removeDashboardCard,
+  resetSnowplow,
+  restore,
+  rightSidebar,
+  saveDashboard,
+  selectDashboardFilter,
+  setFilter,
+  setTokenFeatures,
+  showDashboardCardActions,
+  sidebar,
+  toggleDashboardInfoSidebar,
+  updateDashboardCards,
+  visitDashboard,
+} from "e2e/support/helpers";
 import { GRID_WIDTH } from "metabase/lib/dashboard_grid";
 import {
   createMockVirtualCard,
@@ -26,7 +69,7 @@ const { ORDERS, ORDERS_ID, PRODUCTS, PEOPLE, PEOPLE_ID } = SAMPLE_DATABASE;
 
 describe("scenarios > dashboard", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -38,21 +81,22 @@ describe("scenarios > dashboard", () => {
       const dashboardName = "Dash A";
       const dashboardDescription = "Fresh new dashboard";
       const newQuestionName = "New dashboard question";
+      const existingQuestionName = "Orders, Count";
 
       cy.visit("/");
-      H.appBar().findByText("New").click();
-      H.popover().findByText("Dashboard").should("be.visible").click();
+      appBar().findByText("New").click();
+      popover().findByText("Dashboard").should("be.visible").click();
 
       cy.log(
         "pressing escape should only close the entity picker modal, not the new dashboard modal",
       );
-      H.modal().findByTestId("collection-picker-button").click();
-      H.entityPickerModal().findByText("Select a collection");
+      modal().findByTestId("collection-picker-button").click();
+      entityPickerModal().findByText("Select a collection");
       cy.realPress("Escape");
-      H.modal().findByText("New dashboard").should("be.visible");
+      modal().findByText("New dashboard").should("be.visible");
 
       cy.log("Create a new dashboard");
-      H.modal().within(() => {
+      modal().within(() => {
         // Without waiting for this, the test was constantly flaking locally.
         cy.findByText("Our analytics");
 
@@ -82,40 +126,45 @@ describe("scenarios > dashboard", () => {
         .findByRole("link", { name: "ask a new one" })
         .click();
 
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").click();
-        cy.findByPlaceholderText("Search this collection or everywhere…").type(
-          "Pro",
-        );
-        cy.findByText("Everywhere").click();
+      entityPickerModal().within(() => {
+        cy.findByPlaceholderText("Search…").type("Pro");
         cy.findByText("Products").click();
       });
 
-      H.queryBuilderHeader().findByText("Save").click();
+      queryBuilderHeader().findByText("Save").click();
       cy.findByTestId("save-question-modal").within(modal => {
         cy.findByLabelText("Name").clear().type(newQuestionName);
-        cy.findByLabelText("Where do you want to save this?").should(
-          "contain.text",
-          dashboardName,
-        );
         cy.findByText("Save").click();
       });
       cy.wait("@createQuestion");
+      modal().within(() => {
+        cy.button("Yes please!").click();
+      });
 
-      H.openQuestionsSidebar();
-      H.sidebar().findByText("Orders, Count").click();
+      entityPickerModal().within(() => {
+        cy.findByRole("tab", { name: /Dashboards/ }).click();
+        cy.findByText(dashboardName)
+          .closest("button")
+          .then($button => {
+            expect($button).to.have.attr("data-active", "true");
+          });
+        cy.button("Select").click();
+      });
 
-      H.getDashboardCards().should("have.length", 2);
+      openQuestionsSidebar();
+      sidebar().findByText(existingQuestionName).click();
 
-      H.saveDashboard();
+      getDashboardCards().should("have.length", 2);
+
+      saveDashboard();
 
       cy.log("Breadcrumbs should show a collection dashboard was saved in");
-      H.appBar().findByText("Our analytics").click();
+      appBar().findByText("Our analytics").click();
 
-      cy.log("New dashboard question should not appear in the collection");
+      cy.log("New dashboard should appear in the collection");
       cy.findAllByTestId("collection-entry-name")
         .should("contain", dashboardName)
-        .and("not.contain", newQuestionName);
+        .and("contain", newQuestionName);
     });
 
     it(
@@ -125,9 +174,9 @@ describe("scenarios > dashboard", () => {
       () => {
         cy.intercept("POST", "api/collection").as("createCollection");
         cy.visit("/");
-        H.closeNavigationSidebar();
-        H.appBar().findByText("New").click();
-        H.popover().findByText("Dashboard").should("be.visible").click();
+        closeNavigationSidebar();
+        appBar().findByText("New").click();
+        popover().findByText("Dashboard").should("be.visible").click();
         const NEW_DASHBOARD = "Foo";
         cy.findByTestId("new-dashboard-modal").then(modal => {
           cy.findByRole("heading", { name: "New dashboard" });
@@ -137,14 +186,14 @@ describe("scenarios > dashboard", () => {
             .click();
         });
 
-        H.entityPickerModal()
+        entityPickerModal()
           .findByRole("tab", { name: /Collections/ })
           .click();
-        H.entityPickerModal()
+        entityPickerModal()
           .findByText("Create a new collection")
           .click({ force: true });
         const NEW_COLLECTION = "Bar";
-        H.collectionOnTheGoModal().within(() => {
+        collectionOnTheGoModal().within(() => {
           cy.findByText("Create a new collection");
           cy.findByPlaceholderText(/My new collection/)
             .type(NEW_COLLECTION)
@@ -152,11 +201,11 @@ describe("scenarios > dashboard", () => {
           cy.findByText("Create").click();
           cy.wait("@createCollection");
         });
-        H.entityPickerModal().within(() => {
+        entityPickerModal().within(() => {
           cy.findByText(NEW_COLLECTION).click();
           cy.button("Select").click();
         });
-        H.modal().within(() => {
+        modal().within(() => {
           cy.findByText("New dashboard");
           cy.findByTestId("collection-picker-button").should(
             "have.text",
@@ -165,7 +214,7 @@ describe("scenarios > dashboard", () => {
           cy.button("Create").click();
         });
 
-        H.saveDashboard({ awaitRequest: false });
+        saveDashboard({ awaitRequest: false });
         cy.findByTestId("app-bar").findByText(NEW_COLLECTION);
       },
     );
@@ -173,53 +222,46 @@ describe("scenarios > dashboard", () => {
     it("adding question to one dashboard shouldn't affect previously visited unrelated dashboards (metabase#26826)", () => {
       cy.intercept("POST", "/api/card").as("saveQuestion");
 
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
+      visitDashboard(ORDERS_DASHBOARD_ID);
 
       cy.log("Save new question from an ad-hoc query");
-      H.openProductsTable();
+      openProductsTable();
       cy.findByTestId("qb-header").findByText("Save").click();
-      cy.findByTestId("save-question-modal").within(() => {
-        cy.findByTestId("dashboard-and-collection-picker-button").click();
-      });
-      H.entityPickerModal().within(() => {
-        cy.findByText("First collection").click();
-        cy.findByText("Select this collection").click();
-      });
-      cy.findByTestId("save-question-modal").within(() => {
+      cy.findByTestId("save-question-modal").within(modal => {
         cy.findByText("Save").click();
       });
       cy.wait("@saveQuestion");
 
       cy.log("Add this new question to a dashboard created on the fly");
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Saved! Add this to a dashboard?");
         cy.button("Yes please!").click();
       });
 
-      H.entityPickerModal()
+      entityPickerModal()
         .findByRole("tab", { name: /Dashboards/ })
         .click();
-      H.entityPickerModal().findByText("Create a new dashboard").click();
+      entityPickerModal().findByText("Create a new dashboard").click();
       cy.findByTestId("create-dashboard-on-the-go").within(() => {
         cy.findByPlaceholderText("My new dashboard").type("Foo");
         cy.findByText("Create").click();
       });
-      H.entityPickerModal().button("Select").click();
+      entityPickerModal().button("Select").click();
 
-      H.saveDashboard();
+      saveDashboard();
 
       cy.log(
         "Find the originally visited (unrelated) dashboard in search and go to it",
       );
 
-      H.commandPaletteButton().click();
-      H.commandPalette().within(() => {
+      commandPaletteButton().click();
+      commandPalette().within(() => {
         cy.findByText("Recent items").should("exist");
         cy.findByRole("option", { name: "Orders in a dashboard" }).click();
       });
 
       cy.log("It should not contain an alien card from the other dashboard");
-      H.getDashboardCards().should("have.length", 1).and("contain", "37.65");
+      getDashboardCards().should("have.length", 1).and("contain", "37.65");
       cy.log("It should not open in editing mode");
       cy.findByTestId("edit-bar").should("not.exist");
     });
@@ -231,18 +273,18 @@ describe("scenarios > dashboard", () => {
     beforeEach(() => {
       cy.createDashboard({ name: originalDashboardName }).then(
         ({ body: { id } }) => {
-          H.visitDashboard(id);
+          visitDashboard(id);
         },
       );
     });
 
     context("add a question (dashboard card)", () => {
       it("should be possible via questions sidebar", () => {
-        H.editDashboard();
-        H.openQuestionsSidebar();
+        editDashboard();
+        openQuestionsSidebar();
 
         cy.log("The list of saved questions");
-        H.sidebar().findByText("Orders, Count").click();
+        sidebar().findByText("Orders, Count").click();
 
         cy.log("The search component");
         cy.intercept("GET", "/api/search*").as("search");
@@ -256,8 +298,8 @@ describe("scenarios > dashboard", () => {
         assertBothCardsArePresent();
 
         cy.log("Remove one card");
-        H.removeDashboardCard(0);
-        H.getDashboardCards().should("have.length", 1);
+        removeDashboardCard(0);
+        getDashboardCards().should("have.length", 1);
 
         cy.log("It should be possible to undo remove that card");
         cy.findByTestId("toast-undo").within(() => {
@@ -266,11 +308,11 @@ describe("scenarios > dashboard", () => {
         });
 
         assertBothCardsArePresent();
-        H.saveDashboard();
+        saveDashboard();
         assertBothCardsArePresent();
 
         function assertBothCardsArePresent() {
-          H.getDashboardCards()
+          getDashboardCards()
             .should("have.length", 2)
             .and("contain", "Orders, Count")
             .and("contain", "18,760");
@@ -286,13 +328,13 @@ describe("scenarios > dashboard", () => {
         cy.createDashboard({
           name: "dashboard in root collection",
         }).then(({ body: { id: dashboardId } }) => {
-          H.visitDashboard(dashboardId);
+          visitDashboard(dashboardId);
         });
 
         cy.log("assert that personal collections are not visible");
-        H.editDashboard();
-        H.openQuestionsSidebar();
-        H.sidebar().within(() => {
+        editDashboard();
+        openQuestionsSidebar();
+        sidebar().within(() => {
           cy.findByText("Our analytics").should("be.visible");
           cy.findByText(myPersonalCollection).should("not.exist");
           cy.findByText(collectionInRoot.name).should("be.visible");
@@ -300,17 +342,17 @@ describe("scenarios > dashboard", () => {
 
         cy.log("Move dashboard to a personal collection");
         cy.findByTestId("edit-bar").button("Cancel").click();
-        H.openDashboardMenu();
-        H.popover().findByText("Move").click();
-        H.entityPickerModal().within(() => {
+        openDashboardMenu();
+        popover().findByText("Move").click();
+        entityPickerModal().within(() => {
           cy.findByRole("tab", { name: /Collections/ }).click();
           cy.findByText("Bobby Tables's Personal Collection").click();
           cy.button("Move").click();
         });
 
-        H.editDashboard();
-        H.openQuestionsSidebar();
-        H.sidebar().within(() => {
+        editDashboard();
+        openQuestionsSidebar();
+        sidebar().within(() => {
           cy.log("go to the root collection");
           cy.findByText("Our analytics").click();
           cy.findByText(myPersonalCollection).should("be.visible");
@@ -319,17 +361,17 @@ describe("scenarios > dashboard", () => {
 
         cy.log("Move dashboard back to a root collection");
         cy.findByTestId("edit-bar").button("Cancel").click();
-        H.openDashboardMenu();
-        H.popover().findByText("Move").click();
-        H.entityPickerModal().within(() => {
+        openDashboardMenu();
+        popover().findByText("Move").click();
+        entityPickerModal().within(() => {
           cy.findByRole("tab", { name: /Collections/ }).click();
           cy.findByText("Our analytics").click();
           cy.button("Move").click();
         });
 
-        H.editDashboard();
-        H.openQuestionsSidebar();
-        H.sidebar().within(() => {
+        editDashboard();
+        openQuestionsSidebar();
+        sidebar().within(() => {
           cy.findByText("Our analytics").should("be.visible");
           cy.findByText(myPersonalCollection).should("not.exist");
           cy.findByText(collectionInRoot.name).should("be.visible");
@@ -342,77 +384,26 @@ describe("scenarios > dashboard", () => {
           cy.findByText("Add a saved question").click();
         });
 
-        H.sidebar().findByText("Orders, Count").click();
+        sidebar().findByText("Orders, Count").click();
 
-        H.saveDashboard();
+        saveDashboard();
 
-        H.getDashboardCards()
+        getDashboardCards()
           .should("have.length", 1)
           .and("contain", "Orders, Count")
           .and("contain", "18,760");
       });
 
       it("should allow navigating to the notebook editor directly from a dashboard card", () => {
-        H.visitDashboard(ORDERS_DASHBOARD_ID);
-        H.showDashboardCardActions();
-        H.getDashboardCardMenu().click();
-        H.popover().findByText("Edit question").should("be.visible").click();
+        visitDashboard(ORDERS_DASHBOARD_ID);
+        showDashboardCardActions();
+        getDashboardCardMenu().click();
+        popover().findByText("Edit question").should("be.visible").click();
         cy.findByRole("button", { name: "Visualize" }).should("be.visible");
-      });
-
-      it("should allow navigating to the model editor directly from a dashboard card", () => {
-        H.createQuestionAndDashboard({
-          questionDetails: {
-            name: "orders",
-            type: "model",
-            query: {
-              "source-table": ORDERS_ID,
-            },
-          },
-          dashboardDetails: {
-            name: "Dashboard",
-          },
-        }).then(({ body: { dashboard_id, card } }) => {
-          cy.wrap(`${card.id}-${card.name}`).as("slug");
-          H.visitDashboard(dashboard_id);
-        });
-
-        H.showDashboardCardActions();
-        H.getDashboardCardMenu().click();
-        H.popover().findByText("Edit model").should("be.visible").click();
-        cy.get("@slug").then(slug => {
-          cy.location("pathname").should("eq", `/model/${slug}/query`);
-        });
-      });
-
-      it("should allow navigating to the metric editor directly from a dashboard card", () => {
-        H.createQuestionAndDashboard({
-          questionDetails: {
-            name: "orders",
-            type: "metric",
-            query: {
-              "source-table": ORDERS_ID,
-              aggregation: [["count"]],
-            },
-          },
-          dashboardDetails: {
-            name: "Dashboard",
-          },
-        }).then(({ body: { dashboard_id, card } }) => {
-          cy.wrap(`${card.id}-${card.name}`).as("slug");
-          H.visitDashboard(dashboard_id);
-        });
-
-        H.showDashboardCardActions();
-        H.getDashboardCardMenu().click();
-        H.popover().findByText("Edit metric").should("be.visible").click();
-        cy.get("@slug").then(slug => {
-          cy.location("pathname").should("eq", `/metric/${slug}/query`);
-        });
       });
     });
 
-    describe("title and description", () => {
+    context("title and description", () => {
       beforeEach(() => {
         cy.intercept("GET", "/api/dashboard/*").as("getDashboard");
         cy.intercept(
@@ -431,9 +422,9 @@ describe("scenarios > dashboard", () => {
         cy.wait("@updateDashboard");
         cy.wait("@getDashboard");
 
-        H.openDashboardInfoSidebar();
+        toggleDashboardInfoSidebar();
 
-        H.sidesheet()
+        rightSidebar()
           .findByPlaceholderText("Add description")
           .type(newDescription)
           .blur();
@@ -447,51 +438,47 @@ describe("scenarios > dashboard", () => {
         cy.reload();
         cy.wait("@getDashboard");
 
-        H.dashboardHeader().findByDisplayValue(newTitle);
-        H.openDashboardInfoSidebar();
-        H.sidesheet().findByText(newDescription);
-        H.closeDashboardInfoSidebar();
+        dashboardHeader().findByDisplayValue(newTitle);
+        toggleDashboardInfoSidebar();
+        sidebar().findByText(newDescription);
 
         cy.log("should not call unnecessary API requests (metabase#31721)");
         cy.get("@updateDashboardSpy").should("have.callCount", 2);
 
         cy.log("Should revert the title change if escaped");
-        H.dashboardHeader().findByDisplayValue(newTitle).type("Whatever{esc}");
-        H.dashboardHeader().findByDisplayValue(newTitle);
+        dashboardHeader().findByDisplayValue(newTitle).type("Whatever{esc}");
+        dashboardHeader().findByDisplayValue(newTitle);
         cy.get("@updateDashboardSpy").should("have.callCount", 2);
 
         cy.log("Should revert the description change if escaped");
-        H.openDashboardInfoSidebar();
-        H.sidesheet().within(() => {
-          cy.findByText(newDescription).type("Baz{esc}");
-          cy.findByText(newDescription);
-        });
+        sidebar().findByText(newDescription).type("Baz{esc}");
+        sidebar().findByText(newDescription);
         cy.get("@updateDashboardSpy").should("have.callCount", 2);
       });
 
       it("should update the name and description in the dashboard edit mode", () => {
-        H.editDashboard();
+        editDashboard();
 
         cy.log("Should revert the title change if editing is cancelled");
         cy.findByTestId("dashboard-name-heading").clear().type(newTitle).blur();
         cy.findByTestId("edit-bar").button("Cancel").click();
-        H.modal().button("Discard changes").click();
+        modal().button("Discard changes").click();
         cy.findByTestId("edit-bar").should("not.exist");
         cy.get("@updateDashboardSpy").should("not.have.been.called");
         cy.findByDisplayValue(originalDashboardName);
 
-        H.editDashboard();
+        editDashboard();
 
         cy.log("should not take you out of the edit mode when updating title");
         cy.findByTestId("dashboard-name-heading").clear().type(newTitle).blur();
         cy.log(
           "The only way to open a sidebar in edit mode is to click on a revision history",
         );
-        H.dashboardHeader()
+        dashboardHeader()
           .findByText(/^Edited a few seconds ago/)
           .click();
 
-        H.sidesheet()
+        rightSidebar()
           .findByPlaceholderText("Add description")
           .type(newDescription)
           .blur();
@@ -500,27 +487,26 @@ describe("scenarios > dashboard", () => {
         // This might be a bug! We're applying the description while still in the edit mode!
         // OTOH, the title is preserved only on save.
         cy.wait("@updateDashboard");
-        H.closeDashboardInfoSidebar();
 
-        H.saveDashboard();
+        saveDashboard();
         cy.wait("@updateDashboard");
         cy.get("@updateDashboardSpy").should("have.callCount", 2);
       });
 
       it("should not have markdown content overflow the description area (metabase#31326)", () => {
-        H.openDashboardInfoSidebar();
+        toggleDashboardInfoSidebar();
 
         const testMarkdownContent =
           "# Heading 1{enter}{enter}**bold** https://www.metabase.com/community_posts/how-to-measure-the-success-of-new-product-features-and-why-it-is-important{enter}{enter}![alt](/app/assets/img/welcome-modal-2.png){enter}{enter}This is my description. ";
 
-        H.sidesheet()
+        rightSidebar()
           .findByPlaceholderText("Add description")
           .type(testMarkdownContent, { delay: 0 })
           .blur();
 
         cy.wait("@updateDashboard");
 
-        H.sidesheet().within(() => {
+        rightSidebar().within(() => {
           cy.log("Markdown content should not be bigger than its container");
           cy.findByTestId("editable-text").then($markdown => {
             const el = $markdown[0];
@@ -580,13 +566,13 @@ describe("scenarios > dashboard", () => {
         cy.createDashboard().then(({ body: { id: dashboard_id } }) => {
           const cards = [
             // the bottom card intentionally goes first to have unsorted cards coming from the BE
-            H.getTextCardDetails({
+            getTextCardDetails({
               row: 1,
               size_x: 24,
               size_y: 1,
               text: "bottom",
             }),
-            H.getTextCardDetails({
+            getTextCardDetails({
               row: 0,
               size_x: 24,
               size_y: 1,
@@ -594,141 +580,33 @@ describe("scenarios > dashboard", () => {
             }),
           ];
 
-          H.updateDashboardCards({ dashboard_id, cards });
+          updateDashboardCards({ dashboard_id, cards });
 
-          H.visitDashboard(dashboard_id);
+          visitDashboard(dashboard_id);
         });
 
-        H.getDashboardCard(0).contains("top");
-        H.getDashboardCard(1).contains("bottom");
+        getDashboardCards().eq(0).contains("top");
+        getDashboardCards().eq(1).contains("bottom");
       },
     );
   });
 
-  describe("iframe cards", () => {
-    it("should handle various iframe and URL inputs", () => {
-      const testCases = [
-        {
-          input: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-          expected: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        },
-        {
-          input: "https://youtu.be/dQw4w9WgXcQ",
-          expected: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        },
-        {
-          input: "https://www.loom.com/share/1234567890abcdef",
-          expected: "https://www.loom.com/embed/1234567890abcdef",
-        },
-        {
-          input: "https://vimeo.com/123456789",
-          expected: "https://player.vimeo.com/video/123456789",
-        },
-        {
-          input: "example.com",
-          expected: "https://example.com",
-        },
-        {
-          input: "https://example.com",
-          expected: "https://example.com",
-        },
-        {
-          input:
-            '<iframe src="https://example.com" onload="alert(\'XSS\')"></iframe>',
-          expected: "https://example.com",
-        },
-      ];
-
-      H.updateSetting("allowed-iframe-hosts", "*");
-
-      cy.createDashboard().then(({ body: { id } }) => {
-        H.visitDashboard(id);
-      });
-
-      H.editDashboard();
-
-      testCases.forEach(({ input, expected }, index) => {
-        H.addIFrameWhileEditing(input);
-        cy.button("Done").click();
-        validateIFrame(expected, index);
-      });
-    });
-
-    it("should respect allowed-iframe-hosts setting", () => {
-      const errorMessage = /can not be embedded in iframe cards/;
-
-      H.updateSetting(
-        "allowed-iframe-hosts",
-        ["youtube.com", "player.videos.com"].join("\n"),
-      );
-
-      cy.createDashboard().then(({ body: { id } }) => H.visitDashboard(id));
-      H.editDashboard();
-
-      // Test allowed domain with subdomains
-      H.addIFrameWhileEditing("https://youtube.com/watch?v=dQw4w9WgXcQ");
-      cy.button("Done").click();
-      validateIFrame("https://www.youtube.com/embed/dQw4w9WgXcQ");
-
-      H.editIFrameWhileEditing(
-        0,
-        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      );
-      cy.button("Done").click();
-      validateIFrame("https://www.youtube.com/embed/dQw4w9WgXcQ");
-
-      // Test allowed subdomain, but no other domains
-      H.editIFrameWhileEditing(0, "player.videos.com/video/123456789");
-      cy.button("Done").click();
-      validateIFrame("https://player.videos.com/video/123456789");
-
-      H.editIFrameWhileEditing(0, "videos.com/video/123456789");
-      cy.button("Done").click();
-      H.getDashboardCard().within(() => {
-        cy.findByText(errorMessage).should("be.visible");
-        cy.get("iframe").should("not.exist");
-      });
-
-      H.editIFrameWhileEditing(0, "www.videos.com/video");
-      cy.button("Done").click();
-      H.getDashboardCard().within(() => {
-        cy.findByText(errorMessage).should("be.visible");
-        cy.get("iframe").should("not.exist");
-      });
-
-      // Test forbidden domain and subdomains
-      H.editIFrameWhileEditing(0, "https://example.com");
-      cy.button("Done").click();
-      H.getDashboardCard().within(() => {
-        cy.findByText(errorMessage).should("be.visible");
-        cy.get("iframe").should("not.exist");
-      });
-
-      H.editIFrameWhileEditing(0, "www.example.com");
-      cy.button("Done").click();
-      H.getDashboardCard().within(() => {
-        cy.findByText(errorMessage).should("be.visible");
-        cy.get("iframe").should("not.exist");
-      });
-    });
-  });
-
   it("should add a filter", () => {
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
-    H.editDashboard();
+    visitDashboard(ORDERS_DASHBOARD_ID);
+    editDashboard();
 
     // Adding location/state doesn't make much sense for this case,
     // but we're testing just that the filter is added to the dashboard
-    H.setFilter("Location", "Is");
+    setFilter("Location", "Is");
 
-    H.getDashboardCard().findByText("Select…").click();
+    getDashboardCard().findByText("Select…").click();
 
-    H.popover().findByText("State").click();
+    popover().findByText("State").click();
 
     cy.icon("close");
     cy.button("Done").click();
 
-    H.saveDashboard();
+    saveDashboard();
 
     cy.log("Assert that the selected filter is present in the dashboard");
     cy.icon("location");
@@ -769,31 +647,25 @@ describe("scenarios > dashboard", () => {
     cy.findByText("This dashboard is looking empty.");
     // add previously created question to it
     cy.icon("pencil").click();
-    H.openQuestionsSidebar();
+    openQuestionsSidebar();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("11007").click();
 
-    H.setFilter("Date picker", "All Options");
+    setFilter("Date picker", "All Options");
 
     // and connect it to the card
-    H.selectDashboardFilter(
-      cy.findByTestId("dashcard-container"),
-      "Created At",
-    );
+    selectDashboardFilter(cy.findByTestId("dashcard-container"), "Created At");
 
     // add second filter
-    H.setFilter("ID");
+    setFilter("ID");
 
     // and connect it to the card
-    H.selectDashboardFilter(
-      cy.findByTestId("dashcard-container"),
-      "Product ID",
-    );
+    selectDashboardFilter(cy.findByTestId("dashcard-container"), "Product ID");
 
     // add third filter
-    H.setFilter("Text or Category", "Starts with");
+    setFilter("Text or Category", "Starts with");
     // and connect it to the card
-    H.selectDashboardFilter(cy.findByTestId("dashcard-container"), "Category");
+    selectDashboardFilter(cy.findByTestId("dashcard-container"), "Category");
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Save").click();
@@ -824,7 +696,7 @@ describe("scenarios > dashboard", () => {
           ],
         });
 
-        H.addOrUpdateDashboardCard({
+        addOrUpdateDashboardCard({
           card_id: questionId,
           dashboard_id: dashboardId,
           card: {
@@ -854,7 +726,7 @@ describe("scenarios > dashboard", () => {
           },
         });
 
-        H.visitDashboard(dashboardId);
+        visitDashboard(dashboardId);
         cy.get(".leaflet-marker-icon") // pin icon
           .eq(0)
           .click({ force: true });
@@ -893,13 +765,13 @@ describe("scenarios > dashboard", () => {
           ],
         });
 
-        H.visitDashboard(dashboard_id);
+        visitDashboard(dashboard_id);
       },
     );
 
     // Add cross-filter click behavior manually
     cy.icon("pencil").click();
-    H.showDashboardCardActions();
+    showDashboardCardActions();
     cy.findByTestId("dashboardcard-actions-panel").within(() => {
       cy.icon("click").click();
     });
@@ -967,9 +839,9 @@ describe("scenarios > dashboard", () => {
       cy.spy().as("fetchFieldValues"),
     );
 
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
 
-    H.filterWidget().as("filterWidget").click();
+    filterWidget().as("filterWidget").click();
 
     ["Doohickey", "Gadget", "Gizmo", "Widget"].forEach(category => {
       cy.findByText(category);
@@ -1025,7 +897,7 @@ describe("scenarios > dashboard", () => {
       },
     );
     cy.signInAsNormalUser();
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
 
     cy.wait("@queryMetadata");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -1052,17 +924,17 @@ describe("scenarios > dashboard", () => {
       ],
     });
 
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.contains("37.65");
     assertScrollBarExists();
 
-    H.openSharingMenu("Embed");
+    openSharingMenu("Embed");
 
-    H.modal().within(() => {
+    modal().within(() => {
       cy.icon("close").click();
     });
-    H.modal().should("not.exist");
+    modal().should("not.exist");
     assertScrollBarExists();
   });
 
@@ -1103,8 +975,8 @@ describe("scenarios > dashboard", () => {
       ],
     });
 
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
-    H.editDashboard();
+    visitDashboard(ORDERS_DASHBOARD_ID);
+    editDashboard();
 
     cy.findByTestId("dashboardcard-actions-panel").within(() => {
       cy.icon("palette").click({ force: true });
@@ -1113,15 +985,15 @@ describe("scenarios > dashboard", () => {
     cy.findByRole("dialog").within(() => {
       cy.findByRole("switch", {
         name: "Hide this card if there are no results",
-      }).click({ force: true });
+      }).click();
       cy.button("Done").click();
     });
 
-    H.saveDashboard();
+    saveDashboard();
 
     // Verify the card is hidden when the value is correct but produces empty results
-    H.filterWidget().click();
-    H.popover().within(() => {
+    filterWidget().click();
+    popover().within(() => {
       cy.findByPlaceholderText("Enter an ID").type("-1{enter}");
       cy.button("Add filter").click();
     });
@@ -1129,15 +1001,15 @@ describe("scenarios > dashboard", () => {
     cy.findByTestId("dashcard").should("not.exist");
 
     // Verify it becomes visible once the filter is cleared
-    H.filterWidget().within(() => {
+    filterWidget().within(() => {
       cy.icon("close").click();
     });
 
     cy.findByTestId("dashcard").findByText("Orders");
 
     // Verify the card is visible when it returned an error
-    H.filterWidget().click();
-    H.popover().within(() => {
+    filterWidget().click();
+    popover().within(() => {
       cy.findByPlaceholderText("Enter an ID").type("text{enter}");
       cy.button("Add filter").click();
     });
@@ -1148,66 +1020,39 @@ describe("scenarios > dashboard", () => {
   });
 });
 
-H.describeWithSnowplow("scenarios > dashboard", () => {
+describeWithSnowplow("scenarios > dashboard", () => {
   beforeEach(() => {
     cy.intercept("GET", "/api/activity/recents?*").as("recentViews");
-    H.resetSnowplow();
-    H.restore();
+    resetSnowplow();
+    restore();
     cy.signInAsAdmin();
-    H.enableTracking();
+    enableTracking();
   });
 
   afterEach(() => {
-    H.expectNoBadSnowplowEvents();
-  });
-
-  it("should be possible to add an iframe card", () => {
-    H.updateSetting("allowed-iframe-hosts", "*");
-    H.createDashboard({ name: "iframe card" }).then(({ body: { id } }) => {
-      H.visitDashboard(id);
-
-      H.editDashboard();
-      H.addIFrameWhileEditing("https://example.com");
-      cy.findByTestId("dashboardcard-actions-panel").should("not.exist");
-      cy.button("Done").click();
-      H.getDashboardCard(0).realHover();
-      cy.findByTestId("dashboardcard-actions-panel").should("be.visible");
-      validateIFrame("https://example.com");
-      H.saveDashboard();
-      validateIFrame("https://example.com");
-
-      H.expectGoodSnowplowEvent({
-        event: "new_iframe_card_created",
-        target_id: id,
-        event_detail: "example.com",
-      });
-    });
+    expectNoBadSnowplowEvents();
   });
 
   it("saving a dashboard should track a 'dashboard_saved' snowplow event", () => {
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
-    H.editDashboard();
+    visitDashboard(ORDERS_DASHBOARD_ID);
+    editDashboard();
     const newTitle = "New title";
     cy.findByTestId("dashboard-name-heading").clear().type(newTitle).blur();
-    H.saveDashboard();
-    H.expectGoodSnowplowEvent({
+    saveDashboard();
+    expectGoodSnowplowEvent({
       event: "dashboard_saved",
     });
   });
 
   it("should allow users to add link cards to dashboards", () => {
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
-    H.editDashboard();
-    cy.findByLabelText("Add a link or iframe").click();
-    H.popover().findByText("Link").click();
+    visitDashboard(ORDERS_DASHBOARD_ID);
+    editDashboard();
+    cy.findByTestId("dashboard-header").icon("link").click();
 
     cy.wait("@recentViews");
+    cy.findByTestId("custom-edit-text-link").click().type("Orders");
 
-    cy.findByTestId("custom-edit-text-link")
-      .findByPlaceholderText("https://example.com")
-      .type("Orders");
-
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText(/Loading/i).should("not.exist");
       cy.findByText("Orders in a dashboard").click();
     });
@@ -1216,20 +1061,20 @@ H.describeWithSnowplow("scenarios > dashboard", () => {
       /orders in a dashboard/i,
     );
 
-    H.saveDashboard();
+    saveDashboard();
 
     cy.findByTestId("entity-view-display-link").findByText(
       /orders in a dashboard/i,
     );
 
-    H.expectGoodSnowplowEvent({
+    expectGoodSnowplowEvent({
       event: "new_link_card_created",
     });
   });
 
   it("should track enabling the hide empty cards setting", () => {
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
-    H.editDashboard();
+    visitDashboard(ORDERS_DASHBOARD_ID);
+    editDashboard();
 
     cy.findByTestId("dashboardcard-actions-panel").within(() => {
       cy.icon("palette").click({ force: true });
@@ -1239,11 +1084,11 @@ H.describeWithSnowplow("scenarios > dashboard", () => {
       cy.findByRole("switch", {
         name: "Hide this card if there are no results",
       })
-        .click({ force: true }) // enable
-        .click({ force: true }) // disable
-        .click({ force: true }); // enable
+        .click() // enable
+        .click() // disable
+        .click(); // enable
 
-      H.expectGoodSnowplowEvent(
+      expectGoodSnowplowEvent(
         {
           event: "card_set_to_hide_when_no_results",
           dashboard_id: ORDERS_DASHBOARD_ID,
@@ -1269,7 +1114,7 @@ H.describeWithSnowplow("scenarios > dashboard", () => {
       type: "string/contains",
     };
 
-    H.createDashboardWithTabs({
+    createDashboardWithTabs({
       tabs: [TAB_1, TAB_2],
       parameters: [{ ...DASHBOARD_TEXT_FILTER, default: "Example Input" }],
       dashcards: [
@@ -1295,32 +1140,32 @@ H.describeWithSnowplow("scenarios > dashboard", () => {
           },
         }),
       ],
-    }).then(dashboard => H.visitDashboard(dashboard.id));
+    }).then(dashboard => visitDashboard(dashboard.id));
 
     // new dashboards should default to 'fixed' width
-    H.assertDashboardFixedWidth();
+    assertDashboardFixedWidth();
 
     // toggle full-width
-    H.editDashboard();
+    editDashboard();
     cy.findByLabelText("Toggle width").click();
-    H.popover().findByText("Full width").click();
-    H.assertDashboardFullWidth();
-    H.expectGoodSnowplowEvent({
+    popover().findByText("Full width").click();
+    assertDashboardFullWidth();
+    expectGoodSnowplowEvent({
       event: "dashboard_width_toggled",
       full_width: true,
     });
 
     // confirm it saves the state after saving and refreshing
-    H.saveDashboard();
+    saveDashboard();
     cy.reload();
-    H.assertDashboardFullWidth();
+    assertDashboardFullWidth();
 
     // toggle back to fixed
-    H.editDashboard();
+    editDashboard();
     cy.findByLabelText("Toggle width").click();
-    H.popover().findByText("Full width").click();
-    H.assertDashboardFixedWidth();
-    H.expectGoodSnowplowEvent({
+    popover().findByText("Full width").click();
+    assertDashboardFixedWidth();
+    expectGoodSnowplowEvent({
       event: "dashboard_width_toggled",
       full_width: false,
     });
@@ -1329,7 +1174,7 @@ H.describeWithSnowplow("scenarios > dashboard", () => {
 
 function checkOptionsForFilter(filter) {
   cy.findByText("Available filters").parent().contains(filter).click();
-  H.popover()
+  popover()
     .should("contain", "Columns")
     .and("contain", "COUNT(*)")
     .and("not.contain", "Dashboard filters");
@@ -1348,7 +1193,7 @@ function assertScrollBarExists() {
 
 describe("LOCAL TESTING ONLY > dashboard", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -1384,7 +1229,7 @@ describe("LOCAL TESTING ONLY > dashboard", () => {
         ],
       },
     }).then(({ body: { card_id, dashboard_id } }) => {
-      H.addOrUpdateDashboardCard({
+      addOrUpdateDashboardCard({
         card_id,
         dashboard_id,
         card: {
@@ -1399,16 +1244,16 @@ describe("LOCAL TESTING ONLY > dashboard", () => {
       });
 
       cy.visit(`/dashboard/${dashboard_id}?location=AK&location=CA`);
-      H.filterWidget().contains(/\{0\}/).should("not.exist");
+      filterWidget().contains(/\{0\}/).should("not.exist");
     });
   });
 });
 
-H.describeEE("scenarios > dashboard > caching", () => {
+describeEE("scenarios > dashboard > caching", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
   });
 
   /**
@@ -1417,12 +1262,14 @@ H.describeEE("scenarios > dashboard > caching", () => {
    */
   it("can configure cache for a dashboard, on an enterprise instance", () => {
     interceptPerformanceRoutes();
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
 
-    openSidebarCacheStrategyForm("dashboard");
+    openSidebarCacheStrategyForm();
 
-    H.sidesheet().within(() => {
-      cy.findByText(/Caching settings/).should("be.visible");
+    rightSidebar().within(() => {
+      cy.findByRole("heading", { name: /Caching settings/ }).should(
+        "be.visible",
+      );
       durationRadioButton().click();
       cy.findByLabelText("Cache results for this many hours").type("48");
       cy.findByRole("button", { name: /Save/ }).click();
@@ -1430,40 +1277,36 @@ H.describeEE("scenarios > dashboard > caching", () => {
       cy.log(
         "Check that the newly chosen cache invalidation policy - Duration - is now visible in the sidebar",
       );
-      cy.findByLabelText(/When to get new results/).should(
-        "contain",
-        "Duration",
-      );
-      cy.findByLabelText(/When to get new results/).click();
+      cy.findByLabelText(/Caching policy/).should("contain", "Duration");
+      cy.findByLabelText(/Caching policy/).click();
       adaptiveRadioButton().click();
       cy.findByLabelText(/Minimum query duration/).type("999");
       cy.findByRole("button", { name: /Save/ }).click();
       cy.wait("@putCacheConfig");
-      cy.findByLabelText(/When to get new results/).should(
-        "contain",
-        "Adaptive",
-      );
+      cy.findByLabelText(/Caching policy/).should("contain", "Adaptive");
     });
   });
 
   it("can click 'Clear cache' for a dashboard", () => {
     interceptPerformanceRoutes();
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
 
-    openSidebarCacheStrategyForm("dashboard");
+    openSidebarCacheStrategyForm();
 
-    H.sidesheet().within(() => {
-      cy.findByText(/Caching settings/).should("be.visible");
+    rightSidebar().within(() => {
+      cy.findByRole("heading", { name: /Caching settings/ }).should(
+        "be.visible",
+      );
       cy.findByRole("button", {
         name: /Clear cache for this dashboard/,
       }).click();
     });
 
-    cy.findByTestId("confirm-modal").within(() => {
+    modal().within(() => {
       cy.findByRole("button", { name: /Clear cache/ }).click();
     });
     cy.wait("@invalidateCache");
-    H.sidesheet().within(() => {
+    rightSidebar().within(() => {
       cy.findByText("Cache cleared").should("be.visible");
     });
   });
@@ -1473,7 +1316,7 @@ describe("scenarios > dashboard > permissions", () => {
   let dashboardId;
 
   beforeEach(() => {
-    H.restore();
+    restore();
     // This first test creates a dashboard with two questions.
     // One is in Our Analytics the other is in a more locked down collection.
     cy.signInAsAdmin();
@@ -1530,7 +1373,7 @@ describe("scenarios > dashboard > permissions", () => {
     cy.createDashboard().then(({ body: { id: dashId } }) => {
       dashboardId = dashId;
 
-      H.updateDashboardCards({
+      updateDashboardCards({
         dashboard_id: dashId,
         cards: [
           { card_id: firstQuestionId, row: 0, col: 0, size_x: 8, size_y: 6 },
@@ -1541,7 +1384,7 @@ describe("scenarios > dashboard > permissions", () => {
   });
 
   it("should let admins view all cards in a dashboard", () => {
-    H.visitDashboard(dashboardId);
+    visitDashboard(dashboardId);
     // Admin can see both questions
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("First Question");
@@ -1555,7 +1398,7 @@ describe("scenarios > dashboard > permissions", () => {
 
   it("should display dashboards with some cards locked down", () => {
     cy.signIn("nodata");
-    H.visitDashboard(dashboardId);
+    visitDashboard(dashboardId);
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Sorry, you don't have permission to see this card.");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -1566,21 +1409,8 @@ describe("scenarios > dashboard > permissions", () => {
 
   it("should display an error if they don't have perms for the dashboard", () => {
     cy.signIn("nocollection");
-    H.visitDashboard(dashboardId);
+    visitDashboard(dashboardId);
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Sorry, you don’t have permission to see that.");
   });
 });
-
-function validateIFrame(src, index = 0) {
-  H.getDashboardCards()
-    .get("iframe")
-    .eq(index)
-    .should("have.attr", "src", src)
-    .and(
-      "have.attr",
-      "sandbox",
-      "allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts",
-    )
-    .and("not.have.attr", "onload");
-}

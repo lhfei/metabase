@@ -9,6 +9,7 @@ import { getLegendItems } from "metabase/visualizations/echarts/cartesian/model/
 import { getScatterPlotModel } from "metabase/visualizations/echarts/cartesian/scatter/model";
 import { getScatterPlotOption } from "metabase/visualizations/echarts/cartesian/scatter/option";
 
+import { computeStaticComboChartSettings } from "../ComboChart/settings";
 import { Legend } from "../Legend";
 import { calculateLegendRows } from "../Legend/utils";
 
@@ -20,7 +21,7 @@ const LEGEND_PADDING = 8;
 
 export function ScatterPlot({
   rawSeries,
-  settings,
+  dashcardSettings,
   renderingContext,
   width = WIDTH,
   height = HEIGHT,
@@ -28,10 +29,15 @@ export function ScatterPlot({
 }: StaticChartProps) {
   const chart = init(null, null, { renderer: "svg", ssr: true, width, height });
 
+  const computedVisualizationSettings = computeStaticComboChartSettings(
+    rawSeries,
+    dashcardSettings,
+    renderingContext,
+  );
+
   const chartModel = getScatterPlotModel(
     rawSeries,
-    settings,
-    [],
+    computedVisualizationSettings,
     renderingContext,
   );
 
@@ -46,7 +52,7 @@ export function ScatterPlot({
 
   const chartMeasurements = getChartMeasurements(
     chartModel,
-    settings,
+    computedVisualizationSettings,
     false,
     width,
     height,
@@ -58,7 +64,7 @@ export function ScatterPlot({
     chartMeasurements,
     null,
     [],
-    settings,
+    computedVisualizationSettings,
     width,
     false,
     renderingContext,

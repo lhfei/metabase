@@ -20,14 +20,12 @@ export interface FormTextAreaProps
   infoLabel?: string;
   infoTooltip?: string;
   optional?: boolean;
-  inputClassName?: string;
 }
 
 const FormTextArea = forwardRef(function FormTextArea(
   {
     name,
     className,
-    inputClassName,
     style,
     title,
     actions,
@@ -66,7 +64,6 @@ const FormTextArea = forwardRef(function FormTextArea(
     >
       <TextArea
         {...props}
-        className={inputClassName}
         id={id}
         name={name}
         value={value ?? ""}

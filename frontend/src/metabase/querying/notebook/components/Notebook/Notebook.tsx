@@ -1,6 +1,5 @@
 import { t } from "ttag";
 
-import type { DataPickerValue } from "metabase/common/components/DataPicker";
 import { useDispatch } from "metabase/lib/redux";
 import { setUIControls } from "metabase/query_builder/actions";
 import { Box, Button } from "metabase/ui";
@@ -8,8 +7,6 @@ import * as Lib from "metabase-lib";
 import type Question from "metabase-lib/v1/Question";
 
 import { NotebookStepList } from "../NotebookStepList";
-
-import { NotebookProvider } from "./context";
 
 export type NotebookProps = {
   question: Question;
@@ -20,9 +17,8 @@ export type NotebookProps = {
   hasVisualizeButton?: boolean;
   updateQuestion: (question: Question) => Promise<void>;
   runQuestionQuery: () => Promise<void>;
-  setQueryBuilderMode?: (mode: string) => void;
+  setQueryBuilderMode: (mode: string) => void;
   readOnly?: boolean;
-  modelsFilterList?: DataPickerValue["model"][];
 };
 
 export const Notebook = ({
@@ -36,7 +32,6 @@ export const Notebook = ({
   hasVisualizeButton = true,
   runQuestionQuery,
   setQueryBuilderMode,
-  modelsFilterList,
 }: NotebookProps) => {
   const dispatch = useDispatch();
 
@@ -61,7 +56,7 @@ export const Notebook = ({
       cleanupQuestion();
     }
     // switch mode before running otherwise URL update may cause it to switch back to notebook mode
-    await setQueryBuilderMode?.("view");
+    await setQueryBuilderMode("view");
     if (isResultDirty) {
       await runQuestionQuery();
     }
@@ -73,24 +68,18 @@ export const Notebook = ({
   };
 
   return (
-    <NotebookProvider modelsFilterList={modelsFilterList}>
-      <Box pos="relative" p={{ base: "1rem", sm: "2rem" }}>
-        <NotebookStepList
-          updateQuestion={handleUpdateQuestion}
-          question={question}
-          reportTimezone={reportTimezone}
-          readOnly={readOnly}
-        />
-        {hasVisualizeButton && isRunnable && (
-          <Button
-            variant="filled"
-            style={{ minWidth: 220 }}
-            onClick={visualize}
-          >
-            {t`Visualize`}
-          </Button>
-        )}
-      </Box>
-    </NotebookProvider>
+    <Box pos="relative" p={{ base: "1rem", sm: "2rem" }}>
+      <NotebookStepList
+        updateQuestion={handleUpdateQuestion}
+        question={question}
+        reportTimezone={reportTimezone}
+        readOnly={readOnly}
+      />
+      {hasVisualizeButton && isRunnable && (
+        <Button variant="filled" style={{ minWidth: 220 }} onClick={visualize}>
+          {t`Visualize`}
+        </Button>
+      )}
+    </Box>
   );
 };

@@ -1,7 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { t } from "ttag";
 
-import { collectionApi, useGetCollectionQuery } from "metabase/api";
+import { collectionApi } from "metabase/api";
 import {
   canonicalCollectionId,
   isRootTrashCollection,
@@ -66,12 +66,6 @@ const Collections = createEntity({
 
   displayNameOne: t`collection`,
   displayNameMany: t`collections`,
-
-  rtk: {
-    getUseGetQuery: () => ({
-      useGetQuery: useGetCollectionQuery,
-    }),
-  },
 
   api: {
     list: async (params: ListParams, dispatch: Dispatch) => {

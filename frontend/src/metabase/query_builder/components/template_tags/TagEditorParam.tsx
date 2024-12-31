@@ -1,14 +1,13 @@
 import { Component } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
-import { connect } from "metabase/lib/redux";
 import { ValuesSourceSettings } from "metabase/parameters/components/ValuesSourceSettings";
 import type { EmbeddingParameterVisibility } from "metabase/public/lib/types";
 import { getOriginalQuestion } from "metabase/query_builder/selectors";
 import { fetchField } from "metabase/redux/metadata";
 import { getMetadata } from "metabase/selectors/metadata";
-import { Box } from "metabase/ui";
 import type Question from "metabase-lib/v1/Question";
 import type Database from "metabase-lib/v1/metadata/Database";
 import type Field from "metabase-lib/v1/metadata/Field";
@@ -35,17 +34,16 @@ import type {
 } from "metabase-types/api";
 import type { State } from "metabase-types/store";
 
-import TagEditorParamS from "./TagEditorParam.module.css";
 import {
+  ContainerLabel,
   DefaultRequiredValueControl,
   FieldMappingSelect,
   FilterWidgetLabelInput,
   FilterWidgetTypeSelect,
-} from "./TagEditorParamParts";
-import {
-  ContainerLabel,
   InputContainer,
-} from "./TagEditorParamParts/TagEditorParam";
+  TagContainer,
+  TagName,
+} from "./TagEditorParamParts";
 import { VariableTypeSelect } from "./TagEditorParamParts/VariableTypeSelect";
 
 interface Props {
@@ -264,14 +262,9 @@ class TagEditorParamInner extends Component<Props> {
     const hasWidgetOptions = widgetOptions.length > 0;
 
     return (
-      <Box
-        className={TagEditorParamS.TagContainer}
-        data-testid={`tag-editor-variable-${tag.name}`}
-      >
+      <TagContainer data-testid={`tag-editor-variable-${tag.name}`}>
         <ContainerLabel paddingTop>{t`Variable name`}</ContainerLabel>
-        <Box component="h3" className={TagEditorParamS.TagName}>
-          {tag.name}
-        </Box>
+        <TagName>{tag.name}</TagName>
 
         <VariableTypeSelect value={tag.type} onChange={this.setType} />
 
@@ -327,7 +320,7 @@ class TagEditorParamInner extends Component<Props> {
           }}
           onChangeRequired={this.setRequired}
         />
-      </Box>
+      </TagContainer>
     );
   }
 }

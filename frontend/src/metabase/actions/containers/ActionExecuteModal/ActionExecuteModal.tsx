@@ -1,7 +1,7 @@
 import type { FormikHelpers } from "formik";
 import { useCallback } from "react";
 
-import { skipToken, useGetActionQuery } from "metabase/api";
+import { useActionQuery } from "metabase/common/hooks";
 import LoadingAndErrorWrapper from "metabase/components/LoadingAndErrorWrapper";
 import ModalContent from "metabase/components/ModalContent";
 import { useDispatch } from "metabase/lib/redux";
@@ -38,7 +38,7 @@ export const ActionExecuteModal = ({
     error: errorAction,
     isLoading: isLoadingAction,
     data: action,
-  } = useGetActionQuery(actionId != null ? { id: actionId } : skipToken);
+  } = useActionQuery({ id: actionId });
 
   const {
     error: errorInitialValues,
@@ -97,6 +97,7 @@ export const ActionExecuteModal = ({
       <ActionParametersInputForm
         action={loadedAction}
         initialValues={initialValues}
+        prefetchesInitialValues
         onCancel={onClose}
         onSubmit={handleSubmit}
         onSubmitSuccess={handleSubmitSuccess}

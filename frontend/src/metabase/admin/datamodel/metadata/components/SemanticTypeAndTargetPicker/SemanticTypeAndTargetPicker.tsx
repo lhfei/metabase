@@ -2,7 +2,7 @@ import cx from "classnames";
 import { useCallback } from "react";
 import { t } from "ttag";
 
-import { currency } from "cljs/metabase.util.currency";
+import { currency } from "cljs/metabase.shared.util.currency";
 import type { SelectChangeEvent } from "metabase/core/components/Select";
 import Select, { Option } from "metabase/core/components/Select";
 import AdminS from "metabase/css/admin.module.css";
@@ -56,11 +56,8 @@ const SemanticTypeAndTargetPicker = ({
   hasSeparator,
   onUpdateField,
 }: SemanticTypeAndTargetPickerProps) => {
-  const comparableIdFields = idFields.filter((idField: Field) =>
-    field.isComparableWith(idField),
-  );
-  const hasIdFields = comparableIdFields.length > 0;
-  const includeSchema = hasMultipleSchemas(comparableIdFields);
+  const hasIdFields = idFields.length > 0;
+  const includeSchema = hasMultipleSchemas(idFields);
   const showFKTargetSelect = field.isFK();
   const showCurrencyTypeSelect = field.isCurrency();
 
@@ -151,11 +148,11 @@ const SemanticTypeAndTargetPicker = ({
             hasSeparator ? CS.mt0 : CS.mt1,
             className,
           )}
-          placeholder={getFkFieldPlaceholder(field, comparableIdFields)}
+          placeholder={getFkFieldPlaceholder(field, idFields)}
           searchProp={SEARCH_PROPS}
           value={field.fk_target_field_id}
           onChange={handleChangeTarget}
-          options={comparableIdFields}
+          options={idFields}
           optionValueFn={getFieldId}
           optionNameFn={includeSchema ? getFieldNameWithSchema : getFieldName}
           optionIconFn={getFieldIcon}

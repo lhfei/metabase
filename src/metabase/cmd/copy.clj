@@ -47,7 +47,6 @@
   instances of entities before others that might depend on them, e.g. `Databases` before `Tables` before `Fields`."
   (concat
    [:model/Channel
-    :model/ChannelTemplate
     :model/Database
     :model/User
     :model/Setting
@@ -98,12 +97,7 @@
     :model/TablePrivileges
     :model/AuditLog
     :model/RecentViews
-    :model/UserParameterValue
-    ;; 51+
-    :model/Notification
-    :model/NotificationSubscription
-    :model/NotificationHandler
-    :model/NotificationRecipient]
+    :model/UserParameterValue]
    (when config/ee-available?
      [:model/GroupTableAccessPolicy
       :model/ConnectionImpersonation])))
@@ -164,11 +158,11 @@
     ;; Sample Database, the correct details are reset automatically on every
     ;; launch (see [[metabase.sample-data/update-sample-database-if-needed!]]), and we don't support connecting other H2
     ;; Databases in prod anyway, so this ultimately shouldn't cause anyone any problems.
-    (map (fn [database]
-           (cond-> database
-             (or (:is_attached_dwh database)
-                 (and (not *copy-h2-database-details*)
-                      (= (:engine database) "h2"))) (assoc :details "{}"))))
+    (if *copy-h2-database-details*
+      identity
+      (map (fn [database]
+             (cond-> database
+               (= (:engine database) "h2") (assoc :details "{}")))))
     :model/Setting
     ;; Never create dumps with read-only-mode turned on.
     ;; It will be confusing to restore from and prevent key rotation.

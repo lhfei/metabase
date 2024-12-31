@@ -45,7 +45,9 @@ export function CoordinateFilterEditor({
     filter,
   });
 
-  const handleOperatorChange = (newOperator: Lib.CoordinateFilterOperator) => {
+  const handleOperatorChange = (
+    newOperator: Lib.CoordinateFilterOperatorName,
+  ) => {
     const newValues = getDefaultValues(newOperator, values);
     setOperator(newOperator);
     setValues(newValues);

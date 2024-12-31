@@ -2,9 +2,9 @@ import type { HTMLAttributes, MouseEvent, Ref } from "react";
 import { forwardRef } from "react";
 import { t } from "ttag";
 
-import { Flex, Icon } from "metabase/ui";
+import { Icon } from "metabase/ui";
 
-import S from "./FilterPill.module.css";
+import { FilterPillRoot } from "./FilterPill.styled";
 
 interface FilterPillProps extends HTMLAttributes<HTMLDivElement> {
   onRemoveClick?: () => void;
@@ -20,10 +20,9 @@ export const FilterPill = forwardRef(function FilterPill(
   };
 
   return (
-    <Flex
+    <FilterPillRoot
       {...props}
       ref={ref}
-      className={S.root}
       align="center"
       gap="sm"
       px="sm"
@@ -32,16 +31,13 @@ export const FilterPill = forwardRef(function FilterPill(
       data-testid="filter-pill"
     >
       {children}
-      {onRemoveClick && (
-        <Icon
-          className={S.icon}
-          name="close"
-          size={12}
-          role="button"
-          aria-label={t`Remove`}
-          onClick={handleRemoveClick}
-        />
-      )}
-    </Flex>
+      <Icon
+        name="close"
+        size={12}
+        role="button"
+        aria-label={t`Remove`}
+        onClick={handleRemoveClick}
+      />
+    </FilterPillRoot>
   );
 });

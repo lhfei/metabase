@@ -43,7 +43,7 @@ export function StringFilterEditor({
     filter,
   });
 
-  const handleOperatorChange = (newOperator: Lib.StringFilterOperator) => {
+  const handleOperatorChange = (newOperator: Lib.StringFilterOperatorName) => {
     const newValues = getDefaultValues(newOperator, values);
     setOperator(newOperator);
     setValues(newValues);

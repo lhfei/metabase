@@ -1,9 +1,5 @@
 import MetabaseSettings from "metabase/lib/settings";
-import type {
-  QuestionChangeClickAction,
-  UrlClickAction,
-} from "metabase/visualizations/types";
-import Question from "metabase-lib/v1/Question";
+import type { UrlClickAction } from "metabase/visualizations/types";
 
 import { performAction } from "./action";
 
@@ -20,7 +16,6 @@ describe("performAction", () => {
     const extraProps = {
       dispatch: jest.fn(),
       onChangeCardAndRun: jest.fn(),
-      onUpdateQuestion: jest.fn(),
     };
 
     expect(performAction(action, extraProps)).toBe(true);
@@ -84,7 +79,6 @@ describe("performAction", () => {
         const extraProps = {
           dispatch: jest.fn(),
           onChangeCardAndRun: jest.fn(),
-          onUpdateQuestion: jest.fn(),
         };
 
         expect(performAction(action, extraProps)).toBe(true);
@@ -123,7 +117,6 @@ describe("performAction", () => {
         const extraProps = {
           dispatch: jest.fn(),
           onChangeCardAndRun: jest.fn(),
-          onUpdateQuestion: jest.fn(),
         };
 
         expect(performAction(action, extraProps)).toBe(true);
@@ -163,7 +156,6 @@ describe("performAction", () => {
       const extraProps = {
         dispatch: jest.fn(),
         onChangeCardAndRun: jest.fn(),
-        onUpdateQuestion: jest.fn(),
       };
 
       expect(performAction(action, extraProps)).toBe(true);
@@ -202,7 +194,6 @@ describe("performAction", () => {
       const extraProps = {
         dispatch: jest.fn(),
         onChangeCardAndRun: jest.fn(),
-        onUpdateQuestion: jest.fn(),
       };
 
       expect(performAction(action, extraProps)).toBe(true);
@@ -226,39 +217,5 @@ describe("performAction", () => {
         type: "@@router/CALL_HISTORY_METHOD",
       });
     });
-  });
-
-  it("performs question change actions according to question change behavior", () => {
-    const mockQuestion = Question.create();
-
-    const defaultQuestionAction: QuestionChangeClickAction = {
-      name: "bar",
-      question: () => mockQuestion,
-      buttonType: "horizontal",
-      section: "auto",
-    };
-
-    const updateQuestionAction: QuestionChangeClickAction = {
-      ...defaultQuestionAction,
-      questionChangeBehavior: "updateQuestion",
-    };
-
-    const extraProps = {
-      dispatch: jest.fn(),
-      onChangeCardAndRun: jest.fn(),
-      onUpdateQuestion: jest.fn(),
-    };
-
-    expect(performAction(defaultQuestionAction, extraProps)).toBe(true);
-
-    expect(extraProps.onChangeCardAndRun).toHaveBeenCalledTimes(1);
-    expect(extraProps.onChangeCardAndRun).toHaveBeenCalledWith({
-      nextCard: mockQuestion.card(),
-    });
-
-    expect(performAction(updateQuestionAction, extraProps)).toBe(true);
-
-    expect(extraProps.onUpdateQuestion).toHaveBeenCalledTimes(1);
-    expect(extraProps.onUpdateQuestion).toHaveBeenCalledWith(mockQuestion);
   });
 });

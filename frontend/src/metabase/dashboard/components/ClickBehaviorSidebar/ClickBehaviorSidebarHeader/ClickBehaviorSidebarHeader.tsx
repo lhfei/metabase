@@ -16,7 +16,7 @@ import {
 function DefaultHeader({ children }: { children: React.ReactNode }) {
   return (
     <Heading>{jt`Click behavior for ${(
-      <ItemName key="name">{children}</ItemName>
+      <ItemName>{children}</ItemName>
     )}`}</Heading>
   );
 }

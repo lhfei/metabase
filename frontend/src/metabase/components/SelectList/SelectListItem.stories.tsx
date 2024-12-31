@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 import { useState } from "react";
 
 import SelectList from "./SelectList";
@@ -10,7 +10,7 @@ export default {
 
 const items = ["alert", "all", "archive", "dyno", "history"];
 
-const Template: StoryFn<any> = args => {
+const Template: ComponentStory<any> = args => {
   const [value, setValue] = useState("dyno");
 
   return (
@@ -30,11 +30,9 @@ const Template: StoryFn<any> = args => {
   );
 };
 
-export const Default = {
-  render: Template,
+export const Default = Template.bind({});
 
-  args: {
-    items: items,
-    rightIcon: "check",
-  },
+Default.args = {
+  items: items,
+  rightIcon: "check",
 };

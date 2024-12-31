@@ -1,4 +1,4 @@
-(ns ^:mb/once metabase.util.memoize-test
+(ns metabase.util.memoize-test
   (:require
    [clojure.string :as str]
    [clojure.test :refer [deftest is testing]]
@@ -71,5 +71,5 @@
       (doseq [k (gen/sample (gen/elements keyspace) 10000)]
         (is (= (str/reverse k)
                (f k))))
-      (is (= 10000 @calls))
+      (is (= @calls  10000))
       (is (< @misses 10000)))))

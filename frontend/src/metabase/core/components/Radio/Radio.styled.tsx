@@ -4,12 +4,12 @@ import { color, isDark, lighten, tint } from "metabase/lib/colors";
 
 import type { RadioColorScheme, RadioVariant } from "./types";
 
-interface RadioGroupProps {
+export interface RadioGroupProps {
   variant: RadioVariant;
   vertical: boolean;
 }
 
-const RadioGroup = styled.div<RadioGroupProps>`
+export const RadioGroup = styled.div<RadioGroupProps>`
   display: flex;
   flex-direction: ${props => (props.vertical ? "column" : "row")};
 `;
@@ -22,12 +22,12 @@ export const RadioGroupBubble = styled(RadioGroup)`
   display: flex;
 `;
 
-interface RadioLabelProps {
+export interface RadioLabelProps {
   variant: RadioVariant;
   vertical: boolean;
 }
 
-const RadioLabel = styled.label<RadioLabelProps>`
+export const RadioLabel = styled.label<RadioLabelProps>`
   display: block;
 `;
 
@@ -52,7 +52,7 @@ export const RadioInput = styled.input`
   padding: 0;
 `;
 
-interface RadioContainerProps {
+export interface RadioContainerProps {
   checked: boolean;
   variant: RadioVariant;
   colorScheme: RadioColorScheme;
@@ -60,7 +60,7 @@ interface RadioContainerProps {
   showButtons: boolean;
 }
 
-const RadioContainer = styled.div<RadioContainerProps>`
+export const RadioContainer = styled.div<RadioContainerProps>`
   display: flex;
   align-items: center;
   cursor: ${props => (props.disabled ? "" : "pointer")};

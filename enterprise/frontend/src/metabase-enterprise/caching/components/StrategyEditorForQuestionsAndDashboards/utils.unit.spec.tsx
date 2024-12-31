@@ -132,7 +132,6 @@ describe("StrategyEditorForQuestionsAndDashboards utilities", () => {
         ...enterpriseOnlyCachingStrategies,
       };
     });
-
     it("sorts by policy correctly", () => {
       const sorted = unsortedRows.sort((rowA, rowB) => {
         const a = formatValueForSorting(rowA, "policy") as string;
@@ -151,7 +150,6 @@ describe("StrategyEditorForQuestionsAndDashboards utilities", () => {
         "Scheduled: weekly",
       ]);
     });
-
     it("sorts by collection correctly", () => {
       const sorted = unsortedRows.sort((rowA, rowB) => {
         const a = formatValueForSorting(rowA, "collection") as string;

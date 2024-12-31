@@ -23,16 +23,7 @@ interface DownloadAndAssertParams {
   publicUuid?: string;
   dashboardId?: number;
   enableFormatting?: boolean;
-  pivoting?: "pivoted" | "non-pivoted";
 }
-
-export const exportFromDashcard = (format: string) => {
-  popover().within(() => {
-    cy.findByText("Download results").click();
-    cy.findByText(format).click();
-    cy.findByTestId("download-results-button").click();
-  });
-};
 
 /**
  * Trigger the download of CSV or XLSX files and assert on the results in the related sheet.
@@ -51,7 +42,6 @@ export function downloadAndAssert(
     downloadMethod = "POST",
     isDashboard,
     enableFormatting = true,
-    pivoting,
   }: DownloadAndAssertParams,
   callback: (data: unknown) => void,
 ) {
@@ -94,31 +84,11 @@ export function downloadAndAssert(
   } else {
     cy.findByTestId("download-button").click();
   }
-
-  popover().within(() => {
-    cy.findByText(`.${fileType}`).click();
-
-    const formattingButtonLabel = enableFormatting
-      ? "Formatted"
-      : "Unformatted";
-
-    cy.findByText(formattingButtonLabel).click();
-
-    if (pivoting != null) {
-      cy.findByTestId("keep-data-pivoted")
-        .as("keep-data-pivoted")
-        .then($checkbox => {
-          const isChecked = $checkbox.prop("checked");
-
-          const shouldPivot = pivoting === "pivoted";
-          if (shouldPivot !== isChecked) {
-            cy.get("@keep-data-pivoted").click();
-          }
-        });
-    }
-
-    cy.findByTestId("download-results-button").click();
-  });
+  // Initiate the file download
+  if (!enableFormatting) {
+    cy.window().trigger("keydown", { key: "Alt" });
+  }
+  popover().findByText(`.${fileType}`).click();
 
   cy.wait("@fileDownload")
     .its("request")

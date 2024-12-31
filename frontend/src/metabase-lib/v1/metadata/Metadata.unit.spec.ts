@@ -67,7 +67,6 @@ describe("Metadata", () => {
       expect(tables).toEqual([metadata.table(1), metadata.table(2)]);
     });
   });
-
   describe("segmentsList (deprecated)", () => {
     it("should return a list of segment objects found on the instance", () => {
       const metadata = createMockMetadata({

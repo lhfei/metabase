@@ -1,8 +1,9 @@
 import type * as React from "react";
 
-import { Box, Flex } from "metabase/ui";
-
-import DataSelectorSectionHeaderS from "./DataSelectorSectionHeader.module.css";
+import {
+  DataSelectorSectionHeaderContainer as Container,
+  DataSelectorSectionHeading as Heading,
+} from "./DataSelectorSectionHeader.styled";
 
 export type DataSelectorSectionHeaderProps = {
   header?: React.ReactElement;
@@ -11,11 +12,9 @@ export type DataSelectorSectionHeaderProps = {
 const DataSelectorSectionHeader = ({
   header,
 }: DataSelectorSectionHeaderProps) => (
-  <Flex p="md" align="center" className={DataSelectorSectionHeaderS.Container}>
-    <Box component="h3" className={DataSelectorSectionHeaderS.Header}>
-      {header}
-    </Box>
-  </Flex>
+  <Container>
+    <Heading>{header}</Heading>
+  </Container>
 );
 
 // eslint-disable-next-line import/no-default-export -- deprecated usage

@@ -2,16 +2,18 @@ import { Fragment } from "react";
 import { t } from "ttag";
 
 import EmptyState from "metabase/components/EmptyState";
-import LoadingAndErrorWrapper from "metabase/components/LoadingAndErrorWrapper";
-import SelectList from "metabase/components/SelectList";
 import { PERSONAL_COLLECTIONS } from "metabase/entities/collections/constants";
 import Search from "metabase/entities/search";
 import { PLUGIN_MODERATION } from "metabase/plugins";
-import { Box } from "metabase/ui";
 import { getQuestionVirtualTableId } from "metabase-lib/v1/metadata/utils/saved-questions";
 import type { CardType, Collection, CollectionItem } from "metabase-types/api";
 
-import SavedEntityListS from "./SavedEntityList.module.css";
+import {
+  LoadingWrapper,
+  SavedEntityListEmptyState,
+  SavedEntityListItem,
+  SavedEntityListRoot,
+} from "./SavedEntityList.styled";
 import { CARD_INFO } from "./constants";
 
 interface SavedEntityListProps {
@@ -28,19 +30,16 @@ const SavedEntityList = ({
   onSelect,
 }: SavedEntityListProps): JSX.Element => {
   const emptyState = (
-    <Box m="7.5rem 0">
+    <SavedEntityListEmptyState>
       <EmptyState message={t`Nothing here`} />
-    </Box>
+    </SavedEntityListEmptyState>
   );
 
   const isVirtualCollection = collection?.id === PERSONAL_COLLECTIONS.id;
 
   return (
-    <SelectList className={SavedEntityListS.SavedEntityListRoot}>
-      <LoadingAndErrorWrapper
-        className={SavedEntityListS.LoadingWrapper}
-        loading={!collection}
-      >
+    <SavedEntityListRoot>
+      <LoadingWrapper loading={!collection}>
         {collection && !isVirtualCollection && (
           <Search.ListLoader
             query={{
@@ -58,11 +57,7 @@ const SavedEntityList = ({
                     const virtualTableId = getQuestionVirtualTableId(id);
 
                     return (
-                      <SelectList.Item
-                        classNames={{
-                          root: SavedEntityListS.SavedEntityListItem,
-                          icon: SavedEntityListS.SavedEntityListItemIcon,
-                        }}
+                      <SavedEntityListItem
                         key={id}
                         id={id}
                         isSelected={selectedId === virtualTableId}
@@ -86,8 +81,8 @@ const SavedEntityList = ({
           </Search.ListLoader>
         )}
         {isVirtualCollection && emptyState}
-      </LoadingAndErrorWrapper>
-    </SelectList>
+      </LoadingWrapper>
+    </SavedEntityListRoot>
   );
 };
 

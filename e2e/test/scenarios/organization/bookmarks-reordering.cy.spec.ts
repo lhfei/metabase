@@ -1,8 +1,12 @@
-import { H } from "e2e/support";
 import {
   ORDERS_COUNT_QUESTION_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  openNavigationSidebar,
+  restore,
+  visitQuestion,
+} from "e2e/support/helpers";
 
 import {
   createAndBookmarkQuestion,
@@ -13,7 +17,7 @@ import {
 
 describe("scenarios > nav > bookmarks", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.intercept("/api/bookmark/card/*").as("toggleBookmark");
     cy.intercept("/api/bookmark/ordering").as("reorderBookmarks");
     cy.signInAsAdmin();
@@ -24,7 +28,7 @@ describe("scenarios > nav > bookmarks", () => {
     ["Question 1", "Question 2", "Question 3"].forEach(
       createAndBookmarkQuestion,
     );
-    H.openNavigationSidebar();
+    openNavigationSidebar();
     verifyBookmarksOrder(["Question 3", "Question 2", "Question 1"]);
     moveBookmark("Question 1", -100);
     verifyBookmarksOrder(["Question 1", "Question 3", "Question 2"]);
@@ -38,11 +42,11 @@ describe("scenarios > nav > bookmarks", () => {
       { statusCode: 500 },
     ).as("failedToReorderBookmarks");
     cy.log("Create two bookmarks");
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
     toggleQuestionBookmarkStatus();
-    H.visitQuestion(ORDERS_COUNT_QUESTION_ID);
+    visitQuestion(ORDERS_COUNT_QUESTION_ID);
     toggleQuestionBookmarkStatus();
-    H.openNavigationSidebar();
+    openNavigationSidebar();
     const initialOrder = ["Orders, Count", "Orders"];
     verifyBookmarksOrder(initialOrder);
     moveBookmark("Orders, Count", 100, {

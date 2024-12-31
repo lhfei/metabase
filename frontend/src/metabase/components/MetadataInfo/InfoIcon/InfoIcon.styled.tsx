@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import { Icon } from "metabase/ui";
 
-export const PopoverHoverTarget = styled(Icon)`
+export const PopoverHoverTarget = styled(Icon)<{ hasDescription: boolean }>`
   flex-shrink: 0;
   display: none;
 

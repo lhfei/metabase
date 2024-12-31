@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -18,7 +19,6 @@ import {
   FormSwitch,
   FormTextInput,
 } from "metabase/forms";
-import { connect } from "metabase/lib/redux";
 import { Flex, Stack, rem } from "metabase/ui";
 import type { SettingValue } from "metabase-types/api";
 
@@ -166,7 +166,7 @@ const getAttributeValues = (
     JWT_ATTRS.map(key => [
       key,
       DEFAULTABLE_JWT_ATTRS.has(key)
-        ? (values[key] ?? settings[key]?.default)
+        ? values[key] ?? settings[key]?.default
         : values[key],
     ]),
   );

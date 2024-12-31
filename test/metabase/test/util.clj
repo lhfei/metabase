@@ -1,6 +1,7 @@
 (ns metabase.test.util
   "Helper functions and macros for writing unit tests."
   (:require
+   [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
@@ -35,7 +36,6 @@
    [metabase.permissions.test-util :as perms.test-util]
    [metabase.plugins.classloader :as classloader]
    [metabase.query-processor.util :as qp.util]
-   [metabase.search.core :as search]
    [metabase.task :as task]
    [metabase.test-runner.assert-exprs :as test-runner.assert-exprs]
    [metabase.test.data :as data]
@@ -45,7 +45,6 @@
    [metabase.test.util.public-settings]
    [metabase.util :as u]
    [metabase.util.files :as u.files]
-   [metabase.util.json :as json]
    [metabase.util.random :as u.random]
    [methodical.core :as methodical]
    [toucan2.core :as t2]
@@ -126,14 +125,7 @@
 
    :model/Channel
    (fn [_] (default-timestamped
-            {:name    (u.random/random-name)
-             :type    "channel/metabase-test"
-             :details {}}))
-
-   :model/ChannelTemplate
-   (fn [_] (default-timestamped
-            {:name         (u.random/random-name)
-             :channel_type "channel/metabase-test"}))
+            {:name (u.random/random-name)}))
 
    :model/Dashboard
    (fn [_] (default-timestamped
@@ -197,15 +189,6 @@
             {:creator_id (user-id :crowberto)
              :name       (u.random/random-name)
              :content    "1 = 1"}))
-
-   :model/Notification
-   (fn [_] (default-timestamped
-            {:payload_type :notification/system-event
-             :active       true}))
-
-   :model/NotificationSubscription
-   (fn [_] (default-created-at-timestamped
-            {}))
 
    :model/QueryExecution
    (fn [_] {:hash         (qp.util/query-hash {})
@@ -327,7 +310,7 @@
 
      (obj->json->obj {:type :query}) -> {:type \"query\"}"
   [obj]
-  (json/decode+kw (json/encode obj)))
+  (json/parse-string (json/generate-string obj) keyword))
 
 (defn- ->lisp-case-keyword [s]
   (-> (name s)
@@ -339,8 +322,6 @@
   "Impl for [[with-temp-env-var-value!]] macro."
   [env-var-keyword value thunk]
   (mb.hawk.parallel/assert-test-is-not-parallel "with-temp-env-var-value!")
-  ;; app DB needs to be initialized if we're going to play around with the Settings cache.
-  (initialize/initialize-if-needed! :db)
   (let [value (str value)]
     (testing (colorize/blue (format "\nEnv var %s = %s\n" env-var-keyword (pr-str value)))
       (try
@@ -767,8 +748,6 @@
     model
     [model (first (t2/primary-keys model))]))
 
-;; It is safe to call `search/reindex!` when we are in a `with-temp-index-table` scope.
-#_{:clj-kondo/ignore [:metabase/test-helpers-use-non-thread-safe-functions]}
 (defn do-with-model-cleanup [models f]
   {:pre [(sequential? models) (every? #(or (isa? % :metabase/model)
                                            ;; to support [[:model/Model :updated_at]] syntax
@@ -791,9 +770,7 @@
                        additional-conditions (with-model-cleanup-additional-conditions model)]]
           (t2/query-one
            {:delete-from (t2/table-name model)
-            :where       [:and max-id-condition additional-conditions]})
-          ;; TODO we don't (currently) have index update hooks on deletes, so we need this to ensure rollback happens.
-          (search/reindex! {:in-place? true}))))))
+            :where       [:and max-id-condition additional-conditions]}))))))
 
 (defmacro with-model-cleanup
   "Execute `body`, then delete any *new* rows created for each model in `models`. Calls `delete!`, so if the model has
@@ -1516,28 +1493,3 @@
   [bindings & body]
   `(fn [{:keys ~(mapv (comp symbol name) bindings)}]
      ~@body))
-
-(defn do-poll-until [^Long timeout-ms thunk]
-  (let [result-prom (promise)
-        _timeouter (future (Thread/sleep timeout-ms) (deliver result-prom ::timeout))
-        _runner (future (loop []
-                          (if-let [thunk-return (try (thunk) (catch Exception e e))]
-                            (deliver result-prom thunk-return)
-                            (recur))))
-        result @result-prom]
-    (cond (= result ::timeout) (throw (ex-info (str "Timeout after " timeout-ms "ms")
-                                               {:timeout-ms timeout-ms}))
-          (instance? Throwable result) (throw result)
-          :else result)))
-
-(defmacro poll-until
-  "A macro that continues to call the given body until it returns a truthy value or the timeout is reached.
-  Returns the truthy body, or re-throws any exception raised in body.
-
-  Hence, this cannot return nil, false, or a Throwable. [[thunk]] can check for those instead.
-
-  Pro tip: wrap your body with `time` macro to get a feel for how many calls to [[poll-body]] are made."
-  [timeout-ms & body]
-  `(do-poll-until
-    ~timeout-ms
-    (fn ~'poll-body [] ~@body)))

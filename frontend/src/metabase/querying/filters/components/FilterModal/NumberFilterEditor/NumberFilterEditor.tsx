@@ -44,7 +44,7 @@ export function NumberFilterEditor({
     filter,
   });
 
-  const handleOperatorChange = (newOperator: Lib.NumberFilterOperator) => {
+  const handleOperatorChange = (newOperator: Lib.NumberFilterOperatorName) => {
     const newValues = getDefaultValues(newOperator, values);
     setOperator(newOperator);
     setValues(newValues);

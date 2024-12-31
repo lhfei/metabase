@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 
 import ActionViz from "metabase/actions/components/ActionViz";
@@ -16,7 +17,6 @@ import FormSelect from "metabase/core/components/FormSelect";
 import { closeSidebar } from "metabase/dashboard/actions";
 import { Sidebar } from "metabase/dashboard/components/Sidebar";
 import { Form, FormProvider } from "metabase/forms";
-import { connect } from "metabase/lib/redux";
 import type {
   ActionDashboardCard,
   Dashboard,

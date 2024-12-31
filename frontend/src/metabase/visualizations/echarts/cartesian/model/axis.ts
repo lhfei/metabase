@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import _ from "underscore";
 
 import { NULL_DISPLAY_VALUE } from "metabase/lib/constants";
-import { formatValue } from "metabase/lib/formatting";
 import type { OptionsType } from "metabase/lib/formatting/types";
 import {
   getObjectEntries,
@@ -43,7 +42,10 @@ import {
   tryGetDate,
 } from "metabase/visualizations/echarts/cartesian/utils/timeseries";
 import { computeNumericDataInverval } from "metabase/visualizations/lib/numeric";
-import type { ComputedVisualizationSettings } from "metabase/visualizations/types";
+import type {
+  ComputedVisualizationSettings,
+  RenderingContext,
+} from "metabase/visualizations/types";
 import type {
   DatasetColumn,
   DateTimeAbsoluteUnit,
@@ -282,22 +284,19 @@ const getYAxisSplit = (
       : [nonStackedKeys, stackedKeys];
   }
 
-  const axisBySeriesKey = seriesModels.reduce(
-    (acc, seriesModel) => {
-      const seriesSettings: SeriesSettings = settings.series(
-        seriesModel.legacySeriesSettingsObjectKey,
-      );
+  const axisBySeriesKey = seriesModels.reduce((acc, seriesModel) => {
+    const seriesSettings: SeriesSettings = settings.series(
+      seriesModel.legacySeriesSettingsObjectKey,
+    );
 
-      const seriesStack = stackModels.find(stackModel =>
-        stackModel.seriesKeys.includes(seriesModel.dataKey),
-      );
+    const seriesStack = stackModels.find(stackModel =>
+      stackModel.seriesKeys.includes(seriesModel.dataKey),
+    );
 
-      acc[seriesModel.dataKey] =
-        seriesStack != null ? seriesStack.axis : seriesSettings?.["axis"];
-      return acc;
-    },
-    {} as Record<DataKey, string | undefined>,
-  );
+    acc[seriesModel.dataKey] =
+      seriesStack != null ? seriesStack.axis : seriesSettings?.["axis"];
+    return acc;
+  }, {} as Record<DataKey, string | undefined>);
 
   const left: DataKey[] = [];
   const right: DataKey[] = [];
@@ -405,18 +404,17 @@ const getYAxisFormatter = (
   column: DatasetColumn,
   settings: ComputedVisualizationSettings,
   stackType: StackType,
+  renderingContext: RenderingContext,
   formattingOptions?: OptionsType,
 ): AxisFormatter => {
   const isNormalized = stackType === "normalized";
 
   if (isNormalized) {
     return (value: RowValue) =>
-      String(
-        formatValue(value, {
-          column,
-          number_style: "percent",
-        }),
-      );
+      renderingContext.formatValue(value, {
+        column,
+        number_style: "percent",
+      });
   }
 
   return (value: RowValue) => {
@@ -431,7 +429,7 @@ const getYAxisFormatter = (
       ...(settings.column?.(column) ?? {}),
       ...formattingOptions,
     });
-    return String(formatValue(value, options));
+    return renderingContext.formatValue(value, options);
   };
 };
 
@@ -518,6 +516,7 @@ export function getYAxisModel(
   settings: ComputedVisualizationSettings,
   columnByDataKey: Record<DataKey, DatasetColumn>,
   stackType: StackType,
+  renderingContext: RenderingContext,
   formattingOptions?: OptionsType,
 ): YAxisModel | null {
   if (seriesKeys.length === 0) {
@@ -536,6 +535,7 @@ export function getYAxisModel(
     column,
     settings,
     stackType,
+    renderingContext,
     formattingOptions,
   );
 
@@ -558,6 +558,7 @@ export function getYAxesModels(
   isAutoSplitSupported: boolean,
   stackModels: StackModel[],
   isCompactFormatting: boolean,
+  renderingContext: RenderingContext,
 ) {
   const seriesDataKeys = seriesModels.map(seriesModel => seriesModel.dataKey);
   const extents = getDatasetExtents(seriesDataKeys, dataset);
@@ -575,16 +576,14 @@ export function getYAxesModels(
   const rightAxisSeriesKeys: string[] = [];
   const rightAxisSeriesNames: string[] = [];
 
-  seriesModels.forEach(({ dataKey, visible, name }) => {
-    if (visible) {
-      if (leftAxisSeriesKeysSet.has(dataKey)) {
-        leftAxisSeriesKeys.push(dataKey);
-        leftAxisSeriesNames.push(name);
-      }
-      if (rightAxisSeriesKeysSet.has(dataKey)) {
-        rightAxisSeriesKeys.push(dataKey);
-        rightAxisSeriesNames.push(name);
-      }
+  seriesModels.forEach(({ dataKey, name }) => {
+    if (leftAxisSeriesKeysSet.has(dataKey)) {
+      leftAxisSeriesKeys.push(dataKey);
+      leftAxisSeriesNames.push(name);
+    }
+    if (rightAxisSeriesKeysSet.has(dataKey)) {
+      rightAxisSeriesKeys.push(dataKey);
+      rightAxisSeriesNames.push(name);
     }
   });
 
@@ -602,6 +601,7 @@ export function getYAxesModels(
       settings,
       columnByDataKey,
       settings["stackable.stack_type"] ?? null,
+      renderingContext,
       { compact: isCompactFormatting },
     ),
     rightAxisModel: getYAxisModel(
@@ -613,7 +613,8 @@ export function getYAxesModels(
       columnByDataKey,
       settings["stackable.stack_type"] === "normalized"
         ? null
-        : (settings["stackable.stack_type"] ?? null),
+        : settings["stackable.stack_type"] ?? null,
+      renderingContext,
       { compact: isCompactFormatting },
     ),
   };
@@ -647,6 +648,7 @@ export function getTimeSeriesXAxisModel(
   dataset: ChartDataset,
   settings: ComputedVisualizationSettings,
   label: string | undefined,
+  renderingContext: RenderingContext,
   showWarning?: ShowWarning,
 ): TimeSeriesXAxisModel {
   const xValues = dataset.map(datum => datum[X_AXIS_DATA_KEY]);
@@ -682,7 +684,7 @@ export function getTimeSeriesXAxisModel(
       column,
     };
 
-    return String(formatValue(value, params));
+    return renderingContext.formatValue(value, params);
   };
 
   // ECharts, when selecting chart ticks, can use either the browser timezone or UTC when `useUTC` is true.
@@ -694,12 +696,12 @@ export function getTimeSeriesXAxisModel(
       return null;
     }
 
-    // Safari doesn't support offset-based timezones (e.g., "+07:00") in the Date object,
-    // which Day.js relies on. To avoid runtime exceptions, we manually adjust the time
-    // when an offset is provided. Otherwise, we use Day.js timezone conversion.
-    return offsetMinutes != null
-      ? date.add(offsetMinutes, "minute").format()
-      : date.tz(timezone).format("YYYY-MM-DDTHH:mm:ss[Z]");
+    const dateInTimezone =
+      offsetMinutes != null
+        ? date.add(offsetMinutes, "minute")
+        : date.tz(timezone);
+
+    return dateInTimezone.format("YYYY-MM-DDTHH:mm:ss[Z]");
   };
   const fromEChartsAxisValue = (rawValue: number) => {
     return dayjs.utc(rawValue);
@@ -722,6 +724,7 @@ function getNumericXAxisModel(
   settings: ComputedVisualizationSettings,
   label: string | undefined,
   isPadded: boolean,
+  renderingContext: RenderingContext,
 ): NumericXAxisModel {
   const axisTransforms = getAxisTransforms(scale);
   const dimensionColumn = dimensionModel.column;
@@ -737,13 +740,11 @@ function getNumericXAxisModel(
     computeNumericDataInverval(xValues);
 
   const formatter = (value: RowValue) =>
-    String(
-      formatValue(value, {
-        column: dimensionColumn,
-        ...(settings.column?.(dimensionColumn) ?? {}),
-        compact: settings["graph.x_axis.axis_enabled"] === "compact",
-      }),
-    );
+    renderingContext.formatValue(value, {
+      column: dimensionColumn,
+      ...(settings.column?.(dimensionColumn) ?? {}),
+      compact: settings["graph.x_axis.axis_enabled"] === "compact",
+    });
 
   const intervalsCount = (extent[1] - extent[0]) / interval;
   const ticksMaxInterval = dimensionColumn.binning_info?.bin_width;
@@ -772,6 +773,7 @@ export function getXAxisModel(
   rawSeries: RawSeries,
   dataset: ChartDataset,
   settings: ComputedVisualizationSettings,
+  renderingContext: RenderingContext,
   showWarning?: ShowWarning,
 ): XAxisModel {
   const label = settings["graph.x_axis.labels_enabled"]
@@ -788,6 +790,7 @@ export function getXAxisModel(
       dataset,
       settings,
       label,
+      renderingContext,
       showWarning,
     );
   }
@@ -800,6 +803,7 @@ export function getXAxisModel(
       settings,
       label,
       !isScatter,
+      renderingContext,
     );
   }
 
@@ -811,19 +815,17 @@ export function getXAxisModel(
       return NULL_DISPLAY_VALUE;
     }
 
-    return String(
-      formatValue(value, {
-        column: dimensionColumn,
-        ...(settings.column?.(dimensionColumn) ?? {}),
-        compact: settings["graph.x_axis.axis_enabled"] === "compact",
-        noRange: isHistogram,
-      }),
-    );
+    return renderingContext.formatValue(value, {
+      column: dimensionColumn,
+      ...(settings.column?.(dimensionColumn) ?? {}),
+      compact: settings["graph.x_axis.axis_enabled"] === "compact",
+      noRange: isHistogram,
+    });
   };
 
   const histogramInterval = isHistogram
-    ? (dimensionColumn.binning_info?.bin_width ??
-      computeNumericDataInverval(dataset.map(datum => datum[X_AXIS_DATA_KEY])))
+    ? dimensionColumn.binning_info?.bin_width ??
+      computeNumericDataInverval(dataset.map(datum => datum[X_AXIS_DATA_KEY]))
     : undefined;
 
   const valuesCount = isScatter

@@ -7,7 +7,7 @@ import { TabContext, getTabId, getTabPanelId } from "../Tab";
 
 import { TabLabel, TabLinkRoot } from "./TabLink.styled";
 
-export interface TabLinkProps<T> extends Omit<LinkProps, "value"> {
+export interface TabLinkProps<T> extends LinkProps {
   value?: T;
 }
 

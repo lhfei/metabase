@@ -1,16 +1,25 @@
-import { H } from "e2e/support";
 import { USER_GROUPS } from "e2e/support/cypress_data";
+import {
+  assertPermissionTable,
+  describeEE,
+  isPermissionDisabled,
+  modal,
+  modifyPermission,
+  popover,
+  restore,
+  setTokenFeatures,
+} from "e2e/support/helpers";
 
 const { ALL_USERS_GROUP } = USER_GROUPS;
 
 const EE_DATA_ACCESS_PERMISSION_INDEX = 0;
 const OSS_NATIVE_QUERIES_PERMISSION_INDEX = 0;
 
-H.describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
+describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
   });
 
   // we have a case where users may be downgraded for not paying but then will sort out billing and upgrade back to EE again.
@@ -20,38 +29,38 @@ H.describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
 
   it("should allow users to edit permissions after downgrading EE to OSS", () => {
     cy.visit(`/admin/permissions/data/group/${ALL_USERS_GROUP}`);
-    H.modifyPermission(
+    modifyPermission(
       "Sample Database",
       EE_DATA_ACCESS_PERMISSION_INDEX,
       "Blocked",
     );
     cy.button("Save changes").click();
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByText("Save permissions?");
       cy.button("Yes").click();
     });
 
-    H.setTokenFeatures("none").then(() => {
+    setTokenFeatures("none").then(() => {
       cy.reload();
 
-      H.assertPermissionTable([["Sample Database", "No"]]);
-      H.isPermissionDisabled(OSS_NATIVE_QUERIES_PERMISSION_INDEX, "No", false);
+      assertPermissionTable([["Sample Database", "No"]]);
+      isPermissionDisabled(OSS_NATIVE_QUERIES_PERMISSION_INDEX, "No", false);
 
-      H.modifyPermission(
+      modifyPermission(
         "Sample Database",
         OSS_NATIVE_QUERIES_PERMISSION_INDEX,
         "Query builder and native",
       );
       cy.button("Save changes").click();
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Save permissions?");
         cy.button("Yes").click();
       });
 
-      H.setTokenFeatures("all").then(() => {
+      setTokenFeatures("all").then(() => {
         cy.reload();
 
-        H.assertPermissionTable([
+        assertPermissionTable([
           [
             "Sample Database",
             "Can view",
@@ -71,7 +80,7 @@ H.describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
   it("should preserve unedited EE values in graph when OSS", () => {
     // starting as EE, set a EE only value in the graph
     cy.visit(`/admin/permissions/data/group/${ALL_USERS_GROUP}`);
-    H.modifyPermission(
+    modifyPermission(
       "Sample Database",
       EE_DATA_ACCESS_PERMISSION_INDEX,
       "Granular",
@@ -82,18 +91,14 @@ H.describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
       ["Orders", "User ID"],
       ["People", "ID"],
     ].forEach(([tableName, colName]) => {
-      H.modifyPermission(
-        tableName,
-        EE_DATA_ACCESS_PERMISSION_INDEX,
-        "Sandboxed",
-      );
+      modifyPermission(tableName, EE_DATA_ACCESS_PERMISSION_INDEX, "Sandboxed");
 
       cy.findByText("Pick a column").click();
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText(colName).click();
       });
       cy.findByText("Pick a user attribute").click();
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("attr_uid").click();
       });
       cy.button("Save").click();
@@ -101,16 +106,16 @@ H.describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
 
     // save changes
     cy.button("Save changes").click();
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByText("Save permissions?");
       cy.button("Yes").click();
     });
 
     // downgrade to OSS
-    H.setTokenFeatures("none");
+    setTokenFeatures("none");
     cy.reload();
 
-    H.assertPermissionTable([
+    assertPermissionTable([
       ["Accounts", "No"],
       ["Analytic Events", "No"],
       ["Feedback", "No"],
@@ -121,23 +126,23 @@ H.describeEE("scenarios > admin > permissions > downgrade ee to oss", () => {
       ["Reviews", "No"],
     ]);
 
-    H.modifyPermission(
+    modifyPermission(
       "Orders",
       EE_DATA_ACCESS_PERMISSION_INDEX,
       "Query builder only",
     );
 
     cy.button("Save changes").click();
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByText("Save permissions?");
       cy.button("Yes").click();
     });
 
     // upgrade back to EE
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
     cy.reload();
 
-    H.assertPermissionTable([
+    assertPermissionTable([
       ["Accounts", "Can view", "No", "1 million rows", "No"],
       ["Analytic Events", "Can view", "No", "1 million rows", "No"],
       ["Feedback", "Can view", "No", "1 million rows", "No"],

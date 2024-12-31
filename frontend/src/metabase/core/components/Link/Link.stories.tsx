@@ -1,6 +1,6 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import Link, { type LinkProps } from "./";
+import Link from "./";
 
 export default {
   title: "Core/Link",
@@ -13,7 +13,7 @@ const sampleStyle = {
   gap: "2rem",
 };
 
-const Template: StoryFn<LinkProps> = args => {
+const Template: ComponentStory<typeof Link> = args => {
   return (
     <div style={sampleStyle}>
       <Link {...args}>Click Me</Link>
@@ -21,11 +21,9 @@ const Template: StoryFn<LinkProps> = args => {
   );
 };
 
-export const Default = {
-  render: Template,
+export const Default = Template.bind({});
 
-  args: {
-    to: "/foo/bar",
-    variant: "default",
-  },
+Default.args = {
+  to: "/foo/bar",
+  variant: "default",
 };

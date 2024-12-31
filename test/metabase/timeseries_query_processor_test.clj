@@ -584,8 +584,7 @@
   [dt-str]
   (let [[d t] (str/split dt-str #"T")]
     (when (string? t)
-      (is (= "00:00:00Z"
-             t)))
+      (is (= t "00:00:00Z")))
     d))
 
 (deftest ^:parallel date-bucketing-test

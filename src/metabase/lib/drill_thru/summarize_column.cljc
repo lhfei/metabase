@@ -26,7 +26,6 @@
    [metabase.lib.schema :as lib.schema]
    [metabase.lib.schema.drill-thru :as lib.schema.drill-thru]
    [metabase.lib.types.isa :as lib.types.isa]
-   [metabase.lib.underlying :as lib.underlying]
    [metabase.util.malli :as mu]))
 
 (mu/defn summarize-column-drill :- [:maybe ::lib.schema.drill-thru/drill-thru.summarize-column]
@@ -39,8 +38,8 @@
              column
              (nil? value)
              (not (lib.types.isa/structured? column))
-             (not (lib.drill-thru.common/aggregation-sourced? query column))
-             (not (lib.breakout/breakout-column? query (lib.underlying/top-level-stage-number query) column)))
+             (not= (:lib/source column) :source/aggregations)
+             (not (lib.breakout/breakout-column? query stage-number column)))
     ;; I'm not really super clear on how the FE is supposed to be able to display these.
     (let [aggregation-ops (concat [:distinct]
                                   (when (lib.types.isa/summable? column)

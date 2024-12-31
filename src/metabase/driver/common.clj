@@ -5,7 +5,6 @@
    [metabase.driver :as driver]
    [metabase.models.setting :as setting]
    [metabase.public-settings :as public-settings]
-   [metabase.public-settings.premium-features :as premium-features]
    [metabase.util.i18n :refer [deferred-tru]]
    [metabase.util.log :as log]
    [metabase.util.malli :as mu]))
@@ -230,12 +229,7 @@
 (def auth-provider-options
   "Options for using an auth provider instead of a literal password."
   [{:name "use-auth-provider"
-    :type :checked-section
-    :check (fn []
-             (and
-               ;; Managed Identities only make sense if Metabase is in the same cloud as the DW
-              (not (premium-features/is-hosted?))
-              (premium-features/enable-database-auth-providers?)))
+    :type :section
     :default false}
    {:name "auth-provider"
     :display-name (deferred-tru "Auth provider")

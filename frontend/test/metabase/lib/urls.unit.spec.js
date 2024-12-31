@@ -132,7 +132,6 @@ describe("urls", () => {
         }),
       ).toHaveLength(7);
     });
-
     it("should return correct parameters", () => {
       expect(extractQueryParams({ foo: "bar" })).toEqual([["foo", "bar"]]);
 

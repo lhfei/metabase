@@ -224,7 +224,7 @@ describe("TimeFilterEditor", () => {
 });
 
 interface QueryWithFilterOpts {
-  operator: Lib.TimeFilterOperator;
+  operator: Lib.TimeFilterOperatorName;
   values: Date[];
 }
 

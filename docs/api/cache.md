@@ -44,11 +44,11 @@ Invalidate cache entries.
 
 -  **`include`** All cache configuration overrides should invalidate cache too.
 
--  **`database`** A list of database ids.
+-  **`database`** A database id.
 
--  **`dashboard`** A list of dashboard ids.
+-  **`dashboard`** A dashboard id.
 
--  **`question`** A list of question ids.
+-  **`question`** A question id.
 
 ## `PUT /api/cache/`
 

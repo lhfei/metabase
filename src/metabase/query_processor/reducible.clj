@@ -3,8 +3,7 @@
    [clojure.core.async :as a]
    [metabase.query-processor.pipeline :as qp.pipeline]
    [metabase.util.log :as log]
-   [metabase.util.malli :as mu]
-   [metabase.util.performance :as perf]))
+   [metabase.util.malli :as mu]))
 
 (set! *warn-on-reflection* true)
 
@@ -91,24 +90,24 @@
   [primary-rf     :- ifn?
    additional-rfs :- [:sequential ifn?]
    combine        :- ifn?]
-  (let [additional-accs (volatile! (perf/mapv (fn [rf] (rf))
-                                              additional-rfs))]
+  (let [additional-accs (volatile! (mapv (fn [rf] (rf))
+                                         additional-rfs))]
     (fn combine-additional-reducing-fns-rf*
       ([] (primary-rf))
 
       ([acc]
-       (let [additional-results (perf/mapv (fn [rf acc]
-                                             (rf (unreduced acc)))
-                                           additional-rfs
-                                           @additional-accs)]
+       (let [additional-results (map (fn [rf acc]
+                                       (rf (unreduced acc)))
+                                     additional-rfs
+                                     @additional-accs)]
          (apply combine acc additional-results)))
 
       ([acc x]
        (vswap! additional-accs (fn [accs]
-                                 (perf/mapv (fn [rf acc]
-                                              (if (reduced? acc)
-                                                acc
-                                                (rf acc x)))
-                                            additional-rfs
-                                            accs)))
+                                 (mapv (fn [rf acc]
+                                         (if (reduced? acc)
+                                           acc
+                                           (rf acc x)))
+                                       additional-rfs
+                                       accs)))
        (primary-rf acc x)))))

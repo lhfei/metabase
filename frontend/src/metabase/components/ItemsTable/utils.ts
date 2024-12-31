@@ -1,7 +1,3 @@
-import type {
-  CollectionContentTableColumn,
-  CollectionContentTableColumnsMap,
-} from "metabase/collections/components/CollectionContent";
 import { type BreakpointName, breakpoints } from "metabase/ui/theme";
 
 export interface ResponsiveProps {
@@ -16,11 +12,3 @@ export const getContainerQuery = (props: ResponsiveProps) =>
         breakpoints[props.hideAtContainerBreakpoint]
       }) { display: none; }`
     : "";
-
-export const getVisibleColumnsMap = (
-  visibleColumns: CollectionContentTableColumn[],
-) =>
-  visibleColumns.reduce((result, item) => {
-    result[item] = true;
-    return result;
-  }, {} as CollectionContentTableColumnsMap);

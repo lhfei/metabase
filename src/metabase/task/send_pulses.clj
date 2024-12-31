@@ -4,7 +4,6 @@
   `SendPulse` job will send a pulse to all channels that are scheduled to run at the same time.
   For example if you have an Alert that has scheduled to send to both slack and emails at 6am, this job will be triggered
   and send the pulse to both channels. "
-  #_{:clj-kondo/ignore [:deprecated-namespace]}
   (:require
    [clojure.set :as set]
    [clojure.string :as str]
@@ -13,9 +12,9 @@
    [clojurewerkz.quartzite.schedule.cron :as cron]
    [clojurewerkz.quartzite.triggers :as triggers]
    [metabase.driver :as driver]
-   [metabase.models.pulse :as models.pulse]
+   [metabase.models.pulse :as pulse]
    [metabase.models.task-history :as task-history]
-   [metabase.pulse.core :as pulse]
+   [metabase.pulse]
    [metabase.query-processor.timezone :as qp.timezone]
    [metabase.task :as task]
    [metabase.util.cron :as u.cron]
@@ -53,9 +52,9 @@
     (task-history/with-task-history {:task         "send-pulse"
                                      :task_details {:pulse-id    pulse-id
                                                     :channel-ids (seq channel-ids)}}
-      (when-let [pulse (models.pulse/retrieve-notification pulse-id :archived false)]
+      (when-let [pulse (pulse/retrieve-notification pulse-id :archived false)]
         (log/debugf "Starting Pulse Execution: %d" pulse-id)
-        (pulse/send-pulse! pulse :channel-ids channel-ids :async? true)
+        (metabase.pulse/send-pulse! pulse :channel-ids channel-ids)
         (log/debugf "Finished Pulse Execution: %d" pulse-id)
         :done))
     (catch Throwable e
@@ -89,8 +88,8 @@
      (cron/schedule
       (cron/cron-schedule (u.cron/schedule-map->cron-string schedule-map))
       (cron/in-time-zone (TimeZone/getTimeZone ^String timezone))
-      ;; If the trigger is misfired, fire it immediately and proceed with the next scheduled time.
-      ;; TODO: upon testing, look like re-firing on startup is not working as expected
+      ;; if we miss a sync for one reason or another (such as system being down) do not try to run the sync again.
+      ;; Just wait until the next sync cycle.
       ;;
       ;; See https://www.nurkiewicz.com/2012/04/quartz-scheduler-misfire-instructions.html for more info
       (cron/with-misfire-handling-instruction-fire-and-proceed)))
@@ -101,19 +100,14 @@
   "Delete PulseChannels that have no recipients and no channel set for a pulse, returns the channel ids that were deleted."
   [pulse-id]
   (when-let [ids-to-delete (seq
-                            (for [channel (t2/select [:model/PulseChannel :id :details :channel_id :channel_type]
+                            (for [channel (t2/select [:model/PulseChannel :id :details]
                                                      :pulse_id pulse-id
                                                      :id [:not-in {:select   [[:pulse_channel_id :id]]
                                                                    :from     :pulse_channel_recipient
                                                                    :group-by [:pulse_channel_id]
                                                                    :having   [:>= :%count.* [:raw 1]]}])
-                                  :when  (case (:channel_type channel)
-                                           :email
-                                           (empty? (get-in channel [:details :emails]))
-                                           :slack
-                                           (empty? (get-in channel [:details :channel]))
-                                           :http
-                                           (nil? (:channel_id channel)))]
+                                  :when (and (empty? (get-in channel [:details :emails]))
+                                             (not (get-in channel [:details :channel])))]
                               (:id channel)))]
     (log/infof "Deleting %d PulseChannels with id: %s due to having no recipients" (count ids-to-delete) (str/join ", " ids-to-delete))
     (t2/delete! :model/PulseChannel :id [:in ids-to-delete])
@@ -183,7 +177,7 @@
   ^{:doc
     "Find all active pulse Channels, group them by pulse-id and schedule time and create a trigger for each.
 
-    This is basically a migration in disguise to move from the old SendPulses job to the new SendPulse job.
+    This is basically a migraiton in disguise to move from the old SendPulses job to the new SendPulse job.
 
     Context: prior to this, SendPulses is a single job that runs hourly and send all Pulses that are scheduled for that
     hour.

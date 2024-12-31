@@ -1,9 +1,8 @@
 import { SANDBOXED_GROUP_NAMES } from "../constants/config";
 import { getNoTenantMessage } from "../constants/messages";
 import type { CliStepMethod } from "../types/cli";
-import { createCollection } from "../utils/create-collection";
+import { getCollectionPermissions } from "../utils/get-collection-permissions";
 import { getPermissionsForGroups } from "../utils/get-permission-groups";
-import { getSandboxedCollectionPermissions } from "../utils/get-sandboxed-collection-permissions";
 import { getTenancyIsolationSandboxes } from "../utils/get-tenancy-isolation-sandboxes";
 import {
   cliError,
@@ -12,12 +11,7 @@ import {
 import { sampleTenantIdsFromTables } from "../utils/sample-tenancy-column-values";
 
 export const setupPermissions: CliStepMethod = async state => {
-  const {
-    cookie = "",
-    instanceUrl = "",
-    tenancyColumnNames = {},
-    modelCollectionId = 0,
-  } = state;
+  const { cookie = "", instanceUrl = "", tenancyColumnNames = {} } = state;
 
   let res;
   const collectionIds: number[] = [];
@@ -25,12 +19,21 @@ export const setupPermissions: CliStepMethod = async state => {
   // Create new customer collections sequentially
   try {
     for (const groupName of SANDBOXED_GROUP_NAMES) {
-      const collectionId = await createCollection({
-        name: groupName,
-        instanceUrl,
-        cookie,
+      res = await fetch(`${instanceUrl}/api/collection`, {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie },
+        body: JSON.stringify({
+          parent_id: null,
+          authority_level: null,
+          color: "#509EE3",
+          description: null,
+          name: groupName,
+        }),
       });
 
+      await propagateErrorResponse(res);
+
+      const { id: collectionId } = (await res.json()) as { id: number };
       collectionIds.push(collectionId);
     }
   } catch (error) {
@@ -104,24 +107,16 @@ export const setupPermissions: CliStepMethod = async state => {
   }
 
   try {
-    const groups = getSandboxedCollectionPermissions({
-      groupIds,
-      collectionIds,
-    });
-
-    // Grant access to the "Our models" collection for all customer groups.
-    // This is so they can search and select their models in the entity picker.
-    for (const groupId of groupIds) {
-      groups[groupId][modelCollectionId] = "write";
-    }
+    const groups = getCollectionPermissions({ groupIds, collectionIds });
 
     // Update the permissions for sandboxed collections
-    res = await fetch(`${instanceUrl}/api/collection/graph?skip-graph=true`, {
+    res = await fetch(`${instanceUrl}/api/collection/graph`, {
       method: "PUT",
       headers: { "content-type": "application/json", cookie },
       body: JSON.stringify({
         groups,
         revision: 0,
+        skip_graph: true,
       }),
     });
 

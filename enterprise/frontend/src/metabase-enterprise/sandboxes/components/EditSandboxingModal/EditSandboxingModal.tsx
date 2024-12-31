@@ -253,7 +253,7 @@ const EditSandboxingModal = ({
             {typeof error === "string"
               ? error
               : // @ts-expect-error provide correct type for error
-                (error.data.message ?? ERROR_MESSAGE)}
+                error.data.message ?? ERROR_MESSAGE}
           </div>
         )}
       </div>
@@ -309,7 +309,11 @@ const PolicySummary = ({ policy, policyTable }: PolicySummaryProps) => {
               )} question`
             : jt`rows in the ${(
                 <strong key="table-name">
-                  <EntityName entityType="tables" entityId={policy.table_id} />
+                  <EntityName
+                    entityType="tables"
+                    entityId={policy.table_id}
+                    property="display_name"
+                  />
                 </strong>
               )} table`
         }

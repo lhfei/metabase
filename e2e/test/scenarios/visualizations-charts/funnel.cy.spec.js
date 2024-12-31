@@ -1,15 +1,22 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  getDraggableElements,
+  moveDnDKitElement,
+  popover,
+  restore,
+  sidebar,
+  visitQuestionAdhoc,
+} from "e2e/support/helpers";
 
 const { PEOPLE_ID, PEOPLE } = SAMPLE_DATABASE;
 
 describe("scenarios > visualizations > funnel chart", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsNormalUser();
 
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -22,14 +29,14 @@ describe("scenarios > visualizations > funnel chart", () => {
       display: "funnel",
     });
     cy.findByTestId("viz-settings-button").click();
-    H.sidebar().findByText("Data").click();
+    sidebar().findByText("Data").click();
   });
 
   it("should allow you to reorder and show/hide rows", () => {
     cy.log("ensure that rows are shown");
-    H.getDraggableElements().should("have.length", 5);
+    getDraggableElements().should("have.length", 5);
 
-    H.getDraggableElements()
+    getDraggableElements()
       .first()
       .invoke("text")
       .then(name => {
@@ -38,11 +45,9 @@ describe("scenarios > visualizations > funnel chart", () => {
           .first()
           .should("have.text", name);
 
-        H.moveDnDKitElement(H.getDraggableElements().first(), {
-          vertical: 100,
-        });
+        moveDnDKitElement(getDraggableElements().first(), { vertical: 100 });
 
-        H.getDraggableElements().eq(2).should("have.text", name);
+        getDraggableElements().eq(2).should("have.text", name);
 
         cy.findAllByTestId("funnel-chart-header")
           .eq(2)
@@ -50,28 +55,28 @@ describe("scenarios > visualizations > funnel chart", () => {
       });
 
     cy.log("toggle row visibility");
-    H.getDraggableElements()
+    getDraggableElements()
       .eq(1)
       .within(() => {
-        cy.icon("eye_outline").click({ force: true });
+        cy.icon("eye_outline").click();
       });
     cy.findAllByTestId("funnel-chart-header").should("have.length", 4);
 
-    H.getDraggableElements()
+    getDraggableElements()
       .eq(1)
       .within(() => {
-        cy.icon("eye_crossed_out").click({ force: true });
+        cy.icon("eye_crossed_out").click();
       });
     cy.findAllByTestId("funnel-chart-header").should("have.length", 5);
   });
 
   it("should handle row items being filterd out and returned gracefully", () => {
-    H.moveDnDKitElement(H.getDraggableElements().first(), { vertical: 100 });
+    moveDnDKitElement(getDraggableElements().first(), { vertical: 100 });
 
-    H.getDraggableElements()
+    getDraggableElements()
       .eq(1)
       .within(() => {
-        cy.icon("eye_outline").click({ force: true });
+        cy.icon("eye_outline").click();
       });
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -81,7 +86,7 @@ describe("scenarios > visualizations > funnel chart", () => {
       cy.findByLabelText("Filter operator").click();
     });
 
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText("Is not").click();
     });
 
@@ -92,13 +97,13 @@ describe("scenarios > visualizations > funnel chart", () => {
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Apply filters").click();
 
-    H.getDraggableElements().should("have.length", 4);
+    getDraggableElements().should("have.length", 4);
 
     //Ensures that "Google" is still hidden, so it's state hasn't changed.
-    H.getDraggableElements()
+    getDraggableElements()
       .eq(0)
       .within(() => {
-        cy.icon("eye_crossed_out").click({ force: true });
+        cy.icon("eye_crossed_out").click();
       });
 
     cy.log("remove filter");
@@ -107,10 +112,10 @@ describe("scenarios > visualizations > funnel chart", () => {
       cy.icon("close").click();
     });
 
-    H.getDraggableElements().should("have.length", 5);
+    getDraggableElements().should("have.length", 5);
 
     //Re-added items should appear at the end of the list.
-    H.getDraggableElements().eq(0).should("have.text", "Google");
-    H.getDraggableElements().eq(4).should("have.text", "Facebook");
+    getDraggableElements().eq(0).should("have.text", "Google");
+    getDraggableElements().eq(4).should("have.text", "Facebook");
   });
 });

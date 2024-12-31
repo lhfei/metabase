@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { color } from "metabase/lib/colors";
 import { breakpointMinExtraLarge } from "metabase/styled-components/theme";
 
-interface CaptionProps {
+export interface CaptionProps {
   primary?: boolean;
 }
 

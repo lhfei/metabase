@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 
 import ConfirmContent from "metabase/components/ConfirmContent";
@@ -12,7 +13,6 @@ import Tooltip from "metabase/core/components/Tooltip";
 import Actions from "metabase/entities/actions/actions";
 import { useToggle } from "metabase/hooks/use-toggle";
 import { useUniqueId } from "metabase/hooks/use-unique-id";
-import { connect } from "metabase/lib/redux";
 import * as Urls from "metabase/lib/urls";
 import SidebarContent from "metabase/query_builder/components/SidebarContent";
 import { getSetting } from "metabase/selectors/settings";

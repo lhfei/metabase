@@ -4,7 +4,7 @@ import { useSetting } from "metabase/common/hooks";
 import Link from "metabase/core/components/Link";
 import { useSelector } from "metabase/lib/redux";
 import { getUserIsAdmin } from "metabase/selectors/user";
-import { Icon, Menu, Stack, Text, Title } from "metabase/ui";
+import { Center, Icon, Menu, Stack, Text, Title } from "metabase/ui";
 
 export function PublicLinkMenuItem({
   hasPublicLink,
@@ -20,15 +20,18 @@ export function PublicLinkMenuItem({
     return (
       <Menu.Item
         data-testid="embed-menu-public-link-item"
-        icon={<Icon name="link" aria-hidden />}
+        my="sm"
+        icon={
+          <Center mr="xs">
+            <Icon name="link" />
+          </Center>
+        }
         onClick={onClick}
       >
         {isPublicSharingEnabled ? (
-          hasPublicLink ? (
-            t`Public link`
-          ) : (
-            t`Create a public link`
-          )
+          <Title order={4}>
+            {hasPublicLink ? t`Public link` : t`Create a public link`}
+          </Title>
         ) : (
           <Link to="/admin/settings/public-sharing" target="_blank">
             <Stack spacing="xs">
@@ -44,13 +47,20 @@ export function PublicLinkMenuItem({
   return (
     <Menu.Item
       data-testid="embed-menu-public-link-item"
-      icon={<Icon name="link" aria-hidden />}
+      my="sm"
+      icon={
+        <Center mr="xs">
+          <Icon name="link" />
+        </Center>
+      }
       onClick={onClick}
       disabled={!hasPublicLink}
     >
-      {hasPublicLink
-        ? t`Public link`
-        : t`Ask your admin to create a public link`}
+      <Title order={4} color="inherit">
+        {hasPublicLink
+          ? t`Public link`
+          : t`Ask your admin to create a public link`}
+      </Title>
     </Menu.Item>
   );
 }

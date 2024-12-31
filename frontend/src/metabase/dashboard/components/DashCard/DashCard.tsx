@@ -2,7 +2,7 @@ import cx from "classnames";
 import type { LocationDescriptor } from "history";
 import { getIn } from "icepick";
 import { memo, useCallback, useMemo, useRef, useState } from "react";
-import { useMount, useUpdateEffect } from "react-use";
+import { useMount } from "react-use";
 
 import ErrorBoundary from "metabase/ErrorBoundary";
 import { isActionCard } from "metabase/actions/utils";
@@ -21,9 +21,8 @@ import { isJWT } from "metabase/lib/utils";
 import { PLUGIN_COLLECTIONS } from "metabase/plugins";
 import EmbedFrameS from "metabase/public/components/EmbedFrame/EmbedFrame.module.css";
 import { getIsEmbeddingSdk } from "metabase/selectors/embed";
-import { getVisualizationRaw } from "metabase/visualizations";
 import type { Mode } from "metabase/visualizations/click-actions/Mode";
-import { extendCardWithDashcardSettings } from "metabase/visualizations/lib/settings/typed-utils";
+import { mergeSettings } from "metabase/visualizations/lib/settings";
 import type { QueryClickActionsMode } from "metabase/visualizations/types";
 import type {
   Card,
@@ -76,7 +75,7 @@ export interface DashCardProps {
   navigateToNewCardFromDashboard?: (
     opts: NavigateToNewCardFromDashboardOpts,
   ) => void;
-  onReplaceAllDashCardVisualizationSettings: (
+  onReplaceAllVisualizationSettings: (
     dashcardId: DashCardId,
     settings: VisualizationSettings,
   ) => void;
@@ -114,7 +113,7 @@ function DashCardInner({
   showClickBehaviorSidebar,
   onChangeLocation,
   onUpdateVisualizationSettings,
-  onReplaceAllDashCardVisualizationSettings,
+  onReplaceAllVisualizationSettings,
   downloadsEnabled,
 }: DashCardProps) {
   const dashcardData = useSelector(state =>
@@ -126,7 +125,7 @@ function DashCardInner({
     () => getDashcardHref(store.getState(), dashcard.id),
     [store, dashcard.id],
   );
-  const [isPreviewingCard, setIsPreviewingCard] = useState(!dashcard.justAdded);
+  const [isPreviewingCard, setIsPreviewingCard] = useState(false);
   const cardRootRef = useRef<HTMLDivElement>(null);
 
   const handlePreviewToggle = useCallback(() => {
@@ -142,18 +141,14 @@ function DashCardInner({
     }
   });
 
-  useUpdateEffect(() => {
-    if (!isEditing) {
-      setIsPreviewingCard(true);
-    }
-  }, [isEditing]);
-
   const mainCard: Card | VirtualCard = useMemo(
-    () =>
-      extendCardWithDashcardSettings(
-        dashcard.card,
+    () => ({
+      ...dashcard.card,
+      visualization_settings: mergeSettings(
+        dashcard?.card?.visualization_settings,
         dashcard.visualization_settings,
       ),
+    }),
     [dashcard],
   );
 
@@ -261,14 +256,8 @@ function DashCardInner({
     }
   }, [dashcard, dashboard.collection_authority_level]);
 
-  const { supportPreviewing } = getVisualizationRaw(series) ?? {};
-  const isEditingCardContent = supportPreviewing && !isPreviewingCard;
-
   const isEditingDashboardLayout =
-    isEditing &&
-    !clickBehaviorSidebarDashcard &&
-    !isEditingParameter &&
-    !isEditingCardContent;
+    isEditing && !clickBehaviorSidebarDashcard && !isEditingParameter;
 
   const isClickBehaviorSidebarOpen = !!clickBehaviorSidebarDashcard;
   const isEditingDashCardClickBehavior =
@@ -326,8 +315,8 @@ function DashCardInner({
             onRemove={onRemove}
             onReplaceCard={onReplaceCard}
             onUpdateVisualizationSettings={onUpdateVisualizationSettings}
-            onReplaceAllDashCardVisualizationSettings={
-              onReplaceAllDashCardVisualizationSettings
+            onReplaceAllVisualizationSettings={
+              onReplaceAllVisualizationSettings
             }
             showClickBehaviorSidebar={handleShowClickBehaviorSidebar}
             onPreviewToggle={handlePreviewToggle}
@@ -366,7 +355,6 @@ function DashCardInner({
             navigateToNewCardFromDashboard ? changeCardAndRunHandler : null
           }
           onChangeLocation={onChangeLocation}
-          onTogglePreviewing={handlePreviewToggle}
           downloadsEnabled={downloadsEnabled}
         />
       </DashCardRoot>

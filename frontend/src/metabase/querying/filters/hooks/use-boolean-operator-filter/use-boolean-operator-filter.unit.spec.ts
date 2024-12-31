@@ -15,19 +15,19 @@ import {
 import { useBooleanOperatorFilter } from "./use-boolean-operator-filter";
 
 interface CreateFilterCase {
-  operator: Lib.BooleanFilterOperator;
+  operator: Lib.BooleanFilterOperatorName;
   values: boolean[];
   expectedDisplayName: string;
 }
 
 interface UpdateFilterCase {
   expression: Lib.ExpressionClause;
-  operator: Lib.BooleanFilterOperator;
+  operator: Lib.BooleanFilterOperatorName;
   expectedDisplayName: string;
 }
 
 interface ValidateFilterCase {
-  operator: Lib.BooleanFilterOperator;
+  operator: Lib.BooleanFilterOperatorName;
   values: boolean[];
 }
 

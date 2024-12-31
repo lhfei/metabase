@@ -1,13 +1,12 @@
 (ns metabase.async.streaming-response
   (:require
+   [cheshire.core :as json]
    [clojure.core.async :as a]
-   [clojure.walk :as walk]
    [compojure.response]
    [metabase.async.streaming-response.thread-pool :as thread-pool]
    [metabase.async.util :as async.u]
    [metabase.server.protocols :as server.protocols]
    [metabase.util :as u]
-   [metabase.util.json :as json]
    [metabase.util.log :as log]
    [potemkin.types :as p.types]
    [pretty.core :as pretty]
@@ -45,30 +44,21 @@
 
 (defn write-error!
   "Write an error to the output stream, formatting it nicely. Closes output stream afterwards."
-  [^OutputStream os obj export-format]
+  [^OutputStream os obj]
   (cond
     (some #(instance? % obj)
           [InterruptedException EofException])
     (log/trace "Error is an InterruptedException or EofException, not writing to output stream")
 
     (instance? Throwable obj)
-    (recur os (format-exception obj) export-format)
+    (recur os (format-exception obj))
 
     :else
     (with-open [os os]
       (log/trace (u/pprint-to-str (list 'write-error! obj)))
       (try
-        (let [obj (-> (if (not= :api export-format)
-                        (walk/prewalk
-                         (fn [x]
-                           (if (map? x)
-                             (apply dissoc x [:json_query :preprocessed])
-                             x))
-                         obj)
-                        obj)
-                      (dissoc :export-format))]
-          (with-open [writer (BufferedWriter. (OutputStreamWriter. os StandardCharsets/UTF_8))]
-            (json/encode-to obj writer {})))
+        (with-open [writer (BufferedWriter. (OutputStreamWriter. os StandardCharsets/UTF_8))]
+          (json/generate-stream obj writer))
         (catch EofException _)
         (catch Throwable e
           (log/error e "Error writing error to output stream" obj))))))
@@ -81,6 +71,10 @@
       nil)
     (catch InterruptedException _
       (a/>!! canceled-chan ::thread-interrupted)
+      nil)
+    (catch Throwable e
+      (log/error e "Caught unexpected Exception in streaming response body")
+      (write-error! os e)
       nil)))
 
 (defn- do-f-async
@@ -92,9 +86,8 @@
                (try
                  (do-f* f os finished-chan canceled-chan)
                  (catch Throwable e
-                   (log/error e "Caught unexpected Exception in streaming response body")
-                   (a/>!! finished-chan :unexpected-error)
-                   (write-error! os e nil))
+                   (log/error e "bound-fn caught unexpected Exception")
+                   (a/>!! finished-chan :unexpected-error))
                  (finally
                    (a/>!! finished-chan (if (a/poll! canceled-chan)
                                           :canceled
@@ -223,13 +216,7 @@
     (try
       (.setStatus response (or status 202))
       (let [gzip?   (should-gzip-response? request-map)
-            headers (cond-> (assoc (merge headers (:headers response-map))
-                                   "Content-Type" content-type
-                                   ;; Very important: connections which serve streaming responses SHOULD NOT be reused
-                                   ;; by the client because of `start-async-cancel-loop!`. The latter tries to read a
-                                   ;; byte from the input stream at some interval, and that may/will cause corruption
-                                   ;; of the subsequent requests that come through the reused connection (see #46071).
-                                   "Connection" "close")
+            headers (cond-> (assoc (merge headers (:headers response-map)) "Content-Type" content-type)
                       gzip? (assoc "Content-Encoding" "gzip"))]
         (#'servlet/set-headers response headers)
         (let [output-stream-delay (output-stream-delay gzip? response)

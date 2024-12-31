@@ -1,6 +1,6 @@
 import { css, keyframes } from "@emotion/react";
 
-const fadingKeyframes = keyframes`
+export const fadingKeyframes = keyframes`
   0% {
     opacity: 0.5;
   }

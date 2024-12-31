@@ -1,6 +1,6 @@
 import { ModerationReviewApi } from "metabase/services";
 import type Question from "metabase-lib/v1/Question";
-import type { ModerationReview } from "metabase-types/api";
+import type { ModerationReview, User } from "metabase-types/api";
 import {
   createMockModerationReview,
   createMockUser,
@@ -127,7 +127,7 @@ describe("moderation/service", () => {
             common_name: "Foo",
             id: 1,
           }),
-          createMockUser({ id: 2, is_superuser: true }),
+          createMockUser({ id: 2 }),
         ),
       ).toEqual({
         bannerText: "Foo verified this",
@@ -171,19 +171,16 @@ describe("moderation/service", () => {
   });
 
   describe("getLatestModerationReview", () => {
-    const user = createMockUser({ id: 0, common_name: "foo" });
-
     it("should return the review flagged as most recent", () => {
       const reviews: ModerationReview[] = [
-        { moderator_id: 0, created_at: "", status: "verified", user },
+        { moderator_id: 0, created_at: "", status: "verified" },
         {
           moderator_id: 0,
           created_at: "",
           status: "verified",
           most_recent: true,
-          user,
         },
-        { moderator_id: 0, created_at: "", status: null, user },
+        { moderator_id: 0, created_at: "", status: null },
       ];
 
       expect(getLatestModerationReview(reviews)).toEqual({
@@ -191,15 +188,14 @@ describe("moderation/service", () => {
         created_at: "",
         status: "verified",
         most_recent: true,
-        user,
       });
     });
 
     it("should return undefined when there is no review flagged as most recent", () => {
       const reviews: ModerationReview[] = [
-        { moderator_id: 0, created_at: "", status: "verified", user },
-        { moderator_id: 0, created_at: "", status: "verified", user },
-        { moderator_id: 0, created_at: "", status: null, user },
+        { moderator_id: 0, created_at: "", status: "verified" },
+        { moderator_id: 0, created_at: "", status: "verified" },
+        { moderator_id: 0, created_at: "", status: null },
       ];
 
       expect(getLatestModerationReview(reviews)).toEqual(undefined);
@@ -208,15 +204,9 @@ describe("moderation/service", () => {
 
     it("should return undefined when there is a review with a status of null flagged as most recent", () => {
       const reviews: ModerationReview[] = [
-        { moderator_id: 0, created_at: "", status: "verified", user },
-        { moderator_id: 0, created_at: "", status: "verified", user },
-        {
-          moderator_id: 0,
-          created_at: "",
-          status: null,
-          most_recent: true,
-          user,
-        },
+        { moderator_id: 0, created_at: "", status: "verified" },
+        { moderator_id: 0, created_at: "", status: "verified" },
+        { moderator_id: 0, created_at: "", status: null, most_recent: true },
       ];
 
       expect(getLatestModerationReview(reviews)).toEqual(undefined);
@@ -272,74 +262,30 @@ describe("moderation/service", () => {
 
   describe("getModerationTimelineEvents", () => {
     it("should return the moderation timeline events", () => {
-      const FooUser = createMockUser({
-        common_name: "Foo",
-        id: 1,
-      });
-      const BarUser = createMockUser({
-        common_name: "Bar",
-        id: 123,
-      });
-
       const reviews: ModerationReview[] = [
         {
           status: "verified",
           created_at: "2018-01-01T00:00:00.000Z",
           moderator_id: 1,
-          user: FooUser,
         },
         {
           status: null,
           created_at: "2018-01-02T00:00:00.000Z",
           moderator_id: 123,
-          user: BarUser,
         },
       ];
+      const usersById: Record<number, User> = {
+        1: createMockUser({
+          id: 1,
+          common_name: "Foo",
+        }),
+      };
 
-      // If no current user is supplied, expect names to be replaced
-      expect(getModerationTimelineEvents(reviews)).toEqual([
-        {
-          timestamp: reviews[0].created_at,
-          icon: getStatusIcon("verified"),
-          title: "A moderator verified this",
-        },
-        {
-          timestamp: reviews[1].created_at,
-          icon: getRemovedReviewStatusIcon(),
-          title: "A moderator removed verification",
-        },
-      ]);
-
-      // If a current user is supplied and they are an admin, expect names to be present
-      expect(
-        getModerationTimelineEvents(
-          reviews,
-          createMockUser({ is_superuser: true, id: 10 }),
-        ),
-      ).toEqual([
+      expect(getModerationTimelineEvents(reviews, usersById)).toEqual([
         {
           timestamp: reviews[0].created_at,
           icon: getStatusIcon("verified"),
           title: "Foo verified this",
-        },
-        {
-          timestamp: reviews[1].created_at,
-          icon: getRemovedReviewStatusIcon(),
-          title: "Bar removed verification",
-        },
-      ]);
-
-      // If a current user is supplied, but they are not an admin, expect names to be replaced
-      expect(
-        getModerationTimelineEvents(
-          reviews,
-          createMockUser({ is_superuser: false, id: 10 }),
-        ),
-      ).toEqual([
-        {
-          timestamp: reviews[0].created_at,
-          icon: getStatusIcon("verified"),
-          title: "A moderator verified this",
         },
         {
           timestamp: reviews[1].created_at,

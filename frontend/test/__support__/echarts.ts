@@ -17,7 +17,6 @@ export const createMockSeriesModel = (
     vizSettingsKey: dataKey,
     column: createMockColumn({ name: dataKey }),
     columnIndex: 1,
-    visible: true,
     ...opts,
   };
 };

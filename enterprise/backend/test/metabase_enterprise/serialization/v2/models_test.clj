@@ -78,15 +78,13 @@
               (:skip spec) (keys (:transform spec))))
 
           (testing "Every column should be declared in serialization spec"
-            (let [specs (->> (keys spec')
-                             (map name)
-                             set)
-                  fields (->> (keys fields)
-                              (map u/lower-case-en)
-                              set)]
-
-              (is (set/subset? fields specs)
-                  (format "Missing specs: %s" (pr-str (set/difference fields specs))))))
+            (is (set/subset?
+                 (->> (keys fields)
+                      (map u/lower-case-en)
+                      set)
+                 (->> (keys spec')
+                      (map name)
+                      set))))
 
           (testing "Foreign keys should be declared as such\n"
             (doseq [[fk _] (filter #(:fk (second %)) fields)

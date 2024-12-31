@@ -1,26 +1,27 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { useDeepCompareEffect } from "react-use";
 
 import {
   skipToken,
   useGetCardQuery,
   useGetCollectionQuery,
-  useGetDashboardQuery,
 } from "metabase/api";
 import { isValidCollectionId } from "metabase/collections/utils";
 import { useSelector } from "metabase/lib/redux";
 import { getUserPersonalCollectionId } from "metabase/selectors/user";
-import type { CollectionItemModel } from "metabase-types/api";
+import type {
+  CollectionItemModel,
+  ListCollectionItemsRequest,
+} from "metabase-types/api";
 
-import { useEnsureCollectionSelected } from "../../CollectionPicker";
 import { CollectionItemPickerResolver } from "../../CollectionPicker/components/CollectionItemPickerResolver";
 import { getPathLevelForItem } from "../../CollectionPicker/utils";
-import { DelayedLoadingSpinner, NestedItemPicker } from "../../EntityPicker";
-import type {
-  QuestionPickerItem,
-  QuestionPickerOptions,
-  QuestionPickerStatePath,
-} from "../types";
+import {
+  DelayedLoadingSpinner,
+  NestedItemPicker,
+  type PickerState,
+} from "../../EntityPicker";
+import type { QuestionPickerItem, QuestionPickerOptions } from "../types";
 import {
   getCollectionIdPath,
   getQuestionPickerValueModel,
@@ -35,14 +36,11 @@ export const defaultOptions: QuestionPickerOptions = {
 };
 
 interface QuestionPickerProps {
-  initialValue?: Pick<QuestionPickerItem, "model" | "id">;
-  models?: CollectionItemModel[];
-  options: QuestionPickerOptions;
-  path: QuestionPickerStatePath | undefined;
-  shouldShowItem?: (item: QuestionPickerItem) => boolean;
-  onInit: (item: QuestionPickerItem) => void;
   onItemSelect: (item: QuestionPickerItem) => void;
-  onPathChange: (path: QuestionPickerStatePath) => void;
+  initialValue?: Pick<QuestionPickerItem, "model" | "id">;
+  options: QuestionPickerOptions;
+  models?: CollectionItemModel[];
+  shouldShowItem?: (item: QuestionPickerItem) => boolean;
 }
 
 const useGetInitialCollection = (
@@ -73,43 +71,33 @@ const useGetInitialCollection = (
       : skipToken,
   );
 
-  const {
-    data: currentQuestionDashboard,
-    isLoading: isCurrentQuestionDashboardLoading,
-  } = useGetDashboardQuery(
-    currentQuestion?.dashboard_id
-      ? { id: currentQuestion.dashboard_id }
-      : skipToken,
-  );
-
   return {
     currentQuestion: currentQuestion,
     currentCollection: currentQuestionCollection ?? currentCollection,
-    currentDashboard: currentQuestionDashboard,
     isLoading:
       isCollectionLoading ||
       isQuestionLoading ||
-      isCurrentQuestionCollectionLoading ||
-      isCurrentQuestionDashboardLoading,
+      isCurrentQuestionCollectionLoading,
   };
 };
 
 export const QuestionPicker = ({
-  initialValue,
-  models = ["dataset", "card"],
-  options,
-  path: pathProp,
-  shouldShowItem,
-  onInit,
   onItemSelect,
-  onPathChange,
+  initialValue,
+  options,
+  models = ["dataset", "card"],
+  shouldShowItem,
 }: QuestionPickerProps) => {
-  const defaultPath = useMemo(() => {
-    return getStateFromIdPath({ idPath: ["root"], models });
-  }, [models]);
-  const path = pathProp ?? defaultPath;
+  const [path, setPath] = useState<
+    PickerState<QuestionPickerItem, ListCollectionItemsRequest>
+  >(() =>
+    getStateFromIdPath({
+      idPath: ["root"],
+      models,
+    }),
+  );
 
-  const { currentDashboard, currentCollection, currentQuestion, isLoading } =
+  const { currentCollection, currentQuestion, isLoading } =
     useGetInitialCollection(initialValue);
 
   const userPersonalCollectionId = useSelector(getUserPersonalCollectionId);
@@ -120,10 +108,10 @@ export const QuestionPicker = ({
         idPath: getCollectionIdPath(folder, userPersonalCollectionId),
         models,
       });
+      setPath(newPath);
       onItemSelect(folder);
-      onPathChange(newPath);
     },
-    [onItemSelect, onPathChange, userPersonalCollectionId, models],
+    [setPath, onItemSelect, userPersonalCollectionId, models],
   );
 
   const handleItemSelect = useCallback(
@@ -137,31 +125,20 @@ export const QuestionPicker = ({
 
       const newPath = path.slice(0, pathLevel + 1);
       newPath[newPath.length - 1].selectedItem = item;
+      setPath(newPath);
       onItemSelect(item);
-      onPathChange(newPath);
     },
-    [onItemSelect, onPathChange, path, userPersonalCollectionId],
+    [setPath, onItemSelect, path, userPersonalCollectionId],
   );
 
   useDeepCompareEffect(
     function setInitialPath() {
-      if (currentDashboard?.id) {
-        const location =
-          currentDashboard.collection_id === null
-            ? "/"
-            : `${currentDashboard.collection?.location ?? ""}${currentDashboard.collection?.id ?? ""}/`;
-
-        const idPath = getCollectionIdPath(
-          {
-            ...currentDashboard,
-            model: "dashboard",
-            location,
-          },
-          userPersonalCollectionId,
-        );
-
+      if (currentCollection?.id) {
         const newPath = getStateFromIdPath({
-          idPath,
+          idPath: getCollectionIdPath(
+            currentCollection,
+            userPersonalCollectionId,
+          ),
           models,
         });
 
@@ -173,56 +150,16 @@ export const QuestionPicker = ({
               model: getQuestionPickerValueModel(currentQuestion.type),
             }
           : {
-              id: currentDashboard.id,
-              name: currentDashboard.name,
-              model: "dashboard",
-            };
-
-        onPathChange(newPath);
-      } else if (currentCollection?.id) {
-        const newPath = getStateFromIdPath({
-          idPath: getCollectionIdPath(
-            { ...currentCollection, model: "collection" },
-            userPersonalCollectionId,
-          ),
-          models,
-        });
-
-        // start with the current item selected if we can
-        const newSelectedItem: QuestionPickerItem = currentQuestion
-          ? {
-              id: currentQuestion.id,
-              name: currentQuestion.name,
-              model: getQuestionPickerValueModel(currentQuestion.type),
-            }
-          : {
               id: currentCollection.id,
               name: currentCollection.name,
               model: "collection",
             };
 
-        newPath[newPath.length - 1].selectedItem = newSelectedItem;
-
-        onPathChange(newPath);
+        setPath(newPath);
       }
     },
-    [
-      currentDashboard,
-      currentCollection,
-      userPersonalCollectionId,
-      onPathChange,
-      models,
-    ],
+    [currentCollection, userPersonalCollectionId],
   );
-
-  useEnsureCollectionSelected({
-    currentCollection,
-    currentDashboard,
-    enabled: path === defaultPath,
-    options,
-    useRootCollection: initialValue?.id == null,
-    onInit,
-  });
 
   if (isLoading) {
     return <DelayedLoadingSpinner />;

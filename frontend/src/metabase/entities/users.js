@@ -1,6 +1,6 @@
 import { assocIn } from "icepick";
 
-import { sessionApi, useGetUserQuery, userApi } from "metabase/api";
+import { sessionApi, userApi } from "metabase/api";
 import { createEntity, entityCompatibleQuery } from "metabase/lib/entities";
 import { generatePassword } from "metabase/lib/security";
 import MetabaseSettings from "metabase/lib/settings";
@@ -32,12 +32,6 @@ const Users = createEntity({
   schema: UserSchema,
 
   path: "/api/user",
-
-  rtk: {
-    getUseGetQuery: () => ({
-      useGetQuery,
-    }),
-  },
 
   api: {
     list: ({ recipients = false, ...args }, dispatch) =>
@@ -165,9 +159,5 @@ const Users = createEntity({
     }
   },
 });
-
-const useGetQuery = ({ id }) => {
-  return useGetUserQuery(id);
-};
 
 export default Users;

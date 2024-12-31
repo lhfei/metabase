@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { Story } from "@storybook/react";
 
 import {
   SdkVisualizationWrapper,
@@ -15,7 +15,7 @@ export default {
   component: PivotTable,
 };
 
-export const Default: StoryFn = () => {
+export const Default: Story = () => {
   return (
     <VisualizationWrapper>
       <PivotTableTestWrapper />
@@ -23,7 +23,7 @@ export const Default: StoryFn = () => {
   );
 };
 
-export const EmbeddingTheme: StoryFn = () => {
+export const EmbeddingTheme: Story = () => {
   const theme = {
     colors: {
       border: "#95a5a6",
@@ -53,21 +53,20 @@ export const EmbeddingTheme: StoryFn = () => {
   );
 };
 
-export const HorizontalScroll43215: StoryFn = () => {
+export const HorizontalScroll43215: Story = () => {
   return (
     <VisualizationWrapper>
       <Box h="400px" w="600px">
         <PivotTableTestWrapper
           data={PIVOT_3_ROWS_NO_COLUMNS.data}
           initialSettings={PIVOT_3_ROWS_NO_COLUMNS.initialSettings}
-          isEditing
         />
       </Box>
     </VisualizationWrapper>
   );
 };
 
-export const OuterHorizontalScroll: StoryFn = () => {
+export const OuterHorizontalScroll: Story = () => {
   return (
     <VisualizationWrapper>
       <Box h="400px" w="320px">
@@ -76,24 +75,6 @@ export const OuterHorizontalScroll: StoryFn = () => {
           initialSettings={PIVOT_3_ROWS_NO_COLUMNS.initialSettings}
           containerWidth
           containerHeight
-          isEditing
-        />
-      </Box>
-    </VisualizationWrapper>
-  );
-};
-
-export const NoOuterHorizontalScroll: StoryFn = () => {
-  return (
-    <VisualizationWrapper>
-      <Box h="400px" w="320px">
-        <PivotTableTestWrapper
-          data={PIVOT_3_ROWS_NO_COLUMNS.data}
-          initialSettings={PIVOT_3_ROWS_NO_COLUMNS.initialSettings}
-          containerWidth
-          containerHeight
-          isEditing
-          isDashboard
         />
       </Box>
     </VisualizationWrapper>

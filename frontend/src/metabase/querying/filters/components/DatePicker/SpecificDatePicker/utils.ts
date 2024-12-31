@@ -2,11 +2,10 @@ import dayjs from "dayjs";
 
 import type {
   DatePickerOperator,
-  DatePickerUnit,
   DatePickerValue,
   SpecificDatePickerOperator,
   SpecificDatePickerValue,
-} from "metabase/querying/filters/types";
+} from "../types";
 
 import { TABS } from "./constants";
 import type { Tab } from "./types";
@@ -17,7 +16,9 @@ export function isSpecificValue(
   return value?.type === "specific";
 }
 
-export function getTabs(availableOperators: DatePickerOperator[]): Tab[] {
+export function getTabs(
+  availableOperators: ReadonlyArray<DatePickerOperator>,
+): Tab[] {
   return TABS.filter(tab => availableOperators.includes(tab.operator));
 }
 
@@ -49,13 +50,6 @@ export function getOperatorDefaultValue(
         hasTime: false,
       };
   }
-}
-
-export function canSetTime(
-  value: SpecificDatePickerValue,
-  availableUnits: DatePickerUnit[],
-) {
-  return value.hasTime || availableUnits.includes("minute");
 }
 
 export function setOperator(

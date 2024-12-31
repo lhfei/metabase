@@ -1,14 +1,24 @@
-import { H } from "e2e/support";
+import {
+  appBar,
+  describeEE,
+  main,
+  modal,
+  onlyOnEE,
+  onlyOnOSS,
+  restore,
+  setTokenFeatures,
+  setupMetabaseCloud,
+} from "e2e/support/helpers";
 
 describe("scenarios > admin > troubleshooting > help", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
   // Unskip when mocking Cloud in Cypress is fixed (#18289)
   it.skip("should add the support link when running Metabase Cloud", () => {
-    H.setupMetabaseCloud();
+    setupMetabaseCloud();
     cy.visit("/admin/troubleshooting/help");
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -20,9 +30,9 @@ describe("scenarios > admin > troubleshooting > help", () => {
 
 describe("scenarios > admin > troubleshooting > help", { tags: "@OSS" }, () => {
   beforeEach(() => {
-    H.onlyOnOSS();
+    onlyOnOSS();
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -42,11 +52,11 @@ describe("scenarios > admin > troubleshooting > help", { tags: "@OSS" }, () => {
   });
 });
 
-H.describeEE("scenarios > admin > troubleshooting > help (EE)", () => {
+describeEE("scenarios > admin > troubleshooting > help (EE)", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
   });
 
   it("should link `Get Help` to help-premium", () => {
@@ -130,7 +140,7 @@ describe("scenarios > admin > troubleshooting > tasks", () => {
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // The only reliable way to reproduce this issue is by stubing page responses!
@@ -213,7 +223,7 @@ describe("admin > tools > erroring questions ", { tags: "@quarantine" }, () => {
 
     cy.findByText("Save").click();
 
-    H.modal().within(() => {
+    modal().within(() => {
       cy.button("Save").click();
     });
   }
@@ -228,11 +238,11 @@ describe("admin > tools > erroring questions ", { tags: "@quarantine" }, () => {
 
   describe.skip("when feature enabled", () => {
     beforeEach(() => {
-      H.onlyOnEE();
+      onlyOnEE();
 
-      H.restore();
+      restore();
       cy.signInAsAdmin();
-      H.setTokenFeatures("all");
+      setTokenFeatures("all");
 
       cy.intercept("POST", "/api/dataset").as("dataset");
     });
@@ -316,20 +326,20 @@ describe("admin > tools > erroring questions ", { tags: "@quarantine" }, () => {
 
   describe("when feature disabled", () => {
     beforeEach(() => {
-      H.onlyOnEE();
+      onlyOnEE();
 
-      H.restore();
+      restore();
       cy.signInAsAdmin();
     });
 
     it("should not show tools -> errors", () => {
       cy.visit("/admin");
 
-      H.appBar().findByText("Tools").should("not.exist");
+      appBar().findByText("Tools").should("not.exist");
 
       cy.visit("/admin/tools/errors");
 
-      H.main().within(() => {
+      main().within(() => {
         cy.findByText("Questions that errored when last run").should(
           "not.exist",
         );

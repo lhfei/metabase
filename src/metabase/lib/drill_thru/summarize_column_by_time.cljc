@@ -35,7 +35,6 @@
    [metabase.lib.schema.util :as lib.schema.util]
    [metabase.lib.temporal-bucket :as lib.temporal-bucket]
    [metabase.lib.types.isa :as lib.types.isa]
-   [metabase.lib.underlying :as lib.underlying]
    [metabase.util.malli :as mu]))
 
 (mu/defn summarize-column-by-time-drill :- [:maybe ::lib.schema.drill-thru/drill-thru.summarize-column-by-time]
@@ -49,26 +48,24 @@
              (nil? value)
              (not (lib.types.isa/structured? column))
              (lib.types.isa/summable? column)
-             (not (lib.drill-thru.common/aggregation-sourced? query column)))
+             (not= (:lib/source column) :source/aggregations))
     ;; There must be a date dimension available.
-    (let [stage-number (lib.underlying/top-level-stage-number query)]
-      (when-let [breakout-column (m/find-first lib.types.isa/temporal?
-                                               (lib.breakout/breakoutable-columns query stage-number))]
-        (when-let [bucketing-unit (m/find-first :default
-                                                (lib.temporal-bucket/available-temporal-buckets query stage-number breakout-column))]
-          ;; only suggest this drill thru if the breakout it would apply does not already exist.
-          (let [bucketed (lib.temporal-bucket/with-temporal-bucket breakout-column bucketing-unit)]
-            (when (lib.schema.util/distinct-refs? (map lib.ref/ref (cons bucketed (lib.breakout/breakouts query stage-number))))
-              {:lib/type :metabase.lib.drill-thru/drill-thru
-               :type     :drill-thru/summarize-column-by-time
-               :column   column
-               :breakout breakout-column
-               :unit     (lib.temporal-bucket/raw-temporal-bucket bucketing-unit)})))))))
+    (when-let [breakout-column (m/find-first lib.types.isa/temporal?
+                                             (lib.breakout/breakoutable-columns query stage-number))]
+      (when-let [bucketing-unit (m/find-first :default
+                                              (lib.temporal-bucket/available-temporal-buckets query stage-number breakout-column))]
+        ;; only suggest this drill thru if the breakout it would apply does not already exist.
+        (let [bucketed (lib.temporal-bucket/with-temporal-bucket breakout-column bucketing-unit)]
+          (when (lib.schema.util/distinct-refs? (map lib.ref/ref (cons bucketed (lib.breakout/breakouts query stage-number))))
+            {:lib/type :metabase.lib.drill-thru/drill-thru
+             :type     :drill-thru/summarize-column-by-time
+             :column   column
+             :breakout breakout-column
+             :unit     (lib.temporal-bucket/raw-temporal-bucket bucketing-unit)}))))))
 
 (defmethod lib.drill-thru.common/drill-thru-method :drill-thru/summarize-column-by-time
-  [query _stage-number {:keys [breakout column unit] :as _drill-thru} & _]
-  (let [bucketed (lib.temporal-bucket/with-temporal-bucket breakout unit)
-        stage-number (lib.underlying/top-level-stage-number query)]
+  [query stage-number {:keys [breakout column unit] :as _drill-thru} & _]
+  (let [bucketed (lib.temporal-bucket/with-temporal-bucket breakout unit)]
     (-> query
         (lib.aggregation/aggregate stage-number (lib.aggregation/sum column))
         (lib.breakout/breakout stage-number bucketed))))

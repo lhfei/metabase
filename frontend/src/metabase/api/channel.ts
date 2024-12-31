@@ -10,7 +10,7 @@ const channelApi = Api.injectEndpoints({
       providesTags: (channels = []) => provideChannelListTags(channels),
     }),
     testChannel: builder.mutation<
-      Record<string, any>,
+      void,
       { details: Omit<ChannelDetails, "fe-form-type"> }
     >({
       query: body => ({

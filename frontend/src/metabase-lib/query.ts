@@ -1,6 +1,5 @@
 import * as ML from "cljs/metabase.lib.js";
 import type {
-  CardId,
   CardType,
   DatabaseId,
   DatasetQuery,
@@ -53,13 +52,6 @@ export function suggestedName(query: Query): string {
 
 export function stageCount(query: Query): number {
   return ML.stage_count(query);
-}
-
-export function stageIndexes(query: Query): number[] {
-  return Array.from(
-    { length: stageCount(query) },
-    (_, stageIndex) => stageIndex,
-  );
 }
 
 export const hasClauses = (query: Query, stageIndex: number): boolean => {
@@ -123,9 +115,8 @@ export function canSave(query: Query, cardType: CardType): boolean {
 export function asReturned(
   query: Query,
   stageIndex: number,
-  cardId: CardId | undefined,
 ): { query: Query; stageIndex: number } {
-  return ML.as_returned(query, stageIndex, cardId);
+  return ML.as_returned(query, stageIndex);
 }
 
 export function previewQuery(

@@ -9,8 +9,7 @@
    [metabase.task :as task]
    [metabase.util :as u]
    [metabase.util.log :as log]
-   [toucan2.core :as t2]
-   [toucan2.realize :as t2.realize])
+   [toucan2.core :as t2])
   (:import
    (org.quartz DisallowConcurrentExecution)))
 
@@ -22,9 +21,6 @@
 
 ;; This number has not been chosen scientifically.
 (def ^:private max-delete-batch-size 1000)
-
-(defn- run-realized! [f reducible]
-  (run! (comp f t2.realize/realize) reducible))
 
 (defn- analyze-cards-without-complete-analysis!
   ([]
@@ -38,7 +34,7 @@
                                      :where     [:and
                                                  [:not :report_card.archived]
                                                  [:= :qa.id nil]]})]
-     (run-realized! analyze-fn cards))))
+     (run! analyze-fn cards))))
 
 (defn- analyze-stale-cards!
   ([]
@@ -46,7 +42,7 @@
   ([analyze-fn]
    ;; TODO once we are storing the hash of the query used for analysis, we'll be able to filter this properly.
    (let [cards (t2/reducible-select [:model/Card :id])]
-     (run-realized!  analyze-fn cards))))
+     (run! analyze-fn cards))))
 
 (defn- delete-orphan-analysis! []
   (transduce
@@ -98,14 +94,18 @@
         job     (jobs/build
                  (jobs/of-type SweepQueryAnalysis)
                  (jobs/with-identity job-key)
-                 (jobs/store-durably))
+                 (jobs/store-durably)
+                 (jobs/request-recovery))
         trigger (triggers/build
                  (triggers/with-identity (triggers/key "metabase.task.backfill-query-fields.trigger"))
+                 (triggers/start-now)
                  (triggers/with-schedule
                   (cron/schedule
                    (cron/cron-schedule
-                    ;; run every 4 hours at a random minute:
+                       ;; run every 4 hours at a random minute:
                     (format "0 %d 0/4 1/1 * ? *" (rand-int 60)))
-                   (cron/with-misfire-handling-instruction-do-nothing))))]
+                   (cron/with-misfire-handling-instruction-ignore-misfires))))]
+    ;; Schedule the repeats
     (task/schedule-task! job trigger)
+    ;; Don't wait, try to kick it off immediately
     (task/trigger-now! job-key)))

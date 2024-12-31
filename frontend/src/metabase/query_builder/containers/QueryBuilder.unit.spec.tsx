@@ -53,8 +53,9 @@ describe("QueryBuilder", () => {
         await setup({
           card: TEST_TIME_SERIES_WITH_DATE_BREAKOUT_CARD,
         });
-        const timeSeriesModeFooter =
-          await screen.findByTestId("timeseries-chrome");
+        const timeSeriesModeFooter = await screen.findByTestId(
+          "timeseries-chrome",
+        );
         expect(timeSeriesModeFooter).toBeInTheDocument();
         expect(
           within(timeSeriesModeFooter).getByText("by"),
@@ -64,20 +65,23 @@ describe("QueryBuilder", () => {
         ).toBeInTheDocument();
       });
 
-      it("renders time series grouping widget for custom date field breakout", async () => {
+      it("doesn't render time series grouping widget for custom date field breakout (metabase#33504)", async () => {
         await setup({
           card: TEST_TIME_SERIES_WITH_CUSTOM_DATE_BREAKOUT_CARD,
         });
 
-        const timeSeriesModeFooter =
-          await screen.findByTestId("timeseries-chrome");
+        const timeSeriesModeFooter = await screen.findByTestId(
+          "timeseries-chrome",
+        );
         expect(timeSeriesModeFooter).toBeInTheDocument();
         expect(
-          within(timeSeriesModeFooter).getByText("by"),
-        ).toBeInTheDocument();
+          within(timeSeriesModeFooter).queryByText("by"),
+        ).not.toBeInTheDocument();
         expect(
-          within(timeSeriesModeFooter).getByTestId("timeseries-bucket-button"),
-        ).toBeInTheDocument();
+          within(timeSeriesModeFooter).queryByTestId(
+            "timeseries-bucket-button",
+          ),
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -166,9 +170,8 @@ describe("QueryBuilder", () => {
       expect(inputArea).toHaveValue("SELECT 1");
 
       await userEvent.click(screen.getByTestId("download-button"));
-      await userEvent.click(await screen.findByLabelText(".csv"));
       await userEvent.click(
-        await screen.findByTestId("download-results-button"),
+        await screen.findByRole("button", { name: ".csv" }),
       );
 
       expect(mockDownloadEndpoint.called()).toBe(true);
@@ -195,9 +198,8 @@ describe("QueryBuilder", () => {
       expect(inputArea).toHaveValue("SELECT 1 union SELECT 2");
 
       await userEvent.click(screen.getByTestId("download-button"));
-      await userEvent.click(await screen.findByLabelText(".csv"));
       await userEvent.click(
-        await screen.findByTestId("download-results-button"),
+        await screen.findByRole("button", { name: ".csv" }),
       );
 
       const [url, options] = mockDownloadEndpoint.lastCall() as MockCall;

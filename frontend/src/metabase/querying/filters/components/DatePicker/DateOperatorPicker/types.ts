@@ -1,7 +1,4 @@
-import type {
-  DatePickerOperator,
-  RelativeIntervalDirection,
-} from "metabase/querying/filters/types";
+import type { DatePickerOperator, RelativeIntervalDirection } from "../types";
 
 export type OptionType =
   | "none"

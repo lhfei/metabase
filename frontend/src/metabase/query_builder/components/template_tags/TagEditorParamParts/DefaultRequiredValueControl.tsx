@@ -1,15 +1,12 @@
 import { t } from "ttag";
 import _ from "underscore";
 
+import { ParameterValuePicker } from "metabase/parameters/components/ParameterValuePicker";
 import { RequiredParamToggle } from "metabase/parameters/components/RequiredParamToggle";
 import { Flex, Text } from "metabase/ui";
 import type { Parameter, TemplateTag } from "metabase-types/api";
 
-import {
-  ContainerLabel,
-  DefaultParameterValueWidget,
-  ErrorSpan,
-} from "./TagEditorParam";
+import { ContainerLabel, ErrorSpan } from "./TagEditorParam.styled";
 
 export function DefaultRequiredValueControl({
   tag,
@@ -34,18 +31,14 @@ export function DefaultRequiredValueControl({
       </ContainerLabel>
 
       <Flex gap="xs" direction="column">
-        {parameter && (
-          <div aria-labelledby={`default-value-label-${tag.id}`}>
-            <DefaultParameterValueWidget
-              parameter={parameter}
-              value={tag.default}
-              setValue={onChangeDefaultValue}
-              isEditing
-              commitImmediately
-              mimicMantine
-            />
-          </div>
-        )}
+        <div aria-labelledby={`default-value-label-${tag.id}`}>
+          <ParameterValuePicker
+            tag={tag}
+            parameter={parameter}
+            value={tag.default}
+            onValueChange={onChangeDefaultValue}
+          />
+        </div>
 
         <RequiredParamToggle
           uniqueId={tag.id}

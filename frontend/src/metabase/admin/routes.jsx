@@ -87,9 +87,7 @@ const getRoutes = (store, CanAccessSettings, IsAdmin) => (
         component={createAdminRouteGuard("databases")}
       >
         <IndexRoute component={DatabaseListApp} />
-        <Route path="create" component={IsAdmin}>
-          <IndexRoute component={DatabaseEditApp} />
-        </Route>
+        <Route path="create" component={DatabaseEditApp} />
         <Route path=":databaseId" component={DatabaseEditApp} />
       </Route>
       <Route path="datamodel" component={createAdminRouteGuard("data-model")}>

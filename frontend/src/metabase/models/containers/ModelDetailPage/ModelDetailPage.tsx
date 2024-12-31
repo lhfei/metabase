@@ -1,6 +1,7 @@
 import type { Location, LocationDescriptor } from "history";
 import type * as React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { connect } from "react-redux";
 import { replace } from "react-router-redux";
 import { useMount } from "react-use";
 import _ from "underscore";
@@ -11,7 +12,7 @@ import Databases from "metabase/entities/databases";
 import Questions from "metabase/entities/questions";
 import Tables from "metabase/entities/tables";
 import title from "metabase/hoc/Title";
-import { connect, useSelector } from "metabase/lib/redux";
+import { useSelector } from "metabase/lib/redux";
 import * as Urls from "metabase/lib/urls";
 import ModelDetailPageView from "metabase/models/components/ModelDetailPage";
 import { loadMetadataForCard } from "metabase/questions/actions";
@@ -168,10 +169,7 @@ function ModelDetailPage({
       onChangeCollection(model.card() as Card, collection, {
         notify: {
           message: (
-            <QuestionMoveToast
-              destination={{ id: collection.id, model: "collection" }}
-              question={model}
-            />
+            <QuestionMoveToast collectionId={collection.id} question={model} />
           ),
           undo: false,
         },

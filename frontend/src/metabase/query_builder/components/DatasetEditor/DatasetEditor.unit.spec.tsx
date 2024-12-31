@@ -48,7 +48,7 @@ const defaultDatasetEditorProps = {
   updateQuestion: noop,
   handleResize: noop,
   onCancelCreateNewModel: noop,
-  cancelQuestionChanges: noop,
+  onCancelDatasetChanges: noop,
   onOpenModal: noop,
   onSave: noop,
   runQuestionQuery: noop,
@@ -75,11 +75,9 @@ describe("DatasetEditor", () => {
     fetchMock.get("path:/api/search", () => ({ body: { data: [] } }));
     fetchMock.get("path:/api/model-index", () => ({ body: { data: [] } }));
   });
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
   it("tries to load a model index for a saved model", () => {
     renderDatasetEditor(mockSavedModel);
     const calls = fetchMock.calls("path:/api/model-index");
@@ -88,19 +86,16 @@ describe("DatasetEditor", () => {
       new URL(calls[0]?.request?.url ?? "").searchParams.get("model_id"),
     ).toBe(`${mockSavedModel.id}`);
   });
-
   it("does not try to load a model index for a saved question", () => {
     renderDatasetEditor(mockSavedCard);
     const calls = fetchMock.calls("path:/api/model-index");
     expect(calls).toHaveLength(0);
   });
-
   it("does not try to load a model index for a saved metric", () => {
     renderDatasetEditor(mockSavedMetric);
     const calls = fetchMock.calls("path:/api/model-index");
     expect(calls).toHaveLength(0);
   });
-
   it("does not try to load a model index when card is unsaved", () => {
     renderDatasetEditor(mockUnsavedCard);
     const calls = fetchMock.calls("path:/api/model-index");

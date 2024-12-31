@@ -80,7 +80,6 @@ describe("dashcard utils", () => {
         ).toBe(undefined);
       });
     });
-
     describe("native dashcard", () => {
       it("should find mapping option", () => {
         const card = createMockCard({
@@ -110,7 +109,6 @@ describe("dashcard utils", () => {
           getMappingOptionByTarget([mappingOption], dashcard, target),
         ).toBe(mappingOption);
       });
-
       it("should return undefined if option is not found", () => {
         const card = createMockCard({
           dataset_query: createMockNativeDatasetQuery({
@@ -140,7 +138,6 @@ describe("dashcard utils", () => {
         ).toBe(undefined);
       });
     });
-
     describe("structured dashcard", () => {
       let question: Question;
       let dashcard: QuestionDashboardCard;
@@ -162,7 +159,6 @@ describe("dashcard utils", () => {
         question = new Question(card, metadata);
         dashcard = createMockDashboardCard({ card });
       });
-
       it("should find mapping option", () => {
         const mappingOption: ParameterMappingOption = {
           sectionName: "User",
@@ -196,7 +192,6 @@ describe("dashcard utils", () => {
           getMappingOptionByTarget([mappingOption], dashcard, target, question),
         ).toBe(mappingOption);
       });
-
       it("should return undefined if option is not found", () => {
         const card = createMockCard({
           dataset_query: createMockStructuredDatasetQuery({

@@ -1,6 +1,5 @@
 import userEvent from "@testing-library/user-event";
 import fetchMock from "fetch-mock";
-import { useState } from "react";
 
 import {
   setupCollectionItemsEndpoint,
@@ -25,11 +24,7 @@ import {
   createMockDashboard,
 } from "metabase-types/api/mocks";
 
-import type {
-  DashboardPickerItem,
-  DashboardPickerStatePath,
-  DashboardPickerValueModel,
-} from "../types";
+import type { DashboardPickerItem, DashboardPickerValueModel } from "../types";
 
 import { DashboardPicker, defaultOptions } from "./DashboardPicker";
 import { DashboardPickerModal } from "./DashboardPickerModal";
@@ -196,21 +191,13 @@ const setupPicker = async ({
 }: SetupOpts = {}) => {
   commonSetup();
 
-  function TestComponent() {
-    const [path, setPath] = useState<DashboardPickerStatePath>();
-
-    return (
-      <DashboardPicker
-        initialValue={initialValue}
-        options={defaultOptions}
-        path={path}
-        onItemSelect={onChange}
-        onPathChange={setPath}
-      />
-    );
-  }
-
-  renderWithProviders(<TestComponent />);
+  renderWithProviders(
+    <DashboardPicker
+      onItemSelect={onChange}
+      initialValue={initialValue}
+      options={defaultOptions}
+    />,
+  );
 
   await waitForLoaderToBeRemoved();
 };

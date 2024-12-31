@@ -1,5 +1,6 @@
 (ns metabase.driver.mongo.parameters
   (:require
+   [cheshire.core :as json]
    [clojure.string :as str]
    [clojure.walk :as walk]
    [java-time.api :as t]
@@ -16,7 +17,6 @@
    [metabase.util :as u]
    [metabase.util.date-2 :as u.date]
    [metabase.util.i18n :refer [tru]]
-   [metabase.util.json :as json]
    [metabase.util.log :as log]
    [metabase.util.malli :as mu])
   (:import
@@ -144,7 +144,7 @@
                                     mbql.u/desugar-filter-clause
                                     qp.wrap-value-literals/wrap-value-literals-in-mbql
                                     mongo.qp/compile-filter
-                                    json/encode)]
+                                    json/generate-string)]
             [(conj acc compiled-clause) missing])
           ;; no-value field filters inside optional clauses are ignored and omitted entirely
           (and no-value? in-optional?) [acc (conj missing k)]

@@ -1,28 +1,29 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { useKeyPressEvent } from "react-use";
 import { t } from "ttag";
 
-import { ExportSettingsWidget } from "metabase/common/components/ExportSettingsWidget";
-import type { ExportFormat } from "metabase/common/types/export";
+import { isMac } from "metabase/lib/browser";
 import { exportFormatPng, exportFormats } from "metabase/lib/urls";
 import { PLUGIN_FEATURE_LEVEL_PERMISSIONS } from "metabase/plugins";
-import { Box, Button, Icon, Stack, Text, Title } from "metabase/ui";
+import { Group, Icon, Stack, Text, Title, Tooltip } from "metabase/ui";
 import { canSavePng } from "metabase/visualizations";
 import type Question from "metabase-lib/v1/Question";
 import type { Dataset } from "metabase-types/api";
 
+import { DownloadButton } from "./DownloadButton";
+import { checkCanManageFormatting } from "./utils";
+
 type QueryDownloadPopoverProps = {
   question: Question;
   result: Dataset;
-  onDownload: (opts: {
-    type: string;
-    enableFormatting: boolean;
-    enablePivot: boolean;
-  }) => void;
+  onDownload: (opts: { type: string; enableFormatting: boolean }) => void;
 };
 
-const canPivotResults = (format: string, display: string) =>
-  display === "pivot" && format !== "json";
-const canConfigureFormatting = (format: string) => format !== "png";
+const getFormattingInfoTooltipLabel = () => {
+  return isMac()
+    ? t`Hold the Option key to download unformatted results`
+    : t`Hold the Alt key to download unformatted results`;
+};
 
 export const QueryDownloadPopover = ({
   question,
@@ -30,56 +31,60 @@ export const QueryDownloadPopover = ({
   onDownload,
 }: QueryDownloadPopoverProps) => {
   const canDownloadPng = canSavePng(question.display());
-  const formats = canDownloadPng
-    ? [...exportFormats, exportFormatPng]
-    : exportFormats;
-
-  const [format, setFormat] = useState<ExportFormat>(formats[0]);
-  const canConfigurePivoting = canPivotResults(format, question.display());
-
-  const [isPivoted, setIsPivoted] = useState(canConfigurePivoting);
-  const [isFormatted, setIsFormatted] = useState(true);
-
   const hasTruncatedResults =
     result.data != null && result.data.rows_truncated != null;
   const limitedDownloadSizeText =
     PLUGIN_FEATURE_LEVEL_PERMISSIONS.getDownloadWidgetMessageOverride(result) ??
     t`The maximum download size is 1 million rows.`;
 
-  const handleDownload = useCallback(() => {
-    onDownload({
-      type: format,
-      enableFormatting: isFormatted,
-      enablePivot: isPivoted,
-    });
-  }, [format, isFormatted, isPivoted, onDownload]);
+  const formats = canDownloadPng
+    ? [...exportFormats, exportFormatPng]
+    : exportFormats;
+
+  const [isAltPressed, toggleAltPressed] = useState(false);
+  useKeyPressEvent(
+    e => e.key === "Alt" || e.key === "Option",
+    () => {
+      toggleAltPressed(true);
+    },
+    () => {
+      toggleAltPressed(false);
+    },
+  );
 
   return (
-    <Stack w={hasTruncatedResults ? "18.75rem" : "16.25rem"} p={8}>
-      <Title order={4}>{t`Download`}</Title>
-      <ExportSettingsWidget
-        selectedFormat={format}
-        formats={formats}
-        isFormattingEnabled={isFormatted}
-        isPivotingEnabled={isPivoted}
-        canConfigureFormatting={canConfigureFormatting(format)}
-        canConfigurePivoting={canConfigurePivoting}
-        onChangeFormat={setFormat}
-        onToggleFormatting={() => setIsFormatted(prev => !prev)}
-        onTogglePivoting={() => setIsPivoted(prev => !prev)}
-      />
+    <Stack w={hasTruncatedResults ? "18.75rem" : "16.25rem"}>
+      <Group align="center" position="apart" px="sm">
+        <Title order={4}>{t`Download full results`}</Title>
+        <Tooltip label={getFormattingInfoTooltipLabel()}>
+          <Icon name="info_filled" />
+        </Tooltip>
+      </Group>
+
       {hasTruncatedResults && (
-        <Text size="sm" color="text-medium">
-          <Box mb="1rem">{t`Your answer has a large number of rows so it could take a while to download.`}</Box>
-          <Box>{limitedDownloadSizeText}</Box>
+        <Text px="sm">
+          <div>{t`Your answer has a large number of rows so it could take a while to download.`}</div>
+          <div>{limitedDownloadSizeText}</div>
         </Text>
       )}
-      <Button
-        data-testid="download-results-button"
-        leftIcon={<Icon name="download" />}
-        variant="filled"
-        onClick={handleDownload}
-      >{t`Download`}</Button>
+
+      <Stack spacing="sm">
+        {formats.map(format => (
+          <DownloadButton
+            key={format}
+            format={format}
+            onClick={() => {
+              onDownload({
+                type: format,
+                enableFormatting: !(
+                  checkCanManageFormatting(format) && isAltPressed
+                ),
+              });
+            }}
+            isAltPressed={isAltPressed}
+          />
+        ))}
+      </Stack>
     </Stack>
   );
 };

@@ -40,8 +40,7 @@
 (defn- parse-key
   "Convert suitable string keys to clojure keywords, ignoring keys with whitespace, etc."
   [{k :key}]
-  (if (and (string? k)
-           (re-matches #"^[0-9a-zA-Z_\./\-]+$" k))
+  (if (re-matches #"^[0-9a-zA-Z_\./\-]+$" k)
     (keyword k)
     k))
 
@@ -92,13 +91,14 @@
           kw-id        (keyword id)]
       (if (= ["Setting"] (mapv :model abs-path))
         {:serdes/meta abs-path :key kw-id :value (get settings kw-id)}
-        (if-let [target (get @cache (strip-labels abs-path))]
-          (try
-            (ingest-file (second target))
-            (catch Exception e
-              (throw (ex-info "Unable to ingest file" {:file     (.getName ^File (second target))
-                                                       :abs-path abs-path} e))))
-          (throw (ex-info "Cannot find file" {:abs-path abs-path})))))))
+        (try
+          (->> abs-path
+               strip-labels
+               (get @cache)
+               second
+               ingest-file)
+          (catch Exception e
+            (throw (ex-info "Unable to ingest file" {:abs-path abs-path} e))))))))
 
 (defn ingest-yaml
   "Creates a new Ingestable on a directory of YAML files, as created by

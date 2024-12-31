@@ -1,3 +1,5 @@
+import { withRouter } from "react-router";
+
 import { DashboardSharingMenu } from "metabase/sharing/components/SharingMenu";
 import { Center, Divider } from "metabase/ui";
 
@@ -8,6 +10,7 @@ import {
   AddActionElementButton,
   AddFilterParameterButton,
   AddHeadingOrTextButton,
+  AddLinkCardButton,
   AddQuestionButton,
   AddSectionButton,
   CopyAnalyticsDashboardButton,
@@ -17,10 +20,14 @@ import {
   FullscreenAnalyticsDashboard,
   FullscreenToggle,
   NightModeToggleButton,
+  getExtraButtons,
 } from "../buttons";
-import { AddLinkOrEmbedButton } from "../buttons/AddLinkOrEmbedButton";
 
-import type { DashboardActionButton, DashboardActionKey } from "./types";
+import type {
+  DashboardActionButton,
+  DashboardActionKey,
+  HeaderButtonProps,
+} from "./types";
 
 export const DASHBOARD_ACTION = {
   ADD_QUESTION: "ADD_QUESTION",
@@ -57,7 +64,7 @@ export const dashboardActionButtons: Record<
     enabled: ({ isEditing }) => isEditing,
   },
   [DASHBOARD_ACTION.ADD_LINK_CARD]: {
-    component: AddLinkOrEmbedButton,
+    component: AddLinkCardButton,
     enabled: ({ isEditing }) => isEditing,
   },
   [DASHBOARD_ACTION.ADD_SECTION]: {
@@ -145,7 +152,29 @@ export const dashboardActionButtons: Record<
     enabled: ({ isEditing }) => !isEditing,
   },
   [DASHBOARD_ACTION.DASHBOARD_ACTION_MENU]: {
-    component: DashboardActionMenu,
+    component: withRouter<HeaderButtonProps>(
+      ({
+        canResetFilters,
+        onResetFilters,
+        onFullscreenChange,
+        isFullscreen,
+        dashboard,
+        canEdit,
+        location,
+      }) => (
+        <DashboardActionMenu
+          items={getExtraButtons({
+            canResetFilters,
+            onResetFilters,
+            onFullscreenChange,
+            isFullscreen,
+            dashboard,
+            canEdit,
+            pathname: location?.pathname,
+          })}
+        />
+      ),
+    ),
     enabled: ({ isFullscreen, isEditing, isAnalyticsDashboard, dashboard }) =>
       !isFullscreen &&
       !isEditing &&

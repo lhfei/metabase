@@ -57,7 +57,7 @@ const getCollectionItem = ({
   collection_position?: number;
   icon?: IconName;
   url?: string;
-  setArchived?: (isArchived: boolean) => Promise<void>;
+  setArchived?: (isArchived: boolean) => void;
   setPinned?: (isPinned: boolean) => void;
 } = {}): CollectionItem & { description: string } => {
   return createMockCollectionItem({

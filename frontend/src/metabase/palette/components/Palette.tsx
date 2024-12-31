@@ -1,13 +1,14 @@
 import { KBarPortal, VisualState, useKBar } from "kbar";
-import { type HTMLAttributes, forwardRef, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { withRouter } from "react-router";
 import { t } from "ttag";
+import _ from "underscore";
 
 import { useOnClickOutside } from "metabase/hooks/use-on-click-outside";
 import { isWithinIframe } from "metabase/lib/dom";
 import { useSelector } from "metabase/lib/redux";
 import { getUser } from "metabase/selectors/user";
-import { Box, Card, Center, Overlay, type OverlayProps } from "metabase/ui";
+import { Box, Card, Center, Overlay } from "metabase/ui";
 
 import { useCommandPaletteBasicActions } from "../hooks/useCommandPaletteBasicActions";
 
@@ -43,29 +44,27 @@ const PaletteContainer = () => {
   });
 
   return (
-    <PaletteCard ref={ref}>
-      <Box w="100%" p="1.5rem" pb="0">
-        <PaletteInput
-          defaultPlaceholder={t`Search for anything or jump somewhere…`}
-        />
-      </Box>
-      <PaletteResults />
-      <PaletteFooter />
-    </PaletteCard>
-  );
-};
-
-export const PaletteCard = forwardRef<
-  HTMLDivElement,
-  OverlayProps & HTMLAttributes<HTMLDivElement>
->(function PaletteCard({ children, ...props }, ref) {
-  return (
-    <Overlay opacity={0.5} {...props}>
+    <Overlay opacity={0.5}>
       <Center>
-        <Card ref={ref} w="640px" mt="10vh" p="0" data-testid="command-palette">
-          {children}
+        <Card
+          ref={ref}
+          w="640px"
+          mt="10vh"
+          p="0"
+          style={{
+            zIndex: 100,
+          }}
+          data-testid="command-palette"
+        >
+          <Box w="100%" p="1.5rem" pb="0">
+            <PaletteInput
+              defaultPlaceholder={t`Search for anything or jump somewhere…`}
+            />
+          </Box>
+          <PaletteResults />
+          <PaletteFooter />
         </Card>
       </Center>
     </Overlay>
   );
-});
+};

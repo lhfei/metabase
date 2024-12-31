@@ -50,7 +50,7 @@ export const CardAside = styled.div`
   font-size: 0.75rem;
 `;
 
-interface CardProps {
+export interface CardProps {
   isSelected?: boolean;
 }
 

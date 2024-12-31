@@ -199,28 +199,32 @@ describe("QuestionSharingMenu", () => {
 
   describe("embedding", () => {
     describe("admins", () => {
-      describe("when embedding is disabled", () => {
-        it("should open the embed modal when the 'Embed' menu item is clicked", async () => {
-          setupQuestionSharingMenu({
-            isAdmin: true,
-            isEmbeddingEnabled: false,
-          });
-          await openMenu();
-          await userEvent.click(screen.getByText("Embed"));
-          expect(await screen.findByText("Embed Metabase")).toBeInTheDocument();
+      it("should show the 'Embed' menu item if embedding is enabled", async () => {
+        setupQuestionSharingMenu({
+          isAdmin: true,
+          isEmbeddingEnabled: true,
         });
+        await openMenu();
+        expect(screen.getByText("Embed")).toBeInTheDocument();
       });
 
-      describe("when embedding is enabled", () => {
-        it("should open the embed modal when the 'Embed' menu item is clicked", async () => {
-          setupQuestionSharingMenu({
-            isAdmin: true,
-            isEmbeddingEnabled: true,
-          });
-          await openMenu();
-          await userEvent.click(screen.getByText("Embed"));
-          expect(await screen.findByText("Embed Metabase")).toBeInTheDocument();
+      it("should show an 'embedding is off' menu item if embedding is disabled", async () => {
+        setupQuestionSharingMenu({
+          isAdmin: true,
+          isEmbeddingEnabled: false,
         });
+        await openMenu();
+        expect(screen.getByText("Embedding is off")).toBeInTheDocument();
+      });
+
+      it("should open the embed modal when the 'Embed' menu item is clicked", async () => {
+        setupQuestionSharingMenu({
+          isAdmin: true,
+          isEmbeddingEnabled: true,
+        });
+        await openMenu();
+        await userEvent.click(screen.getByText("Embed"));
+        expect(await screen.findByText("Embed Metabase")).toBeInTheDocument();
       });
     });
 

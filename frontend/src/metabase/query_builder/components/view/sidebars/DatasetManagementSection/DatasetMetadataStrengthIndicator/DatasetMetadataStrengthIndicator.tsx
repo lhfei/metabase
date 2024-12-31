@@ -2,13 +2,17 @@ import { useRef } from "react";
 import { useHoverDirty } from "react-use";
 import { t } from "ttag";
 
-import CS from "metabase/css/core/index.css";
 import { color } from "metabase/lib/colors";
-import { Box, Tooltip } from "metabase/ui";
+import { Tooltip } from "metabase/ui";
 import type Question from "metabase-lib/v1/Question";
 import { getDatasetMetadataCompletenessPercentage } from "metabase-lib/v1/metadata/utils/models";
 
-import DatasetMetadataStrengthIndicatorS from "./DatasetMetadataStrengthIndicator.module.css";
+import {
+  PercentageLabel,
+  Root,
+  TooltipContent,
+  TooltipParagraph,
+} from "./DatasetMetadataStrengthIndicator.styled";
 
 function getIndicationColor(percentage: number, isHovered: boolean): string {
   if (percentage <= 0.5) {
@@ -29,23 +33,14 @@ function getTooltipMessage(percentage: number) {
     percentage <= 0.5 ? t`Most` : percentage >= 0.8 ? t`Some` : t`Many`;
 
   return (
-    <Box
-      className={DatasetMetadataStrengthIndicatorS.TooltipContent}
-      data-testid="tooltip-content"
-    >
-      <Box
-        component="p"
-        className={DatasetMetadataStrengthIndicatorS.TooltipParagraph}
-      >
+    <TooltipContent data-testid="tooltip-content">
+      <TooltipParagraph>
         {t`${columnCountDescription} columns are missing a column type, description, or friendly name.`}
-      </Box>
-      <Box
-        component="p"
-        className={DatasetMetadataStrengthIndicatorS.TooltipParagraph}
-      >
+      </TooltipParagraph>
+      <TooltipParagraph>
         {t`Adding metadata makes it easier for your team to explore this data.`}
-      </Box>
-    </Box>
+      </TooltipParagraph>
+    </TooltipContent>
   );
 }
 
@@ -55,7 +50,6 @@ function formatPercentage(percentage: number): string {
 
 type Props = {
   dataset: Question;
-  className?: string;
 };
 
 const TOOLTIP_DELAY = 700;
@@ -73,31 +67,22 @@ function DatasetMetadataStrengthIndicator({ dataset, ...props }: Props) {
   const indicationColor = getIndicationColor(percentage, isHovering);
 
   return (
-    <Box
-      display="inline-block"
-      className={CS.floatRight}
-      {...props}
-      ref={rootRef}
-    >
+    <Root {...props} ref={rootRef}>
       <Tooltip
         label={getTooltipMessage(percentage)}
         openDelay={TOOLTIP_DELAY}
         position="bottom"
       >
-        <Box
-          component="span"
-          fz="0.8rem"
-          fw="bold"
-          className={DatasetMetadataStrengthIndicatorS.PercentageLabel}
-          c={indicationColor}
+        <PercentageLabel
+          color={indicationColor}
           data-testid="tooltip-component-wrapper"
         >
           {formatPercentage(percentage)}
-        </Box>
+        </PercentageLabel>
       </Tooltip>
-    </Box>
+    </Root>
   );
 }
 
 // eslint-disable-next-line import/no-default-export -- deprecated usage
-export default DatasetMetadataStrengthIndicator;
+export default Object.assign(DatasetMetadataStrengthIndicator, { Root });

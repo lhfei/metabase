@@ -25,25 +25,20 @@
       (GzipCompressorInputStream.)
       (TarArchiveInputStream.)))
 
-(def FILE-TYPES
-  [#"([^/]+)?/$"                               :dir
-   #"/settings.yaml$"                          :settings
-   #"/export.log$"                             :log
-   #"/collections/.*/cards/(.*)\.yaml$"        :card
-   #"/collections/.*/dashboards/(.*)\.yaml$"   :dashboard
-   #"/collections/.*collection/([^/]*)\.yaml$" :collection
-   #"/collections/([^/]*)\.yaml$"              :collection
-   #"/snippets/(.*)\.yaml"                     :snippet
-   #"/databases/.*/schemas/(.*)"               :schema
-   #"/databases/(.*)\.yaml"                    :database])
-
 (defn- file-type
   "Find out entity type by file path"
   [fname]
-  (some (fn [[re ftype]]
-          (when-let [m (re-find re fname)]
-            [ftype (when (vector? m) (second m))]))
-        (partition 2 FILE-TYPES)))
+  (condp re-find fname
+    #"/$"                                   :dir
+    #"/settings.yaml$"                      :settings
+    #"/export.log$"                         :log
+    #"/collections/.*/cards/.*\.yaml$"      :card
+    #"/collections/.*/dashboards/.*\.yaml$" :dashboard
+    #"/collections/.*\.yaml$"               :collection
+    #"/snippets/.*\.yaml"                   :snippet
+    #"/databases/.*/schemas/"               :schema
+    #"/databases/.*\.yaml"                  :database
+    fname))
 
 (defn- log-types
   "Find out entity type by log message"
@@ -52,12 +47,11 @@
        (keep #(second (re-find #"(?:Extracting|Loading|Storing) (\w+)" %)))
        set))
 
-(defn- tar-file-types [f & [raw?]]
+(defn- tar-file-types [f]
   (with-open [tar (open-tar f)]
-    (cond->> (u.compress/entries tar)
-      true       (mapv (fn [^TarArchiveEntry e] (file-type (.getName e))))
-      (not raw?) (map first)
-      (not raw?) set)))
+    (->> (u.compress/entries tar)
+         (map (fn [^TarArchiveEntry e] (file-type (.getName e))))
+         set)))
 
 (defn- extract-one-error [entity-id orig]
   (fn [model-name opts instance]
@@ -82,16 +76,14 @@
     (let [known-files (set (.list (io/file api.serialization/parent-dir)))]
       (testing "Should require a token with `:serialization`"
         (mt/with-premium-features #{}
-          (mt/assert-has-premium-feature-error "Serialization"
-                                               (mt/user-http-request :rasta :post 402 "ee/serialization/export"))))
+          (is (= "Serialization is a paid feature not currently available to your instance. Please upgrade to use it. Learn more at metabase.com/upgrade/"
+                 (mt/user-http-request :rasta :post 402 "ee/serialization/export")))))
       (mt/with-premium-features #{:serialization}
         (testing "POST /api/ee/serialization/export"
           (mt/with-empty-h2-app-db
             (mt/with-temp [Collection    coll  {:name "API Collection"}
                            Dashboard     _     {:collection_id (:id coll)}
-                           Card          card  {:collection_id (:id coll)}
-                           Collection    coll2 {:name "Other Collection"}
-                           Card          _     {:collection_id (:id coll2)}]
+                           Card          card  {:collection_id (:id coll)}]
               (testing "API respects parameters"
                 (let [f (mt/user-http-request :crowberto :post 200 "ee/serialization/export" {}
                                               :all_collections false :data_model false :settings true)]
@@ -104,25 +96,9 @@
                   (is (= #{:log :dir :dashboard :card :collection}
                          (tar-file-types f)))))
 
-              (testing "We can export two collections"
-                (let [f (mt/user-http-request :crowberto :post 200 "ee/serialization/export" {}
-                                              :collection (:id coll) :collection (:id coll2)
-                                              :data_model false :settings false)]
-                  (is (= 2
-                         (->> (tar-file-types f true)
-                              (filter #(= :collection (first %)))
-                              count)))))
-
               (testing "We can export that collection using entity id"
                 (let [f (mt/user-http-request :crowberto :post 200 "ee/serialization/export" {}
-                                              ;; eid:... syntax is kept for backward compat
                                               :collection (str "eid:" (:entity_id coll)) :data_model false :settings false)]
-                  (is (= #{:log :dir :dashboard :card :collection}
-                         (tar-file-types f)))))
-
-              (testing "We can export that collection using entity id"
-                (let [f (mt/user-http-request :crowberto :post 200 "ee/serialization/export" {}
-                                              :collection (:entity_id coll) :data_model false :settings false)]
                   (is (= #{:log :dir :dashboard :card :collection}
                          (tar-file-types f)))))
 
@@ -198,14 +174,14 @@
                            "data_model"      false
                            "settings"        false
                            "field_values"    false
-                           "duration_ms"     (every-pred number? pos?)
+                           "duration_ms"     pos?
                            "count"           3
                            "error_count"     0
                            "source"          "api"
                            "secrets"         false
                            "success"         true
                            "error_message"   nil}
-                          (-> (snowplow-test/pop-event-data-and-user-id!) last :data))))
+                          (-> (snowplow-test/pop-event-data-and-user-id!) first :data))))
 
                 (testing "POST /api/ee/serialization/import"
                   (t2/update! :model/Card {:id (:id card)} {:name (str "qwe_" (:name card))})
@@ -229,7 +205,7 @@
                                "error_count"   0
                                "success"       true
                                "error_message" nil}
-                              (-> (snowplow-test/pop-event-data-and-user-id!) last :data))))))
+                              (-> (snowplow-test/pop-event-data-and-user-id!) first :data))))))
 
                 (mt/with-dynamic-redefs [v2.load/load-one! (let [load-one! (mt/dynamic-value #'v2.load/load-one!)]
                                                              (fn [ctx path & [modfn]]
@@ -241,13 +217,14 @@
                                                                                   (assoc :collection_id "DoesNotExist")))))))]
                   (testing "ERROR /api/ee/serialization/import"
                     (let [res (binding [api.serialization/*additive-logging* false]
-                                (mt/user-http-request :crowberto :post 500 "ee/serialization/import"
+                                (mt/user-http-request :crowberto :post 200 "ee/serialization/import"
                                                       {:request-options {:headers {"content-type" "multipart/form-data"}}}
                                                       {:file ba}))
                           log (slurp (io/input-stream res))]
                       (testing "3 header lines, then cards+database+collection, then the error"
+                        (is (= #{"Card" "Database" "Collection"}
+                               (log-types (str/split-lines log))))
                         (is (re-find #"Failed to read file for Collection DoesNotExist" log))
-                        (is (re-find #"Cannot find file" log)) ;; underlying error
                         (is (= {:deps-chain #{[{:id "**ID**", :model "Card"}]},
                                 :error      :metabase-enterprise.serialization.v2.load/not-found,
                                 :model      "Collection",
@@ -262,8 +239,8 @@
                                  "duration_ms"   int?
                                  "count"         0
                                  "error_count"   0
-                                 "error_message" #"(?s)Failed to read file for Collection DoesNotExist.*"}
-                                (-> (snowplow-test/pop-event-data-and-user-id!) last :data))))))
+                                 "error_message" #"clojure.lang.ExceptionInfo: Failed to read file for Collection DoesNotExist.*"}
+                                (-> (snowplow-test/pop-event-data-and-user-id!) first :data))))))
 
                   (testing "Skipping errors /api/ee/serialization/import"
                     (let [res (mt/user-http-request :crowberto :post 200 "ee/serialization/import"
@@ -284,14 +261,7 @@
                                  "count"       2
                                  "error_count" 1
                                  "models"      "Collection,Dashboard"}
-                                (-> (snowplow-test/pop-event-data-and-user-id!) last :data))))))))
-
-              (testing "Client error /api/ee/serialization/import"
-                (let [res (mt/user-http-request :crowberto :post 422 "ee/serialization/import"
-                                                {:request-options {:headers {"content-type" "multipart/form-data"}}}
-                                                {:file (.getBytes "not an archive" "UTF-8")})
-                      log (slurp (io/input-stream res))]
-                  (is (re-find #"Cannot unpack archive" log))))
+                                (-> (snowplow-test/pop-event-data-and-user-id!) first :data))))))))
 
               (mt/with-dynamic-redefs [serdes/extract-one (extract-one-error (:entity_id card)
                                                                              (mt/dynamic-value serdes/extract-one))]
@@ -320,19 +290,8 @@
                              "field_values"    false
                              "secrets"         false
                              "success"         false
-                             "error_message"   #"(?s)Error extracting Card \d+ .*"}
-                            (-> (snowplow-test/pop-event-data-and-user-id!) last :data))))
-
-                  (testing "Full stacktrace"
-                    (binding [api.serialization/*additive-logging* false]
-                      (let [res (mt/user-http-request :crowberto :post 500 "ee/serialization/export"
-                                                      :collection (:id coll) :data_model false :settings false
-                                                      :full_stacktrace true)
-                            log (slurp (io/input-stream res))]
-                        (is (< 200
-                               (count (str/split-lines log))))
-                        ;; pop out the error
-                        (snowplow-test/pop-event-data-and-user-id!)))))
+                             "error_message"   #"clojure.lang.ExceptionInfo: Exception extracting Card.*"}
+                            (-> (snowplow-test/pop-event-data-and-user-id!) first :data)))))
 
                 (testing "Skipping errors /api/ee/serialization/export"
                   (let [res (-> (mt/user-http-request :crowberto :post 200 "ee/serialization/export"
@@ -362,7 +321,7 @@
                              "secrets"         false
                              "success"         true
                              "error_message"   nil}
-                            (-> (snowplow-test/pop-event-data-and-user-id!) last :data))))))
+                            (-> (snowplow-test/pop-event-data-and-user-id!) first :data))))))
 
               (testing "Only admins can export/import"
                 (is (= "You don't have permissions to do that."

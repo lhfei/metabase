@@ -7,42 +7,36 @@ import {
 } from "embedding-sdk/test/mocks/state";
 import { createMockState } from "metabase-types/store/mocks";
 
-import { SdkContextProvider } from "../SdkContext";
-
 import { PublicComponentWrapper } from "./PublicComponentWrapper";
 
-const setup = (
-  status: LoginStatus = { status: "uninitialized" },
-  insideProvider = true,
-) => {
+const setup = (status: LoginStatus = { status: "uninitialized" }) => {
   const state = createMockState({
     sdk: createMockSdkState({
       loginStatus: createMockLoginStatusState(status),
     }),
   });
 
-  const jsx = insideProvider ? (
-    <SdkContextProvider>
-      <PublicComponentWrapper>
-        <div>My component</div>
-      </PublicComponentWrapper>
-    </SdkContextProvider>
-  ) : (
+  renderWithProviders(
     <PublicComponentWrapper>
       <div>My component</div>
-    </PublicComponentWrapper>
+    </PublicComponentWrapper>,
+    {
+      storeInitialState: state,
+      customReducers: sdkReducers,
+    },
   );
-
-  return renderWithProviders(jsx, {
-    storeInitialState: state,
-    customReducers: sdkReducers,
-  });
 };
 
 describe("PublicComponentWrapper", () => {
   it("renders Initializing message when loginStatus is uninitialized", () => {
     setup();
     const message = screen.getByText("Initializing…");
+    expect(message).toBeInTheDocument();
+  });
+
+  it("renders 'JWT is valid' message when loginStatus is validated", () => {
+    setup({ status: "validated" });
+    const message = screen.getByText("JWT is valid.");
     expect(message).toBeInTheDocument();
   });
 
@@ -65,11 +59,5 @@ describe("PublicComponentWrapper", () => {
     setup({ status: "success" });
     const component = screen.getByText("My component");
     expect(component).toBeInTheDocument();
-  });
-
-  it("should not render children when rendered outside of the provider (metabase#50736)", () => {
-    setup({ status: "success" }, false);
-    const component = screen.queryByText("My component");
-    expect(component).not.toBeInTheDocument();
   });
 });

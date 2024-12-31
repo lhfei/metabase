@@ -1,5 +1,7 @@
 import _ from "underscore";
 
+import { color } from "metabase/lib/colors";
+
 function sumVerticalSpace(layout) {
   return layout.reduce((sum, current) => sum + current.h, 0);
 }
@@ -24,16 +26,11 @@ export function generateMobileLayout({
   return mobile;
 }
 
-export function generateGridBackground({
-  cellSize,
-  margin,
-  cols,
-  gridWidth,
-  cellStrokeColor,
-}) {
+export function generateGridBackground({ cellSize, margin, cols, gridWidth }) {
   const XMLNS = "http://www.w3.org/2000/svg";
   const [horizontalMargin, verticalMargin] = margin;
   const rowHeight = cellSize.height + verticalMargin;
+  const cellStrokeColor = color("border");
 
   const y = 0;
   const w = cellSize.width;

@@ -1,6 +1,38 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import { ORDERS_DASHBOARD_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  addOrUpdateDashboardCard,
+  assertEmbeddingParameter,
+  assertSheetRowsCount,
+  closeStaticEmbeddingModal,
+  createDashboardWithTabs,
+  createQuestion,
+  dashboardParametersContainer,
+  describeEE,
+  downloadAndAssert,
+  editDashboard,
+  filterWidget,
+  getDashboardCard,
+  getIframeBody,
+  getIframeUrl,
+  getRequiredToggle,
+  goToTab,
+  main,
+  modal,
+  multiAutocompleteInput,
+  openStaticEmbeddingModal,
+  popover,
+  publishChanges,
+  restore,
+  saveDashboard,
+  setEmbeddingParameter,
+  setTokenFeatures,
+  sidebar,
+  toggleRequiredParameter,
+  visitDashboard,
+  visitEmbeddedPage,
+  visitIframe,
+} from "e2e/support/helpers";
 import { createMockParameter } from "metabase-types/api/mocks";
 
 import { addWidgetStringFilter } from "../native-filters/helpers/e2e-field-filter-helpers";
@@ -16,7 +48,7 @@ const { ORDERS, PEOPLE, PRODUCTS, ORDERS_ID } = SAMPLE_DATABASE;
 
 describe("scenarios > embedding > dashboard parameters", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.request("POST", `/api/field/${ORDERS.USER_ID}/dimension`, {
@@ -41,12 +73,9 @@ describe("scenarios > embedding > dashboard parameters", () => {
 
   context("UI", () => {
     it("should be disabled by default but able to be set to editable and/or locked (metabase#20357)", () => {
-      H.visitDashboard("@dashboardId");
+      visitDashboard("@dashboardId");
 
-      H.openStaticEmbeddingModal({
-        activeTab: "parameters",
-        acceptTerms: true,
-      });
+      openStaticEmbeddingModal({ activeTab: "parameters", acceptTerms: true });
 
       cy.findByLabelText("Configuring parameters").as("allParameters");
 
@@ -65,7 +94,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
           });
       });
 
-      H.popover().findByText("Editable").click();
+      popover().findByText("Editable").click();
 
       cy.get("@allParameters")
         .findByText("Id")
@@ -73,9 +102,9 @@ describe("scenarios > embedding > dashboard parameters", () => {
         .findByText("Disabled")
         .click();
 
-      H.popover().findByText("Locked").click();
+      popover().findByText("Locked").click();
 
-      H.modal().within(() => {
+      modal().within(() => {
         // set the locked parameter's value
         cy.findByText("Previewing locked parameters")
           .parent()
@@ -83,14 +112,14 @@ describe("scenarios > embedding > dashboard parameters", () => {
           .click();
       });
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByPlaceholderText("Search by Name or enter an ID").type("1,3,");
 
         cy.button("Add filter").click();
       });
 
       // publish the embedded dashboard so that we can directly navigate to its url
-      H.publishChanges("dashboard", ({ request }) => {
+      publishChanges("dashboard", ({ request }) => {
         assert.deepEqual(request.body.embedding_params, {
           id: "locked",
           name: "enabled",
@@ -98,10 +127,10 @@ describe("scenarios > embedding > dashboard parameters", () => {
       });
 
       // directly navigate to the embedded dashboard
-      H.visitIframe();
+      visitIframe();
 
       // verify that the Id parameter doesn't show up but that its value is reflected in the dashcard
-      H.filterWidget().contains("Id").should("not.exist");
+      filterWidget().contains("Id").should("not.exist");
 
       cy.findByTestId("scalar-value").invoke("text").should("eq", "2");
 
@@ -115,7 +144,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
       openFilterOptions("Name");
 
       cy.findByPlaceholderText("Search by Name").type("L");
-      H.popover().findByText("Lina Heaney").click();
+      popover().last().findByText("Lina Heaney").click();
 
       cy.button("Add filter").click();
 
@@ -126,29 +155,26 @@ describe("scenarios > embedding > dashboard parameters", () => {
       );
       cy.signInAsAdmin();
 
-      H.visitDashboard("@dashboardId");
+      visitDashboard("@dashboardId");
 
-      H.openStaticEmbeddingModal({
-        activeTab: "parameters",
-        acceptTerms: false,
-      });
+      openStaticEmbeddingModal({ activeTab: "parameters", acceptTerms: false });
 
       cy.get("@allParameters").findByText("Locked").click();
-      H.popover().contains("Disabled").click();
+      popover().contains("Disabled").click();
 
       cy.get("@allParameters").findByText("Editable").click();
-      H.popover().contains("Disabled").click();
+      popover().contains("Disabled").click();
 
-      H.publishChanges("dashboard", ({ request }) => {
+      publishChanges("dashboard", ({ request }) => {
         assert.deepEqual(request.body.embedding_params, {
           name: "disabled",
           id: "disabled",
         });
       });
 
-      H.visitIframe();
+      visitIframe();
 
-      H.filterWidget().should("not.exist");
+      filterWidget().should("not.exist");
 
       cy.findByTestId("scalar-value").invoke("text").should("eq", "2,500");
     });
@@ -170,14 +196,14 @@ describe("scenarios > embedding > dashboard parameters", () => {
           params: {},
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
 
         // wait for the results to load
         cy.contains("Test Dashboard");
         cy.contains("2,500");
       });
 
-      H.dashboardParametersContainer().within(() => {
+      dashboardParametersContainer().within(() => {
         cy.findByText("Id").should("be.visible");
         cy.findByText("Name").should("be.visible");
         cy.findByText("Source").should("be.visible");
@@ -185,9 +211,9 @@ describe("scenarios > embedding > dashboard parameters", () => {
         cy.findByText("Not Used Filter").should("not.exist");
       });
 
-      H.goToTab("Tab 2");
+      goToTab("Tab 2");
 
-      H.dashboardParametersContainer().should("not.exist");
+      dashboardParametersContainer().should("not.exist");
       cy.findByTestId("embed-frame").within(() => {
         cy.findByText("Id").should("not.exist");
         cy.findByText("Name").should("not.exist");
@@ -198,42 +224,39 @@ describe("scenarios > embedding > dashboard parameters", () => {
     });
 
     it("should handle required parameters", () => {
-      H.visitDashboard("@dashboardId");
-      H.editDashboard();
+      visitDashboard("@dashboardId");
+      editDashboard();
 
       // Make one parameter required
       getDashboardFilter("Name").click();
-      H.toggleRequiredParameter();
-      H.sidebar().findByText("Default value").next().click();
+      toggleRequiredParameter();
+      sidebar().findByText("Default value").next().click();
       addWidgetStringFilter("Ferne Rosenbaum", {
         buttonLabel: "Update filter",
       });
-      H.saveDashboard();
+      saveDashboard();
 
       // Check that parameter visibility is correct
-      H.openStaticEmbeddingModal({
-        activeTab: "parameters",
-        acceptTerms: true,
-      });
-      H.assertEmbeddingParameter("Id", "Disabled");
-      H.assertEmbeddingParameter("Name", "Editable");
-      H.assertEmbeddingParameter("Source", "Disabled");
-      H.assertEmbeddingParameter("User", "Disabled");
-      H.assertEmbeddingParameter("Not Used Filter", "Disabled");
+      openStaticEmbeddingModal({ activeTab: "parameters", acceptTerms: true });
+      assertEmbeddingParameter("Id", "Disabled");
+      assertEmbeddingParameter("Name", "Editable");
+      assertEmbeddingParameter("Source", "Disabled");
+      assertEmbeddingParameter("User", "Disabled");
+      assertEmbeddingParameter("Not Used Filter", "Disabled");
 
       // We only expect name to be "enabled" because the rest
       // weren't touched and therefore aren't changed, whereas
       // "enabled" must be set by default for required params.
-      H.publishChanges("dashboard", ({ request }) => {
+      publishChanges("dashboard", ({ request }) => {
         assert.deepEqual(request.body.embedding_params, {
           name: "enabled",
         });
       });
 
-      H.visitIframe();
+      visitIframe();
 
       // Filter widget must be visible
-      H.filterWidget().contains("Name");
+      filterWidget().contains("Name");
       // Its default value must be in the URL
       cy.location("search").should("contain", "name=Ferne+Rosenbaum");
       // And the default should be applied giving us only 1 result
@@ -241,24 +264,21 @@ describe("scenarios > embedding > dashboard parameters", () => {
     });
 
     it("should (dis)allow setting parameters as required for a published embedding", () => {
-      H.visitDashboard("@dashboardId");
+      visitDashboard("@dashboardId");
 
       // Set an "editable" and "locked" parameters and leave the rest "disabled"
-      H.openStaticEmbeddingModal({
-        activeTab: "parameters",
-        acceptTerms: true,
-      });
-      H.setEmbeddingParameter("Name", "Editable");
-      H.setEmbeddingParameter("Source", "Locked");
-      H.publishChanges("dashboard", ({ request }) => {
+      openStaticEmbeddingModal({ activeTab: "parameters", acceptTerms: true });
+      setEmbeddingParameter("Name", "Editable");
+      setEmbeddingParameter("Source", "Locked");
+      publishChanges("dashboard", ({ request }) => {
         assert.deepEqual(request.body.embedding_params, {
           name: "enabled",
           source: "locked",
         });
       });
 
-      H.closeStaticEmbeddingModal();
-      H.editDashboard();
+      closeStaticEmbeddingModal();
+      editDashboard();
 
       // Check each parameter's required state
       assertRequiredEnabledForName({ name: "Name", enabled: true });
@@ -270,7 +290,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
     });
 
     it("should render cursor pointer on hover over a toggle (metabase#46223)", () => {
-      H.visitDashboard("@dashboardId");
+      visitDashboard("@dashboardId");
 
       cy.findAllByTestId("parameter-value-widget-target")
         .first()
@@ -297,7 +317,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
           params: {},
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
 
         // wait for the results to load
         cy.contains("Test Dashboard");
@@ -309,51 +329,54 @@ describe("scenarios > embedding > dashboard parameters", () => {
       cy.log("should allow searching PEOPLE.ID by PEOPLE.NAME");
 
       openFilterOptions("Id");
-      H.popover().within(() => {
-        H.fieldValuesInput().type("Aly");
-        cy.contains("Alycia McCullough - 2016");
+      popover().within(() => {
+        multiAutocompleteInput().type("Aly");
       });
 
+      popover().last().contains("Alycia McCullough - 2016");
+
       // close the suggestions popover
-      H.popover()
+      popover()
         .first()
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
         });
 
       cy.log("should allow searching PEOPLE.NAME by PEOPLE.NAME");
 
       openFilterOptions("Name");
-      H.popover().within(() => {
-        H.fieldValuesInput().type("{backspace}Aly");
-        cy.findByText("Alycia McCullough").should("be.visible");
+      popover().within(() => {
+        multiAutocompleteInput().type("{backspace}Aly");
       });
 
+      popover().last().contains("Alycia McCullough");
+
       // close the suggestions popover
-      H.popover()
+      popover()
         .first()
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
         });
 
       cy.log("should show values for PEOPLE.SOURCE");
 
       openFilterOptions("Source");
-      H.popover().contains("Affiliate");
+      popover().contains("Affiliate");
 
       cy.log("should allow searching ORDER.USER_ID by PEOPLE.NAME");
 
       openFilterOptions("User");
-      H.popover().within(() => {
-        H.fieldValuesInput().type("Aly");
-        cy.contains("Alycia McCullough - 2016");
+      popover().within(() => {
+        multiAutocompleteInput().type("Aly");
       });
 
+      popover().last().contains("Alycia McCullough - 2016");
+
       // close the suggestions popover
-      H.popover()
+      popover()
         .first()
         .within(() => {
-          H.fieldValuesInput().blur();
+          multiAutocompleteInput().blur();
         });
 
       cy.log("should accept url parameters");
@@ -384,9 +407,9 @@ describe("scenarios > embedding > dashboard parameters", () => {
         params: invalidParamsValue,
       };
 
-      H.visitEmbeddedPage(payload);
+      visitEmbeddedPage(payload);
 
-      H.getDashboardCard()
+      getDashboardCard()
         .findByText("There was a problem displaying this chart.")
         .should("be.visible");
     });
@@ -444,7 +467,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
     }).then(({ body: { card_id, dashboard_id } }) => {
       cy.wrap(dashboard_id).as("dashboardId2");
 
-      H.addOrUpdateDashboardCard({
+      addOrUpdateDashboardCard({
         card_id,
         dashboard_id,
         card: {
@@ -482,24 +505,24 @@ describe("scenarios > embedding > dashboard parameters", () => {
         params: {},
       };
 
-      H.visitEmbeddedPage(payload);
+      visitEmbeddedPage(payload);
     });
 
     cy.log("The whole page would have crashed before the fix at this point");
-    H.getDashboardCard()
+    getDashboardCard()
       .findByText("There was a problem displaying this chart.")
       .should("be.visible");
 
     cy.log("Add a filter to complete the query");
-    H.filterWidget().findByPlaceholderText("Category").type("Widget{enter}");
+    filterWidget().findByPlaceholderText("Category").type("Widget{enter}");
 
-    H.getDashboardCard()
+    getDashboardCard()
       .findByText("Practical Bronze Computer")
       .should("be.visible");
 
     cy.log("test downloading result (metabase#36721)");
-    H.getDashboardCard().realHover();
-    H.downloadAndAssert(
+    getDashboardCard().realHover();
+    downloadAndAssert(
       {
         fileType: "csv",
         isDashboard: true,
@@ -514,7 +537,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
         expect(sheet["B1"].v).to.eq("EAN");
         expect(sheet["B2"].v).to.eq(7217466997444);
 
-        H.assertSheetRowsCount(54)(sheet);
+        assertSheetRowsCount(54)(sheet);
       },
     );
   });
@@ -533,7 +556,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
         params: {},
       };
 
-      H.visitEmbeddedPage(payload, {
+      visitEmbeddedPage(payload, {
         onBeforeLoad: window => {
           window.Cypress = undefined;
         },
@@ -550,7 +573,7 @@ describe("scenarios > embedding > dashboard parameters", () => {
 
 describe("scenarios > embedding > dashboard parameters with defaults", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.createNativeQuestionAndDashboard({
@@ -562,16 +585,16 @@ describe("scenarios > embedding > dashboard parameters with defaults", () => {
       mapParameters({ id, card_id, dashboard_id });
     });
 
-    H.visitDashboard("@dashboardId");
+    visitDashboard("@dashboardId");
   });
 
   it("card parameter defaults should apply for disabled parameters, but not for editable or locked parameters", () => {
-    H.openStaticEmbeddingModal({ activeTab: "parameters" });
+    openStaticEmbeddingModal({ activeTab: "parameters" });
 
     // ID param is disabled by default
-    H.setEmbeddingParameter("Name", "Editable");
-    H.setEmbeddingParameter("Source", "Locked");
-    H.publishChanges("dashboard", ({ request }) => {
+    setEmbeddingParameter("Name", "Editable");
+    setEmbeddingParameter("Source", "Locked");
+    publishChanges("dashboard", ({ request }) => {
       assert.deepEqual(request.body.embedding_params, {
         source: "locked",
         name: "enabled",
@@ -584,7 +607,7 @@ describe("scenarios > embedding > dashboard parameters with defaults", () => {
         params: { source: [] },
       };
 
-      H.visitEmbeddedPage(payload);
+      visitEmbeddedPage(payload);
 
       // wait for the results to load
 
@@ -600,78 +623,40 @@ describe("scenarios > embedding > dashboard parameters with defaults", () => {
   });
 
   it("locked parameters require a value to be specified in the JWT", () => {
-    const nameParameter = dashboardDetails.parameters.find(
-      parameter => parameter.name === "Name",
-    );
-    const sourceParameter = dashboardDetails.parameters.find(
-      parameter => parameter.name === "Source",
-    );
+    openStaticEmbeddingModal({ activeTab: "parameters" });
 
-    cy.get("@dashboardId").then(dashboardId => {
-      cy.request("PUT", `api/dashboard/${dashboardId}`, {
-        enable_embedding: true,
-        embedding_params: {
-          [nameParameter.slug]: "enabled",
-          [sourceParameter.slug]: "locked",
-        },
+    // ID param is disabled by default
+    setEmbeddingParameter("Name", "Editable");
+    setEmbeddingParameter("Source", "Locked");
+    publishChanges("dashboard", ({ request }) => {
+      assert.deepEqual(request.body.embedding_params, {
+        source: "locked",
+        name: "enabled",
       });
-
-      const payload = {
-        resource: { dashboard: dashboardId },
-        params: { source: null },
-      };
-
-      H.visitEmbeddedPage(payload);
     });
+
+    visitIframe();
 
     // The Source parameter is 'locked', and no value has been specified in the token,
     // thus the API responds with "You must specify a value for :source in the JWT."
     // and the card will not display.
 
-    H.getDashboardCard()
+    getDashboardCard()
       .findByText("There was a problem displaying this chart.")
       .should("be.visible");
   });
-
-  it("locked parameters should still render results in the preview by default (metabase#47570)", () => {
-    const nameParameter = dashboardDetails.parameters.find(
-      parameter => parameter.name === "Name",
-    );
-    const sourceParameter = dashboardDetails.parameters.find(
-      parameter => parameter.name === "Source",
-    );
-
-    cy.get("@dashboardId").then(dashboardId => {
-      cy.request("PUT", `api/dashboard/${dashboardId}`, {
-        enable_embedding: true,
-        embedding_params: {
-          [nameParameter.slug]: "enabled",
-          [sourceParameter.slug]: "locked",
-        },
-      });
-    });
-
-    H.visitDashboard("@dashboardId");
-    H.openStaticEmbeddingModal({ activeTab: "parameters" });
-    H.visitIframe();
-
-    cy.log("should show card results by default");
-    H.getDashboardCard().findByText("2").should("be.visible");
-    H.getDashboardCard().findByText("test question").should("be.visible");
-  });
 });
 
-H.describeEE("scenarios > embedding > dashboard appearance", () => {
+describeEE("scenarios > embedding > dashboard appearance", () => {
   const originalBaseUrl = Cypress.config("baseUrl");
-
   beforeEach(() => {
     // Reset the baseUrl to the default value
     // needed because we do `Cypress.config("baseUrl", null);` in the iframe test
     Cypress.config("baseUrl", originalBaseUrl);
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
   });
 
   it("should not rerender the static embed preview unnecessarily (metabase#38271)", () => {
@@ -709,7 +694,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       questionDetails,
       dashboardDetails,
     }).then(({ body: { dashboard_id } }) => {
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
     cy.intercept(
@@ -718,7 +703,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       cy.spy().as("previewEmbedSpy"),
     ).as("previewEmbed");
 
-    H.openStaticEmbeddingModal({
+    openStaticEmbeddingModal({
       activeTab: "parameters",
       previewMode: "preview",
       // EE users don't have to accept terms
@@ -727,12 +712,12 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
 
     cy.wait("@previewEmbed");
 
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByRole("tab", { name: "Look and Feel" }).click();
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert dashboard theme");
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .invoke("attr", "data-embed-theme")
         .then(embedTheme => {
@@ -742,7 +727,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       // We're getting an input element which is 0x0 in size
       cy.findByLabelText("Dark").click({ force: true });
       cy.wait(1000);
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .invoke("attr", "data-embed-theme")
         .then(embedTheme => {
@@ -752,32 +737,32 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert dashboard title");
-      H.getIframeBody().findByText(dashboardDetails.name).should("exist");
+      getIframeBody().findByText(dashboardDetails.name).should("exist");
       // We're getting an input element which is 0x0 in size
       cy.findByLabelText("Dashboard title").click({ force: true });
-      H.getIframeBody().findByText(dashboardDetails.name).should("not.exist");
+      getIframeBody().findByText(dashboardDetails.name).should("not.exist");
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert dashboard border");
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .should("have.css", "border-top-width", "1px");
       // We're getting an input element which is 0x0 in size
       cy.findByLabelText("Dashboard border").click({ force: true });
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .should("have.css", "border-top-width", "0px");
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert font");
-      H.getIframeBody().should("have.css", "font-family", "Lato, sans-serif");
+      getIframeBody().should("have.css", "font-family", "Lato, sans-serif");
       cy.findByLabelText("Font").click();
     });
 
-    // Since the select dropdown is rendered outside of the modal, we need to exit the modal context first.
-    H.selectDropdown().findByText("Oswald").click();
-    H.modal().within(() => {
-      H.getIframeBody().should("have.css", "font-family", "Oswald, sans-serif");
+    // Since the select popover is rendered outside of the modal, we need to exit the modal context first.
+    popover().findByText("Oswald").click();
+    modal().within(() => {
+      getIframeBody().should("have.css", "font-family", "Oswald, sans-serif");
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
     });
   });
@@ -817,9 +802,9 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
         "source-table": ORDERS_ID,
       },
     };
-    H.createQuestion(questionDetails)
+    createQuestion(questionDetails)
       .then(({ body: { id: card_id } }) => {
-        H.createDashboardWithTabs({
+        createDashboardWithTabs({
           ...dashboardDetails,
           dashcards: [
             {
@@ -835,7 +820,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
         });
       })
       .then(dashboard => {
-        H.visitDashboard(dashboard.id);
+        visitDashboard(dashboard.id);
       });
 
     cy.intercept(
@@ -844,7 +829,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       cy.spy().as("previewEmbedSpy"),
     ).as("previewEmbed");
 
-    H.openStaticEmbeddingModal({
+    openStaticEmbeddingModal({
       activeTab: "parameters",
       previewMode: "preview",
       // EE users don't have to accept terms
@@ -853,12 +838,12 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
 
     cy.wait("@previewEmbed");
 
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByRole("tab", { name: "Look and Feel" }).click();
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert dashboard theme");
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .invoke("attr", "data-embed-theme")
         .then(embedTheme => {
@@ -868,7 +853,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       // We're getting an input element which is 0x0 in size
       cy.findByLabelText("Dark").click({ force: true });
       cy.wait(1000);
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .invoke("attr", "data-embed-theme")
         .then(embedTheme => {
@@ -878,32 +863,32 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert dashboard title");
-      H.getIframeBody().findByText(dashboardDetails.name).should("exist");
+      getIframeBody().findByText(dashboardDetails.name).should("exist");
       // We're getting an input element which is 0x0 in size
       cy.findByLabelText("Dashboard title").click({ force: true });
-      H.getIframeBody().findByText(dashboardDetails.name).should("not.exist");
+      getIframeBody().findByText(dashboardDetails.name).should("not.exist");
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert dashboard border");
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .should("have.css", "border-top-width", "1px");
       // We're getting an input element which is 0x0 in size
       cy.findByLabelText("Dashboard border").click({ force: true });
-      H.getIframeBody()
+      getIframeBody()
         .findByTestId("embed-frame")
         .should("have.css", "border-top-width", "0px");
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
 
       cy.log("Assert font");
-      H.getIframeBody().should("have.css", "font-family", "Lato, sans-serif");
+      getIframeBody().should("have.css", "font-family", "Lato, sans-serif");
       cy.findByLabelText("Font").click();
     });
 
-    // Since the select dropdown is rendered outside of the modal, we need to exit the modal context first.
-    H.selectDropdown().findByText("Oswald").click();
-    H.modal().within(() => {
-      H.getIframeBody().should("have.css", "font-family", "Oswald, sans-serif");
+    // Since the select popover is rendered outside of the modal, we need to exit the modal context first.
+    popover().findByText("Oswald").click();
+    modal().within(() => {
+      getIframeBody().should("have.css", "font-family", "Oswald, sans-serif");
       cy.get("@previewEmbedSpy").should("have.callCount", 1);
     });
   });
@@ -915,24 +900,14 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
     };
 
     const questionDetails = {
-      name: "Line chart",
+      name: "Orders",
       query: {
         "source-table": ORDERS_ID,
-        aggregation: [["count"]],
-        breakout: [
-          [
-            "field",
-            ORDERS.CREATED_AT,
-            { "base-type": "type/DateTime", "temporal-unit": "month" },
-          ],
-        ],
-        limit: 5,
       },
-      display: "bar",
     };
-    H.createQuestion(questionDetails)
+    createQuestion(questionDetails)
       .then(({ body: { id: card_id } }) => {
-        H.createDashboardWithTabs({
+        createDashboardWithTabs({
           ...dashboardDetails,
           dashcards: [
             {
@@ -947,69 +922,46 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
         });
       })
       .then(dashboard => {
-        return H.getEmbeddedPageUrl({
-          resource: { dashboard: dashboard.id },
-          params: {},
-        });
-      })
-      .then(urlOptions => {
-        const baseUrl = Cypress.config("baseUrl");
-        Cypress.config("baseUrl", null);
-        cy.visit(
-          `e2e/test/scenarios/embedding/embedding-dashboard.html?iframeUrl=${baseUrl + urlOptions.url}`,
-        );
+        visitDashboard(dashboard.id);
       });
 
-    H.getIframeBody().within(() => {
-      cy.findByText(questionDetails.name).should("exist");
-      cy.findByText("April 2022").should("exist");
-
-      // TODO: Enable this once we fix the flakiness https://app.trunk.io/metabase/flaky-tests/test/facb35f0-6d76-5e7d-b21c-40401bbc3ff6?repo=metabase%2Fmetabase
-      // (metabase#49537)
-      // chartPathWithFillColor("#509EE3").last().realHover();
-      // echartsTooltip().should("be.visible");
-      // assertEChartsTooltip({
-      //   header: "August 2022",
-      //   rows: [
-      //     {
-      //       name: "Count",
-      //       value: "79",
-      //       secondaryValue: "+23.44%",
-      //     },
-      //   ],
-      // });
+    openStaticEmbeddingModal({
+      activeTab: "parameters",
+      previewMode: "preview",
+      // EE users don't have to accept terms
+      acceptTerms: false,
     });
 
-    cy.get("#iframe").should($iframe => {
+    getIframeUrl().then(iframeUrl => {
+      Cypress.config("baseUrl", null);
+      cy.visit(
+        `e2e/test/scenarios/embedding/embedding-dashboard.html?iframeUrl=${iframeUrl}`,
+      );
+    });
+
+    getIframeBody().findByText("Rows 1-21 of first 2000").should("exist");
+
+    cy.get("#iframe").then($iframe => {
       const [iframe] = $iframe;
       expect(iframe.clientHeight).to.be.greaterThan(1000);
     });
   });
 
-  it("should allow to set locale from the `#locale` hash parameter (metabase#50182)", () => {
+  it("should allow to set locale from the `locale` query parameter", () => {
     cy.request("PUT", `/api/dashboard/${ORDERS_DASHBOARD_ID}`, {
       enable_embedding: true,
     });
     cy.signOut();
 
-    // We don't have a de-CH.json file, so it should fallback to de.json, see metabase#51039 for more details
-    cy.intercept("/app/locales/de.json").as("deLocale");
-
-    H.visitEmbeddedPage(
+    visitEmbeddedPage(
       {
         resource: { dashboard: ORDERS_DASHBOARD_ID },
         params: {},
       },
-      {
-        additionalHashOptions: {
-          locale: "de-CH",
-        },
-      },
+      { qs: { locale: "de" } },
     );
 
-    cy.wait("@deLocale");
-
-    H.main().findByText("Februar 11, 2025, 9:40 PM");
+    main().findByText("Februar 11, 2025, 9:40 PM");
     // eslint-disable-next-line no-unscoped-text-selectors -- we don't care where the text is
     cy.findByText("exportieren", { exact: false });
 
@@ -1018,7 +970,7 @@ H.describeEE("scenarios > embedding > dashboard appearance", () => {
 });
 
 function openFilterOptions(name) {
-  H.filterWidget().contains(name).click();
+  filterWidget().contains(name).click();
 }
 
 function getDashboardFilter(name) {
@@ -1029,5 +981,5 @@ function getDashboardFilter(name) {
 
 function assertRequiredEnabledForName({ name, enabled }) {
   getDashboardFilter(name).click();
-  H.getRequiredToggle().should(enabled ? "be.enabled" : "not.be.enabled");
+  getRequiredToggle().should(enabled ? "be.enabled" : "not.be.enabled");
 }

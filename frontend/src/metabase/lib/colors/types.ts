@@ -9,5 +9,4 @@ export interface AccentColorOptions {
   light?: boolean;
   dark?: boolean;
   harmony?: boolean;
-  gray?: boolean;
 }

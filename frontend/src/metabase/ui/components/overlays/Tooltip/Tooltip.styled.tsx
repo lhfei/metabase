@@ -1,7 +1,5 @@
 import type { MantineThemeOverride } from "@mantine/core";
 
-import ZIndex from "metabase/css/core/z-index.module.css";
-
 export const getTooltipOverrides = (): MantineThemeOverride["components"] => ({
   Tooltip: {
     defaultProps: {
@@ -18,11 +16,10 @@ export const getTooltipOverrides = (): MantineThemeOverride["components"] => ({
         touch: true,
       },
     },
-    classNames: { tooltip: ZIndex.Overlay },
     styles: theme => ({
       tooltip: {
-        backgroundColor: "var(--mb-color-tooltip-background)",
-        color: "var(--mb-color-tooltip-text)",
+        backgroundColor: theme.fn.themeColor("bg-black"),
+        color: theme.white,
         fontSize: theme.fontSizes.sm,
         fontWeight: "bold",
         padding: "0.6rem 0.75rem",

@@ -95,7 +95,7 @@ If you're a Metabase admin and have access to the server console, you can get Me
 1.  Stop the running Metabase application.
 2.  Restart Metabase with `reset-password email@example.com`, where "email@example.com" is the email associated with the admin account:
     ```
-    java --add-opens java.base/java.nio=ALL-UNNAMED -jar metabase.jar reset-password email@example.com
+    java -jar metabase.jar reset-password email@example.com
     ```
 3.  Metabase will print out a random token like this:
 
@@ -134,7 +134,7 @@ Metabase includes default user accounts to handle various tasks. We're documenti
 - Last name: User
 - Email: null
 
-Metabase uses this anonymous user account to identify anonymous views, for example views of a [public question or dashboard](../embedding/public-links.md). This account is a virtual user: the account doesn't exist in the application database. You'll see this account show up in [usage analytics](../usage-and-performance-tools/usage-analytics.md).
+Metabase uses this anonymous user account to identify anonymous views, for example views of a [public question or dashboard](../questions/sharing/public-links.md). This account is a virtual user: the account doesn't exist in the application database. You'll see this account show up in [usage analytics](../usage-and-performance-tools/usage-analytics.md).
 
 ### Metabase internal account
 
@@ -143,7 +143,7 @@ Metabase uses this anonymous user account to identify anonymous views, for examp
 - Last name: Metabase
 - Email: internal@metabase.com
 
-Metabase uses this account to load content into Metabase (like the [Usage analytics](../usage-and-performance-tools/usage-analytics.md) collection). You may see this `internal@metabase.com` account in the logs.
+Metabase uses this account to load content into Metabase (like the [Metabase analytics](../usage-and-performance-tools/usage-analytics.md) collection). You may see this `internal@metabase.com` account in the logs.
 
 ## Groups
 
@@ -214,5 +214,5 @@ To promote someone to become a group manager:
 ## Further reading
 
 - [Configure Single Sign-On (SSO)](./start.md#authentication).
-- [Permissions strategies](https://www.metabase.com/learn/metabase-basics/administration/permissions/strategy).
-- [Multi-tenant permissions](https://www.metabase.com/learn/metabase-basics/administration/permissions/multi-tenant-permissions).
+- [Permissions strategies](https://www.metabase.com/learn/permissions/strategy).
+- [Multi-tenant permissions](https://www.metabase.com/learn/permissions/multi-tenant-permissions).

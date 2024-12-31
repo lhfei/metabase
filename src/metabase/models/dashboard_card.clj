@@ -27,9 +27,7 @@
   (derive ::mi/read-policy.full-perms-for-perms-set)
   (derive ::mi/write-policy.full-perms-for-perms-set)
   (derive :hook/timestamped?)
-  (derive :hook/entity-id)
-  ;; Disabled for performance reasons, see update-dashboard-card!-call-count-test
-  #_(derive :hook/search-index))
+  (derive :hook/entity-id))
 
 (t2/deftransforms :model/DashboardCard
   {:parameter_mappings     mi/transform-parameters-list
@@ -38,8 +36,7 @@
 (t2/define-before-insert :model/DashboardCard
   [dashcard]
   (merge {:parameter_mappings     []
-          :visualization_settings {}}
-         dashcard))
+          :visualization_settings {}} dashcard))
 
 (declare series)
 
@@ -63,8 +60,8 @@
    For example:
    ```
    (= dashcard ;; from toucan select, excluding :created_at and :updated_at
-      (-> (json/encode dashcard)
-          json/decode+kw
+      (-> (json/generate-string dashcard)
+          (json/parse-string true)
           from-parsed-json))
    =>
    true

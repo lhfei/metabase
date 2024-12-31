@@ -1,7 +1,7 @@
 import {
   getAvailableOperatorOptions,
   getDefaultAvailableOperator,
-} from "metabase/querying/filters/utils";
+} from "metabase/querying/filters/utils/operators";
 import * as Lib from "metabase-lib";
 
 import { OPERATOR_OPTIONS } from "./constants";
@@ -23,14 +23,14 @@ export function getAvailableOptions(
 export function getDefaultOperator(
   availableOptions: OperatorOption[],
   hasInitialOperator: boolean,
-): Lib.DefaultFilterOperator | undefined {
+): Lib.DefaultFilterOperatorName | undefined {
   return hasInitialOperator
     ? getDefaultAvailableOperator(availableOptions)
     : undefined;
 }
 
 export function getFilterClause(
-  operator: Lib.DefaultFilterOperator | undefined,
+  operator: Lib.DefaultFilterOperatorName | undefined,
   column: Lib.ColumnMetadata,
 ) {
   if (operator) {

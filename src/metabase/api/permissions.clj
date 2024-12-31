@@ -15,12 +15,16 @@
    [metabase.models :refer [PermissionsGroupMembership User]]
    [metabase.models.data-permissions.graph :as data-perms.graph]
    [metabase.models.interface :as mi]
-   [metabase.models.permissions-group :as perms-group :refer [PermissionsGroup]]
+   [metabase.models.permissions-group
+    :as perms-group
+    :refer [PermissionsGroup]]
    [metabase.models.permissions-revision :as perms-revision]
    [metabase.models.setting :as setting :refer [defsetting]]
    [metabase.permissions.util :as perms.u]
-   [metabase.public-settings.premium-features :as premium-features :refer [defenterprise]]
-   [metabase.request.core :as request]
+   [metabase.public-settings.premium-features
+    :as premium-features
+    :refer [defenterprise]]
+   [metabase.server.middleware.offset-paging :as mw.offset-paging]
    [metabase.util :as u]
    [metabase.util.i18n :refer [deferred-tru tru]]
    [metabase.util.malli :as mu]
@@ -123,11 +127,9 @@
 
   If the skip-graph query param is truthy, then the graph will not be returned."
   [:as {body :body
-        {skip-graph :skip-graph
-         force      :force} :params}]
+        {skip-graph :skip-graph} :params}]
   {body :map
-   skip-graph [:maybe ms/BooleanValue]
-   force      [:maybe ms/BooleanValue]}
+   skip-graph [:maybe :boolean]}
   (api/check-superuser)
   (let [new-graph (mc/decode api.permission-graph/StrictApiPermissionsGraph
                              body
@@ -146,7 +148,7 @@
             old       (or old {})
             new       (or new {})]
         (perms.u/log-permissions-changes old new)
-        (when-not force (perms.u/check-revision-numbers old-graph new-graph))
+        (perms.u/check-revision-numbers old-graph new-graph)
         (data-perms.graph/update-data-perms-graph! {:groups new})
         (perms.u/save-perms-revision! :model/PermissionsRevision (:revision old-graph) old new)
         (let [sandbox-updates        (:sandboxes new-graph)
@@ -214,7 +216,7 @@
                           :where  [:and
                                    [:= :user_id api/*current-user-id*]
                                    [:= :is_group_manager true]]}])]
-    (-> (ordered-groups (request/limit) (request/offset) query)
+    (-> (ordered-groups mw.offset-paging/*limit* mw.offset-paging/*offset* query)
         (t2/hydrate :member_count))))
 
 (api/defendpoint GET "/group/:id"
@@ -296,8 +298,7 @@
                 :is_group_manager is_group_manager)
     ;; TODO - it's a bit silly to return the entire list of members for the group, just return the newly created one and
     ;; let the frontend add it as appropriate
-    (:members (t2/hydrate (t2/instance :model/PermissionsGroup {:id group_id})
-                          :members))))
+    (perms-group/members {:id group_id})))
 
 (api/defendpoint PUT "/membership/:id"
   "Update a Permission Group membership. Returns the updated record."

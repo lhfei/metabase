@@ -40,12 +40,12 @@ export const HeaderFixedWidthContainer = styled(
 `;
 
 export const HeaderContainer = styled.div<{
-  offsetSidebar: boolean;
+  isSidebarOpen: boolean;
   isFixedWidth: boolean;
 }>`
   ${props =>
     props.isFixedWidth &&
-    props.offsetSidebar &&
+    props.isSidebarOpen &&
     css`
       margin-right: ${SIDEBAR_WIDTH}px;
     `}

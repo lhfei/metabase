@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { connect } from "react-redux";
 import { usePrevious } from "react-use";
 import { t } from "ttag";
 import _ from "underscore";
@@ -8,7 +9,6 @@ import Button from "metabase/core/components/Button";
 import Link from "metabase/core/components/Link";
 import ButtonsS from "metabase/css/components/buttons.module.css";
 import PersistedModels from "metabase/entities/persisted-models";
-import { connect } from "metabase/lib/redux";
 import type { ModelCacheRefreshStatus } from "metabase-types/api";
 
 import { ErrorBox } from "./ModelCacheRefreshJobs.styled";

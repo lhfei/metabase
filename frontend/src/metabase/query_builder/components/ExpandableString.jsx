@@ -28,8 +28,7 @@ export default class ExpandableString extends Component {
     }
   }
 
-  toggleExpansion(event) {
-    event.stopPropagation();
+  toggleExpansion() {
     this.setState({
       expanded: !this.state.expanded,
     });

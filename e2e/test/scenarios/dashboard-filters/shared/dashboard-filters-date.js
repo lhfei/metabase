@@ -1,7 +1,7 @@
 export const DASHBOARD_DATE_FILTERS = {
   "Month and Year": {
     value: {
-      month: "Nov",
+      month: "November",
       year: "2022",
     },
     representativeResult: "85.88",

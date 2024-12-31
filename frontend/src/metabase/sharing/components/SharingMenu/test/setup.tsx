@@ -76,7 +76,7 @@ const setupState = ({
   const settingValues = createMockSettings({
     "token-features": tokenFeatures,
     "enable-public-sharing": isPublicSharingEnabled,
-    "enable-embedding-static": isEmbeddingEnabled,
+    "enable-embedding": isEmbeddingEnabled,
     "email-configured?": isEmailSetup,
     "slack-token-valid?": isSlackSetup,
   });

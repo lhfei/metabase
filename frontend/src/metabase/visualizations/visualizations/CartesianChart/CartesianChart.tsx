@@ -1,17 +1,7 @@
 import type { EChartsType } from "echarts/core";
-import {
-  type MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useSet } from "react-use";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { isDesktopSafari } from "metabase/lib/browser";
 import { ChartRenderingErrorBoundary } from "metabase/visualizations/components/ChartRenderingErrorBoundary";
-import { ResponsiveEChartsRenderer } from "metabase/visualizations/components/EChartsRenderer";
 import LegendCaption from "metabase/visualizations/components/legend/LegendCaption";
 import { getLegendItems } from "metabase/visualizations/echarts/cartesian/model/legend";
 import {
@@ -21,6 +11,7 @@ import {
 import type { VisualizationProps } from "metabase/visualizations/types";
 import {
   CartesianChartLegendLayout,
+  CartesianChartRenderer,
   CartesianChartRoot,
 } from "metabase/visualizations/visualizations/CartesianChart/CartesianChart.styled";
 import { useChartEvents } from "metabase/visualizations/visualizations/CartesianChart/use-chart-events";
@@ -34,8 +25,6 @@ function _CartesianChart(props: VisualizationProps) {
   // The width and height from props reflect the dimensions of the entire container which includes legend,
   // however, for correct ECharts option calculation we need to use the dimensions of the chart viewport
   const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
-
-  const [hiddenSeries, { toggle: toggleSeriesVisibility }] = useSet<string>();
 
   const {
     showAllLegendItems,
@@ -54,7 +43,6 @@ function _CartesianChart(props: VisualizationProps) {
     hovered,
     onChangeCardAndRun,
     onHoverChange,
-    canToggleSeriesVisibility,
     canRemoveSeries,
     onRemoveSeries,
   } = props;
@@ -69,7 +57,6 @@ function _CartesianChart(props: VisualizationProps) {
       ...props,
       width: chartSize.width,
       height: chartSize.height,
-      hiddenSeries,
       settings,
     },
     containerRef,
@@ -94,31 +81,10 @@ function _CartesianChart(props: VisualizationProps) {
 
   const handleInit = useCallback((chart: EChartsType) => {
     chartRef.current = chart;
-
-    // HACK: clip paths cause glitches in Safari on multiseries line charts on dashboards (metabase#51383)
-    if (isDesktopSafari()) {
-      chartRef.current.on("finished", () => {
-        const svg = containerRef.current?.querySelector("svg");
-        if (svg) {
-          const clipPaths = svg.querySelectorAll('defs > clipPath[id^="zr"]');
-          clipPaths.forEach(cp => cp.remove());
-        }
-      });
-    }
   }, []);
-
-  const handleToggleSeriesVisibility = useCallback(
-    (event: MouseEvent, seriesIndex: number) => {
-      const seriesModel = chartModel.seriesModels[seriesIndex];
-      const willShowSeries = hiddenSeries.has(seriesModel.dataKey);
-      const hasMoreVisibleSeries =
-        chartModel.seriesModels.length - hiddenSeries.size > 1;
-      if (hasMoreVisibleSeries || willShowSeries) {
-        toggleSeriesVisibility(seriesModel.dataKey);
-      }
-    },
-    [chartModel, hiddenSeries, toggleSeriesVisibility],
-  );
+  const handleDispose = useCallback(() => {
+    chartRef.current = undefined;
+  }, []);
 
   const { onSelectSeries, onOpenQuestion, eventHandlers } = useChartEvents(
     chartRef,
@@ -133,10 +99,7 @@ function _CartesianChart(props: VisualizationProps) {
   }, []);
 
   const canSelectTitle = !!onChangeCardAndRun;
-  const seriesColorsCss = useCartesianChartSeriesColorsClasses(
-    chartModel,
-    settings,
-  );
+  const seriesColorsCss = useCartesianChartSeriesColorsClasses(chartModel);
 
   useCloseTooltipOnScroll(chartRef);
 
@@ -164,21 +127,19 @@ function _CartesianChart(props: VisualizationProps) {
         isFullscreen={isFullscreen}
         isQueryBuilder={isQueryBuilder}
         onSelectSeries={onSelectSeries}
-        onToggleSeriesVisibility={
-          canToggleSeriesVisibility && handleToggleSeriesVisibility
-        }
         canRemoveSeries={canRemoveSeries}
         onRemoveSeries={onRemoveSeries}
         onHoverChange={onHoverChange}
         width={outerWidth}
         height={outerHeight}
       >
-        <ResponsiveEChartsRenderer
+        <CartesianChartRenderer
           ref={containerRef}
           option={option}
           eventHandlers={eventHandlers}
           onResize={handleResize}
           onInit={handleInit}
+          onDispose={handleDispose}
         />
       </CartesianChartLegendLayout>
       {seriesColorsCss}

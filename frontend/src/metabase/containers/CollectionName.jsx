@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import Collections, { ROOT_COLLECTION } from "metabase/entities/collections";
+import Collection, { ROOT_COLLECTION } from "metabase/entities/collections";
 
 const CollectionName = ({ id }) => {
   if (id === "root" || id === null) {
@@ -7,7 +7,7 @@ const CollectionName = ({ id }) => {
   } else if (id === undefined || isNaN(id)) {
     return null;
   } else {
-    return <Collections.Name id={id} />;
+    return <Collection.Name id={id} />;
   }
 };
 

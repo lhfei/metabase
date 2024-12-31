@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { Story } from "@storybook/react";
 
 import { VisualizationWrapper } from "__support__/storybook";
 import { Box } from "metabase/ui";
@@ -18,7 +18,7 @@ export default {
   component: TableInteractive,
 };
 
-export const Default: StoryFn = () => (
+export const Default: Story = () => (
   <VisualizationWrapper>
     <Box h={500}>
       <Visualization rawSeries={RAW_SERIES} />,

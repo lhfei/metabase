@@ -1,6 +1,6 @@
 import type { ChangeEventHandler } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { c, msgid, ngettext, t } from "ttag";
+import { c, t } from "ttag";
 
 import { ModelCachingScheduleWidget } from "metabase/admin/settings/components/widgets/ModelCachingScheduleWidget/ModelCachingScheduleWidget";
 import { useDocsUrl, useSetting } from "metabase/common/hooks";
@@ -21,9 +21,7 @@ import ModelPersistenceConfigurationS from "./ModelPersistenceConfiguration.modu
 const modelCachingOptions = [
   {
     value: "0 0 0/1 * * ? *",
-    // this has to be plural because it's plural elsewhere and it cannot be both a singular message ID and a
-    // plural message ID
-    name: ngettext(msgid`Hour`, `Hours`, 1),
+    name: t`Hour`,
   },
   {
     value: "0 0 0/2 * * ? *",

@@ -1,7 +1,5 @@
 import { capitalize } from "inflection";
 
-import { nativeEditor } from "./e2e-native-editor-helpers";
-
 export function setActionsEnabledForDB(dbId, enabled = true) {
   return cy.request("PUT", `/api/database/${dbId}`, {
     settings: {
@@ -12,7 +10,7 @@ export function setActionsEnabledForDB(dbId, enabled = true) {
 
 export function fillActionQuery(query) {
   // Without this wait, content tends to drop from the beginning of the string. TODO: Fix
-  nativeEditor().wait(500).type(query, {
+  cy.get(".ace_content:visible").wait(500).type(query, {
     parseSpecialCharSequences: false,
     delay: 50,
   });

@@ -1,5 +1,6 @@
+import { connect } from "react-redux";
+
 import Tables from "metabase/entities/tables";
-import { connect } from "metabase/lib/redux";
 import {
   closeObjectDetail,
   followForeignKey,

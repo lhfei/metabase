@@ -29,7 +29,6 @@ export const TEST_DASHBOARD_STATE: DashboardState = {
       created_at: "2024-01-01T00:00:00Z",
       updated_at: "2024-01-01T00:00:00Z",
       collection_id: 1,
-      creator_id: 1,
       name: "",
       description: "",
       can_write: true,
@@ -56,7 +55,6 @@ export const TEST_DASHBOARD_STATE: DashboardState = {
       enable_embedding: false,
       initially_published_at: null,
       width: "fixed",
-      moderation_reviews: [],
     },
   },
   dashcards: {

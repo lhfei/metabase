@@ -1,26 +1,27 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-string-refs */
 import cx from "classnames";
-import { Component, createRef } from "react";
+import { Component } from "react";
 import ReactDOM from "react-dom";
 import { t } from "ttag";
 
+import Tooltip from "metabase/core/components/Tooltip";
 import CS from "metabase/css/core/index.css";
-import { Popover } from "metabase/ui";
 
 import LegendS from "./Legend.module.css";
 import LegendItem from "./LegendItem";
 
 export default class LegendVertical extends Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      overflowCount: 0,
+      size: null,
+    };
+  }
+
   static propTypes = {};
   static defaultProps = {};
-
-  state = {
-    overflowCount: 0,
-    size: null,
-  };
-
-  listRef = createRef();
 
   componentDidUpdate(prevProps, prevState) {
     // Get the bounding rectangle of the chart widget to determine if
@@ -52,15 +53,7 @@ export default class LegendVertical extends Component {
   }
 
   render() {
-    const {
-      className,
-      titles,
-      colors,
-      hovered,
-      hiddenIndices = [],
-      onHoverChange,
-      onToggleSeriesVisibility,
-    } = this.props;
+    const { className, titles, colors, hovered, onHoverChange } = this.props;
     const { overflowCount } = this.state;
     let items, extraItems, extraColors;
     if (overflowCount > 0) {
@@ -73,38 +66,26 @@ export default class LegendVertical extends Component {
       items = titles;
     }
     return (
-      <ol
-        className={cx(className, LegendS.Legend, LegendS.vertical)}
-        ref={this.listRef}
-      >
+      <ol className={cx(className, LegendS.Legend, LegendS.vertical)}>
         {items.map((title, index) => {
           const isMuted =
             hovered && hovered.index != null && index !== hovered.index;
           const legendItemTitle = Array.isArray(title) ? title[0] : title;
-          const isVisible = !hiddenIndices.includes(index);
-
-          const handleMouseEnter = () => {
-            onHoverChange?.({
-              index,
-              element: ReactDOM.findDOMNode(this.refs["legendItem" + index]),
-            });
-          };
-
-          const handleMouseLeave = () => {
-            onHoverChange?.();
-          };
-
           return (
             <li
               key={index}
               ref={"item" + index}
               className={cx(CS.flex, CS.flexNoShrink)}
-              onMouseEnter={e => {
-                if (isVisible) {
-                  handleMouseEnter();
-                }
-              }}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={e =>
+                onHoverChange &&
+                onHoverChange({
+                  index,
+                  element: ReactDOM.findDOMNode(
+                    this.refs["legendItem" + index],
+                  ),
+                })
+              }
+              onMouseLeave={e => onHoverChange && onHoverChange()}
               data-testid={`legend-item-${legendItemTitle}`}
               {...(hovered && { "aria-current": !isMuted })}
             >
@@ -113,16 +94,7 @@ export default class LegendVertical extends Component {
                 title={legendItemTitle}
                 color={colors[index % colors.length]}
                 isMuted={isMuted}
-                isVisible={isVisible}
                 showTooltip={false}
-                onToggleSeriesVisibility={event => {
-                  if (isVisible) {
-                    handleMouseLeave();
-                  } else {
-                    handleMouseEnter();
-                  }
-                  onToggleSeriesVisibility(event, index);
-                }}
               />
               {Array.isArray(title) && (
                 <span
@@ -142,30 +114,23 @@ export default class LegendVertical extends Component {
           );
         })}
         {overflowCount > 0 ? (
-          <Popover>
-            <Popover.Target>
-              <li className={cx(CS.flex, CS.flexNoShrink, CS.cursorPointer)}>
-                <LegendItem
-                  title={overflowCount + 1 + " " + t`more`}
-                  color="gray"
-                  showTooltip={false}
+          <li key="extra" className={cx(CS.flex, CS.flexNoShrink)}>
+            <Tooltip
+              tooltip={
+                <LegendVertical
+                  className={CS.p2}
+                  titles={extraItems}
+                  colors={extraColors}
                 />
-              </li>
-            </Popover.Target>
-            <Popover.Dropdown>
-              <LegendVertical
-                className={CS.p2}
-                titles={extraItems}
-                colors={extraColors}
-                hiddenIndices={hiddenIndices
-                  .filter(i => i >= items.length - 1)
-                  .map(i => i - items.length)}
-                onToggleSeriesVisibility={(event, sliceIndex) =>
-                  onToggleSeriesVisibility(event, sliceIndex + items.length)
-                }
+              }
+            >
+              <LegendItem
+                title={overflowCount + 1 + " " + t`more`}
+                color="gray"
+                showTooltip={false}
               />
-            </Popover.Dropdown>
-          </Popover>
+            </Tooltip>
+          </li>
         ) : null}
       </ol>
     );

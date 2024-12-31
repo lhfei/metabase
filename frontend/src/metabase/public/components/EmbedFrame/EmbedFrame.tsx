@@ -11,10 +11,7 @@ import {
   ParametersFixedWidthContainer,
 } from "metabase/dashboard/components/Dashboard/Dashboard.styled";
 import { ExportAsPdfButton } from "metabase/dashboard/components/DashboardHeader/buttons/ExportAsPdfButton";
-import {
-  DASHBOARD_PARAMETERS_PDF_EXPORT_NODE_ID,
-  DASHBOARD_PDF_EXPORT_ROOT_ID,
-} from "metabase/dashboard/constants";
+import { DASHBOARD_PDF_EXPORT_ROOT_ID } from "metabase/dashboard/constants";
 import { getDashboardType } from "metabase/dashboard/utils";
 import { initializeIframeResizer, isSmallScreen } from "metabase/lib/dom";
 import { useSelector } from "metabase/lib/redux";
@@ -130,7 +127,7 @@ export const EmbedFrame = ({
     .filter(Boolean)
     .join(",");
 
-  const showFooter = hasEmbedBranding || downloadsEnabled || actionButtons;
+  const showFooter = hasEmbedBranding || (downloadsEnabled && actionButtons);
 
   const finalName = titled ? name : null;
 
@@ -214,7 +211,6 @@ export const EmbedFrame = ({
             data-testid="dashboard-parameters-widget-container"
           >
             <ParametersFixedWidthContainer
-              id={DASHBOARD_PARAMETERS_PDF_EXPORT_NODE_ID}
               data-testid="fixed-width-filters"
               isFixedWidth={dashboard?.width === "fixed"}
             >

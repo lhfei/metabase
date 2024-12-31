@@ -1,21 +1,17 @@
 (ns metabase.integrations.slack-test
   (:require
+   [cheshire.core :as json]
    [clj-http.fake :as http-fake]
    [clojure.test :refer :all]
    [medley.core :as m]
+   [metabase.email.messages :as messages]
    [metabase.integrations.slack :as slack]
-   [metabase.notification.test-util :as notification.tu]
    [metabase.test :as mt]
-   [metabase.test.fixtures :as fixtures]
-   [metabase.test.util :as tu]
-   [metabase.util.json :as json]
-   [toucan2.core :as t2])
+   [metabase.test.util :as tu])
   (:import
    (java.nio.charset Charset)
    (org.apache.http NameValuePair)
    (org.apache.http.client.utils URLEncodedUtils)))
-
-(use-fixtures :once (fixtures/initialize :notifications))
 
 (set! *warn-on-reflection* true)
 
@@ -25,7 +21,7 @@
 
 (defn- mock-paged-response-body [{:keys [query-string], :as request} response-body]
   (if (string? response-body)
-    (recur request (json/decode+kw response-body))
+    (recur request (json/parse-string response-body true))
     (let [{:keys [cursor]} (parse-query-string query-string)]
       ;; if the mock handler is called without a `cursor` param, return response with a `next_cursor`; if passed that
       ;; `cursor`, remove the `next_cursor`. That way we should get two pages total for testing paging
@@ -45,7 +41,7 @@
   {:status 200
    :body   (if (string? body)
              body
-             (json/encode body))})
+             (json/generate-string body))})
 
 (defn- test-no-auth-token!
   "Test that a Slack API endpoint function returns `nil` if a Slack API token isn't configured."
@@ -193,8 +189,7 @@
       (http-fake/with-fake-routes fake-upload-routes
         (tu/with-temporary-setting-values [slack-token "test-token"
                                            slack-app-token nil]
-          (is (= {:url "https://files.slack.com/files-pri/DDDDDDDDD-EEEEEEEEE/wow.gif"
-                  :id "DDDDDDDDD-EEEEEEEEE"}
+          (is (= "https://files.slack.com/files-pri/DDDDDDDDD-EEEEEEEEE/wow.gif"
                  (slack/upload-file! image-bytes filename channel-id)))))
       ;; Slack app token requires joining the `metabase_files` channel before uploading a file
       (http-fake/with-fake-routes
@@ -203,8 +198,7 @@
                (fn [_] (mock-200-response (slurp "./test_resources/slack_conversations_join_response.json"))))
         (tu/with-temporary-setting-values [slack-token nil
                                            slack-app-token "test-token"]
-          (is (= {:url "https://files.slack.com/files-pri/DDDDDDDDD-EEEEEEEEE/wow.gif"
-                  :id "DDDDDDDDD-EEEEEEEEE"}
+          (is (= "https://files.slack.com/files-pri/DDDDDDDDD-EEEEEEEEE/wow.gif"
                  (slack/upload-file! image-bytes filename channel-id))))
         (testing (str "upload-file! will attempt to join channels by internal slack id"
                       " but we can continue to use the channel name for posting")
@@ -230,7 +224,7 @@
                                        (case endpoint
                                          "files.completeUploadExternal"
                                          (if @joined?
-                                           (json/decode+kw (slurp "./test_resources/slack_upload_file_response.json"))
+                                           (json/parse-string (slurp "./test_resources/slack_upload_file_response.json") keyword)
                                            (throw (ex-info "Not in that channel"
                                                            {:error-code "not_in_channel"})))
                                          "conversations.join"
@@ -285,26 +279,22 @@
                   (slack/post-chat-message! "C94712B6X" ":wow:"))))))))
 
 (deftest slack-token-error-test
-  (notification.tu/with-send-notification-sync
+  (with-redefs [messages/all-admin-recipients (constantly ["crowberto@metabase.com"])]
     (tu/with-temporary-setting-values [slack-app-token    "test-token"
-                                       admin-email         nil
                                        #_:clj-kondo/ignore slack-token-valid? true]
       (mt/with-fake-inbox
         (http-fake/with-fake-routes {#"^https://slack.com/api/chat\.postMessage.*"
                                      (fn [_] (mock-200-response {:ok false, :error "account_inactive"}))}
           (testing "If a slack token is revoked, an email should be sent to admins, and the `slack-token-valid?` setting
-                   should be set to false"
+             should be set to false"
             (try
               (slack/post-chat-message! "C94712B6X" ":wow:")
               (catch Throwable e
                 (is (= "Invalid token" (ex-message e)))
-                (let [recipient->emails (mt/summarize-multipart-email #"Your Slack connection stopped working.")]
-                  (is (=? {:from "notifications@metabase.com",
-                           :subject "Your Slack connection stopped working",
-                           :body [{"Your Slack connection stopped working." true}]}
-                          (-> recipient->emails (get "crowberto@metabase.com") first)))
-                  (is (= (t2/select-fn-set :email :model/User :is_superuser true)
-                         (set (keys recipient->emails)))))
+                (is (= (mt/email-to :crowberto {:subject "Your Slack connection stopped working"
+                                                :to #{"crowberto@metabase.com"}
+                                                :body [{"Your Slack connection stopped working." true}]})
+                       (mt/summarize-multipart-email #"Your Slack connection stopped working.")))
                 (is (false? (slack/slack-token-valid?))))))
 
           (testing "If `slack-token-valid?` is already false, no email should be sent"

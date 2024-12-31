@@ -1,10 +1,24 @@
-import { H } from "e2e/support";
 import { USER_GROUPS } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import {
   FIRST_COLLECTION_ID,
   ORDERS_COUNT_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  describeWithSnowplow,
+  enableTracking,
+  entityPickerModal,
+  expectGoodSnowplowEvent,
+  expectNoBadSnowplowEvents,
+  findDashCardAction,
+  modal,
+  popover,
+  resetSnowplow,
+  restore,
+  saveDashboard,
+  undoToastList,
+  visitDashboard,
+} from "e2e/support/helpers";
 import {
   createMockDashboardCard,
   createMockHeadingDashboardCard,
@@ -100,12 +114,12 @@ function getDashboardCards(mappedQuestionId) {
   ];
 }
 
-H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
+describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
   beforeEach(() => {
-    H.resetSnowplow();
-    H.restore();
+    resetSnowplow();
+    restore();
     cy.signInAsAdmin();
-    H.enableTracking();
+    enableTracking();
 
     cy.intercept("POST", "/api/card/*/query").as("cardQuery");
 
@@ -127,19 +141,19 @@ H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
   });
 
   afterEach(() => {
-    H.expectNoBadSnowplowEvents();
+    expectNoBadSnowplowEvents();
   });
 
   it("should replace a dashboard card question (metabase#36984)", () => {
     visitDashboardAndEdit();
 
-    H.findDashCardAction(findHeadingDashcard(), "Replace").should("not.exist");
+    findDashCardAction(findHeadingDashcard(), "Replace").should("not.exist");
 
     // Ensure can replace with a question
     replaceQuestion(findTargetDashcard(), {
       nextQuestionName: "Orders",
     });
-    H.expectGoodSnowplowEvent({ event: "dashboard_card_replaced" });
+    expectGoodSnowplowEvent({ event: "dashboard_card_replaced" });
     findTargetDashcard().within(() => {
       assertDashCardTitle("Orders");
       cy.findByText("Product ID").should("exist");
@@ -157,7 +171,7 @@ H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
     });
 
     // Ensure changes are persisted
-    H.saveDashboard();
+    saveDashboard();
     findTargetDashcard().within(() => {
       assertDashCardTitle("Orders Model");
       cy.findByText("Product ID").should("exist");
@@ -179,7 +193,7 @@ H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
     });
 
     // There're two toasts: "Undo replace" and "Auto-connect"
-    H.undoToastList().eq(0).button("Undo").click();
+    undoToastList().eq(0).button("Undo").click();
 
     // Ensure we kept viz settings and parameter mapping changes from before
     findTargetDashcard().within(() => {
@@ -190,11 +204,11 @@ H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
     });
     assertDashboardFilterMapping(findTargetDashcard(), {
       filterName: PARAMETER.UNUSED.name,
-      expectedColumName: "Orders.Discount",
+      expectedColumName: "Order.Discount",
     });
 
     // Ensure changes are persisted
-    H.saveDashboard();
+    saveDashboard();
     findTargetDashcard().within(() => {
       assertDashCardTitle("Custom name");
       cy.findByText("18,760").should("exist");
@@ -224,7 +238,7 @@ H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
     });
 
     // Ensure changes are persisted
-    H.saveDashboard();
+    saveDashboard();
     findTargetDashcard().within(() => {
       assertDashCardTitle("Next question");
       cy.findByText("Ean").should("exist");
@@ -234,7 +248,7 @@ H.describeWithSnowplow("scenarios > dashboard cards > replace question", () => {
 });
 
 function visitDashboardAndEdit() {
-  H.visitDashboard("@dashboardId");
+  visitDashboard("@dashboardId");
   cy.findByLabelText("Edit dashboard").click();
 }
 
@@ -251,7 +265,7 @@ function replaceQuestion(
   { nextQuestionName, collectionName, tab },
 ) {
   dashcardElement.realHover().findByLabelText("Replace").click();
-  H.entityPickerModal().within(() => {
+  entityPickerModal().within(() => {
     if (tab) {
       cy.findByRole("tablist").findByText(tab).click();
     }
@@ -268,8 +282,8 @@ function assertDashCardTitle(title) {
 }
 
 function overwriteDashCardTitle(dashcardElement, textTitle) {
-  H.findDashCardAction(dashcardElement, "Show visualization options").click();
-  H.modal().within(() => {
+  findDashCardAction(dashcardElement, "Show visualization options").click();
+  modal().within(() => {
     cy.findByLabelText("Title").type(`{selectall}{del}${textTitle}`).blur();
     cy.button("Done").click();
   });
@@ -281,7 +295,7 @@ function connectDashboardFilter(dashcardElement, { filterName, columnName }) {
   );
   filterPanel.findByText(filterName).click();
   dashcardElement.button(/Select/).click();
-  H.popover().findByText(columnName).click();
+  popover().findByText(columnName).click();
   filterPanel.findByText(filterName).click();
 }
 

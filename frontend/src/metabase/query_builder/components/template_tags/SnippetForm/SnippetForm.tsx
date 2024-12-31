@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 import * as Yup from "yup";
@@ -9,20 +10,21 @@ import Button from "metabase/core/components/Button";
 import FormErrorMessage from "metabase/core/components/FormErrorMessage";
 import FormInput from "metabase/core/components/FormInput";
 import FormSubmitButton from "metabase/core/components/FormSubmitButton";
-import FormTextArea from "metabase/core/components/FormTextArea";
 import SnippetCollections from "metabase/entities/snippet-collections";
 import Snippets from "metabase/entities/snippets";
 import { Form, FormProvider } from "metabase/forms";
 import * as Errors from "metabase/lib/errors";
-import { connect } from "metabase/lib/redux";
-import { Flex } from "metabase/ui";
 import type {
   Collection,
   NativeQuerySnippet,
   NativeQuerySnippetId,
 } from "metabase-types/api";
 
-import S from "./SnippetForm.module.css";
+import {
+  FormSnippetTextArea,
+  SnippetFormFooter,
+  SnippetFormFooterContent,
+} from "./SnippetForm.styled";
 
 const SNIPPET_SCHEMA = Yup.object({
   name: Yup.string()
@@ -150,9 +152,8 @@ function SnippetForm({
       onSubmit={handleSubmit}
     >
       {({ dirty }) => (
-        <Form disabled={!dirty} className={S.SnippetForm}>
-          <FormTextArea
-            inputClassName={S.FormSnippetTextArea}
+        <Form disabled={!dirty}>
+          <FormSnippetTextArea
             name="content"
             title={t`Enter some SQL here so you can reuse it later`}
             placeholder="AND canceled_at IS null\nAND account_type = 'PAID'"
@@ -177,8 +178,8 @@ function SnippetForm({
               type="snippet-collections"
             />
           )}
-          <Flex align="center" justify="space-between">
-            <Flex align="center" justify="center" gap="sm">
+          <SnippetFormFooter>
+            <SnippetFormFooterContent>
               {isEditing && (
                 <Button
                   type="button"
@@ -188,14 +189,14 @@ function SnippetForm({
                 >{t`Archive`}</Button>
               )}
               <FormErrorMessage inline />
-            </Flex>
-            <Flex align="center" justify="center" gap="sm">
+            </SnippetFormFooterContent>
+            <SnippetFormFooterContent>
               {!!onCancel && (
                 <Button type="button" onClick={onCancel}>{t`Cancel`}</Button>
               )}
               <FormSubmitButton title={t`Save`} disabled={!dirty} primary />
-            </Flex>
-          </Flex>
+            </SnippetFormFooterContent>
+          </SnippetFormFooter>
         </Form>
       )}
     </FormProvider>

@@ -21,7 +21,7 @@ export interface FormSelectProps<TValue, TOption = SelectOption<TValue>>
 }
 
 /**
- * @deprecated: use FormSelect from "metabase/forms"
+ * @deprecated: use FormSelect from "metabase/ui"
  */
 const FormSelect = forwardRef(function FormSelect<
   TValue,

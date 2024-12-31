@@ -1,5 +1,12 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID, USER_GROUPS } from "e2e/support/cypress_data";
+import {
+  POPOVER_ELEMENT,
+  addPostgresDatabase,
+  openNativeEditor,
+  popover,
+  restore,
+  setTokenFeatures,
+} from "e2e/support/helpers";
 
 const PG_DB_ID = 2;
 const mongoName = "QA Mongo";
@@ -18,7 +25,7 @@ describe(
         "persistDatabase",
       );
 
-      H.restore("postgres-12");
+      restore("postgres-12");
       cy.signInAsAdmin();
       cy.updatePermissionsGraph({
         [ALL_USERS_GROUP]: {
@@ -61,7 +68,7 @@ describe(
     });
 
     it("deleting previously persisted database should result in the new database selection prompt", () => {
-      H.addPostgresDatabase(additionalPG);
+      addPostgresDatabase(additionalPG);
 
       startNativeQuestion();
       assertNoDatabaseSelected();
@@ -100,7 +107,9 @@ describe(
     });
 
     it("should not update the setting when the same database is selected again", () => {
-      H.updateSetting("last-used-native-database-id", SAMPLE_DB_ID);
+      cy.request("PUT", "/api/setting/last-used-native-database-id", {
+        value: SAMPLE_DB_ID,
+      });
 
       startNativeQuestion();
       cy.findByTestId("selected-database")
@@ -143,12 +152,12 @@ describe(
           .should("have.text", postgresName)
           .click();
 
-        cy.get(H.POPOVER_ELEMENT).should("not.exist");
+        cy.get(POPOVER_ELEMENT).should("not.exist");
 
         cy.signOut();
         cy.signInAsAdmin();
 
-        H.addPostgresDatabase(additionalPG);
+        addPostgresDatabase(additionalPG);
         cy.updatePermissionsGraph({
           [ALL_USERS_GROUP]: {
             [ADDITIONAL_PG_DB_ID]: {
@@ -165,7 +174,7 @@ describe(
           .should("have.text", postgresName)
           .click();
 
-        H.popover()
+        popover()
           .should("contain", postgresName)
           .and("contain", "New Database");
       });
@@ -180,7 +189,7 @@ describe(
         .should("have.text", postgresName)
         .click();
 
-      cy.get(H.POPOVER_ELEMENT).should("not.exist");
+      cy.get(POPOVER_ELEMENT).should("not.exist");
     });
 
     it("users that lose permissions to the last used database should not have that database preselected anymore", () => {
@@ -190,7 +199,7 @@ describe(
 
       cy.signOut();
       cy.signInAsAdmin();
-      H.setTokenFeatures("all");
+      setTokenFeatures("all");
       cy.updatePermissionsGraph({
         [DATA_GROUP]: {
           [SAMPLE_DB_ID]: {
@@ -211,7 +220,7 @@ describe(
 
 describe("mongo as the default database", { tags: "@mongo" }, () => {
   beforeEach(() => {
-    H.restore("mongo-5");
+    restore("mongo-5");
     cy.signInAsAdmin();
   });
 
@@ -223,7 +232,7 @@ describe("mongo as the default database", { tags: "@mongo" }, () => {
     cy.findByTestId("native-query-top-bar")
       .findByText("Select a table")
       .click();
-    H.popover().findByText("Reviews").click();
+    popover().findByText("Reviews").click();
     cy.findByTestId("native-query-top-bar").should(
       "not.contain",
       "Select a table",
@@ -238,18 +247,17 @@ describe("mongo as the default database", { tags: "@mongo" }, () => {
 
 describe("scenatios > question > native > mysql", { tags: "@external" }, () => {
   const MYSQL_DB_NAME = "QA MySQL8";
-
   beforeEach(() => {
     cy.intercept("POST", "/api/card").as("createQuestion");
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.restore("mysql-8");
+    restore("mysql-8");
     cy.signInAsAdmin();
   });
 
   it("can write a native MySQL query with a field filter", () => {
     // Write Native query that includes a filter
-    H.openNativeEditor({ databaseName: MYSQL_DB_NAME }).type(
+    openNativeEditor({ databaseName: MYSQL_DB_NAME }).type(
       "SELECT TOTAL, CATEGORY FROM ORDERS LEFT JOIN PRODUCTS ON ORDERS.PRODUCT_ID = PRODUCTS.ID [[WHERE PRODUCTS.ID = {{id}}]];",
       {
         parseSpecialCharSequences: false,
@@ -274,7 +282,7 @@ describe("scenatios > question > native > mysql", { tags: "@external" }, () => {
   });
 
   it("can save a native MySQL query", () => {
-    H.openNativeEditor({ databaseName: MYSQL_DB_NAME }).type(
+    openNativeEditor({ databaseName: MYSQL_DB_NAME }).type(
       "SELECT * FROM ORDERS",
     );
     cy.findByTestId("native-query-editor-container").icon("play").click();
@@ -286,8 +294,21 @@ describe("scenatios > question > native > mysql", { tags: "@external" }, () => {
     cy.contains("37.65");
 
     // Save the query
-    H.saveQuestion("sql count", { wrapId: true });
-    cy.url().should("match", /\/dashboard\/\d+#edit/);
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("Save").click();
+
+    cy.findByTestId("save-question-modal").within(() => {
+      cy.findByLabelText("Name").focus().type("sql count");
+      cy.findByText("Save").should("not.be.disabled").click();
+    });
+
+    cy.wait("@createQuestion");
+
+    cy.findByTextEnsureVisible("Not now").click();
+
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("Save").should("not.exist");
+    cy.url().should("match", /\/question\/\d+-[a-z0-9-]*$/);
   });
 });
 
@@ -298,7 +319,7 @@ describe("scenarios > question > native > mongo", { tags: "@mongo" }, () => {
     cy.intercept("POST", "/api/card").as("createQuestion");
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.restore("mongo-5");
+    restore("mongo-5");
     cy.signInAsAdmin();
     cy.updatePermissionsGraph({
       [ALL_USERS_GROUP]: {
@@ -326,9 +347,11 @@ describe("scenarios > question > native > mongo", { tags: "@mongo" }, () => {
   });
 
   it("can save a native MongoDB query", () => {
-    H.focusNativeEditor().type('[ { $count: "Total" } ]', {
-      parseSpecialCharSequences: false,
-    });
+    cy.get(".ace_content")
+      .should("be.visible")
+      .type('[ { $count: "Total" } ]', {
+        parseSpecialCharSequences: false,
+      });
     cy.findByTestId("native-query-editor-container").icon("play").click();
 
     cy.wait("@dataset");
@@ -358,7 +381,7 @@ describe("scenarios > question > native > mongo", { tags: "@mongo" }, () => {
 function startNativeQuestion() {
   cy.visit("/");
   cy.findByTestId("app-bar").findByText("New").click();
-  H.popover()
+  popover()
     .findByTextEnsureVisible(/(SQL|Native) query/)
     .click();
 }
@@ -373,7 +396,7 @@ function startNativeModel() {
 function startNewAction() {
   cy.visit("/");
   cy.findByTestId("app-bar").findByText("New").click();
-  H.popover().findByTextEnsureVisible("Action").click();
+  popover().findByTextEnsureVisible("Action").click();
 }
 
 function assertNoDatabaseSelected() {
@@ -385,7 +408,7 @@ function assertNoDatabaseSelected() {
 }
 
 function selectDatabase(database) {
-  H.popover().findByText(database).click();
+  popover().findByText(database).click();
   cy.findByTestId("selected-database").should("have.text", database);
 }
 

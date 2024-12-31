@@ -1,4 +1,3 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID, USERS } from "e2e/support/cypress_data";
 import {
   ADMIN_PERSONAL_COLLECTION_ID,
@@ -7,13 +6,19 @@ import {
   ORDERS_DASHBOARD_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  getFullName,
+  navigationSidebar,
+  popover,
+  restore,
+} from "e2e/support/helpers";
 import { SAVED_QUESTIONS_VIRTUAL_DB_ID } from "metabase-lib/v1/metadata/utils/saved-questions";
 
 const { admin, normal } = USERS;
 
 describe("URLs", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -91,10 +96,10 @@ describe("URLs", () => {
 
     it("should not slugify users' collections page URL", () => {
       cy.visit("/collection/root");
-      H.navigationSidebar().within(() => {
+      navigationSidebar().within(() => {
         cy.icon("ellipsis").click();
       });
-      H.popover().findByText("Other users' personal collections").click();
+      popover().findByText("Other users' personal collections").click();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("All personal collections");
       cy.location("pathname").should("eq", "/collection/users");
@@ -114,7 +119,7 @@ describe("URLs", () => {
       );
       cy.findByTestId("collection-name-heading").should(
         "have.text",
-        `${H.getFullName(admin)}'s Personal Collection`,
+        `${getFullName(admin)}'s Personal Collection`,
       );
 
       cy.visit(
@@ -124,7 +129,7 @@ describe("URLs", () => {
       );
       cy.findByTestId("collection-name-heading").should(
         "have.text",
-        `${H.getFullName(normal)}'s Personal Collection`,
+        `${getFullName(normal)}'s Personal Collection`,
       );
     });
   });

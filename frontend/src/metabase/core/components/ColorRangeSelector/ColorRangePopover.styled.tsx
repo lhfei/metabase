@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 export const PopoverRoot = styled.div`
   padding: 0.75rem;
+  width: 19.25rem;
 `;
 
 export const PopoverColorList = styled.div`

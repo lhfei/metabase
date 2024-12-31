@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
 import { useState } from "react";
-import { useTimeout } from "react-use";
+import { useMount, useTimeout } from "react-use";
 import { t } from "ttag";
 
 import LoadingSpinner from "metabase/components/LoadingSpinner";
@@ -43,13 +43,7 @@ export default function QueryVisualization(props) {
       ) : null}
       <VisualizationDirtyState
         {...props}
-        hidden={
-          !canRun ||
-          !isResultDirty ||
-          isRunning ||
-          isNativeEditorOpen ||
-          result?.error
-        }
+        hidden={!canRun || !isResultDirty || isRunning || isNativeEditorOpen}
         className={cx(CS.spread, CS.z2)}
       />
       {!isObjectDetail && (

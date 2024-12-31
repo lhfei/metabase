@@ -1,7 +1,12 @@
 import { produce } from "immer";
 
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  clearFilterWidget,
+  filterWidget,
+  restore,
+  visitDashboard,
+} from "e2e/support/helpers";
 
 const { PRODUCTS } = SAMPLE_DATABASE;
 
@@ -43,7 +48,7 @@ const dashboardDetails = {
 
 describe("scenarios > dashboard > filters > SQL > field filter > required ", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -53,7 +58,7 @@ describe("scenarios > dashboard > filters > SQL > field filter > required ", () 
       dashboardDetails,
     }).then(({ body: dashboardCard }) => {
       const { dashboard_id } = dashboardCard;
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
     // the native SQL filter is not mapped to the dashcard filter
@@ -80,10 +85,10 @@ describe("scenarios > dashboard > filters > SQL > field filter > required ", () 
         ],
       };
       cy.editDashboardCard(dashboardCard, mapFilterToCard);
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
-    H.clearFilterWidget();
+    clearFilterWidget();
 
     // the results should show that the field filter was not applied
     cy.findByTestId("dashcard").within(() => {
@@ -107,7 +112,7 @@ describe("scenarios > dashboard > filters > SQL > field filter > required ", () 
         ],
       };
       cy.editDashboardCard(dashboardCard, mapFilterToCard);
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
     // Default dashboard filter
@@ -115,9 +120,9 @@ describe("scenarios > dashboard > filters > SQL > field filter > required ", () 
 
     cy.findByTestId("dashcard").as("dashboardCard").contains("Widget");
 
-    H.filterWidget().contains("Widget");
+    filterWidget().contains("Widget");
 
-    H.clearFilterWidget();
+    clearFilterWidget();
 
     cy.location("search").should("eq", "?category=");
 
@@ -127,7 +132,7 @@ describe("scenarios > dashboard > filters > SQL > field filter > required ", () 
     );
 
     // The empty filter widget
-    H.filterWidget().contains("Category");
+    filterWidget().contains("Category");
 
     cy.reload();
 

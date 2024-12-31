@@ -6,16 +6,11 @@ import type {
 } from "@dnd-kit/core";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import _ from "underscore";
 
 import GrabberS from "metabase/css/components/grabber.module.css";
 import { isNotNull } from "metabase/lib/types";
-
-export type SortableDivider = {
-  afterIndex: number;
-  renderFn: () => React.ReactNode;
-};
 
 type ItemId = number | string;
 export type DragEndEvent = {
@@ -29,7 +24,7 @@ export type RenderItemProps<T> = {
   id: ItemId;
   isDragOverlay?: boolean;
 };
-type SortableListProps<T> = {
+type useSortableListProps<T> = {
   items: T[];
   getId: (item: T) => ItemId;
   renderItem: ({
@@ -42,7 +37,6 @@ type SortableListProps<T> = {
   sensors?: SensorDescriptor<any>[];
   modifiers?: Modifier[];
   useDragOverlay?: boolean;
-  dividers?: SortableDivider[];
 };
 
 export const SortableList = <T,>({
@@ -54,20 +48,12 @@ export const SortableList = <T,>({
   sensors = [],
   modifiers = [],
   useDragOverlay = true,
-  dividers,
-}: SortableListProps<T>) => {
+}: useSortableListProps<T>) => {
   const [itemIds, setItemIds] = useState<ItemId[]>([]);
   const [indexedItems, setIndexedItems] = useState<Partial<Record<ItemId, T>>>(
     {},
   );
   const [activeItem, setActiveItem] = useState<T | null>(null);
-
-  const dividersByIndex = useMemo(() => {
-    return (dividers ?? []).reduce((acc, item) => {
-      acc.set(item.afterIndex, item);
-      return acc;
-    }, new Map<number, SortableDivider>());
-  }, [dividers]);
 
   useEffect(() => {
     setItemIds(items.map(getId));
@@ -77,20 +63,14 @@ export const SortableList = <T,>({
   const sortableElements = useMemo(
     () =>
       itemIds
-        .map((id, index) => {
+        .map(id => {
           const item = indexedItems[id];
-          const divider = dividersByIndex.get(index);
           if (item) {
-            return (
-              <React.Fragment key={id}>
-                {divider ? divider.renderFn() : null}
-                {renderItem({ item, id })}
-              </React.Fragment>
-            );
+            return renderItem({ item, id });
           }
         })
         .filter(isNotNull),
-    [itemIds, indexedItems, dividersByIndex, renderItem],
+    [itemIds, renderItem, indexedItems],
   );
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {

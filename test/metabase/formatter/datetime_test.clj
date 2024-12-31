@@ -3,8 +3,8 @@
    [clojure.test :refer :all]
    [medley.core :as m]
    [metabase.formatter.datetime :as datetime]
-   [metabase.models.visualization-settings :as mb.viz]
    [metabase.public-settings :as public-settings]
+   [metabase.shared.models.visualization-settings :as mb.viz]
    [metabase.test :as mt]))
 
 (def ^:private now "2020-07-16T18:04:00Z[UTC]")
@@ -25,90 +25,85 @@
     (testing "The default behavior when the :time-enabled key is absent is to show minutes"
       (is (= "h:mm a" (#'datetime/determine-time-format {}))))))
 
-(defn- format-temporal-str
-  ([timezone-id temporal-str col] (format-temporal-str timezone-id temporal-str col {}))
-  ([timezone-id temporal-str col viz-settings]
-   ((datetime/make-temporal-str-formatter timezone-id col viz-settings) temporal-str)))
-
 (deftest format-temporal-str-test
   (mt/with-temporary-setting-values [custom-formatting nil]
     (testing "Null values do not blow up"
       (is (= ""
-             (format-temporal-str "UTC" nil :now))))
+             (datetime/format-temporal-str "UTC" nil :now))))
     (testing "Temporal Units are formatted"
       (testing :minute
         (is (= "July 16, 2020, 6:04 PM"
-               (format-temporal-str "UTC" now {:unit :minute}))))
+               (datetime/format-temporal-str "UTC" now {:unit :minute}))))
       (testing :hour
         (is (= "July 16, 2020, 6 PM"
-               (format-temporal-str "UTC" now {:unit :hour}))))
+               (datetime/format-temporal-str "UTC" now {:unit :hour}))))
       (testing :day
         (is (= "Thursday, July 16, 2020"
-               (format-temporal-str "UTC" now {:unit :day}))))
+               (datetime/format-temporal-str "UTC" now {:unit :day}))))
       (testing :week
         (is (= "July 16, 2020 - July 22, 2020"
-               (format-temporal-str "UTC" now {:unit :week}))))
+               (datetime/format-temporal-str "UTC" now {:unit :week}))))
       (testing :month
         (is (= "July, 2020"
-               (format-temporal-str "UTC" now {:unit :month}))))
+               (datetime/format-temporal-str "UTC" now {:unit :month}))))
       (testing :quarter
         (is (= "Q3 - 2020"
-               (format-temporal-str "UTC" now {:unit :quarter}))))
+               (datetime/format-temporal-str "UTC" now {:unit :quarter}))))
       (testing :year
         (is (= "2020"
-               (format-temporal-str "UTC" now {:unit :year})))))
+               (datetime/format-temporal-str "UTC" now {:unit :year})))))
     (testing "x-of-y Temporal Units are formatted"
       (testing :minute-of-hour
         (is (= "1st"
-               (format-temporal-str "UTC" "1" {:unit :minute-of-hour}))))
+               (datetime/format-temporal-str "UTC" "1" {:unit :minute-of-hour}))))
       (testing :day-of-month
         (is (= "2nd"
-               (format-temporal-str "UTC" "2" {:unit :day-of-month}))))
+               (datetime/format-temporal-str "UTC" "2" {:unit :day-of-month}))))
       (testing :day-of-year
         (is (= "203rd"
-               (format-temporal-str "UTC" "203" {:unit :day-of-year}))))
+               (datetime/format-temporal-str "UTC" "203" {:unit :day-of-year}))))
       (testing :week-of-year
         (is (= "44th"
-               (format-temporal-str "UTC" "44" {:unit :week-of-year}))))
+               (datetime/format-temporal-str "UTC" "44" {:unit :week-of-year}))))
       (testing :day-of-week
         (is (= "Thursday"
-               (format-temporal-str "UTC" "4" {:unit :day-of-week}))))
+               (datetime/format-temporal-str "UTC" "4" {:unit :day-of-week}))))
       (testing :month-of-year
         (is (= "May"
-               (format-temporal-str "UTC" "5" {:unit :month-of-year}))))
+               (datetime/format-temporal-str "UTC" "5" {:unit :month-of-year}))))
       (testing :quarter-of-year
         (is (= "Q3"
-               (format-temporal-str "UTC" "3" {:unit :quarter-of-year}))))
+               (datetime/format-temporal-str "UTC" "3" {:unit :quarter-of-year}))))
       (testing :hour-of-day
         (is (= "4 AM"
-               (format-temporal-str "UTC" "4" {:unit :hour-of-day})))))
+               (datetime/format-temporal-str "UTC" "4" {:unit :hour-of-day})))))
     (testing "Can render time types (#15146)"
       (is (= "8:05 AM"
-             (format-temporal-str "UTC" "08:05:06Z"
-                                  {:effective_type :type/Time}))))
+             (datetime/format-temporal-str "UTC" "08:05:06Z"
+                                           {:effective_type :type/Time}))))
     (testing "Can render date time types (Part of resolving #36484)"
       (is (= "April 1, 2014, 8:30 AM"
-             (format-temporal-str "UTC" "2014-04-01T08:30:00"
-                                  {:effective_type :type/DateTime}))))
+             (datetime/format-temporal-str "UTC" "2014-04-01T08:30:00"
+                                           {:effective_type :type/DateTime}))))
     (testing "When `:time_enabled` is `nil` the time is truncated for date times."
       (is (= "April 1, 2014"
-             (format-temporal-str "UTC" "2014-04-01T08:30:00"
-                                  {:effective_type :type/DateTime
-                                   :settings       {:time_enabled nil}}))))
+             (datetime/format-temporal-str "UTC" "2014-04-01T08:30:00"
+                                           {:effective_type :type/DateTime
+                                            :settings       {:time_enabled nil}}))))
     (testing "When `:time_enabled` is `nil` the time is truncated for times (even though this may not make sense)."
       (is (= ""
-             (format-temporal-str "UTC" "08:05:06Z"
-                                  {:effective_type :type/Time
-                                   :settings       {:time_enabled nil}}))))))
+             (datetime/format-temporal-str "UTC" "08:05:06Z"
+                                           {:effective_type :type/Time
+                                            :settings       {:time_enabled nil}}))))))
 
 (deftest format-temporal-str-column-viz-settings-test
   (mt/with-temporary-setting-values [custom-formatting nil]
     (testing "Written Date Formatting"
       (let [fmt (fn [col-viz]
-                  (format-temporal-str "UTC" now {:field_ref      [:column_name "created_at"]
-                                                  :effective_type :type/Date}
-                                       {::mb.viz/column-settings
-                                        {{::mb.viz/column-name "created_at"} col-viz}}))]
+                  (datetime/format-temporal-str "UTC" now {:field_ref      [:column_name "created_at"]
+                                                           :effective_type :type/Date}
+                                                {::mb.viz/column-settings
+                                                 {{::mb.viz/column-name "created_at"} col-viz}}))]
         (doseq [[date-style normal-result abbreviated-result]
                 [["MMMM D, YYYY" "July 16, 2020" "Jul 16, 2020"]
                  ["D MMMM, YYYY" "16 July, 2020" "16 Jul, 2020"]
@@ -123,10 +118,10 @@
                                (when date-style {::mb.viz/date-style date-style})))))))))
     (testing "Numerical Date Formatting"
       (let [fmt (fn [col-viz]
-                  (format-temporal-str "UTC" now {:field_ref      [:column_name "created_at"]
-                                                  :effective_type :type/Date}
-                                       {::mb.viz/column-settings
-                                        {{::mb.viz/column-name "created_at"} col-viz}}))]
+                  (datetime/format-temporal-str "UTC" now {:field_ref      [:column_name "created_at"]
+                                                           :effective_type :type/Date}
+                                                {::mb.viz/column-settings
+                                                 {{::mb.viz/column-name "created_at"} col-viz}}))]
         (doseq [[date-style slash-result dash-result dot-result]
                 [["M/D/YYYY" "7/16/2020" "7-16-2020" "7.16.2020"]
                  ["D/M/YYYY" "16/7/2020" "16-7-2020" "16.7.2020"]
@@ -150,15 +145,15 @@
         (let [global-settings (m/map-vals mb.viz/db->norm-column-settings-entries
                                           (public-settings/custom-formatting))]
           (is (= "Jul 16, 2020"
-                 (format-temporal-str "UTC" now
-                                      {:effective_type :type/Date}
-                                      {::mb.viz/global-column-settings global-settings})))))
+                 (datetime/format-temporal-str "UTC" now
+                                               {:effective_type :type/Date}
+                                               {::mb.viz/global-column-settings global-settings})))))
       (mt/with-temporary-setting-values [custom-formatting {:type/Temporal {:date_style     "M/DD/YYYY"
                                                                             :date_separator "-"}}]
         (let [global-settings (m/map-vals mb.viz/db->norm-column-settings-entries
                                           (public-settings/custom-formatting))]
           (is (= "7-16-2020, 6:04 PM"
-                 (format-temporal-str
+                 (datetime/format-temporal-str
                   "UTC"
                   now
                   {:effective_type :type/DateTime}
@@ -180,21 +175,21 @@
             time-str            "2023-12-11T21:51:57.265914Z"]
         (testing "Global settings are applied to a :type/DateTimeDateTime"
           (is (= "December 11, 2023, 21:51"
-                 (format-temporal-str "UTC" time-str col common-viz-settings))))
+                 (datetime/format-temporal-str "UTC" time-str col common-viz-settings))))
         (testing "A :type/DateTimeDateTimeWithLocalTZ is a :type/DateTimeDateTime"
           (is (= "December 11, 2023, 21:51"
                  (let [col (assoc col :base_type :type/DateTimeWithLocalTZ)]
-                   (format-temporal-str "UTC" time-str col common-viz-settings)))))
+                   (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))
         (testing "Custom settings are applied when the column has them"
           ;; Note that the time style of the column setting has precedence over the global setting
           (is (= "Monday, December 11, 2023, 9:51:57.265 PM"
                  (let [col (assoc col :name "CUSTOM_DATETIME")]
-                   (format-temporal-str "UTC" time-str col common-viz-settings)))))
+                   (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))
         (testing "Column metadata settings are applied"
           (is (= "Dec 11, 2023, 21:51:57"
                  (let [col (assoc col :settings {:time_enabled "seconds"
                                                  :date_abbreviate true})]
-                   (format-temporal-str "UTC" time-str col common-viz-settings)))))
+                   (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))
         (testing "Various settings can be merged"
           (testing "We abbreviate the base case..."
             (is (= "Dec 11, 2023, 21:51"
@@ -203,7 +198,7 @@
                                                         :type/Temporal
                                                         ::mb.viz/date-abbreviate]
                                                        true)]
-                     (format-temporal-str "UTC" time-str col common-viz-settings)))))
+                     (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))
           (testing "...and we abbreviate the custome column formatting as well"
             (is (= "Mon, Dec 11, 2023, 9:51:57.265 PM"
                    (let [col                 (assoc col :name "CUSTOM_DATETIME")
@@ -212,15 +207,15 @@
                                                         :type/Temporal
                                                         ::mb.viz/date-abbreviate]
                                                        true)]
-                     (format-temporal-str "UTC" time-str col common-viz-settings))))))
+                     (datetime/format-temporal-str "UTC" time-str col common-viz-settings))))))
         (testing "The appropriate formatting is applied when the column type is date"
           (is (= "December 11, 2023"
                  (let [col (assoc col :effective_type :type/Date)]
-                   (format-temporal-str "UTC" time-str col common-viz-settings)))))
+                   (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))
         (testing "The appropriate formatting is applied when the column type is time"
           (is (= "21:51"
                  (let [col (assoc col :effective_type :type/Time)]
-                   (format-temporal-str "UTC" time-str col common-viz-settings)))))
+                   (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))
         (testing "Formatting works for times with a custom time-enabled"
           (is (= "21:51:57.265"
                  (let [col                 (assoc col :effective_type :type/Time)
@@ -229,7 +224,7 @@
                                                       :type/Temporal
                                                       ::mb.viz/time-enabled]
                                                      "milliseconds")]
-                   (format-temporal-str "UTC" time-str col common-viz-settings)))))))))
+                   (datetime/format-temporal-str "UTC" time-str col common-viz-settings)))))))))
 
 (deftest format-default-unit-test
   (testing "When the unit is :default we use the column type."
@@ -238,14 +233,14 @@
                  :effective_type :type/Time
                  :base_type      :type/Time}]
         (is (= "3:30 PM"
-               (format-temporal-str "UTC" "15:30:45Z" col nil))))))
+               (datetime/format-temporal-str "UTC" "15:30:45Z" col nil))))))
   (testing "Corner case: Return the time string when there is no useful information about it _and_ it's not formattable."
     ;; This addresses a rare case (might never happen IRL) in which we try to apply the default formatting of
     ;; "MMMM d, yyyy" to a time, but we don't know it's a time so we error our.
     (mt/with-temporary-setting-values [custom-formatting nil]
       (let [col {:unit           :default}]
         (is (= "15:30:45Z"
-               (format-temporal-str "UTC" "15:30:45Z" col nil)))))))
+               (datetime/format-temporal-str "UTC" "15:30:45Z" col nil)))))))
 
 (deftest ^:parallel year-in-dates-near-start-or-end-of-year-is-correct-test
   (testing "When the date is at the start/end of the year, the year is formatted properly. (#40306)"
@@ -257,9 +252,9 @@
     ;; What we probably do want is 'yyyy' which calculates what day of the year the date is and then returns the year.
     (let [dates (fn [year] [(format "%s-01-01" year) (format "%s-12-31" year)])
           fmt (fn [s]
-                (format-temporal-str "UTC" s {:field_ref      [:column_name "created_at"]
-                                              :effective_type :type/Date}
-                                     {::mb.viz/column-settings
-                                      {{::mb.viz/column-name "created_at"} {::mb.viz/date-style "YYYY-MM-dd"}}}))]
+                (datetime/format-temporal-str "UTC" s {:field_ref      [:column_name "created_at"]
+                                                       :effective_type :type/Date}
+                                              {::mb.viz/column-settings
+                                               {{::mb.viz/column-name "created_at"} {::mb.viz/date-style "YYYY-MM-dd"}}}))]
       (doseq [the-date (mapcat dates (range 2008 3008))]
         (is (= the-date (fmt the-date)))))))

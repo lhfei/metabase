@@ -47,6 +47,7 @@ const mockAction = createMockQueryAction({
 const defaultProps: ActionParametersInputFormProps = {
   action: mockAction,
   mappedParameters: [],
+  prefetchesInitialValues: false,
   initialValues: {},
   onCancel: _.noop,
   onSubmitSuccess: _.noop,
@@ -167,6 +168,7 @@ describe("Actions > ActionParametersInputForm", () => {
       initialValues: {
         id: 888,
       },
+      prefetchesInitialValues: true,
     });
 
     expect(

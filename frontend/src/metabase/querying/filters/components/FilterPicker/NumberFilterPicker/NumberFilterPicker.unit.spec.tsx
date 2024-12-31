@@ -91,9 +91,7 @@ function setup({
 
 async function setOperator(operator: string) {
   await userEvent.click(screen.getByLabelText("Filter operator"));
-  await userEvent.click(
-    await screen.findByRole("menuitem", { name: operator }),
-  );
+  await userEvent.click(await screen.findByText(operator));
 }
 
 describe("NumberFilterPicker", () => {
@@ -102,7 +100,7 @@ describe("NumberFilterPicker", () => {
       setup();
 
       expect(screen.getByText("Total")).toBeInTheDocument();
-      expect(screen.getByText("Between")).toBeInTheDocument();
+      expect(screen.getByDisplayValue("Between")).toBeInTheDocument();
       expect(screen.getByPlaceholderText("Min")).toHaveValue("");
       expect(screen.getByPlaceholderText("Max")).toHaveValue("");
       expect(screen.getByRole("button", { name: "Add filter" })).toBeDisabled();
@@ -112,12 +110,12 @@ describe("NumberFilterPicker", () => {
       setup();
 
       await userEvent.click(screen.getByLabelText("Filter operator"));
-      const menu = await screen.findByRole("menu");
-      const menuItems = within(menu).getAllByRole("menuitem");
+      const listbox = await screen.findByRole("listbox");
+      const options = within(listbox).getAllByRole("option");
 
-      expect(menuItems).toHaveLength(EXPECTED_OPERATORS.length);
+      expect(options).toHaveLength(EXPECTED_OPERATORS.length);
       EXPECTED_OPERATORS.forEach(operatorName =>
-        expect(within(menu).getByText(operatorName)).toBeInTheDocument(),
+        expect(within(listbox).getByText(operatorName)).toBeInTheDocument(),
       );
     });
 
@@ -236,7 +234,7 @@ describe("NumberFilterPicker", () => {
       it("should add a filter with many values", async () => {
         const { getNextFilterParts, getNextFilterColumnName } = setup();
 
-        await userEvent.click(screen.getByText("Between"));
+        await userEvent.click(screen.getByDisplayValue("Between"));
         await userEvent.click(screen.getByText("Equal to"));
         const input = screen.getByPlaceholderText("Enter a number");
         await userEvent.type(input, "-5");
@@ -274,7 +272,7 @@ describe("NumberFilterPicker", () => {
     it("should handle invalid input", async () => {
       setup();
 
-      await userEvent.click(screen.getByText("Between"));
+      await userEvent.click(screen.getByDisplayValue("Between"));
       await userEvent.click(screen.getByText("Equal to"));
       await userEvent.type(
         screen.getByPlaceholderText("Enter a number"),
@@ -305,7 +303,7 @@ describe("NumberFilterPicker", () => {
           );
 
           expect(screen.getByText("Total")).toBeInTheDocument();
-          expect(screen.getByText("Greater than")).toBeInTheDocument();
+          expect(screen.getByDisplayValue("Greater than")).toBeInTheDocument();
           expect(screen.getByDisplayValue(String(value))).toBeInTheDocument();
           expect(screen.getByText("Update filter")).toBeEnabled();
         },
@@ -350,7 +348,7 @@ describe("NumberFilterPicker", () => {
           );
 
           expect(screen.getByText("Total")).toBeInTheDocument();
-          expect(screen.getByText("Between")).toBeInTheDocument();
+          expect(screen.getByDisplayValue("Between")).toBeInTheDocument();
           expect(
             screen.getByDisplayValue(String(leftValue)),
           ).toBeInTheDocument();
@@ -422,7 +420,7 @@ describe("NumberFilterPicker", () => {
         );
 
         expect(screen.getByText("Total")).toBeInTheDocument();
-        expect(screen.getByText("Not empty")).toBeInTheDocument();
+        expect(screen.getByDisplayValue("Not empty")).toBeInTheDocument();
         expect(screen.getByText("Update filter")).toBeEnabled();
       });
 
@@ -447,13 +445,13 @@ describe("NumberFilterPicker", () => {
     it("should list operators", async () => {
       setup(createQueryWithNumberFilter({ operator: "<" }));
 
-      await userEvent.click(screen.getByText("Less than"));
-      const menu = await screen.findByRole("menu");
-      const menuItems = within(menu).getAllByRole("menuitem");
+      await userEvent.click(screen.getByDisplayValue("Less than"));
+      const listbox = await screen.findByRole("listbox");
+      const options = within(listbox).getAllByRole("option");
 
-      expect(menuItems).toHaveLength(EXPECTED_OPERATORS.length);
+      expect(options).toHaveLength(EXPECTED_OPERATORS.length);
       EXPECTED_OPERATORS.forEach(operatorName =>
-        expect(within(menu).getByText(operatorName)).toBeInTheDocument(),
+        expect(within(listbox).getByText(operatorName)).toBeInTheDocument(),
       );
     });
 

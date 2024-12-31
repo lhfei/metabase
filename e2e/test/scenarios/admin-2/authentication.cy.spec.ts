@@ -1,17 +1,24 @@
-import { H } from "e2e/support";
+import {
+  describeEE,
+  main,
+  modal,
+  onlyOnOSS,
+  restore,
+  setTokenFeatures,
+} from "e2e/support/helpers";
 
 import { setupSaml } from "./sso/shared/helpers.js";
 
 describe("scenarios > admin > settings > authentication", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
   describe("page layout", () => {
     describe("oss", { tags: "@OSS" }, () => {
       it("should implement a tab layout for oss customers", () => {
-        H.onlyOnOSS();
+        onlyOnOSS();
 
         cy.visit("/admin/settings/authentication");
 
@@ -28,16 +35,16 @@ describe("scenarios > admin > settings > authentication", () => {
         cy.findByRole("tab").should("not.exist");
         // no tabs on api keys
         cy.visit("/admin/settings/authentication/api-keys");
-        H.main().within(() => {
+        main().within(() => {
           cy.findByText("Manage API Keys");
         });
         cy.findByRole("tab").should("not.exist");
       });
     });
 
-    H.describeEE("ee", () => {
+    describeEE("ee", () => {
       it("should implement a tab layout for enterprise customers", () => {
-        H.setTokenFeatures("all");
+        setTokenFeatures("all");
 
         cy.visit("/admin/settings/authentication");
 
@@ -72,23 +79,23 @@ describe("scenarios > admin > settings > authentication", () => {
 
 describe("scenarios > admin > settings > user provisioning", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
   describe("oss", { tags: "@OSS" }, () => {
     it("user provisioning page should not be availble for OSS customers", () => {
-      H.onlyOnOSS();
+      onlyOnOSS();
       cy.visit("/admin/settings/authentication/user-provisioning");
-      H.main().within(() => {
+      main().within(() => {
         cy.findByText("We're a little lost...");
       });
     });
   });
 
-  H.describeEE("scim settings management", () => {
+  describeEE("scim settings management", () => {
     beforeEach(() => {
-      H.setTokenFeatures("all");
+      setTokenFeatures("all");
     });
 
     it("should be able to setup and manage scim feature", () => {
@@ -105,7 +112,7 @@ describe("scenarios > admin > settings > user provisioning", () => {
       cy.log(
         "should not show endpoint and token inputs if scim has never been enabled before",
       );
-      H.main().within(() => {
+      main().within(() => {
         scimEndpointInput().should("not.exist");
         scimTokenInput().should("not.exist");
       });
@@ -116,7 +123,7 @@ describe("scenarios > admin > settings > user provisioning", () => {
 
       let initialUnmaskedToken = "";
       cy.log("should show unmasked info in modal");
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Here's what you'll need to set SCIM up").should("exist");
         scimEndpointInput().invoke("val").should("contain", "/api/ee/scim/v2");
         scimTokenInput()
@@ -146,13 +153,13 @@ describe("scenarios > admin > settings > user provisioning", () => {
       cy.log("should be able to regenerate a token");
       cy.findByRole("button", { name: /Regenerate/ }).click();
 
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Regenerate token?").should("exist");
         cy.findByRole("button", { name: /Regenerate now/ }).click();
       });
 
       let regeneratedToken = "";
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Copy and save the SCIM token").should("exist");
         scimTokenInput()
           .invoke("val")
@@ -171,11 +178,11 @@ describe("scenarios > admin > settings > user provisioning", () => {
       cy.log("should be able to cancel regenerating a token");
       cy.findByRole("button", { name: /Regenerate/ }).click();
 
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Regenerate token?").should("exist");
         cy.findByRole("button", { name: /Cancel/ }).click();
       });
-      H.modal().should("not.exist");
+      modal().should("not.exist");
 
       scimTokenInput()
         .invoke("val")
@@ -202,7 +209,7 @@ describe("scenarios > admin > settings > user provisioning", () => {
       const samlWarningMessage =
         "When enabled, SAML user provisioning will be turned off in favor of SCIM.";
 
-      H.main().within(() => {
+      main().within(() => {
         cy.log("message should exist while scim has never been enabled");
         cy.findByText(samlWarningMessage).should("exist");
 
@@ -212,11 +219,11 @@ describe("scenarios > admin > settings > user provisioning", () => {
         scimToggle().should("be.checked");
       });
 
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByRole("button", { name: /Done/ }).click();
       });
 
-      H.main().within(() => {
+      main().within(() => {
         cy.findByText(samlWarningMessage).should("not.exist");
 
         cy.log(
@@ -232,7 +239,7 @@ describe("scenarios > admin > settings > user provisioning", () => {
       cy.log("should show error when scim token fails to load");
       cy.intercept("GET", "/api/ee/scim/api_key", { statusCode: 500 });
       cy.visit("/admin/settings/authentication/user-provisioning");
-      H.main().within(() => {
+      main().within(() => {
         cy.findByText("Error fetching SCIM token");
       });
 
@@ -245,7 +252,7 @@ describe("scenarios > admin > settings > user provisioning", () => {
       });
       cy.request("PUT", "api/setting/scim-enabled", { value: true });
       cy.visit("/admin/settings/authentication/user-provisioning");
-      H.main().within(() => {
+      main().within(() => {
         cy.findByText("Token failed to generate, please regenerate one.");
       });
 
@@ -256,12 +263,12 @@ describe("scenarios > admin > settings > user provisioning", () => {
       });
       cy.findByRole("button", { name: /Regenerate/ }).click();
 
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("Regenerate token?").should("exist");
         cy.findByRole("button", { name: /Regenerate now/ }).click();
       });
 
-      H.modal().within(() => {
+      modal().within(() => {
         cy.findByText("An error occurred");
       });
     });

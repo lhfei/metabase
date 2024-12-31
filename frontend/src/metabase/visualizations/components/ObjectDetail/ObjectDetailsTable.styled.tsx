@@ -14,7 +14,7 @@ export const GridContainer = styled.div<GridContainerProps>`
   gap: 1rem;
 `;
 
-interface GridItemProps {
+export interface GridItemProps {
   colSpan?: number;
 }
 

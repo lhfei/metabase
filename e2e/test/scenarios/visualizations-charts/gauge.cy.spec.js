@@ -1,11 +1,11 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import { restore, visitDashboard } from "e2e/support/helpers";
 
 const { ORDERS_ID } = SAMPLE_DATABASE;
 
 describe("scenarios > visualizations > gauge chart", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -33,7 +33,7 @@ describe("scenarios > visualizations > gauge chart", () => {
           ],
         });
 
-        H.visitDashboard(dashboard_id);
+        visitDashboard(dashboard_id);
       },
     );
 

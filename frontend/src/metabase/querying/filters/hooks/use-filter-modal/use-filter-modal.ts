@@ -1,21 +1,23 @@
 import { useMemo, useRef, useState } from "react";
 
 import * as Lib from "metabase-lib";
-import type Question from "metabase-lib/v1/Question";
 
 import { SEARCH_KEY } from "./constants";
-import { getGroupItems, hasFilters, removeFilters } from "./utils/filters";
-import { isSearchActive, searchGroupItems } from "./utils/search";
+import {
+  appendStageIfAggregated,
+  getGroupItems,
+  hasFilters,
+  isSearchActive,
+  removeFilters,
+  searchGroupItems,
+} from "./utils";
 
 export const useFilterModal = (
-  question: Question,
+  initialQuery: Lib.Query,
   onSubmit: (newQuery: Lib.Query) => void,
 ) => {
   const [query, setQuery] = useState(() =>
-    // Pivot tables cannot work when there is an extra stage added on top of breakouts and aggregations
-    question.display() === "pivot"
-      ? question.query()
-      : Lib.ensureFilterStage(question.query()),
+    appendStageIfAggregated(initialQuery),
   );
   const queryRef = useRef(query);
   const [version, setVersion] = useState(1);

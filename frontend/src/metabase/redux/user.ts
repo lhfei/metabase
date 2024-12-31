@@ -43,8 +43,7 @@ export const currentUser = createReducer<User | null>(null, builder => {
       return state;
     })
     .addCase(Users.actionTypes.UPDATE, (state, { payload }) => {
-      const isCurrentUserUpdated =
-        payload.user && state?.id === payload.user.id;
+      const isCurrentUserUpdated = state?.id === payload.user.id;
       if (isCurrentUserUpdated) {
         return {
           ...state,

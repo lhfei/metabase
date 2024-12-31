@@ -1,6 +1,3 @@
-import _ from "underscore";
-
-import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { popover } from "e2e/support/helpers";
 
 export function selectSidebarItem(item) {
@@ -21,20 +18,18 @@ export function modifyPermission(
 ) {
   selectPermissionRow(item, permissionIndex);
 
-  popover()
-    .should("have.length", 1)
-    .within(() => {
-      if (shouldPropagate !== null) {
-        cy.findByRole("switch")
-          .as("toggle")
-          .then($el => {
-            if ($el.attr("aria-checked") !== shouldPropagate.toString()) {
-              cy.get("@toggle").click();
-            }
-          });
-      }
-      value && cy.findByText(value).click();
-    });
+  popover().within(() => {
+    if (shouldPropagate !== null) {
+      cy.findByRole("switch")
+        .as("toggle")
+        .then($el => {
+          if ($el.attr("aria-checked") !== shouldPropagate.toString()) {
+            cy.get("@toggle").click();
+          }
+        });
+    }
+    value && cy.findByText(value).click();
+  });
 }
 
 export function selectPermissionRow(item, permissionIndex) {
@@ -126,39 +121,4 @@ export function assertSameBeforeAndAfterSave(assertionCallback) {
   assertionCallback();
   savePermissions();
   assertionCallback();
-}
-
-export function assertDatasetReqIsSandboxed(options = {}) {
-  const { requestAlias = "@dataset", columnId, columnAssertion } = options;
-
-  cy.get(requestAlias).then(({ response }) => {
-    // check if data is reporting itself as sandboxed
-    const { data } = response.body;
-    expect(data.is_sandboxed).to.equal(true);
-
-    // if options to make assertions on a columns data
-    if (columnId && columnAssertion) {
-      const colIndex = data.cols.findIndex(c => c.id === columnId);
-      expect(colIndex).to.be.gte(0);
-
-      const values = data.rows.map(row => row[colIndex]);
-
-      const assertionFn = _.isFunction(columnAssertion)
-        ? columnAssertion
-        : val => val === columnAssertion;
-      const errMsg = `Expected every result in column to be equal to: ${columnAssertion}`;
-      expect(values.every(assertionFn)).to.equal(true, errMsg);
-    }
-  });
-}
-
-export function blockUserGroupPermissions(groupId, databaseId = SAMPLE_DB_ID) {
-  cy.updatePermissionsGraph({
-    [groupId]: {
-      [databaseId]: {
-        "view-data": "blocked",
-        "create-queries": "no",
-      },
-    },
-  });
 }

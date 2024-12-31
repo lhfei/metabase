@@ -9,7 +9,7 @@ import type {
   SearchModel,
 } from "metabase-types/api";
 
-export type IconModel = SearchModel | CollectionItemModel | "schema";
+type IconModel = SearchModel | CollectionItemModel | "schema";
 
 export type ObjectWithModel = {
   id?: unknown;
@@ -22,7 +22,7 @@ export type ObjectWithModel = {
   is_personal?: boolean;
 };
 
-export const modelIconMap: Record<IconModel, IconName> = {
+const modelIconMap: Record<IconModel, IconName> = {
   collection: "folder",
   database: "database",
   table: "table",

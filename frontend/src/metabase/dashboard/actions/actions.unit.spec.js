@@ -24,7 +24,6 @@ DashboardApi.parameterValues = jest.fn();
 describe("dashboard actions", () => {
   let dispatch;
   let getState;
-
   beforeEach(() => {
     dispatch = jest.fn();
     getState = () => ({

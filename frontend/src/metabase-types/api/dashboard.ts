@@ -1,7 +1,6 @@
 import type { EmbeddingParameters } from "metabase/public/lib/types";
 import type {
   BaseEntityId,
-  CardDisplayType,
   ClickBehavior,
   Collection,
   CollectionAuthorityLevel,
@@ -12,8 +11,6 @@ import type {
   ParameterId,
   ParameterTarget,
   Table,
-  UserId,
-  VirtualCardDisplay,
 } from "metabase-types/api";
 
 import type {
@@ -21,9 +18,8 @@ import type {
   WritebackAction,
   WritebackActionId,
 } from "./actions";
-import type { Card, CardId, VisualizationSettings } from "./card";
+import type { Card, CardDisplayType, CardId } from "./card";
 import type { Dataset } from "./dataset";
-import type { ModerationReview } from "./moderation";
 import type { SearchModel } from "./search";
 
 // x-ray dashboard have string ids
@@ -40,7 +36,6 @@ export interface Dashboard {
   id: DashboardId;
   entity_id: BaseEntityId;
   created_at: string;
-  creator_id: UserId;
   updated_at: string;
   collection?: Collection | null;
   collection_id: CollectionId | null;
@@ -75,8 +70,6 @@ export interface Dashboard {
   embedding_params?: EmbeddingParameters | null;
   width: DashboardWidth;
 
-  moderation_reviews: ModerationReview[];
-
   /* Indicates whether static embedding for this dashboard has been published */
   enable_embedding: boolean;
 }
@@ -104,7 +97,6 @@ export type DashboardCardLayoutAttrs = {
 export type DashCardVisualizationSettings = {
   [key: string]: unknown;
   virtual_card?: VirtualCard;
-  iframe?: string;
 };
 
 export type BaseDashboardCard = DashboardCardLayoutAttrs & {
@@ -121,13 +113,20 @@ export type BaseDashboardCard = DashboardCardLayoutAttrs & {
   updated_at: string;
 };
 
+export type VirtualCardDisplay =
+  | "action"
+  | "heading"
+  | "link"
+  | "placeholder"
+  | "text";
+
 export type VirtualCard = Partial<
-  Omit<Card, "name" | "dataset_query" | "visualization_settings" | "display">
+  Omit<Card, "name" | "dataset_query" | "visualization_settings">
 > & {
   name: null;
   dataset_query: Record<string, never>;
   display: VirtualCardDisplay;
-  visualization_settings: VisualizationSettings;
+  visualization_settings: Record<string, never>;
 };
 
 export type ActionDashboardCard = Omit<
@@ -260,27 +259,23 @@ export type CreateDashboardRequest = {
 
 export type UpdateDashboardRequest = {
   id: DashboardId;
+  parameters?: Parameter[] | null;
+  point_of_interest?: string | null;
+  description?: string | null;
+  archived?: boolean | null;
+  dashcards?: DashboardCard[] | null;
   collection_position?: number | null;
+  tabs?: DashboardTab[];
+  show_in_getting_started?: boolean | null;
+  enable_embedding?: boolean | null;
+  collection_id?: CollectionId | null;
+  name?: string | null;
+  width?: DashboardWidth | null;
   caveats?: string | null;
+  embedding_params?: EmbeddingParameters | null;
+  cache_ttl?: number;
   position?: number | null;
-} & Partial<
-  Pick<
-    Dashboard,
-    | "parameters"
-    | "point_of_interest"
-    | "description"
-    | "archived"
-    | "dashcards"
-    | "tabs"
-    | "show_in_getting_started"
-    | "enable_embedding"
-    | "collection_id"
-    | "name"
-    | "width"
-    | "embedding_params"
-    | "cache_ttl"
-  >
->;
+};
 
 export type GetDashboardQueryMetadataRequest = {
   id: DashboardId;
@@ -297,11 +292,3 @@ export type CopyDashboardRequest = {
   collection_position?: number | null;
   is_deep_copy?: boolean | null;
 };
-
-export type UpdateDashboardPropertyRequest<
-  Key extends keyof UpdateDashboardRequest,
-> = Required<Pick<UpdateDashboardRequest, "id" | Key>>;
-
-export type GetPublicDashboard = Pick<Dashboard, "id" | "name" | "public_uuid">;
-
-export type GetEmbeddableDashboard = Pick<Dashboard, "id" | "name">;

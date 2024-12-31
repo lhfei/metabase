@@ -83,7 +83,6 @@ describe("movingAverageClause", () => {
           offset,
           includeCurrentPeriod,
         );
-
         it("produces correct aggregation name", () => {
           const info = displayInfo(query, stageIndex, clause);
           expect(info.displayName).toBe("Count (2-period moving average)");
@@ -239,7 +238,6 @@ describe("movingAverageClause", () => {
           offset,
           includeCurrentPeriod,
         );
-
         it("produces correct aggregation name", () => {
           const info = displayInfo(query, stageIndex, clause);
           expect(info.displayName).toBe("Count (2-period moving average)");

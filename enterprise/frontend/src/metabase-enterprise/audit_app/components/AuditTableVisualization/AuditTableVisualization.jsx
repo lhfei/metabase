@@ -9,7 +9,7 @@ import EmptyState from "metabase/components/EmptyState";
 import CheckBox from "metabase/core/components/CheckBox";
 import AdminS from "metabase/css/admin.module.css";
 import CS from "metabase/css/core/index.css";
-import { displayNameForColumn, formatValue } from "metabase/lib/formatting";
+import { formatColumn, formatValue } from "metabase/lib/formatting";
 import { Icon } from "metabase/ui";
 import { registerVisualization } from "metabase/visualizations/index";
 import { isColumnRightAligned } from "metabase/visualizations/lib/table";
@@ -147,7 +147,7 @@ export class AuditTableVisualization extends Component {
                   isRightAligned={isColumnRightAligned(column)}
                   onClick={() => this.handleColumnHeaderClick(column)}
                 >
-                  {displayNameForColumn(cols[colIndex])}
+                  {formatColumn(cols[colIndex])}
                   {isSortedByColumn && (
                     <Icon
                       className={CS.ml1}

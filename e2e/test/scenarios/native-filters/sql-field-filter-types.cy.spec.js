@@ -1,4 +1,4 @@
-import { H } from "e2e/support";
+import { openNativeEditor, restore } from "e2e/support/helpers";
 
 import * as DateFilter from "./helpers/e2e-date-filter-helpers";
 import {
@@ -14,7 +14,7 @@ const dateFilters = Object.entries(DATE_FILTER_SUBTYPES);
 describe("scenarios > filters > sql filters > field filter > Date", () => {
   function openDateFilterPicker(isFilterRequired) {
     const selector = isFilterRequired
-      ? cy.findByText("Select a default value…")
+      ? cy.findByPlaceholderText("Select a default value…")
       : cy.get("fieldset");
 
     return selector.click();
@@ -24,7 +24,6 @@ describe("scenarios > filters > sql filters > field filter > Date", () => {
     filterType,
     filterValue,
     isFilterRequired = false,
-    buttonLabel = "Add filter",
   } = {}) {
     openDateFilterPicker(isFilterRequired);
 
@@ -39,20 +38,20 @@ describe("scenarios > filters > sql filters > field filter > Date", () => {
 
       case "Single Date":
         DateFilter.setSingleDate(filterValue);
-        cy.findByText(buttonLabel).click();
+        cy.findByText("Add filter").click();
         break;
 
       case "Date Range":
         DateFilter.setDateRange(filterValue);
-        cy.findByText(buttonLabel).click();
+        cy.findByText("Add filter").click();
         break;
 
       case "Relative Date":
         DateFilter.setRelativeDate(filterValue);
         break;
 
-      case "All Options":
-        DateFilter.setAdHocFilter(filterValue, buttonLabel);
+      case "Date Filter":
+        DateFilter.setAdHocFilter(filterValue);
         break;
 
       default:
@@ -61,13 +60,12 @@ describe("scenarios > filters > sql filters > field filter > Date", () => {
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.intercept("POST", "api/dataset").as("dataset");
 
     cy.signInAsAdmin();
 
-    H.startNewNativeQuestion();
-
+    openNativeEditor();
     SQLFilter.enterParameterizedQuery("SELECT * FROM products WHERE {{f}}");
 
     SQLFilter.openTypePickerFromDefaultFilterType();
@@ -109,7 +107,6 @@ describe("scenarios > filters > sql filters > field filter > Date", () => {
         filterType: subType,
         filterValue: value,
         isFilterRequired: true,
-        buttonLabel: "Add filter",
       });
 
       SQLFilter.runQuery();
@@ -123,14 +120,13 @@ describe("scenarios > filters > sql filters > field filter > Date", () => {
 
 describe("scenarios > filters > sql filters > field filter > Number", () => {
   const numericFilters = Object.entries(NUMBER_FILTER_SUBTYPES);
-
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.intercept("POST", "api/dataset").as("dataset");
 
     cy.signInAsAdmin();
 
-    H.startNewNativeQuestion();
+    openNativeEditor();
     SQLFilter.enterParameterizedQuery("SELECT * FROM products WHERE {{f}}");
 
     SQLFilter.openTypePickerFromDefaultFilterType();
@@ -168,7 +164,7 @@ describe("scenarios > filters > sql filters > field filter > Number", () => {
 
         FieldFilter.setWidgetType(subType);
 
-        FieldFilter.addDefaultNumberFilter(value, "Update filter");
+        FieldFilter.addDefaultNumberFilter(value);
 
         SQLFilter.runQuery();
 
@@ -182,14 +178,13 @@ describe("scenarios > filters > sql filters > field filter > Number", () => {
 
 describe("scenarios > filters > sql filters > field filter > String", () => {
   const stringFilters = Object.entries(STRING_FILTER_SUBTYPES);
-
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.intercept("POST", "api/dataset").as("dataset");
 
     cy.signInAsAdmin();
 
-    H.startNewNativeQuestion();
+    openNativeEditor();
     SQLFilter.enterParameterizedQuery("SELECT * FROM products WHERE {{f}}");
 
     SQLFilter.openTypePickerFromDefaultFilterType();
@@ -238,7 +233,7 @@ describe("scenarios > filters > sql filters > field filter > String", () => {
         FieldFilter.setWidgetType(subType);
 
         searchTerm
-          ? FieldFilter.pickDefaultValue(searchTerm, value, "Update filter")
+          ? FieldFilter.pickDefaultValue(searchTerm, value)
           : FieldFilter.addDefaultStringFilter(value);
 
         SQLFilter.runQuery();

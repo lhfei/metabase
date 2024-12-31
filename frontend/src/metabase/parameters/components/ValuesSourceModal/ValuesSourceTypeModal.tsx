@@ -1,5 +1,6 @@
 import type { ChangeEvent } from "react";
 import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { connect } from "react-redux";
 import { jt, t } from "ttag";
 import _ from "underscore";
 
@@ -14,7 +15,7 @@ import SelectButton from "metabase/core/components/SelectButton";
 import Questions from "metabase/entities/questions";
 import Tables from "metabase/entities/tables";
 import { useSafeAsyncFunction } from "metabase/hooks/use-safe-async-function";
-import { connect, useSelector } from "metabase/lib/redux";
+import { useSelector } from "metabase/lib/redux";
 import { getLearnUrl } from "metabase/selectors/settings";
 import { getShowMetabaseLinks } from "metabase/selectors/whitelabel";
 import { Box, Flex, Icon } from "metabase/ui";
@@ -444,11 +445,11 @@ function ModelHint() {
   const href = getLearnUrl("data-modeling/models");
   const text = t`do it once in a model`;
   const link = showMetabaseLinks ? (
-    <strong key="link">
+    <strong>
       <ExternalLink href={href}>{text}</ExternalLink>
     </strong>
   ) : (
-    <strong key="text">{text}</strong>
+    <strong>{text}</strong>
   );
 
   return (

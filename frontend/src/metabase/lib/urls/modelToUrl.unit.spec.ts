@@ -1,5 +1,4 @@
 import { modelToUrl } from "./modelToUrl";
-
 describe("urls > modelToUrl", () => {
   it("should return null for unknown model", () => {
     expect(

@@ -18,7 +18,6 @@ import { getWaterfallChartModel } from "metabase/visualizations/echarts/cartesia
 import { getWaterfallChartOption } from "metabase/visualizations/echarts/cartesian/waterfall/option";
 import { useBrowserRenderingContext } from "metabase/visualizations/hooks/use-browser-rendering-context";
 import type { VisualizationProps } from "metabase/visualizations/types";
-import type { CardDisplayType } from "metabase-types/api";
 
 export function useModelsAndOption(
   {
@@ -30,7 +29,6 @@ export function useModelsAndOption(
     fontFamily,
     width,
     height,
-    hiddenSeries = new Set(),
     timelineEvents,
     selectedTimelineEventIds,
     onRender,
@@ -69,21 +67,8 @@ export function useModelsAndOption(
       getModel = getScatterPlotModel;
     }
 
-    return getModel(
-      seriesToRender,
-      settings,
-      Array.from(hiddenSeries),
-      renderingContext,
-      showWarning,
-    );
-  }, [
-    card.display,
-    seriesToRender,
-    settings,
-    hiddenSeries,
-    renderingContext,
-    showWarning,
-  ]);
+    return getModel(seriesToRender, settings, renderingContext, showWarning);
+  }, [card.display, seriesToRender, settings, renderingContext, showWarning]);
 
   const chartMeasurements = useMemo(
     () =>
@@ -123,13 +108,8 @@ export function useModelsAndOption(
   }, [selectedTimelineEventIds, hovered?.timelineEvents]);
 
   const tooltipOption = useMemo(() => {
-    return getTooltipOption(
-      chartModel,
-      settings,
-      card.display as CardDisplayType,
-      containerRef,
-    );
-  }, [chartModel, settings, card.display, containerRef]);
+    return getTooltipOption(chartModel, settings, containerRef);
+  }, [chartModel, settings, containerRef]);
 
   const option = useMemo(() => {
     if (width === 0 || height === 0) {

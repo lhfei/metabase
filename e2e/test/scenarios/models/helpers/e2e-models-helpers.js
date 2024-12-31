@@ -3,7 +3,6 @@ import {
   entityPickerModalTab,
   interceptIfNotPreviouslyDefined,
   modal,
-  nativeEditor,
   openQuestionActions,
   popover,
 } from "e2e/support/helpers";
@@ -74,7 +73,7 @@ export function assertIsModel() {
 
   // For native
   cy.findByText("This question is written in SQL.").should("not.exist");
-  nativeEditor().should("not.exist");
+  cy.get("ace_content").should("not.exist");
 }
 
 // Requires question actions to be open
@@ -110,7 +109,7 @@ export function startQuestionFromModel(modelName) {
   cy.findByTestId("app-bar").findByText("New").click();
   popover().findByText("Question").should("be.visible").click();
   entityPickerModal().within(() => {
-    entityPickerModalTab("Collections").click();
+    entityPickerModalTab("Models").click();
     cy.findByText(modelName).click();
   });
 }

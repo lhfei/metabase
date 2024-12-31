@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { t } from "ttag";
 
 import { ToolbarButton } from "metabase/components/ToolbarButton";
@@ -20,9 +20,8 @@ import { Icon, Menu, Text } from "metabase/ui";
 export const AddFilterParameterButton = () => {
   const sections = getDashboardParameterSections();
   const dispatch = useDispatch();
-  const isOpened = useSelector(getIsAddParameterPopoverOpen);
-  const [rightSectionWidth, setRightSectionWidth] = useState(0);
-  const rightSectionWidthRef = useRef(0);
+  const isAddParameterPopoverOpen = useSelector(getIsAddParameterPopoverOpen);
+  const [maxRightSectionWidth, setMaxRightSectionWidth] = useState(0);
 
   const handleItemClick = (section: ParameterSection) => {
     const defaultOption = getDefaultOptionForParameterSectionMap()[section.id];
@@ -33,22 +32,15 @@ export const AddFilterParameterButton = () => {
 
   const handleRightSectionRef = (rightSection: HTMLDivElement | null) => {
     if (rightSection) {
-      rightSectionWidthRef.current = Math.max(
-        rightSectionWidthRef.current,
-        rightSection.clientWidth,
+      setMaxRightSectionWidth(maxWidth =>
+        Math.max(maxWidth, rightSection.clientWidth),
       );
     }
   };
 
-  useLayoutEffect(() => {
-    if (isOpened) {
-      setRightSectionWidth(rightSectionWidthRef.current);
-    }
-  }, [isOpened]);
-
   return (
     <Menu
-      opened={isOpened}
+      opened={isAddParameterPopoverOpen}
       onClose={() => dispatch(hideAddParameterPopover())}
       position="bottom-end"
     >
@@ -56,7 +48,7 @@ export const AddFilterParameterButton = () => {
         <ToolbarButton
           icon="filter"
           onClick={() =>
-            isOpened
+            isAddParameterPopoverOpen
               ? dispatch(hideAddParameterPopover())
               : dispatch(showAddParameterPopover())
           }
@@ -74,7 +66,7 @@ export const AddFilterParameterButton = () => {
               <Text
                 ref={handleRightSectionRef}
                 c="inherit"
-                miw={rightSectionWidth}
+                miw={maxRightSectionWidth}
               >
                 {section.description}
               </Text>

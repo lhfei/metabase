@@ -1,7 +1,11 @@
-import type {
-  ComputedVisualizationSettings,
-  Padding,
-} from "metabase/visualizations/types";
+import type { ComputedVisualizationSettings } from "metabase/visualizations/types";
+
+export interface Padding {
+  top: number;
+  left: number;
+  bottom: number;
+  right: number;
+}
 
 export interface TicksDimensions {
   yTicksWidthLeft: number;

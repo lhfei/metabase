@@ -547,7 +547,6 @@ describe("AddToDashSelectDashModal", () => {
         typedText,
       );
 
-      await waitForLoaderToBeRemoved();
       await screen.findAllByTestId("result-item");
 
       const call = fetchMock.lastCall("path:/api/search");
@@ -577,7 +576,6 @@ describe("AddToDashSelectDashModal", () => {
         typedText,
       );
 
-      await waitForLoaderToBeRemoved();
       await screen.findAllByTestId("result-item");
 
       const call = fetchMock.lastCall("path:/api/search");

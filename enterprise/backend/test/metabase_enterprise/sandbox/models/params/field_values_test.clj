@@ -2,13 +2,21 @@
   (:require
    [clojure.test :refer :all]
    [java-time.api :as t]
-   [metabase-enterprise.sandbox.models.group-table-access-policy :refer [GroupTableAccessPolicy]]
-   [metabase-enterprise.sandbox.models.params.field-values :as ee-params.field-values]
+   [metabase-enterprise.sandbox.models.group-table-access-policy
+    :refer [GroupTableAccessPolicy]]
+   [metabase-enterprise.sandbox.models.params.field-values
+    :as ee-params.field-values]
    [metabase-enterprise.test :as met]
-   [metabase.models :refer [Card Field FieldValues PermissionsGroup PermissionsGroupMembership User]]
+   [metabase.models
+    :refer [Card
+            Field
+            FieldValues
+            PermissionsGroup
+            PermissionsGroupMembership
+            User]]
    [metabase.models.field-values :as field-values]
    [metabase.models.params.field-values :as params.field-values]
-   [metabase.request.core :as request]
+   [metabase.server.middleware.session :as mw.session]
    [metabase.test :as mt]
    [toucan2.core :as t2]))
 
@@ -112,7 +120,7 @@
       (with-redefs [ee-params.field-values/field-is-sandboxed? (constantly true)]
         (letfn [(hash-for-user-id-with-attributes [user-id login_attributes field-id]
                   (mt/with-temp-vals-in-db User user-id {:login_attributes login_attributes}
-                    (request/with-current-user user-id
+                    (mw.session/with-current-user user-id
                       (ee-params.field-values/hash-key-for-sandbox field-id))))]
           (testing "2 users in the same group"
             (mt/with-temp

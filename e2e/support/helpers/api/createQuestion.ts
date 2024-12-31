@@ -1,12 +1,5 @@
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
-import type {
-  Card,
-  DatasetQuery,
-  NativeQuery,
-  StructuredQuery,
-} from "metabase-types/api";
-
-import { visitMetric, visitModel, visitQuestion } from "../e2e-misc-helpers";
+import type { Card, DatasetQuery, StructuredQuery } from "metabase-types/api";
 
 export type QuestionDetails = {
   dataset_query: DatasetQuery;
@@ -30,11 +23,6 @@ export type QuestionDetails = {
    * Parent collection in which to store this question.
    */
   collection_id?: Card["collection_id"];
-
-  /**
-   * Parent dashboard in which to store this question.
-   */
-  dashboard_id?: Card["dashboard_id"];
   /**
    * Used on the frontend to determine whether the question is pinned or not.
    */
@@ -55,14 +43,6 @@ export type StructuredQuestionDetails = Omit<
    */
   database?: DatasetQuery["database"];
   query: StructuredQuery;
-};
-
-export type NativeQuestionDetails = Omit<QuestionDetails, "dataset_query"> & {
-  /**
-   * Defaults to SAMPLE_DB_ID.
-   */
-  database?: DatasetQuery["database"];
-  native: NativeQuery;
 };
 
 export type Options = {
@@ -124,14 +104,13 @@ export const question = (
     parameters,
     visualization_settings = {},
     collection_id,
-    dashboard_id,
     collection_position,
     embedding_params,
     enable_embedding = false,
   }: QuestionDetails,
   {
     loadMetadata = false,
-    visitQuestion: shouldVisitQuestion = false,
+    visitQuestion = false,
     wrapId = false,
     idAlias = "questionId",
     interceptAlias = "cardQuery",
@@ -146,7 +125,6 @@ export const question = (
       parameters,
       visualization_settings,
       collection_id,
-      dashboard_id,
       collection_position,
     })
     .then(({ body }) => {
@@ -170,17 +148,17 @@ export const question = (
         });
       }
 
-      if (loadMetadata || shouldVisitQuestion) {
+      if (loadMetadata || visitQuestion) {
         if (type === "model") {
-          visitModel(body.id);
-        } else if (type === "metric") {
-          visitMetric(body.id);
+          cy.intercept("POST", "/api/dataset").as("dataset");
+          cy.visit(`/model/${body.id}`);
+          cy.wait("@dataset"); // Wait for `result_metadata` to load
         } else {
           // We need to use the wildcard because endpoint for pivot tables has the following format: `/api/card/pivot/${id}/query`
           cy.intercept("POST", `/api/card/**/${body.id}/query`).as(
             interceptAlias,
           );
-          visitQuestion(body.id);
+          cy.visit(`/question/${body.id}`);
           cy.wait("@" + interceptAlias); // Wait for `result_metadata` to load
         }
       }

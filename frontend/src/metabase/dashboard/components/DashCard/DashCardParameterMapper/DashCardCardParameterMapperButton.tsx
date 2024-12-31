@@ -71,22 +71,6 @@ export const DashCardCardParameterMapperButton = ({
         };
       }
 
-      if (target != null && !selectedMappingOption) {
-        return {
-          buttonVariant: "invalid",
-          buttonText: t`Unknown Field`,
-          buttonIcon: (
-            <CloseIconButton
-              aria-label={t`Disconnect`}
-              onClick={e => {
-                handleChangeTarget(null);
-                e.stopPropagation();
-              }}
-            />
-          ),
-        };
-      }
-
       if (isDisabled && !isVirtual) {
         return {
           buttonVariant: "disabled",
@@ -104,6 +88,22 @@ export const DashCardCardParameterMapperButton = ({
           buttonIcon: (
             <CloseIconButton
               role="button"
+              aria-label={t`Disconnect`}
+              onClick={e => {
+                handleChangeTarget(null);
+                e.stopPropagation();
+              }}
+            />
+          ),
+        };
+      }
+
+      if (target != null) {
+        return {
+          buttonVariant: "invalid",
+          buttonText: t`Unknown Field`,
+          buttonIcon: (
+            <CloseIconButton
               aria-label={t`Disconnect`}
               onClick={e => {
                 handleChangeTarget(null);

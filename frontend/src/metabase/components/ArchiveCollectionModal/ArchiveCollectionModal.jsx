@@ -1,17 +1,17 @@
 /* eslint-disable react/prop-types */
 import { Component } from "react";
+import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { push } from "react-router-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
-import { ArchiveModal } from "metabase/components/ArchiveModal";
-import Collections from "metabase/entities/collections";
-import { connect } from "metabase/lib/redux";
+import ArchiveModal from "metabase/components/ArchiveModal";
+import Collection from "metabase/entities/collections";
 import * as Urls from "metabase/lib/urls";
 
 const mapDispatchToProps = {
-  setCollectionArchived: Collections.actions.setArchived,
+  setCollectionArchived: Collection.actions.setArchived,
   push,
 };
 
@@ -26,8 +26,6 @@ class ArchiveCollectionModalInner extends Component {
       <ArchiveModal
         title={t`Move this collection to trash?`}
         message={t`The dashboards, collections, and alerts in this collection will also be moved to the trash.`}
-        model="collection"
-        modelId={this.props.collection.id}
         onClose={this.props.onClose}
         onArchive={this.archive}
       />
@@ -37,7 +35,7 @@ class ArchiveCollectionModalInner extends Component {
 
 const ArchiveCollectionModal = _.compose(
   connect(null, mapDispatchToProps),
-  Collections.load({
+  Collection.load({
     id: (state, props) => Urls.extractCollectionId(props.params.slug),
   }),
   withRouter,

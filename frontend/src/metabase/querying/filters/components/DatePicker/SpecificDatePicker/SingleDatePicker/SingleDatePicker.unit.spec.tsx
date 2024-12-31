@@ -10,8 +10,7 @@ const DATE_TIME = new Date(2020, 0, 10, 10, 20);
 
 interface SetupOpts {
   value?: SingleDatePickerValue;
-  submitButtonLabel?: string;
-  hasTimeToggle?: boolean;
+  isNew?: boolean;
 }
 
 const userEvent = _userEvent.setup({
@@ -20,8 +19,7 @@ const userEvent = _userEvent.setup({
 
 function setup({
   value = { date: DATE, hasTime: false },
-  submitButtonLabel = "Apply",
-  hasTimeToggle = false,
+  isNew = false,
 }: SetupOpts = {}) {
   const onChange = jest.fn();
   const onSubmit = jest.fn();
@@ -29,8 +27,7 @@ function setup({
   renderWithProviders(
     <SingleDatePicker
       value={value}
-      submitButtonLabel={submitButtonLabel}
-      hasTimeToggle={hasTimeToggle}
+      isNew={isNew}
       onChange={onChange}
       onSubmit={onSubmit}
     />,
@@ -60,7 +57,6 @@ describe("SingleDatePicker", () => {
   it("should be able to set the date via the calendar when there is time", async () => {
     const { onChange, onSubmit } = setup({
       value: { date: DATE_TIME, hasTime: true },
-      hasTimeToggle: true,
     });
 
     await userEvent.click(screen.getByText("12"));
@@ -92,7 +88,6 @@ describe("SingleDatePicker", () => {
   it("should be able to set the date via the input when there is time", async () => {
     const { onChange, onSubmit } = setup({
       value: { date: DATE_TIME, hasTime: true },
-      hasTimeToggle: true,
     });
 
     const input = screen.getByLabelText("Date");
@@ -108,9 +103,7 @@ describe("SingleDatePicker", () => {
   });
 
   it("should be able to add time", async () => {
-    const { onChange, onSubmit } = setup({
-      hasTimeToggle: true,
-    });
+    const { onChange, onSubmit } = setup();
 
     await userEvent.click(screen.getByText("Add time"));
 
@@ -121,7 +114,6 @@ describe("SingleDatePicker", () => {
   it("should be able to update the time", async () => {
     const { onChange, onSubmit } = setup({
       value: { date: DATE_TIME, hasTime: true },
-      hasTimeToggle: true,
     });
 
     const input = screen.getByLabelText("Time");
@@ -138,7 +130,6 @@ describe("SingleDatePicker", () => {
   it("should be able to remove time", async () => {
     const { onChange, onSubmit } = setup({
       value: { date: DATE_TIME, hasTime: true },
-      hasTimeToggle: true,
     });
 
     await userEvent.click(screen.getByText("Remove time"));
@@ -148,13 +139,5 @@ describe("SingleDatePicker", () => {
       hasTime: false,
     });
     expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it("should not allow to add time when the time toggle is disabled", () => {
-    setup({
-      value: { date: DATE, hasTime: false },
-      hasTimeToggle: false,
-    });
-    expect(screen.queryByText("Add time")).not.toBeInTheDocument();
   });
 });

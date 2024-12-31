@@ -2,19 +2,19 @@ import type {
   DatePickerOperator,
   DatePickerShortcut,
   ShortcutOption,
-} from "metabase/querying/filters/types";
+} from "../types";
 
 import { SHORTCUT_OPTION_GROUPS, TYPE_OPTIONS } from "./constants";
 import type { TypeOption } from "./types";
 
 export function getShortcutOptions(
-  availableShortcuts: DatePickerShortcut[],
+  availableShortcuts: ReadonlyArray<DatePickerShortcut>,
 ): ShortcutOption[] {
   return getShortcutOptionGroups(availableShortcuts).flat();
 }
 
 export function getShortcutOptionGroups(
-  availableShortcuts: DatePickerShortcut[],
+  availableShortcuts: ReadonlyArray<DatePickerShortcut>,
 ): ShortcutOption[][] {
   return SHORTCUT_OPTION_GROUPS.map(options =>
     options.filter(option => availableShortcuts.includes(option.shortcut)),
@@ -22,7 +22,7 @@ export function getShortcutOptionGroups(
 }
 
 export function getTypeOptions(
-  availableOperators: DatePickerOperator[],
+  availableOperators: ReadonlyArray<DatePickerOperator>,
 ): TypeOption[] {
   return TYPE_OPTIONS.filter(
     option =>

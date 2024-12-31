@@ -51,6 +51,4 @@ export interface HoveredObject {
   event?: MouseEvent;
   stackedTooltipModel?: StackedTooltipModel;
   isAlreadyScaled?: boolean;
-  pieSliceKeyPath?: string[];
-  pieLegendHoverIndex?: number;
 }

@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 import { useRef } from "react";
 
 import { createMockMetadata } from "__support__/metadata";
@@ -14,7 +14,7 @@ export default {
   component: ExpressionEditorHelpText,
 };
 
-const Template: StoryFn<typeof ExpressionEditorHelpText> = () => {
+const Template: ComponentStory<typeof ExpressionEditorHelpText> = () => {
   const target = useRef(null);
   const database = createMockDatabase();
   const metadata = createMockMetadata({ databases: [database] });

@@ -176,7 +176,6 @@ describe("CreateDashboardModal", () => {
       await userEvent.click(collDropdown());
       await waitFor(() => expect(newCollBtn()).toBeInTheDocument());
     });
-
     it("should open new collection modal and return to dashboard modal when clicking close", async () => {
       setup();
       const name = "my dashboard";
@@ -215,7 +214,6 @@ describe("CreateDashboardModal", () => {
       await userEvent.click(newCollBtn());
       await screen.findByText("Give it a name");
     });
-
     it("should create collection inside root folder", async () => {
       setup();
       const name = "my dashboard";

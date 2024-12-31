@@ -14,15 +14,11 @@ Site name, report timezone, and more settings.
 
 ## [Email](./email.md)
 
-Set up email for [Alerts](../questions/alerts.md) and [Dashboard subscriptions](../dashboards/subscriptions.md).
+Set up email for [Alerts](../questions/sharing/alerts.md) and [Dashboard subscriptions](../dashboards/subscriptions.md).
 
 ## [Slack](./slack.md)
 
 Set up Slack for Alerts and Dashboard subscriptions.
-
-### [Webhooks](./webhooks.md)
-
-Set up webhooks as notification channels for alerts.
 
 ## [Environment variables](./environment-variables.md)
 

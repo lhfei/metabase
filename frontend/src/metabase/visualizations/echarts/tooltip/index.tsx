@@ -3,16 +3,12 @@ import type React from "react";
 import { useEffect, useMemo } from "react";
 import _ from "underscore";
 
-import { getObjectValues } from "metabase/lib/objects";
 import { isNotNull } from "metabase/lib/types";
 import TooltipStyles from "metabase/visualizations/components/ChartTooltip/EChartsTooltip/EChartsTooltip.module.css";
-import type { ComputedVisualizationSettings } from "metabase/visualizations/types";
 import type { ClickObject } from "metabase-lib";
 
 import type { BaseCartesianChartModel } from "../cartesian/model/types";
-import type { SankeyChartModel } from "../graph/sankey/model/types";
-import type { PieChartModel, SliceTreeNode } from "../pie/model/types";
-import { getArrayFromMapValues } from "../pie/util";
+import type { PieChartModel } from "../pie/model/types";
 
 export const TOOLTIP_POINTER_MARGIN = 10;
 
@@ -74,8 +70,8 @@ export const getTooltipBaseOption = (
         container = document.createElement("div");
         container.classList.add("echarts-tooltip-container");
         container.style.setProperty("overflow", "hidden");
-        container.style.setProperty("position", "absolute");
-        container.style.setProperty("inset", "0");
+        container.style.setProperty("height", "100%");
+        container.style.setProperty("position", "relative");
         container.style.setProperty("pointer-events", "none");
 
         document.body.append(container);
@@ -134,45 +130,22 @@ export const useClickedStateTooltipSync = (
 
 export const useCartesianChartSeriesColorsClasses = (
   chartModel: BaseCartesianChartModel,
-  settings: ComputedVisualizationSettings,
 ) => {
-  const hexColors = useMemo(() => {
-    const seriesColors = chartModel.seriesModels
-      .map(seriesModel => seriesModel.color)
-      .filter(isNotNull);
-
-    const settingColors = [
-      settings["waterfall.increase_color"],
-      settings["waterfall.decrease_color"],
-      settings["waterfall.total_color"],
-    ].filter(isNotNull);
-
-    return [...seriesColors, ...settingColors];
-  }, [chartModel, settings]);
-
-  return useInjectSeriesColorsClasses(hexColors);
-};
-
-export const useSankeyChartColorsClasses = (chartModel: SankeyChartModel) => {
-  const hexColors = useMemo(() => {
-    return getObjectValues(chartModel.nodeColors).filter(isNotNull);
-  }, [chartModel]);
-
-  return useInjectSeriesColorsClasses(hexColors);
-};
-
-function getColorsFromSlices(slices: SliceTreeNode[]) {
-  const colors = slices.map(s => s.color);
-  slices.forEach(s =>
-    colors.push(...getColorsFromSlices(getArrayFromMapValues(s.children))),
+  const hexColors = useMemo(
+    () =>
+      chartModel.seriesModels
+        .map(seriesModel => seriesModel.color)
+        .filter(isNotNull),
+    [chartModel],
   );
-  return colors;
-}
+
+  return useInjectSeriesColorsClasses(hexColors);
+};
 
 export const usePieChartValuesColorsClasses = (chartModel: PieChartModel) => {
   const hexColors = useMemo(() => {
-    return getColorsFromSlices(getArrayFromMapValues(chartModel.sliceTree));
-  }, [chartModel]);
+    return chartModel.slices.map(slice => slice.data.color);
+  }, [chartModel.slices]);
 
   return useInjectSeriesColorsClasses(hexColors);
 };

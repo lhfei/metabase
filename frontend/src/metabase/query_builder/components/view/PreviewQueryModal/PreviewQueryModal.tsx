@@ -1,7 +1,6 @@
 import { t } from "ttag";
 
 import { useGetNativeDatasetQuery } from "metabase/api";
-import ExternalLink from "metabase/core/components/ExternalLink";
 import { formatNativeQuery } from "metabase/lib/engine";
 import { getResponseErrorMessage } from "metabase/lib/errors";
 import { useSelector } from "metabase/lib/redux";
@@ -16,7 +15,7 @@ import * as Lib from "metabase-lib";
 
 import { NativeQueryPreview } from "../NativeQueryPreview";
 
-import PreviewQueryModalS from "./PreviewQueryModal.module.css";
+import { ModalExternalLink } from "./PreviewQueryModal.styled";
 
 interface PreviewQueryModalProps {
   onClose?: () => void;
@@ -50,12 +49,9 @@ export const PreviewQueryModal = ({
       onClose={onClose}
     >
       {formattedError && showMetabaseLinks && (
-        <ExternalLink
-          className={PreviewQueryModalS.ModalExternalLink}
-          href={learnUrl}
-        >
+        <ModalExternalLink href={learnUrl}>
           {t`Learn how to debug SQL errors`}
-        </ExternalLink>
+        </ModalExternalLink>
       )}
     </NativeQueryPreview>
   );

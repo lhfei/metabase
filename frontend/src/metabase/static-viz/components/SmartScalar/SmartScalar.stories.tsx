@@ -1,5 +1,6 @@
 import { colors } from "metabase/lib/colors";
 import { createColorGetter } from "metabase/static-viz/lib/colors";
+import { formatStaticValue } from "metabase/static-viz/lib/format";
 import {
   measureTextHeight,
   measureTextWidth,
@@ -11,7 +12,7 @@ import {
   createMockSingleSeries,
 } from "metabase-types/api/mocks";
 
-import { StaticVisualization } from "../StaticVisualization";
+import { SmartScalar } from "./SmartScalar";
 
 const COLS = [
   createMockColumn({
@@ -64,7 +65,6 @@ function createSmartScalarSeries({
 }: SmartScalarSeriesOpts) {
   return createMockSingleSeries(
     {
-      display: "smartscalar",
       visualization_settings: vizSettings,
     },
     {
@@ -98,7 +98,7 @@ function createSmartScalarSeries({
 
 export default {
   title: "static-viz/SmartScalar",
-  component: StaticVisualization,
+  component: SmartScalar,
   args: {
     "scalar.field": "Count",
     "scalar.comparisons": [{ id: "1", type: "previousPeriod" }],
@@ -130,10 +130,13 @@ const createTemplate = ({ rows, vizSettings }: SmartScalarSeriesOpts) =>
     });
 
     return (
-      <StaticVisualization
+      <SmartScalar
         rawSeries={[series]}
+        dashcardSettings={{}}
         renderingContext={{
           fontFamily: "Lato",
+          formatValue: (value, options) =>
+            formatStaticValue(value, options ?? {}),
           getColor: createColorGetter(colors),
           measureText: (text, style) =>
             measureTextWidth(text, Number(style.size), Number(style.weight)),

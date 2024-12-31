@@ -7,10 +7,17 @@ import _ from "underscore";
 import QuestionResultLoader from "metabase/containers/QuestionResultLoader";
 import Button from "metabase/core/components/Button";
 import CS from "metabase/css/core/index.css";
-import { Box, Flex, Icon } from "metabase/ui";
+import { Icon } from "metabase/ui";
 import Visualization from "metabase/visualizations/components/Visualization";
 import * as Lib from "metabase-lib";
 import Question from "metabase-lib/v1/Question";
+
+import {
+  PreviewButtonContainer,
+  PreviewHeader,
+  PreviewIconContainer,
+  PreviewRoot,
+} from "./NotebookStepPreview.styled";
 
 const PREVIEW_ROWS_LIMIT = 10;
 
@@ -42,10 +49,10 @@ export const NotebookStepPreview = ({ step, onClose }) => {
   );
 
   return (
-    <Box pt="md" data-testid="preview-root">
-      <Flex justify="space-between" align="center" mb="sm">
+    <PreviewRoot data-testid="preview-root">
+      <PreviewHeader>
         <span className={CS.textBold}>{t`Preview`}</span>
-        <Flex align="flex-end">
+        <PreviewIconContainer>
           <Icon
             name="close"
             onClick={onClose}
@@ -56,12 +63,10 @@ export const NotebookStepPreview = ({ step, onClose }) => {
               CS.ml1,
             )}
           />
-        </Flex>
-      </Flex>
+        </PreviewIconContainer>
+      </PreviewHeader>
       {isDirty ? (
-        <Flex
-          align="center"
-          justify="center"
+        <PreviewButtonContainer
           className={cx(
             CS.bordered,
             CS.shadowed,
@@ -71,7 +76,7 @@ export const NotebookStepPreview = ({ step, onClose }) => {
           )}
         >
           <Button onClick={refresh}>{t`Refresh`}</Button>
-        </Flex>
+        </PreviewButtonContainer>
       ) : (
         <QuestionResultLoader question={activeQuestion}>
           {({ rawSeries, result, error }) => (
@@ -83,7 +88,7 @@ export const NotebookStepPreview = ({ step, onClose }) => {
           )}
         </QuestionResultLoader>
       )}
-    </Box>
+    </PreviewRoot>
   );
 };
 

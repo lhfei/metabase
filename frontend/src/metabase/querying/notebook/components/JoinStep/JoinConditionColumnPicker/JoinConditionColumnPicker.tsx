@@ -1,16 +1,15 @@
-import cx from "classnames";
 import type { Ref } from "react";
 import { forwardRef, useMemo } from "react";
 import { t } from "ttag";
 
-import {
-  type ColumnListItem,
-  QueryColumnPicker,
-} from "metabase/common/components/QueryColumnPicker";
+import type { ColumnListItem } from "metabase/common/components/QueryColumnPicker";
 import { Popover, Text } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
-import S from "./JoinConditionColumnPicker.module.css";
+import {
+  JoinCellItem,
+  JoinColumnPicker,
+} from "./JoinConditionColumnPicker.styled";
 
 interface JoinConditionColumnPickerProps {
   query: Lib.Query;
@@ -103,14 +102,11 @@ const JoinColumnTarget = forwardRef(function JoinColumnTarget(
   );
 
   return (
-    <button
-      className={cx(S.JoinCellItem, {
-        [S.isReadOnly]: isReadOnly,
-        [S.hasColumnStyle]: column != null,
-        [S.noColumnStyle]: column == null,
-        [S.isOpen]: isOpened,
-      })}
+    <JoinCellItem
       ref={ref}
+      isOpen={isOpened}
+      isColumnSelected={column != null}
+      isReadOnly={isReadOnly}
       disabled={isReadOnly}
       onClick={onClick}
       aria-label={isLhsColumn ? t`Left column` : t`Right column`}
@@ -136,7 +132,7 @@ const JoinColumnTarget = forwardRef(function JoinColumnTarget(
       >
         {columnInfo?.displayName ?? t`Pick a column…`}
       </Text>
-    </button>
+    </JoinCellItem>
   );
 });
 
@@ -176,8 +172,7 @@ function JoinColumnDropdown({
   }, [query, stageIndex, joinable, lhsColumn, rhsColumn, isLhsColumn]);
 
   return (
-    <QueryColumnPicker
-      className={S.JoinColumnPicker}
+    <JoinColumnPicker
       query={query}
       columnGroups={columnGroups}
       stageIndex={stageIndex}

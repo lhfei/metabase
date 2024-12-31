@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { t } from "ttag";
 import _ from "underscore";
 
+import Tooltip from "metabase/core/components/Tooltip";
 import styles from "metabase/css/core/animation.module.css";
 import { useSelector } from "metabase/lib/redux";
 import { getUser } from "metabase/selectors/user";
-import { Box, Tooltip } from "metabase/ui";
+import { Box } from "metabase/ui";
 
 import { getHasMetabotLogo } from "../../selectors";
 
@@ -23,7 +24,14 @@ export const HomeGreeting = (): JSX.Element => {
 
   return (
     <GreetingRoot>
-      {showLogo && <MetabotGreeting />}
+      {showLogo && (
+        <Tooltip
+          tooltip={t`Don't tell anyone, but you're my favorite.`}
+          placement="bottom"
+        >
+          <MetabotGreeting />
+        </Tooltip>
+      )}
       <GreetingMessage data-testid="greeting-message" showLogo={showLogo}>
         {message}
       </GreetingMessage>
@@ -79,30 +87,25 @@ const MetabotGreeting = () => {
   }, [buffer]);
 
   return (
-    <Tooltip
-      label={t`Don't tell anyone, but you're my favorite.`}
-      position="bottom"
+    <Box
+      style={{
+        position: "relative",
+        width: "62px",
+        height: "40px",
+        marginInlineEnd: "0.5rem",
+      }}
     >
-      <Box
-        style={{
-          position: "relative",
-          width: "54px",
-          height: "40px",
-          marginInlineEnd: "0.5rem",
-        }}
-      >
-        <GreetingLogo
-          isCool={isCool}
-          className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
-          variant="cool"
-        />
-        <GreetingLogo
-          isCool={!isCool}
-          className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
-          variant="happy"
-        />
-      </Box>
-    </Tooltip>
+      <GreetingLogo
+        isCool={isCool}
+        className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
+        variant="cool"
+      />
+      <GreetingLogo
+        isCool={!isCool}
+        className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
+        variant="happy"
+      />
+    </Box>
   );
 };
 

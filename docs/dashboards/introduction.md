@@ -14,9 +14,8 @@ redirect_from:
 
 A dashboard comprises a set of cards arranged on a grid. These cards can be:
 
-- [Questions](../questions/introduction.md). You can add questions from collections, or saved questions directly to a dashboard.
+- Questions, such as [tables, charts, or maps](../questions/sharing/visualizing-results.md)
 - [Text and header cards](#adding-headings-or-descriptions-with-text-cards)
-- [Iframe cards](#iframe-cards)
 - [Link cards](#link-cards)
 
 You can add [filter widgets to dashboards](./filters.md) that filter data identically across multiple questions, and [customize what happens when people click on a chart or a table](./interactive.md).
@@ -27,27 +26,18 @@ You can make as many dashboards as you want. Go nuts.
 
 In the top right of the screen, click the **+ New** > **Dashboard**. Give your new dashboard a name and a description, choose which [collections](../exploration-and-organization/collections.md) the dashboard should go in, then click **Create**, and Metabase will take you to your shiny new dashboard.
 
-## Adding or saving questions to a dashboard
+## Adding questions to a dashboard
 
-You can add questions that are saved to collections, or save questions directly to a dashboard.
+There are two ways to add questions to a dashboard: from the dashboard, or from the question you want to add.
 
-### From a dashboard
+- **From a question**: You can add a newly saved question to a dashboard directly from the modal that pops up after you save the question for the first time. You can also add a question to a dashboard by clicking on the ellipsis (**...**) at the top right of a question and selecting **Add to dashboard**.
+- **From a dashboard**: Click on the **pencil** icon to **edit the dashboard**. Then click the **+** icon in the top right of the dashboard editing interface (not the **+** in the main navigation bar) to add any of your saved questions to the dashboard, regardless of which collection the questions are in.
 
-When editing a dashboard, you can add a question by clicking the **+** icon in the top right. You can add a chart from a new question, SQL/native query, or an existing question.
+> If your question is saved to your personal collection, you'll only be able to add that question to dashboards in your personal collection. If you want to add the question to a dashboard in a public collection, you'll need to move your question to that collection (or any other public collection).
 
-You can't add questions that are saved to other dashboards. If you want to add a question to multiple dashboards, you should save that question to a collection. Alternatively, if the questions don't need to stay in sync, you could duplicate a question, and save that duplicate to your dashboard. Just keep in mind that changes to one question won't affect the duplicate question.
+Once you add a question to your dashboard, it’ll look something like this:
 
-### From a question
-
-When creating or editing a question, you can [save the question directly to a dashboard](../questions/introduction.md#saving-questions-to-dashboards). That question can only be used by that dashboard.
-
-### Adding a question saved to a collection
-
-To add a question saved to a collection to a dashboard, visit the question and click on the three-dot menu (**...**) at the top right and select **Add to dashboard**. You can also [browse questions from dashboard edit mode](#from-a-dashboard).
-
-Adding a question to a dashboard does not save the question to the dashboard.
-
-If a question is saved to your personal collection, you'll only be able to add that question to dashboards _in_ your personal collection. If you want to add the question to a dashboard in a public collection, you'll need to move your question out of your personal collection.
+![First Dashboard](images/first.png)
 
 ## Adding headings or descriptions with text cards
 
@@ -70,7 +60,7 @@ You can use [Markdown](http://commonmark.org/help/) to format the text in your t
 
 ![Result](images/result.png)
 
-To learn more, see [Fun with Markdown in your dashboards](https://www.metabase.com/learn/metabase-basics/querying-and-dashboards/dashboards/markdown).
+To learn more, see [Fun with Markdown in your dashboards](https://www.metabase.com/learn/dashboards/markdown).
 
 ### Including variables in text cards
 
@@ -103,33 +93,6 @@ To see how to wire up a filter to a card, see [dashboard filters](./filters.md).
 Link cards are specialized cards that let you search and link to other items in your Metabase. You can also use them for external links. Useful for pointing people to other resources relevant to your dashboard.
 
 To add a link card to a dashboard, click the **pencil** icon to enter dashboard editing mode, then click on the **link** icon. Click on the input field in the link card to search your Metabase for an item to link to, or paste an external link.
-
-## Iframe cards
-
-[Iframes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe) allow you to nest one HTML page in another HTML page. With iframe cards in Metabase, you can embed a webpage in your dashboard. You can embed:
-
-- Spreadsheets or surveys for data entry or workflows
-- Videos or slides for contextualizing and storytelling on dashboards
-- Live charts and visualizations from other tools
-
-To add an iframe card to a dashboard, click the **pencil** icon to enter dashboard editing mode, then click on the **link** icon and select **Iframe**. Then paste the iframe URL. Here's an iframe for our video on how to create a dashboard:
-
-```html
-<iframe
-  width="560"
-  height="315"
-  src="https://www.youtube.com/embed/W-i9E5_Wjmw?si=qWeMGxEymVOIHiXo"
-  title="YouTube video player"
-  frameborder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-  referrerpolicy="strict-origin-when-cross-origin"
-  allowfullscreen
-></iframe>
-```
-
-And behold, a dashboard with an embedded video:
-
-![Dashboard with iframe of video](./images/dashboard-with-iframe.png)
 
 ## Dashboard tabs
 
@@ -267,7 +230,7 @@ See [Caching per dashboard](../configuring-metabase/caching.md#dashboard-caching
 
 ## Sharing dashboards with public links
 
-If your Metabase administrator has enabled [public sharing](../embedding/public-links.md) on a saved question or dashboard, you can go to that question or dashboard and click on the **sharing** icon to find its public links.
+If your Metabase administrator has enabled [public sharing](../questions/sharing/answers.md) on a saved question or dashboard, you can go to that question or dashboard and click on the **sharing** icon to find its public links.
 
 ![Share icon](./images/share-icon.png)
 
@@ -275,7 +238,7 @@ Public links can be viewed by anyone, even if they don't have access to Metabase
 
 ## Exporting results from a dashboard
 
-See [Exporting results](../questions/exporting-results.md).
+See [Exporting results](../questions/sharing/exporting-results.md#exporting-results-of-a-dashboard).
 
 ## Configuring a dashboard through its URL
 
@@ -303,14 +266,6 @@ For [questions](../questions/start.md), dashboards, and [models](../data-modelin
 
 See [History](../exploration-and-organization/history.md).
 
-## Verifying a dashboard
-
-See [content verification](../exploration-and-organization/content-verification.md).
-
-## Deleting a dashboard
-
-See [deleting and restoring](../exploration-and-organization/delete-and-restore.md).
-
 ## Tips on creating helpful dashboards
 
 To make a great dashboard, you first need to decide what you want the dashboard to tell about your data. What questions will give you insight into what you want to know? It helps to think of a topic or theme for your dashboard — something like “customer satisfaction,” or “second quarter sales goals".
@@ -328,4 +283,4 @@ Some tips:
 - [Interactive dashboards](./interactive.md)
 - [Dashboard charts with multiple series](./multiple-series.md)
 - [Dashboard subscriptions](./subscriptions.md)
-- [Making dashboards faster](https://www.metabase.com/learn/metabase-basics/administration/administration-and-operation/making-dashboards-faster)
+- [Making dashboards faster](https://www.metabase.com/learn/administration/making-dashboards-faster)

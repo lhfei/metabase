@@ -1,4 +1,3 @@
-import { H } from "e2e/support";
 import { WRITABLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import {
@@ -6,6 +5,35 @@ import {
   ORDERS_MODEL_ID,
   SECOND_COLLECTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  type StructuredQuestionDetails,
+  createCollection,
+  createQuestion,
+  entityPickerModal,
+  entityPickerModalItem,
+  entityPickerModalLevel,
+  entityPickerModalTab,
+  join,
+  navigationSidebar,
+  newButton,
+  onlyOnOSS,
+  openNotebook,
+  openOrdersTable,
+  openQuestionActions,
+  openReviewsTable,
+  popover,
+  queryBuilderMain,
+  resetTestTable,
+  restore,
+  resyncDatabase,
+  saveQuestion,
+  shouldDisplayTabs,
+  startNewQuestion,
+  tabsShouldBe,
+  visitModel,
+  visitQuestion,
+  visualize,
+} from "e2e/support/helpers";
 import { checkNotNull } from "metabase/lib/types";
 
 const { ORDERS_ID, REVIEWS_ID } = SAMPLE_DATABASE;
@@ -13,7 +41,7 @@ const { ORDERS_ID, REVIEWS_ID } = SAMPLE_DATABASE;
 describe("scenarios > notebook > data source", () => {
   describe("empty app db", () => {
     beforeEach(() => {
-      H.restore("setup");
+      restore("setup");
       cy.signInAsAdmin();
     });
 
@@ -21,22 +49,22 @@ describe("scenarios > notebook > data source", () => {
       "should display tables from the only existing database by default",
       { tags: "@OSS" },
       () => {
-        H.onlyOnOSS();
+        onlyOnOSS();
         cy.visit("/");
         cy.findByTestId("app-bar").findByText("New").click();
-        H.popover().findByTextEnsureVisible("Question").click();
+        popover().findByTextEnsureVisible("Question").click();
         cy.findByTestId("data-step-cell").should(
           "have.text",
           "Pick your starting data",
         );
 
-        H.entityPickerModal().within(() => {
+        entityPickerModal().within(() => {
           cy.log("Should not have Recents tab");
           cy.findAllByRole("tab").should("have.length", 0);
 
-          H.entityPickerModalLevel(0).should("not.exist");
-          H.entityPickerModalLevel(1).should("not.exist");
-          H.entityPickerModalLevel(2)
+          entityPickerModalLevel(0).should("not.exist");
+          entityPickerModalLevel(1).should("not.exist");
+          entityPickerModalLevel(2)
             .get("[data-index]")
             .should("have.length", 8);
           assertDataPickerEntityNotSelected(2, "Accounts");
@@ -52,66 +80,68 @@ describe("scenarios > notebook > data source", () => {
     );
 
     it("should not show saved questions if only models exist (metabase#25142)", () => {
-      H.createQuestion({
+      createQuestion({
         name: "GUI Model",
         query: { "source-table": REVIEWS_ID, limit: 1 },
         display: "table",
         type: "model",
       });
 
-      H.startNewQuestion();
-      H.entityPickerModal().within(() => {
+      startNewQuestion();
+      entityPickerModal().within(() => {
         cy.findAllByRole("tab").should("have.length", 2);
-        H.entityPickerModalTab("Tables").should("exist");
-        H.entityPickerModalTab("Collections").should("exist");
+        entityPickerModalTab("Models").should("exist");
+        entityPickerModalTab("Tables").should("exist");
+        entityPickerModalTab("Saved questions").should("not.exist");
       });
     });
 
     it("should not show models if only saved questions exist", () => {
-      H.createQuestion({
+      createQuestion({
         name: "GUI Question",
         query: { "source-table": REVIEWS_ID, limit: 1 },
         display: "table",
       });
 
-      H.startNewQuestion();
+      startNewQuestion();
 
-      H.entityPickerModal().within(() => {
-        H.shouldDisplayTabs(["Tables", "Collections"]);
+      entityPickerModal().within(() => {
+        shouldDisplayTabs(["Tables", "Saved questions"]);
+        entityPickerModalTab("Models").should("not.exist");
       });
     });
   });
 
   describe("table as a source", () => {
     beforeEach(() => {
-      H.restore();
+      restore();
       cy.signInAsAdmin();
     });
 
     it("should correctly display the source data for ad-hoc questions", () => {
-      H.openReviewsTable();
-      H.openNotebook();
+      openReviewsTable();
+      openNotebook();
       cy.findByTestId("data-step-cell").should("have.text", "Reviews").click();
-      H.entityPickerModal().within(() => {
-        H.tabsShouldBe("Tables", ["Tables", "Collections"]);
+      entityPickerModal().within(() => {
+        tabsShouldBe("Tables", ["Models", "Tables", "Saved questions"]);
         // should not show databases step if there's only 1 database
-        H.entityPickerModalLevel(0).should("not.exist");
+        entityPickerModalLevel(0).should("not.exist");
         // should not show schema step if there's only 1 schema
-        H.entityPickerModalLevel(1).should("not.exist");
+        entityPickerModalLevel(1).should("not.exist");
         assertDataPickerEntitySelected(2, "Reviews");
       });
     });
 
     it("should correctly display the source data for a simple saved question", () => {
-      H.visitQuestion(ORDERS_COUNT_QUESTION_ID);
-      H.openNotebook();
+      visitQuestion(ORDERS_COUNT_QUESTION_ID);
+      openNotebook();
       cy.findByTestId("data-step-cell").should("have.text", "Orders").click();
-      H.entityPickerModal().within(() => {
-        H.tabsShouldBe("Tables", ["Tables", "Collections"]);
+      entityPickerModal().within(() => {
+        tabsShouldBe("Tables", ["Models", "Tables", "Saved questions"]);
         // should not show databases step if there's only 1 database
-        H.entityPickerModalLevel(0).should("not.exist");
+        entityPickerModalLevel(0).should("not.exist");
         // should not show schema step if there's only 1 schema
-        H.entityPickerModalLevel(1).should("not.exist");
+        entityPickerModalLevel(1).should("not.exist");
         assertDataPickerEntitySelected(2, "Orders");
       });
     });
@@ -128,64 +158,64 @@ describe("scenarios > notebook > data source", () => {
         const schemaName = "Wild";
         const tableName = "Animals";
 
-        H.resetTestTable({ type: dialect, table: testTable1 });
-        H.resetTestTable({ type: dialect, table: testTable2 });
-        H.restore(`${dialect}-writable`);
+        resetTestTable({ type: dialect, table: testTable1 });
+        resetTestTable({ type: dialect, table: testTable2 });
+        restore(`${dialect}-writable`);
 
         cy.signInAsAdmin();
 
-        H.resyncDatabase({
+        resyncDatabase({
           dbId: WRITABLE_DB_ID,
         });
 
-        H.startNewQuestion();
-        H.entityPickerModal().within(() => {
-          H.entityPickerModalTab("Tables").click();
+        startNewQuestion();
+        entityPickerModal().within(() => {
+          entityPickerModalTab("Tables").click();
           cy.findByText(dbName).click();
           cy.findByText(schemaName).click();
           cy.findByText(tableName).click();
         });
-        H.visualize();
-        H.saveQuestionToCollection("Beasts");
+        visualize();
+        saveQuestion("Beasts");
 
-        H.openNotebook();
+        openNotebook();
         cy.findByTestId("data-step-cell").should("contain", tableName).click();
-        H.entityPickerModal().within(() => {
+        entityPickerModal().within(() => {
           assertDataPickerEntitySelected(0, dbName);
           assertDataPickerEntitySelected(1, schemaName);
           assertDataPickerEntitySelected(2, tableName);
 
-          H.entityPickerModalTab("Recents").click();
+          entityPickerModalTab("Recents").click();
           cy.contains("button", "Animals")
             .should("exist")
             .and("contain.text", tableName)
             .and("have.attr", "aria-selected", "true");
 
-          H.entityPickerModalTab("Tables").click();
+          entityPickerModalTab("Tables").click();
           cy.findByText(dbName).click();
           cy.findByText(schemaName).click();
           cy.findByText(tableName).click();
         });
 
         cy.log("select a table from the second schema");
-        H.join();
-        H.entityPickerModal().within(() => {
-          H.entityPickerModalTab("Tables").click();
+        join();
+        entityPickerModal().within(() => {
+          entityPickerModalTab("Tables").click();
           cy.findByText("Public").click();
           cy.findByText("Many Data Types").click();
         });
-        H.popover().findByText("Name").click();
-        H.popover().findByText("Text").click();
+        popover().findByText("Name").click();
+        popover().findByText("Text").click();
 
         cy.log("select a table from the third schema");
-        H.join();
-        H.entityPickerModal().within(() => {
-          H.entityPickerModalTab("Tables").click();
+        join();
+        entityPickerModal().within(() => {
+          entityPickerModalTab("Tables").click();
           cy.findByText("Domestic").click();
           cy.findByText("Animals").click();
         });
-        H.popover().findByText("Name").click();
-        H.popover().findByText("Name").click();
+        popover().findByText("Name").click();
+        popover().findByText("Name").click();
       },
     );
 
@@ -193,23 +223,23 @@ describe("scenarios > notebook > data source", () => {
       cy.visit(`/model/${ORDERS_MODEL_ID}/query`);
 
       cy.findByTestId("data-step-cell").should("have.text", "Orders").click();
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Tables").should(
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Tables").should(
           "have.attr",
           "aria-selected",
           "true",
         );
         // should not show databases step if there's only 1 database
-        H.entityPickerModalLevel(0).should("not.exist");
+        entityPickerModalLevel(0).should("not.exist");
         // should not show schema step if there's only 1 schema
-        H.entityPickerModalLevel(1).should("not.exist");
+        entityPickerModalLevel(1).should("not.exist");
         assertDataPickerEntitySelected(2, "Orders");
       });
     });
   });
 
   describe("saved entity as a source (aka the virtual table)", () => {
-    const modelDetails: H.StructuredQuestionDetails = {
+    const modelDetails: StructuredQuestionDetails = {
       name: "GUI Model",
       query: { "source-table": REVIEWS_ID, limit: 1 },
       display: "table",
@@ -218,19 +248,19 @@ describe("scenarios > notebook > data source", () => {
     };
 
     beforeEach(() => {
-      H.restore();
+      restore();
       cy.signInAsAdmin();
     });
 
     it("data selector should properly show a model as the source (metabase#39699)", () => {
-      H.createQuestion(modelDetails, { visitQuestion: true });
-      H.openNotebook();
+      createQuestion(modelDetails, { visitQuestion: true });
+      openNotebook();
       cy.findByTestId("data-step-cell")
         .should("have.text", modelDetails.name)
         .click();
 
-      H.entityPickerModal().within(() => {
-        H.shouldDisplayTabs(["Tables", "Collections"]);
+      entityPickerModal().within(() => {
+        shouldDisplayTabs(["Models", "Tables", "Saved questions"]);
 
         assertDataPickerEntitySelected(0, "Our analytics");
         assertDataPickerEntitySelected(1, "First collection");
@@ -244,12 +274,12 @@ describe("scenarios > notebook > data source", () => {
     });
 
     it("moving the model to another collection should immediately be reflected in the data selector (metabase#39812-1)", () => {
-      H.visitModel(ORDERS_MODEL_ID);
-      H.openNotebook();
+      visitModel(ORDERS_MODEL_ID);
+      openNotebook();
 
       openDataSelector();
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").should(
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Models").should(
           "have.attr",
           "aria-selected",
           "true",
@@ -263,8 +293,8 @@ describe("scenarios > notebook > data source", () => {
       moveToCollection("First collection");
 
       openDataSelector();
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").should(
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Models").should(
           "have.attr",
           "aria-selected",
           "true",
@@ -288,18 +318,18 @@ describe("scenarios > notebook > data source", () => {
         query: { "source-table": `card__${SOURCE_QUESTION_ID}` },
       };
 
-      H.createQuestion(nestedQuestionDetails, {
+      createQuestion(nestedQuestionDetails, {
         wrapId: true,
         idAlias: "nestedQuestionId",
       });
 
       cy.log("see nested question in our analytics");
 
-      H.visitQuestion("@nestedQuestionId");
-      H.openNotebook();
+      visitQuestion("@nestedQuestionId");
+      openNotebook();
       openDataSelector();
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").should(
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Saved questions").should(
           "have.attr",
           "aria-selected",
           "true",
@@ -311,17 +341,17 @@ describe("scenarios > notebook > data source", () => {
       });
 
       cy.log("Move the source question to another collection");
-      H.visitQuestion(SOURCE_QUESTION_ID);
-      H.openNotebook();
+      visitQuestion(SOURCE_QUESTION_ID);
+      openNotebook();
       moveToCollection("First collection");
 
       cy.log("Make sure the source change is reflected in a nested question");
-      H.visitQuestion("@nestedQuestionId");
-      H.openNotebook();
+      visitQuestion("@nestedQuestionId");
+      openNotebook();
 
       openDataSelector();
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Collections").should(
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Saved questions").should(
           "have.attr",
           "aria-selected",
           "true",
@@ -336,44 +366,45 @@ describe("scenarios > notebook > data source", () => {
 
 describe("scenarios > notebook > data source", { tags: "@OSS" }, () => {
   beforeEach(() => {
-    H.onlyOnOSS();
-    H.restore("setup");
+    onlyOnOSS();
+    restore("setup");
     cy.signInAsAdmin();
   });
 
   it("should not show saved questions if only models exist (metabase#25142)", () => {
-    H.createQuestion({
+    createQuestion({
       name: "GUI Model",
       query: { "source-table": REVIEWS_ID, limit: 1 },
       display: "table",
       type: "model",
     });
-    H.startNewQuestion();
-    H.entityPickerModal().within(() => {
+    startNewQuestion();
+    entityPickerModal().within(() => {
       cy.findAllByRole("tab").should("have.length", 2);
-      H.entityPickerModalTab("Tables").should("be.visible");
-      H.entityPickerModalTab("Collections").should("be.visible");
+      entityPickerModalTab("Tables").should("be.visible");
+      entityPickerModalTab("Models").should("be.visible");
+      entityPickerModalTab("Saved questions").should("not.exist");
     });
   });
 });
 
 describe("issue 34350", { tags: "@external" }, () => {
   beforeEach(() => {
-    H.restore("postgres-12");
+    restore("postgres-12");
     cy.signInAsAdmin();
   });
 
   it("works after changing question's source table to a one from a different database (metabase#34350)", () => {
-    H.openOrdersTable({ mode: "notebook" });
+    openOrdersTable({ mode: "notebook" });
     openDataSelector();
-    H.entityPickerModal().within(() => {
+    entityPickerModal().within(() => {
       cy.findByText("QA Postgres12").click();
       cy.findByText("Orders").click();
     });
 
-    H.visualize();
+    visualize();
 
-    H.queryBuilderMain()
+    queryBuilderMain()
       .findByText("There was a problem with your question")
       .should("not.exist");
     cy.findAllByTestId("cell-data").should("contain", "37.65");
@@ -384,35 +415,36 @@ describe("issue 28106", () => {
   beforeEach(() => {
     const dialect = "postgres";
 
-    H.resetTestTable({ type: dialect, table: "many_schemas" });
-    H.restore(`${dialect}-writable`);
+    resetTestTable({ type: dialect, table: "many_schemas" });
+    restore(`${dialect}-writable`);
     cy.signInAsAdmin();
 
-    H.resyncDatabase({ dbId: WRITABLE_DB_ID });
-
-    cy.intercept("GET", "/api/collection/root").as("getRootCollection");
-    cy.intercept("GET", "/api/collection/tree**").as("getTree");
+    resyncDatabase({ dbId: WRITABLE_DB_ID });
   });
 
   it(
     "should not jump to the top of schema list when scrolling (metabase#28106)",
     { tags: "@external" },
     () => {
-      H.startNewQuestion();
-      cy.wait(["@getRootCollection", "@getTree"]);
-
-      H.entityPickerModal().within(() => {
-        H.entityPickerModalTab("Tables").click();
+      startNewQuestion();
+      entityPickerModal().within(() => {
+        entityPickerModalTab("Tables").click();
         cy.findByText("Writable Postgres12").click();
 
-        H.entityPickerModalLevel(1)
+        entityPickerModalLevel(1)
           .findByTestId("scroll-container")
           .as("schemasList");
 
-        scrollAllTheWayDown();
+        // The list is virtualized and the scrollbar height changes during scrolling (metabase#44966)
+        // that's why we need to scroll and wait multiple times.
+        // Test is flaky because of this - that's why there are 3 attempts.
+        for (let i = 0; i < 3; ++i) {
+          cy.get("@schemasList").scrollTo("bottom");
+          cy.wait(100);
+        }
 
         // assert scrolling worked and the last item is visible
-        H.entityPickerModalItem(1, "Public").should("be.visible");
+        entityPickerModalItem(1, "Public").should("be.visible");
 
         // simulate scrolling up using mouse wheel 3 times
         for (let i = 0; i < 3; ++i) {
@@ -428,74 +460,53 @@ describe("issue 28106", () => {
       });
     },
   );
-
-  // The list is virtualized and the scrollbar height changes during scrolling (metabase#44966)
-  // that's why we need to scroll and wait multiple times.
-  function scrollAllTheWayDown() {
-    cy.get("@schemasList").realMouseWheel({ deltaY: 100 });
-    cy.wait(100);
-
-    cy.get("@schemasList").then($element => {
-      const list = $element[0];
-      const isScrolledAllTheWayDown =
-        list.scrollHeight - list.scrollTop === list.clientHeight;
-
-      if (!isScrolledAllTheWayDown) {
-        scrollAllTheWayDown();
-      }
-    });
-  }
 });
 
-// Needs to be OSS because EE will always have models due to instance analytics
-describe("issue 32252", { tags: "@OSS" }, () => {
+describe("issue 32252", () => {
   beforeEach(() => {
-    H.onlyOnOSS();
-    H.restore("setup");
+    restore("setup");
     cy.signInAsAdmin();
 
-    H.createCollection({ name: "My collection" }).then(
-      ({ body: collection }) => {
-        if (typeof collection.id !== "number") {
-          throw new Error("collection.id is not a number");
-        }
+    createCollection({ name: "My collection" }).then(({ body: collection }) => {
+      if (typeof collection.id !== "number") {
+        throw new Error("collection.id is not a number");
+      }
 
-        H.createQuestion({
-          name: "My question",
-          collection_id: collection.id,
-          query: {
-            "source-table": ORDERS_ID,
-          },
-        });
-      },
-    );
+      createQuestion({
+        name: "My question",
+        collection_id: collection.id,
+        query: {
+          "source-table": ORDERS_ID,
+        },
+      });
+    });
   });
 
   it("refreshes data picker sources after archiving a collection (metabase#32252)", () => {
     cy.visit("/");
 
-    H.newButton("Question").click();
-    H.entityPickerModal().within(() => {
+    newButton("Question").click();
+    entityPickerModal().within(() => {
       cy.findByTestId("loading-indicator").should("not.exist");
       cy.findByText("Recents").should("not.exist");
-      cy.findByText("Collections").should("be.visible");
+      cy.findByText("Saved questions").should("be.visible");
       cy.button("Close").click();
     });
 
     cy.findByTestId("sidebar-toggle").click();
-    H.navigationSidebar().findByText("Our analytics").click();
+    navigationSidebar().findByText("Our analytics").click();
 
     cy.button("Actions").click();
-    H.popover().findByText("Move to trash").click();
+    popover().findByText("Move to trash").click();
     cy.findByTestId("toast-undo")
       .findByText("Trashed collection")
       .should("be.visible");
 
-    H.newButton("Question").click();
-    H.entityPickerModal().within(() => {
+    newButton("Question").click();
+    entityPickerModal().within(() => {
       cy.findByTestId("loading-indicator").should("not.exist");
       cy.findByText("Recents").should("not.exist");
-      cy.findByText("Collections").should("not.exist");
+      cy.findByText("Saved questions").should("not.exist");
       cy.findByText("Orders").should("be.visible");
     });
   });
@@ -503,29 +514,29 @@ describe("issue 32252", { tags: "@OSS" }, () => {
   it("refreshes data picker sources after archiving a question (metabase#32252)", () => {
     cy.visit("/");
 
-    H.newButton("Question").click();
-    H.entityPickerModal().within(() => {
+    newButton("Question").click();
+    entityPickerModal().within(() => {
       cy.findByTestId("loading-indicator").should("not.exist");
       cy.findByText("Recents").should("not.exist");
-      cy.findByText("Collections").should("be.visible");
+      cy.findByText("Saved questions").should("be.visible");
       cy.button("Close").click();
     });
 
     cy.findByTestId("sidebar-toggle").click();
-    H.navigationSidebar().findByText("Our analytics").click();
+    navigationSidebar().findByText("Our analytics").click();
 
     cy.findByTestId("collection-entry-name").click();
     cy.button("Actions").click();
-    H.popover().findByText("Move to trash").click();
+    popover().findByText("Move to trash").click();
     cy.findByTestId("toast-undo")
       .findByText("Trashed question")
       .should("be.visible");
 
-    H.newButton("Question").click();
-    H.entityPickerModal().within(() => {
+    newButton("Question").click();
+    entityPickerModal().within(() => {
       cy.findByTestId("loading-indicator").should("not.exist");
       cy.findByText("Recents").should("not.exist");
-      cy.findByText("Collections").should("not.exist");
+      cy.findByText("Saved questions").should("not.exist");
       cy.findByText("Orders").should("be.visible");
     });
   });
@@ -534,10 +545,10 @@ describe("issue 32252", { tags: "@OSS" }, () => {
 function moveToCollection(collection: string) {
   cy.intercept("GET", "/api/collection/tree**").as("updateCollectionTree");
 
-  H.openQuestionActions();
-  H.popover().findByTextEnsureVisible("Move").click();
+  openQuestionActions();
+  popover().findByTextEnsureVisible("Move").click();
 
-  H.entityPickerModal().within(() => {
+  entityPickerModal().within(() => {
     cy.findByText(collection).click();
     cy.button("Move").click();
     cy.wait("@updateCollectionTree");
@@ -549,13 +560,9 @@ function openDataSelector() {
 }
 
 function assertDataPickerEntitySelected(level: number, name: string) {
-  H.entityPickerModalItem(level, name).should(
-    "have.attr",
-    "data-active",
-    "true",
-  );
+  entityPickerModalItem(level, name).should("have.attr", "data-active", "true");
 }
 
 function assertDataPickerEntityNotSelected(level: number, name: string) {
-  H.entityPickerModalItem(level, name).should("not.have.attr", "data-active");
+  entityPickerModalItem(level, name).should("not.have.attr", "data-active");
 }

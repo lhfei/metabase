@@ -3,16 +3,8 @@ import { useMemo } from "react";
 import { t } from "ttag";
 
 import { VirtualizedList } from "metabase/components/VirtualizedList";
-import { PLUGIN_MODERATION } from "metabase/plugins";
 import { LoadingAndErrorWrapper } from "metabase/public/containers/PublicAction/PublicAction.styled";
-import {
-  Box,
-  Center,
-  Flex,
-  Icon,
-  NavLink,
-  type NavLinkProps,
-} from "metabase/ui";
+import { Box, Center, Icon, NavLink } from "metabase/ui";
 
 import type { TypeWithModel } from "../../types";
 import { getEntityPickerIcon, isSelectedItem } from "../../utils";
@@ -34,7 +26,6 @@ interface ItemListProps<
   isCurrentLevel: boolean;
   shouldDisableItem?: (item: Item) => boolean;
   shouldShowItem?: (item: Item) => boolean;
-  navLinkProps?: (isSelected?: boolean) => NavLinkProps;
 }
 
 export const ItemList = <
@@ -51,7 +42,6 @@ export const ItemList = <
   isCurrentLevel,
   shouldDisableItem,
   shouldShowItem,
-  navLinkProps,
 }: ItemListProps<Id, Model, Item>) => {
   const filteredItems =
     items && shouldShowItem ? items.filter(shouldShowItem) : items;
@@ -88,23 +78,13 @@ export const ItemList = <
         const icon = getEntityPickerIcon(item, isSelected && isCurrentLevel);
 
         return (
-          <div data-testid="picker-item" key={`${item.model}-${item.id}`}>
+          <div key={`${item.model}-${item.id}`}>
             <NavLink
               disabled={shouldDisableItem?.(item)}
               rightSection={
                 isFolder(item) ? <Icon name="chevronright" size={10} /> : null
               }
-              label={
-                <Flex align="center">
-                  {item.name}{" "}
-                  <PLUGIN_MODERATION.ModerationStatusIcon
-                    status={item.moderated_status}
-                    filled
-                    size={14}
-                    ml="0.5rem"
-                  />
-                </Flex>
-              }
+              label={item.name}
               active={isSelected}
               icon={<Icon {...icon} />}
               onClick={(e: React.MouseEvent) => {
@@ -114,7 +94,6 @@ export const ItemList = <
               }}
               variant={isCurrentLevel ? "default" : "mb-light"}
               mb="xs"
-              {...navLinkProps?.(isSelected)}
             />
           </div>
         );

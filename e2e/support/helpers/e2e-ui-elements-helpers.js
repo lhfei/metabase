@@ -1,10 +1,11 @@
-// Functions that get key elements in the app
-
+// various Metabase-specific "scoping" functions like inside popover/modal/navbar/main/sidebar content area
 export const POPOVER_ELEMENT =
   ".popover[data-state~='visible'],[data-element-id=mantine-popover]";
 
-/** The currently visible popover dropdown or menu dropdown.*/
-export const popover = () => cy.get(POPOVER_ELEMENT).should("be.visible");
+export function popover() {
+  cy.get(POPOVER_ELEMENT).should("be.visible");
+  return cy.get(POPOVER_ELEMENT);
+}
 
 const HOVERCARD_ELEMENT = ".emotion-HoverCard-dropdown[role='dialog']:visible";
 
@@ -28,11 +29,7 @@ export function modal() {
 }
 
 export function tooltip() {
-  return cy.get(".emotion-Tooltip-tooltip, [role='tooltip']");
-}
-
-export function selectDropdown() {
-  return cy.get('[data-testid="select-dropdown"]');
+  return cy.get(".emotion-Tooltip-tooltip");
 }
 
 export function entityPickerModal() {
@@ -43,11 +40,6 @@ export function entityPickerModalLevel(level) {
   return cy.findByTestId(`item-picker-level-${level}`);
 }
 
-/**
- *
- * @param {number} level
- * @param {string} name
- */
 export function entityPickerModalItem(level, name) {
   return entityPickerModalLevel(level).findByText(name).parents("button");
 }
@@ -79,10 +71,6 @@ export function collectionOnTheGoModal() {
   return cy.findByTestId("create-collection-on-the-go");
 }
 
-export function dashboardOnTheGoModal() {
-  return cy.findByTestId("create-dashboard-on-the-go");
-}
-
 export function sidebar() {
   return cy.get("main aside");
 }
@@ -93,10 +81,6 @@ export function rightSidebar() {
 
 export function leftSidebar() {
   return cy.findByTestId("sidebar-left");
-}
-
-export function sidesheet() {
-  return cy.findByTestId("sidesheet");
 }
 
 export function navigationSidebar() {
@@ -165,7 +149,7 @@ export function setFilterWidgetValue(
   popover()
     .first()
     .within(() => {
-      removeFieldValuesValue(0);
+      removeMultiAutocompleteValue(0);
       if (value) {
         cy.findByPlaceholderText(targetPlaceholder).type(value).blur();
       }
@@ -185,12 +169,8 @@ export function toggleFilterWidgetValues(
   });
 }
 
-export const openQuestionActions = action => {
+export const openQuestionActions = () => {
   cy.findByTestId("qb-header-action-panel").icon("ellipsis").click();
-
-  if (action) {
-    popover().findByText(action).click();
-  }
 };
 
 export const collectionTable = () => {
@@ -211,12 +191,6 @@ export const closeQuestionActions = () => {
 
 export const questionInfoButton = () => {
   return cy.findByTestId("qb-header-info-button");
-};
-
-/** Opens the question info sidesheet */
-export const openQuestionInfoSidesheet = () => {
-  questionInfoButton().click();
-  return sidesheet();
 };
 
 export const undo = () => {
@@ -292,10 +266,6 @@ export function tableInteractive() {
   return cy.findByTestId("TableInteractive-root");
 }
 
-export function tableInteractiveBody() {
-  return cy.get("#main-data-grid");
-}
-
 export function tableHeaderClick(headerString) {
   tableInteractive().within(() => {
     cy.findByTextEnsureVisible(headerString).trigger("mousedown");
@@ -303,28 +273,6 @@ export function tableHeaderClick(headerString) {
 
   tableInteractive().within(() => {
     cy.findByTextEnsureVisible(headerString).trigger("mouseup");
-  });
-}
-
-export function assertTableData({ columns, firstRows = [] }) {
-  tableInteractive()
-    .findAllByTestId("header-cell")
-    .should("have.length", columns.length);
-
-  columns.forEach((column, index) => {
-    tableInteractive()
-      .findAllByTestId("header-cell")
-      .eq(index)
-      .should("have.text", column);
-  });
-
-  firstRows.forEach((row, rowIndex) => {
-    row.forEach((cell, cellIndex) => {
-      tableInteractiveBody()
-        .findAllByTestId("cell-data")
-        .eq(columns.length * rowIndex + cellIndex)
-        .should("have.text", cell);
-    });
   });
 }
 
@@ -350,18 +298,6 @@ export function multiAutocompleteInput(filter = ":eq(0)") {
   return cy.findAllByRole("combobox").filter(filter).get("input").last();
 }
 
-export function fieldValuesInput(filter = ":eq(0)") {
-  return cy.findAllByRole("textbox").filter(filter).get("input").last();
-}
-
-export function fieldValuesValue(index) {
-  return cy.findAllByTestId("token-field").eq(index);
-}
-
-export function removeFieldValuesValue(index) {
-  return cy.findAllByTestId("token-field").icon("close").eq(index).click();
-}
-
 export function multiAutocompleteValue(index, filter = ":eq(0)") {
   return cy
     .findAllByRole("combobox")
@@ -373,14 +309,4 @@ export function removeMultiAutocompleteValue(index, filter) {
   return multiAutocompleteValue(index, filter)
     .findByRole("button", { hidden: true })
     .click();
-}
-
-export function repeatAssertion(assertFn, timeout = 4000, interval = 400) {
-  if (timeout <= 0) {
-    return;
-  }
-  assertFn();
-
-  cy.wait(interval);
-  repeatAssertion(assertFn, timeout - interval, interval);
 }

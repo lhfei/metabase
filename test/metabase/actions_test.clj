@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.actions-test
+(ns metabase.actions-test
   (:require
    [clojure.test :refer :all]
    [metabase.actions :as actions]
@@ -169,10 +169,8 @@
       (testing (str action " without :query")
         (is (thrown-with-msg?
              Exception
-             #"\QNative queries must not specify `:query`; MBQL queries must not specify `:native`.\E"
-             (actions/perform-action! action (-> request-body
-                                                 (dissoc :query)
-                                                 (assoc :native {:query "Not really a SQL query"})))))))))
+             #"\QMBQL queries must specify `:query`.\E"
+             (actions/perform-action! action (dissoc request-body :query))))))))
 
 (deftest row-update-action-gives-400-when-matching-more-than-one
   (mt/test-drivers (mt/normal-drivers-with-feature :actions)

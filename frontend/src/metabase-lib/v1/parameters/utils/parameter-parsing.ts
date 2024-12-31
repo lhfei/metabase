@@ -84,25 +84,20 @@ function parseParameterValueForNumber(value: string | string[]) {
 }
 
 function parseParameterValueForFields(
-  value: ParameterValueOrArray,
+  value: string | string[],
   fields: Field[],
-): ParameterValueOrArray {
+): ParameterValueOrArray | boolean {
   if (Array.isArray(value)) {
     return value.map(v => parseParameterValueForFields(v, fields));
   }
 
   // unix dates fields are numeric but query params shouldn't be parsed as numbers
   if (fields.every(f => f.isNumeric() && !f.isDate())) {
-    const number = parseFloat(String(value));
-    return isNaN(number) ? [] : number;
+    return parseFloat(value);
   }
 
   if (fields.every(f => f.isBoolean())) {
-    return value === "true" ? true : value === "false" ? false : [];
-  }
-
-  if (fields.every(f => f.isString() || f.isStringLike())) {
-    return String(value);
+    return value === "true" ? true : value === "false" ? false : value;
   }
 
   return value;

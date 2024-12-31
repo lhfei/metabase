@@ -67,9 +67,11 @@ describe("StringFilterEditor", () => {
           has_more_values: false,
         }),
       });
-      expect(await screen.findByText("equal to")).toBeInTheDocument();
 
+      await userEvent.click(screen.getByText("between"));
+      await userEvent.click(await screen.findByText("Equal to"));
       await userEvent.click(await screen.findByText("2"));
+
       expect(getNextFilterName()).toBe("Quantity is equal to 2");
     });
 
@@ -312,7 +314,7 @@ describe("StringFilterEditor", () => {
 interface QueryWithFilterOpts {
   tableName: string;
   columnName: string;
-  operator: Lib.NumberFilterOperator;
+  operator: Lib.NumberFilterOperatorName;
   values: number[];
 }
 

@@ -23,7 +23,7 @@ import SettingNumber from "./widgets/SettingNumber";
 import SettingPassword from "./widgets/SettingPassword";
 import SettingRadio from "./widgets/SettingRadio";
 import SettingText from "./widgets/SettingText";
-import { SettingToggle } from "./widgets/SettingToggle";
+import SettingToggle from "./widgets/SettingToggle";
 import SettingSelect from "./widgets/deprecated/SettingSelect";
 
 const SETTING_WIDGET_MAP = {
@@ -115,11 +115,9 @@ export const SetByEnvVar = ({ setting }) => {
   const { url: docsUrl } = useGetEnvVarDocsUrl(setting.env_name);
 
   return (
-    <SettingEnvVarMessage data-testid="setting-env-var-message">
+    <SettingEnvVarMessage>
       {jt`This has been set by the ${(
-        <ExternalLink key={docsUrl} href={docsUrl}>
-          {setting.env_name}
-        </ExternalLink>
+        <ExternalLink href={docsUrl}>{setting.env_name}</ExternalLink>
       )} environment variable.`}
     </SettingEnvVarMessage>
   );

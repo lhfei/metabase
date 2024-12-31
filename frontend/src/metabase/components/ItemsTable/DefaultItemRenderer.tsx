@@ -19,7 +19,7 @@ export type ItemRendererProps = {
   databases?: Database[];
   bookmarks?: Bookmark[];
 } & ActionMenuProps &
-  Pick<BaseItemsTableProps, "onClick" | "visibleColumnsMap">;
+  Pick<BaseItemsTableProps, "onClick" | "showActionMenu">;
 
 export const DefaultItemRenderer = ({
   item,
@@ -35,7 +35,7 @@ export const DefaultItemRenderer = ({
   bookmarks,
   testIdPrefix = "item",
   onClick,
-  visibleColumnsMap,
+  showActionMenu,
 }: ItemRendererProps) => {
   const canSelect =
     collection?.can_write && typeof onToggleSelected === "function";
@@ -60,27 +60,19 @@ export const DefaultItemRenderer = ({
           handleSelectionToggled={handleSelectionToggled}
         />
       )}
-      {visibleColumnsMap["type"] && (
-        <Columns.Type.Cell
-          testIdPrefix={testIdPrefix}
-          icon={icon}
-          isPinned={isPinned}
-        />
-      )}
-      {visibleColumnsMap["name"] && (
-        <Columns.Name.Cell
-          item={item}
-          testIdPrefix={testIdPrefix}
-          onClick={onClick}
-        />
-      )}
-      {visibleColumnsMap["lastEditedBy"] && (
-        <Columns.LastEditedBy.Cell item={item} testIdPrefix={testIdPrefix} />
-      )}
-      {visibleColumnsMap["lastEditedAt"] && (
-        <Columns.LastEditedAt.Cell item={item} testIdPrefix={testIdPrefix} />
-      )}
-      {visibleColumnsMap["actionMenu"] && (
+      <Columns.Type.Cell
+        testIdPrefix={testIdPrefix}
+        icon={icon}
+        isPinned={isPinned}
+      />
+      <Columns.Name.Cell
+        item={item}
+        testIdPrefix={testIdPrefix}
+        onClick={onClick}
+      />
+      <Columns.LastEditedBy.Cell item={item} testIdPrefix={testIdPrefix} />
+      <Columns.LastEditedAt.Cell item={item} testIdPrefix={testIdPrefix} />
+      {showActionMenu && (
         <Columns.ActionMenu.Cell
           item={item}
           collection={collection}

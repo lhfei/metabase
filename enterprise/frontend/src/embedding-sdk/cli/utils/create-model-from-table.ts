@@ -5,14 +5,13 @@ import { propagateErrorResponse } from "./propagate-error-response";
 interface Options {
   table: Table;
   databaseId: number;
-  collectionId: number | null;
 
   cookie: string;
   instanceUrl: string;
 }
 
 export async function createModelFromTable(options: Options) {
-  const { databaseId, collectionId, table, instanceUrl, cookie = "" } = options;
+  const { databaseId, table, instanceUrl, cookie = "" } = options;
 
   const datasetQuery = {
     type: "query",
@@ -29,7 +28,7 @@ export async function createModelFromTable(options: Options) {
       type: "model",
       display: "table",
       result_metadata: null,
-      collection_id: collectionId,
+      collection_id: null,
       collection_position: 1,
       visualization_settings: {},
       dataset_query: datasetQuery,

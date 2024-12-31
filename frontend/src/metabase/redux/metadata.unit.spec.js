@@ -4,7 +4,6 @@ import { fetchField } from "./metadata";
 
 describe("deprecated metadata actions", () => {
   let dispatch;
-
   beforeEach(() => {
     jest.clearAllMocks();
 

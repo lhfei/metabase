@@ -1,9 +1,9 @@
-import {
-  setupAuditEndpoints,
-  setupCollectionByIdEndpoint,
-} from "__support__/server-mocks";
+import fetchMock from "fetch-mock";
+
+import { setupCollectionByIdEndpoint } from "__support__/server-mocks";
 import { createMockEntitiesState } from "__support__/store";
 import { renderWithProviders, screen } from "__support__/ui";
+import type { AuditInfo } from "metabase-enterprise/audit_app/types/state";
 import type { Collection, CollectionId } from "metabase-types/api";
 import { createMockCollection, createMockUser } from "metabase-types/api/mocks";
 import { createMockState } from "metabase-types/store/mocks";
@@ -18,6 +18,12 @@ const TestComponent = ({
   const defaultCollectionId = useGetDefaultCollectionId(collectionId);
 
   return <div>id: {JSON.stringify(defaultCollectionId)}</div>;
+};
+
+const defaultAuditInfo: AuditInfo = {
+  dashboard_overview: 201,
+  question_overview: 202,
+  custom_reports: 203,
 };
 
 const user = createMockUser({
@@ -53,7 +59,7 @@ const setup = ({
   hasRootAccess?: boolean;
 }) => {
   setupCollectionByIdEndpoint({ collections });
-  setupAuditEndpoints();
+  fetchMock.get("path:/api/ee/audit-app/user/audit-info", defaultAuditInfo);
 
   const entitiesState = createMockEntitiesState({
     collections: [

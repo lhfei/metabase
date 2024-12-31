@@ -4,8 +4,8 @@
    [clojure.test :refer :all]
    [metabase.http-client :as client]
    [metabase.models :refer [Database Revision Table]]
-   [metabase.models.segment :refer [Segment]]
-   [metabase.request.core :as request]
+   [metabase.models.segment :as segment :refer [Segment]]
+   [metabase.server.request.util :as req.util]
    [metabase.test :as mt]
    [metabase.util :as u]
    [toucan2.core :as t2]
@@ -31,10 +31,10 @@
 ;; authentication test on every single individual endpoint
 
 (deftest authentication-test
-  (is (= (get request/response-unauthentic :body)
+  (is (= (get req.util/response-unauthentic :body)
          (client/client :get 401 "segment")))
 
-  (is (= (get request/response-unauthentic :body)
+  (is (= (get req.util/response-unauthentic :body)
          (client/client :put 401 "segment/13"))))
 
 ;; ## POST /api/segment

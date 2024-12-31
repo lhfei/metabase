@@ -217,28 +217,24 @@ export const MBQL_CLAUSES: MBQLClauseMap = {
     displayName: `contains`,
     type: "boolean",
     args: ["string", "string"],
-    multiple: true,
     hasOptions: true,
   },
   "does-not-contain": {
     displayName: `doesNotContain`,
     type: "boolean",
     args: ["string", "string"],
-    multiple: true,
     hasOptions: true,
   },
   "starts-with": {
     displayName: `startsWith`,
     type: "boolean",
     args: ["string", "string"],
-    multiple: true,
     hasOptions: true,
   },
   "ends-with": {
     displayName: `endsWith`,
     type: "boolean",
     args: ["string", "string"],
-    multiple: true,
     hasOptions: true,
   },
   between: {
@@ -295,12 +291,6 @@ export const MBQL_CLAUSES: MBQLClauseMap = {
     args: ["expression", "expression"], // ideally we'd alternate boolean/expression
     multiple: true,
   },
-  if: {
-    displayName: `if`,
-    type: "expression",
-    args: ["expression", "expression"],
-    multiple: true,
-  },
   offset: {
     displayName: `Offset`,
     type: "any", // ideally we'd dynamically infer it from the first argument
@@ -343,30 +333,11 @@ export const MBQL_CLAUSES: MBQLClauseMap = {
     args: ["number", "number"],
   },
   // comparison operators
-  "=": {
-    displayName: "=",
-    tokenName: "Equal",
-    type: "boolean",
-    args: ["expression", "expression"],
-  },
   "!=": {
     displayName: "!=",
     tokenName: "NotEqual",
     type: "boolean",
     args: ["expression", "expression"],
-  },
-  // `in` and `not-in` are aliases for `=` and `!=`
-  in: {
-    displayName: "in",
-    type: "boolean",
-    args: ["expression", "expression"],
-    multiple: true,
-  },
-  "not-in": {
-    displayName: "notIn",
-    type: "boolean",
-    args: ["expression", "expression"],
-    multiple: true,
   },
   "<=": {
     displayName: "<=",
@@ -389,6 +360,12 @@ export const MBQL_CLAUSES: MBQLClauseMap = {
   ">": {
     displayName: ">",
     tokenName: "GreaterThan",
+    type: "boolean",
+    args: ["expression", "expression"],
+  },
+  "=": {
+    displayName: "=",
+    tokenName: "Equal",
     type: "boolean",
     args: ["expression", "expression"],
   },
@@ -422,7 +399,6 @@ export const MBQL_CLAUSES: MBQLClauseMap = {
     displayName: `weekday`,
     type: "number",
     args: ["datetime"],
-    hasOptions: true, // optional mode parameter
   },
   "get-hour": {
     displayName: `hour`,
@@ -561,8 +537,6 @@ export const EXPRESSION_FUNCTIONS = new Set([
   "now",
   "convert-timezone",
   // boolean
-  "in",
-  "not-in",
   "contains",
   "ends-with",
   "starts-with",
@@ -576,7 +550,6 @@ export const EXPRESSION_FUNCTIONS = new Set([
   "not-empty",
   "does-not-contain",
   // other
-  "if",
   "coalesce",
 ]);
 

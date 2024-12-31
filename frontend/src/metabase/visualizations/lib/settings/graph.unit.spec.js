@@ -10,7 +10,6 @@ import {
   GRAPH_AXIS_SETTINGS,
   GRAPH_DISPLAY_VALUES_SETTINGS,
   STACKABLE_SETTINGS,
-  TOOLTIP_SETTINGS,
   getDefaultDimensionLabel,
 } from "./graph";
 
@@ -243,7 +242,6 @@ describe("GRAPH_DISPLAY_VALUES_SETTINGS", () => {
   describe("graph.show_values", () => {
     const getHidden =
       GRAPH_DISPLAY_VALUES_SETTINGS["graph.show_values"].getHidden;
-
     it("should be hidden on normalized area charts", () => {
       const isHidden = getHidden(
         [{ card: { display: "area" } }, { card: { display: "area" } }],
@@ -292,7 +290,6 @@ describe("GRAPH_DISPLAY_VALUES_SETTINGS", () => {
 
       expect(isHidden).toBe(true);
     });
-
     it("should be hidden on normalized charts without line series", () => {
       const isHidden = getHidden(
         [
@@ -431,152 +428,6 @@ describe("GRAPH_DISPLAY_VALUES_SETTINGS", () => {
       );
 
       expect(isHidden).toBe(true);
-    });
-  });
-});
-
-describe("graph.tooltip_columns", () => {
-  const tooltipColumnsSetting = TOOLTIP_SETTINGS["graph.tooltip_columns"];
-
-  describe("getHidden", () => {
-    it("should be hidden when there are no available additional columns", () => {
-      const mockSeries = [
-        createMockSingleSeries(
-          createMockCard(),
-          createMockDataset({
-            data: createMockDatasetData({
-              cols: [
-                createMockColumn({ name: "dim", base_type: "type/Text" }),
-                createMockColumn({ name: "metric", base_type: "type/Number" }),
-              ],
-            }),
-          }),
-        ),
-      ];
-
-      const isHidden = tooltipColumnsSetting.getHidden(mockSeries, {
-        "graph.tooltip_type": "series_comparison",
-        "graph.dimensions": ["dim"],
-        "graph.metrics": ["metric"],
-      });
-
-      expect(isHidden).toBe(true);
-    });
-
-    it("should not be hidden when there are available additional columns", () => {
-      const mockSeries = [
-        createMockSingleSeries(
-          createMockCard(),
-          createMockDataset({
-            data: createMockDatasetData({
-              cols: [
-                createMockColumn({ name: "dim", base_type: "type/Text" }),
-                createMockColumn({ name: "metric1", base_type: "type/Number" }),
-                createMockColumn({ name: "metric2", base_type: "type/Number" }),
-              ],
-            }),
-          }),
-        ),
-      ];
-
-      const isHidden = tooltipColumnsSetting.getHidden(mockSeries, {
-        "graph.tooltip_type": "series_comparison",
-        "graph.dimensions": ["dim"],
-        "graph.metrics": ["metric1"],
-      });
-
-      expect(isHidden).toBe(false);
-    });
-
-    describe("getValue", () => {
-      const getMockSeries = display => [
-        createMockSingleSeries(
-          createMockCard({ display }),
-          createMockDataset({
-            data: createMockDatasetData({
-              cols: [
-                createMockColumn({ name: "dim", base_type: "type/Text" }),
-                createMockColumn({
-                  name: "metric1",
-                  base_type: "type/Number",
-                }),
-                createMockColumn({
-                  name: "metric2",
-                  base_type: "type/Number",
-                }),
-                createMockColumn({
-                  name: "metric3",
-                  base_type: "type/Number",
-                }),
-                createMockColumn({
-                  name: "category",
-                  base_type: "type/Text",
-                }),
-              ],
-            }),
-          }),
-        ),
-      ];
-
-      it("should return all available columns on scatter charts by default", () => {
-        const value = tooltipColumnsSetting.getValue(getMockSeries("scatter"), {
-          "graph.tooltip_type": "series_comparison",
-          "graph.dimensions": ["dim"],
-          "graph.metrics": ["metric1"],
-        });
-
-        expect(value).toStrictEqual([
-          '["name","metric2"]',
-          '["name","metric3"]',
-          '["name","category"]',
-        ]);
-      });
-
-      it("should return no additional columns by default", () => {
-        const value = tooltipColumnsSetting.getValue(getMockSeries("line"), {
-          "graph.tooltip_type": "series_comparison",
-          "graph.dimensions": ["dim"],
-          "graph.metrics": ["metric1"],
-        });
-
-        expect(value).toHaveLength(0);
-      });
-    });
-  });
-
-  describe("getProps", () => {
-    it("should return options for available additional columns", () => {
-      const mockSeries = [
-        createMockSingleSeries(
-          createMockCard(),
-          createMockDataset({
-            data: createMockDatasetData({
-              cols: [
-                createMockColumn({ name: "dim", base_type: "type/Text" }),
-                createMockColumn({
-                  name: "metric1",
-                  display_name: "Metric 1",
-                  base_type: "type/Number",
-                }),
-                createMockColumn({
-                  name: "metric2",
-                  display_name: "Metric 2",
-                  base_type: "type/Number",
-                }),
-              ],
-            }),
-          }),
-        ),
-      ];
-
-      const props = tooltipColumnsSetting.getProps(mockSeries, {
-        "graph.dimensions": ["dim"],
-        "graph.metrics": ["metric1"],
-      });
-
-      expect(props.options).toEqual([
-        { label: "Metric 2", value: '["name","metric2"]' },
-      ]);
     });
   });
 });

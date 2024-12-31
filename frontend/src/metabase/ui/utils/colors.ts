@@ -19,10 +19,8 @@ const ORIGINAL_COLORS = [
   "yellow",
   "orange",
   "teal",
-] as const;
+];
 
-// these should only include semantic colors
-// for use in the UI
 const CUSTOM_COLORS = [
   "bg-black",
   "bg-dark",

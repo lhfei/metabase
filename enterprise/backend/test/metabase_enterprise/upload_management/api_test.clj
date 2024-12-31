@@ -1,5 +1,6 @@
 (ns metabase-enterprise.upload-management.api-test
   (:require
+   [clojure.string :as str]
    [clojure.test :refer :all]
    [java-time.api :as t]
    [metabase.api.table-test :as oss-test]
@@ -50,7 +51,8 @@
         (upload-test/with-uploads-enabled!
           (testing "Behind a feature flag"
             (mt/with-premium-features #{} ;; not :upload-management
-              (mt/assert-has-premium-feature-error "Upload Management" (mt/user-http-request :crowberto :delete 402 (delete-url 1)))))
+              (is (str/starts-with? (mt/user-http-request :crowberto :delete 402 (delete-url 1))
+                                    "Upload Management is a paid feature not currently available to your instance."))))
 
           (mt/with-premium-features #{:upload-management}
             (testing "Happy path\n"

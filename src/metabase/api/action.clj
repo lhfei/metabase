@@ -1,7 +1,8 @@
 (ns metabase.api.action
   "`/api/action/` endpoints."
   (:require
-   [compojure.core :refer [POST]]
+   [cheshire.core :as json]
+   [compojure.core :as compojure :refer [POST]]
    [metabase.actions.core :as actions]
    [metabase.analytics.snowplow :as snowplow]
    [metabase.api.common :as api]
@@ -12,7 +13,6 @@
    [metabase.models.collection :as collection]
    [metabase.util :as u]
    [metabase.util.i18n :refer [deferred-tru tru]]
-   [metabase.util.json :as json]
    [metabase.util.malli :as mu]
    [metabase.util.malli.schema :as ms]
    [toucan2.core :as t2]))
@@ -91,10 +91,8 @@
   [action-id]
   {action-id ms/PositiveInt}
   (let [action (api/write-check Action action-id)]
-    (snowplow/track-event! ::snowplow/action
-                           {:event     :action-deleted
-                            :type      (:type action)
-                            :action_id action-id}))
+    (snowplow/track-event! ::snowplow/action-deleted api/*current-user-id* {:type      (:type action)
+                                                                            :action_id action-id}))
   (t2/delete! Action :id action-id)
   api/generic-204-no-content)
 
@@ -131,11 +129,9 @@
       (actions/check-actions-enabled-for-database!
        (t2/select-one Database :id db-id))))
   (let [action-id (action/insert! (assoc action :creator_id api/*current-user-id*))]
-    (snowplow/track-event! ::snowplow/action
-                           {:event          :action-created
-                            :type           type
-                            :action_id      action-id
-                            :num_parameters (count parameters)})
+    (snowplow/track-event! ::snowplow/action-created api/*current-user-id* {:type           type
+                                                                            :action_id      action-id
+                                                                            :num_parameters (count parameters)})
     (if action-id
       (action/select-action :id action-id)
       ;; t2/insert! does not return a value when used with h2
@@ -165,11 +161,9 @@
   (let [existing-action (api/write-check Action id)]
     (action/update! (assoc action :id id) existing-action))
   (let [{:keys [parameters type] :as action} (action/select-action :id id)]
-    (snowplow/track-event! ::snowplow/action
-                           {:event          :action-updated
-                            :type           type
-                            :action_id      id
-                            :num_parameters (count parameters)})
+    (snowplow/track-event! ::snowplow/action-updated api/*current-user-id* {:type           type
+                                                                            :action_id      id
+                                                                            :num_parameters (count parameters)})
     action))
 
 (api/defendpoint POST "/:id/public_link"
@@ -208,7 +202,7 @@
   (actions/check-actions-enabled! action-id)
   (-> (action/select-action :id action-id :archived false)
       api/read-check
-      (actions/fetch-values (json/decode parameters))))
+      (actions/fetch-values (json/parse-string parameters))))
 
 (api/defendpoint POST "/:id/execute"
   "Execute the Action.
@@ -218,11 +212,9 @@
   {id         ms/PositiveInt
    parameters [:maybe [:map-of :keyword any?]]}
   (let [{:keys [type] :as action} (api/check-404 (action/select-action :id id :archived false))]
-    (snowplow/track-event! ::snowplow/action
-                           {:event     :action-executed
-                            :source    :model_detail
-                            :type      type
-                            :action_id id})
+    (snowplow/track-event! ::snowplow/action-executed api/*current-user-id* {:source    :model_detail
+                                                                             :type      type
+                                                                             :action_id id})
     (actions/execute-action! action (update-keys parameters name))))
 
 (api/define-routes)

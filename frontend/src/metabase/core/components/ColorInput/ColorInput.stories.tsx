@@ -1,5 +1,5 @@
-import { useArgs } from "@storybook/preview-api";
-import type { StoryFn } from "@storybook/react";
+import { useArgs } from "@storybook/addons";
+import type { ComponentStory } from "@storybook/react";
 
 import ColorInput from "./ColorInput";
 
@@ -8,7 +8,7 @@ export default {
   component: ColorInput,
 };
 
-const Template: StoryFn<typeof ColorInput> = args => {
+const Template: ComponentStory<typeof ColorInput> = args => {
   const [{ value }, updateArgs] = useArgs();
 
   const handleChange = (value?: string) => {
@@ -18,6 +18,4 @@ const Template: StoryFn<typeof ColorInput> = args => {
   return <ColorInput {...args} value={value} onChange={handleChange} />;
 };
 
-export const Default = {
-  render: Template,
-};
+export const Default = Template.bind({});

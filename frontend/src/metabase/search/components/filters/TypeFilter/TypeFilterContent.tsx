@@ -9,12 +9,7 @@ import type { SearchFilterDropdown } from "metabase/search/types";
 import { Checkbox, Stack } from "metabase/ui";
 import type { EnabledSearchModel } from "metabase-types/api";
 
-const EMPTY_SEARCH_QUERY = {
-  models: ["dataset" as const],
-  limit: 1,
-  calculate_available_models: true as const,
-};
-
+const EMPTY_SEARCH_QUERY = { models: ["dataset" as const], limit: 1 };
 export const TypeFilterContent: SearchFilterDropdown<"type">["ContentComponent"] =
   ({ value, onChange, width }) => {
     const { metadata, isLoading } = useSearchListQuery({

@@ -130,7 +130,7 @@ export function checkCanRefreshModelCache(
     return false;
   }
 
-  return ["creating", "persisted", "error"].includes(refreshInfo.state);
+  return refreshInfo.state === "persisted" || refreshInfo.state === "error";
 }
 
 export function getModelCacheSchemaName(databaseId: number, siteUUID: string) {

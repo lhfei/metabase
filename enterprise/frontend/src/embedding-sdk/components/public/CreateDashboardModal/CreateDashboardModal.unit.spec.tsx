@@ -8,7 +8,7 @@ import {
 } from "__support__/server-mocks";
 import { renderWithProviders, screen } from "__support__/ui";
 import { getNextId } from "__support__/utils";
-import { createMockAuthProviderUriConfig } from "embedding-sdk/test/mocks/config";
+import { createMockJwtConfig } from "embedding-sdk/test/mocks/config";
 import { ROOT_COLLECTION as ROOT } from "metabase/entities/collections";
 import {
   createMockCollection,
@@ -104,29 +104,15 @@ describe("CreateDashboardModal", () => {
     expect(onCreate).toHaveBeenCalledTimes(1);
     expect(onCreate).toHaveBeenLastCalledWith(mockResponseDashboard);
   });
-
-  it('should support "isOpen" prop', () => {
-    const { rerender } = setup({
-      props: {
-        isOpen: false,
-      },
-    });
-
-    expect(screen.queryByText("New dashboard")).not.toBeInTheDocument();
-
-    rerender(<CreateDashboardModal isOpen />);
-
-    expect(screen.getByText("New dashboard")).toBeInTheDocument();
-  });
 });
 
 function setup({ props }: { props?: Partial<CreateDashboardModalProps> } = {}) {
   setupCollectionByIdEndpoint({ collections: COLLECTIONS });
 
-  return renderWithProviders(<CreateDashboardModal {...props} />, {
+  renderWithProviders(<CreateDashboardModal {...props} />, {
     mode: "sdk",
     sdkProviderProps: {
-      authConfig: createMockAuthProviderUriConfig(),
+      config: createMockJwtConfig(),
     },
     storeInitialState: {
       currentUser: CURRENT_USER,

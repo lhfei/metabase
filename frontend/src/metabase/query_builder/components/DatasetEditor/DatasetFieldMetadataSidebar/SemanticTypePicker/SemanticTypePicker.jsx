@@ -1,15 +1,14 @@
-import cx from "classnames";
 import { useField } from "formik";
 import PropTypes from "prop-types";
 import { useCallback, useMemo, useRef } from "react";
 import { t } from "ttag";
 
 import Select from "metabase/core/components/Select";
-import SelectButton from "metabase/core/components/SelectButton";
+import SelectButon from "metabase/core/components/SelectButton";
 import { getSemanticTypeIcon } from "metabase/lib/schema_metadata";
-import { Icon, Text } from "metabase/ui";
+import { Text } from "metabase/ui";
 
-import SemanticTypePickerS from "./SemanticTypePicker.module.css";
+import { FieldTypeIcon } from "./SemanticTypePicker.styled";
 
 const propTypes = {
   name: PropTypes.string,
@@ -18,7 +17,6 @@ const propTypes = {
   onKeyDown: PropTypes.func,
   options: PropTypes.array,
   onChange: PropTypes.func,
-  className: PropTypes.string,
 };
 
 function SemanticTypePicker({
@@ -28,7 +26,6 @@ function SemanticTypePicker({
   options,
   label,
   onChange,
-  className,
 }) {
   const [field, _, { setValue }] = useField(name);
 
@@ -58,26 +55,17 @@ function SemanticTypePicker({
   const renderSelectButton = useCallback(() => {
     const icon = getSemanticTypeIcon(field.value, "ellipsis");
     return (
-      <SelectButton
-        className={className}
+      <SelectButon
         hasValue={!!field.value}
         onKeyDown={onKeyDown}
         tabIndex={tabIndex}
         ref={selectButtonRef}
-        left={
-          <Icon
-            className={cx(SemanticTypePickerS.FieldTypeIcon, {
-              [SemanticTypePickerS.ellipsis]: icon === "ellipsis",
-            })}
-            size={14}
-            name={icon}
-          />
-        }
+        left={<FieldTypeIcon name={icon} />}
       >
         {pickerLabel}
-      </SelectButton>
+      </SelectButon>
     );
-  }, [field.value, className, onKeyDown, tabIndex, pickerLabel]);
+  }, [field, tabIndex, pickerLabel, onKeyDown]);
 
   return (
     <>
@@ -85,7 +73,6 @@ function SemanticTypePicker({
         {label}
       </Text>
       <Select
-        className={className}
         value={field.value}
         options={options}
         onChange={onSelectValue}

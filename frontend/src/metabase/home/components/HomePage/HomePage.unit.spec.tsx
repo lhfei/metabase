@@ -10,7 +10,10 @@ import {
 import { renderWithProviders, screen } from "__support__/ui";
 import type { DashboardId } from "metabase-types/api";
 import { createMockDashboard, createMockUser } from "metabase-types/api/mocks";
-import { createMockState } from "metabase-types/store/mocks";
+import {
+  createMockSettingsState,
+  createMockState,
+} from "metabase-types/store/mocks";
 
 import { HomePage } from "./HomePage";
 
@@ -28,6 +31,9 @@ const setup = async ({ dashboardId }: SetupOpts = {}) => {
     currentUser: createMockUser({
       first_name: TEST_USER_NAME,
       custom_homepage: dashboardId ? { dashboard_id: dashboardId } : null,
+    }),
+    settings: createMockSettingsState({
+      "is-metabot-enabled": false,
     }),
   });
 

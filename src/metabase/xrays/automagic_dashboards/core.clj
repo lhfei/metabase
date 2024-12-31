@@ -140,7 +140,8 @@
    but should provide clarity as to the terminology and how everything fits together.
 
    In practice, we gather the entity data (including fields), the dashboard templates, attempt to bind dimensions to
-   fields specified in the template, then build metrics, filters, and finally cards based on the bound dimensions."
+   fields specified in the template, then build metrics, filters, and finally cards based on the bound dimensions.
+  "
   (:require
    [clojure.set :as set]
    [clojure.string :as str]

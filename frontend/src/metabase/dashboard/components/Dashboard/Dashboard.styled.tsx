@@ -44,7 +44,6 @@ export const DashboardLoadingAndErrorWrapper = styled(
 
 export const DashboardStyled = styled.div`
   display: flex;
-  flex: 1 0 auto;
   flex-direction: column;
   min-height: 100%;
   width: 100%;
@@ -118,9 +117,7 @@ export const ParametersWidgetContainer = styled(FullWidthContainer)<{
   ${({ isFullscreen }) =>
     isFullscreen &&
     css`
-      transition:
-        background-color 1s linear,
-        border-color 1s linear,
+      transition: background-color 1s linear, border-color 1s linear,
         color 1s linear;
     `}
 
@@ -133,18 +130,6 @@ export const ParametersWidgetContainer = styled(FullWidthContainer)<{
         ${hasScroll
           ? "var(--mb-color-border)"
           : getDashboardBodyBgColor(isNightMode)};
-    `}
-
-    ${({ isNightMode }) =>
-    isNightMode &&
-    css`
-      --mb-color-text-secondary: color-mix(
-        in srgb,
-        var(--mb-base-color-white) 65%,
-        transparent
-      );
-      --mb-color-border: var(--mb-base-color-orion-60);
-      --mb-color-background: var(--mb-color-bg-black);
     `}
 `;
 
@@ -165,6 +150,22 @@ export const ParametersAndCardsContainer = styled.div<{
   /* Makes sure it doesn't use all the height, so the actual content height could be used in embedding #37437 */
   align-self: ${({ shouldMakeDashboardHeaderStickyAfterScrolling }) =>
     !shouldMakeDashboardHeaderStickyAfterScrolling && "flex-start"};
+
+  &.${SAVING_DOM_IMAGE_CLASS} {
+    ${ParametersWidgetContainer} {
+      background-color: transparent;
+      border-bottom: none;
+      margin-top: 1rem;
+
+      legend {
+        top: -12px;
+      }
+    }
+
+    ${CardsContainer} {
+      padding-bottom: 20px;
+    }
+  }
 `;
 
 export const FIXED_WIDTH = "1048px";
@@ -179,12 +180,6 @@ export const FixedWidthContainer = styled.div<{
       margin: 0 auto;
       max-width: ${FIXED_WIDTH};
     `}
-
-  .${SAVING_DOM_IMAGE_CLASS} & {
-    legend {
-      top: -9px;
-    }
-  }
 `;
 
 export const ParametersFixedWidthContainer = styled(FixedWidthContainer)`

@@ -48,7 +48,7 @@ function createQueryWithBreakoutsForSameColumn() {
       {
         tableName: "ORDERS",
         columnName: "CREATED_AT",
-        temporalBucketName: "Quarter",
+        temporalBucketName: "Month of year",
       },
     ],
   });
@@ -72,7 +72,6 @@ async function setup({
           onQueryChange(nextQuery);
         }}
         onClose={onClose}
-        stageIndex={-1}
       />
     );
   }
@@ -142,25 +141,12 @@ describe("SummarizeSidebar", () => {
       expect(onQueryChange).not.toHaveBeenCalled();
     });
 
-    it("should allow to remove last not default aggregation (metabase#48033)", async () => {
-      await setup({
-        query: createQueryWithClauses({
-          aggregations: [{ operatorName: "count" }],
-        }),
-      });
-
-      const countButton = screen.getByLabelText("Count");
-      await userEvent.click(within(countButton).getByLabelText("close icon"));
-
-      expect(screen.queryByLabelText("Count")).not.toBeInTheDocument();
-    });
-
     it("should allow to add the default aggregation manually after it was removed", async () => {
       const { getNextAggregations, onQueryChange } = await setup();
 
       const countButton = screen.getByLabelText("Count");
       await userEvent.click(within(countButton).getByLabelText("close icon"));
-      await userEvent.click(screen.getByText("Add a function or metric"));
+      await userEvent.click(screen.getByText("Add a metric"));
       await userEvent.click(await screen.findByText("Count of rows"));
 
       const aggregations = getNextAggregations();
@@ -257,27 +243,7 @@ describe("SummarizeSidebar", () => {
     ).toHaveLength(2);
   });
 
-  it("should allow to modify temporal buckets for breakouts of the same column", async () => {
-    const { getNextBreakouts } = await setup({
-      query: createQueryWithBreakoutsForSameColumn(),
-    });
-
-    await userEvent.click(await screen.findByText("by year"));
-    await userEvent.click(await screen.findByText("Day"));
-    expect(getNextBreakouts()).toMatchObject([
-      { displayName: "Created At: Day" },
-      { displayName: "Created At: Quarter" },
-    ]);
-
-    await userEvent.click(await screen.findByText("by quarter"));
-    await userEvent.click(await screen.findByText("Month"));
-    expect(getNextBreakouts()).toMatchObject([
-      { displayName: "Created At: Day" },
-      { displayName: "Created At: Month" },
-    ]);
-  });
-
-  it("should ignore attempts to create duplicate breakouts by changing the temporal bucket for one of the breakouts", async () => {
+  it("should allow to modify temporal units for breakouts of the same column", async () => {
     const { getNextBreakouts } = await setup({
       query: createQueryWithBreakoutsForSameColumn(),
     });
@@ -285,8 +251,15 @@ describe("SummarizeSidebar", () => {
     await userEvent.click(await screen.findByText("by year"));
     await userEvent.click(await screen.findByText("Quarter"));
     expect(getNextBreakouts()).toMatchObject([
-      { displayName: "Created At: Year" },
       { displayName: "Created At: Quarter" },
+      { displayName: "Created At: Month of year" },
+    ]);
+
+    await userEvent.click(await screen.findByText("by month of year"));
+    await userEvent.click(await screen.findByText("Quarter of year"));
+    expect(getNextBreakouts()).toMatchObject([
+      { displayName: "Created At: Quarter" },
+      { displayName: "Created At: Quarter of year" },
     ]);
   });
 
@@ -308,7 +281,7 @@ describe("SummarizeSidebar", () => {
       within(getUnpinnedColumnList()).getAllByText("Created At"),
     ).toHaveLength(2);
     expect(getNextBreakouts()).toMatchObject([
-      { displayName: "Created At: Quarter" },
+      { displayName: "Created At: Month of year" },
     ]);
 
     const [secondBreakout] = within(getPinnedColumnList()).getAllByLabelText(

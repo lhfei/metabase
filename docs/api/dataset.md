@@ -30,9 +30,7 @@ Execute a query and download the result data as a file in the specified format.
 
 -  **`visualization_settings`** value must be a valid JSON string.
 
--  **`pivot_results`** nullable value must be a valid boolean string ('true' or 'false').
-
--  **`format_rows`** nullable value must be a valid boolean string ('true' or 'false').
+-  **`format_rows`** nullable boolean.
 
 ## `POST /api/dataset/native`
 

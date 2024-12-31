@@ -26,7 +26,7 @@ export type SegmentedControlOption<Value extends SegmentedControlValue> = {
   selectedColor?: string;
 };
 
-export interface SegmentedControlProps<Value extends SegmentedControlValue> {
+interface Props<Value extends SegmentedControlValue> {
   name?: string;
   value?: Value;
   options: SegmentedControlOption<Value>[];
@@ -47,7 +47,7 @@ export function SegmentedControl<Value extends SegmentedControlValue = number>({
   inactiveColor = "text-dark",
   variant = "fill-background",
   ...props
-}: SegmentedControlProps<Value>) {
+}: Props<Value>) {
   const id = useMemo(() => _.uniqueId("radio-"), []);
   const name = nameProp || id;
   const selectedOptionIndex = options.findIndex(
@@ -93,7 +93,7 @@ export function SegmentedControl<Value extends SegmentedControlValue = number>({
               <SegmentedControlRadio
                 id={id}
                 name={name}
-                value={option.value ?? ""}
+                value={option.value}
                 checked={isSelected}
                 onChange={() => onChange?.(option.value)}
                 // Workaround for https://github.com/testing-library/dom-testing-library/issues/877

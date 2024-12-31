@@ -5,7 +5,7 @@ import { Icon } from "metabase/ui";
 
 import type { FieldAlignment, FieldOrientation } from "./types";
 
-interface FormCaptionProps {
+export interface FormCaptionProps {
   alignment: FieldAlignment;
   orientation: FieldOrientation;
   hasDescription: boolean;
@@ -24,7 +24,7 @@ export const FieldCaption = styled.div<FormCaptionProps>`
     "0.5rem"};
 `;
 
-interface FieldLabelProps {
+export interface FieldLabelProps {
   hasError: boolean;
 }
 
@@ -81,7 +81,7 @@ export const FieldInfoLabel = styled.div`
   cursor: default;
 `;
 
-interface FieldRootProps {
+export interface FieldRootProps {
   alignment: FieldAlignment;
   orientation: FieldOrientation;
 }

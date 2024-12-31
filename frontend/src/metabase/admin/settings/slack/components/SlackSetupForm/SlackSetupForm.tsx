@@ -5,7 +5,6 @@ import SlackForm from "../SlackForm";
 const DEFAULT_SETTINGS: SlackSettings = {
   "slack-app-token": "",
   "slack-files-channel": "",
-  "slack-bug-report-channel": "",
 };
 
 export interface SlackSetupFormProps {

@@ -4,22 +4,16 @@ import { useEffect } from "react";
 import { Link } from "react-router";
 import { t } from "ttag";
 
-import {
-  getSegmentQuery,
-  getSegmentQueryDefinition,
-} from "metabase/admin/datamodel/utils/segments";
 import { FieldSet } from "metabase/components/FieldSet";
 import Button from "metabase/core/components/Button/Button";
-import { useSelector } from "metabase/lib/redux";
-import { SegmentEditor } from "metabase/querying/segments/components/SegmentEditor";
-import { getMetadata } from "metabase/selectors/metadata";
-import * as Lib from "metabase-lib";
-import type Metadata from "metabase-lib/v1/metadata/Metadata";
-import type { Segment, StructuredQuery, TableId } from "metabase-types/api";
+import { formatValue } from "metabase/lib/formatting";
+import * as Q from "metabase-lib/v1/queries/utils/query";
+import type { Segment, StructuredQuery } from "metabase-types/api";
 
 import FormInput from "../FormInput";
 import FormLabel from "../FormLabel";
 import FormTextArea from "../FormTextArea";
+import PartialQueryBuilder from "../PartialQueryBuilder";
 
 import {
   FormBody,
@@ -31,6 +25,10 @@ import {
   FormSubmitButton,
 } from "./SegmentForm.styled";
 
+const QUERY_BUILDER_FEATURES = {
+  filter: true,
+};
+
 export interface SegmentFormProps {
   segment?: Segment;
   previewSummary?: string;
@@ -41,17 +39,18 @@ export interface SegmentFormProps {
 
 const SegmentForm = ({
   segment,
+  previewSummary,
+  updatePreviewSummary,
   onIsDirtyChange,
   onSubmit,
 }: SegmentFormProps): JSX.Element => {
   const isNew = segment == null;
-  const metadata = useSelector(getMetadata);
 
   const { isValid, getFieldProps, getFieldMeta, handleSubmit, dirty } =
     useFormik({
       initialValues: segment ?? {},
       isInitialValid: false,
-      validate: values => getFormErrors(values, metadata),
+      validate: getFormErrors,
       onSubmit,
     });
 
@@ -70,13 +69,12 @@ const SegmentForm = ({
               : t`Make changes to your segment and leave an explanatory note.`
           }
         >
-          <SegmentEditor
-            {...getSegmentEditorProps(
-              getFieldProps("definition"),
-              getFieldProps("table_id"),
-              metadata,
-            )}
-            isNew={isNew}
+          <PartialQueryBuilder
+            {...getQueryBuilderProps(getFieldProps("definition"))}
+            features={QUERY_BUILDER_FEATURES}
+            canChangeTable={isNew}
+            previewSummary={getResultSummary(previewSummary)}
+            updatePreviewSummary={updatePreviewSummary}
           />
         </FormLabel>
         <FormBodyContent>
@@ -154,7 +152,11 @@ const SegmentFormActions = ({
   );
 };
 
-const getFormErrors = (values: Partial<Segment>, metadata: Metadata) => {
+const getResultSummary = (previewSummary?: string) => {
+  return previewSummary ? t`${formatValue(previewSummary)} rows` : "";
+};
+
+const getFormErrors = (values: Partial<Segment>) => {
   const errors: Record<string, string> = {};
 
   if (!values.name) {
@@ -169,38 +171,24 @@ const getFormErrors = (values: Partial<Segment>, metadata: Metadata) => {
     errors.revision_message = t`Revision message is required`;
   }
 
-  const query = getSegmentQuery(values.definition, values.table_id, metadata);
-  const filters = query ? Lib.filters(query, -1) : [];
-  if (filters.length === 0) {
+  const filters = values.definition && Q.getFilters(values.definition);
+  if (!filters || filters.length === 0) {
     errors.definition = t`At least one filter is required`;
   }
 
   return errors;
 };
 
-function getSegmentEditorProps(
-  definitionProps: FieldInputProps<StructuredQuery | undefined>,
-  tableIdProps: FieldInputProps<TableId | undefined>,
-  metadata: Metadata,
-) {
+const getQueryBuilderProps = ({
+  name,
+  value,
+  onChange,
+}: FieldInputProps<StructuredQuery>) => {
   return {
-    query: getSegmentQuery(definitionProps.value, tableIdProps.value, metadata),
-    onChange: (query: Lib.Query) => {
-      definitionProps.onChange({
-        target: {
-          name: definitionProps.name,
-          value: getSegmentQueryDefinition(query),
-        },
-      });
-      tableIdProps.onChange({
-        target: {
-          name: tableIdProps.name,
-          value: Lib.sourceTableOrCardId(query),
-        },
-      });
-    },
+    value,
+    onChange: (value: StructuredQuery) => onChange({ target: { name, value } }),
   };
-}
+};
 
 // eslint-disable-next-line import/no-default-export -- deprecated usage
 export default SegmentForm;

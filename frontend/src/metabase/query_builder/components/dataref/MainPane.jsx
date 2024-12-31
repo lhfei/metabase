@@ -11,11 +11,12 @@ import {
   NodeListItemIcon,
   NodeListItemLink,
   NodeListItemName,
-} from "./NodeList";
+} from "./NodeList.styled";
+import { PaneContent } from "./Pane.styled";
 
 const MainPane = ({ databases, onClose, onItemClick }) => (
   <SidebarContent title={t`Data Reference`} onClose={onClose}>
-    <SidebarContent.Pane>
+    <PaneContent>
       <p className={cx(CS.mt2, CS.mb3, CS.textSpaced)}>
         {t`Browse the contents of your databases, tables, and columns. Pick a database to get started.`}
       </p>
@@ -32,7 +33,7 @@ const MainPane = ({ databases, onClose, onItemClick }) => (
             </li>
           ))}
       </ul>
-    </SidebarContent.Pane>
+    </PaneContent>
   </SidebarContent>
 );
 

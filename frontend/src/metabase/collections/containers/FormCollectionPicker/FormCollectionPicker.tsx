@@ -24,7 +24,8 @@ import { useSelector } from "metabase/lib/redux";
 import { Button, Icon } from "metabase/ui";
 import type { CollectionId } from "metabase-types/api";
 
-interface FormCollectionPickerProps extends HTMLAttributes<HTMLDivElement> {
+export interface FormCollectionPickerProps
+  extends HTMLAttributes<HTMLDivElement> {
   name: string;
   title?: string;
   placeholder?: string;
@@ -32,6 +33,7 @@ interface FormCollectionPickerProps extends HTMLAttributes<HTMLDivElement> {
   initialOpenCollectionId?: CollectionId;
   onOpenCollectionChange?: (collectionId: CollectionId) => void;
   filterPersonalCollections?: FilterItemsInPersonalCollection;
+  zIndex?: number;
   collectionPickerModalProps?: Partial<CollectionPickerModalProps>;
 }
 

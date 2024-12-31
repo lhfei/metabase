@@ -45,13 +45,13 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
     ref,
   ) {
     const wasHovered = usePrevious(isHovered);
-    const timeoutId = useRef<number>();
+    const timeoutId = useRef<any>(null);
 
     useEffect(() => {
       const justHovered = !wasHovered && isHovered;
 
       if (justHovered && !isExpanded) {
-        timeoutId.current = window.setTimeout(() => {
+        timeoutId.current = setTimeout(() => {
           if (isHovered) {
             onToggleExpand();
           }

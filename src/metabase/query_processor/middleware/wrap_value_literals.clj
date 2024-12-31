@@ -39,8 +39,15 @@
 (defmethod type-info :metadata/column
   [field]
   ;; Opts should probably override all of these
-  (-> (select-keys field [:base-type :effective-type :coercion-strategy :semantic-type :database-type :name])
-      (update-keys u/->snake_case_en)))
+  (let [field-info (-> (select-keys field [:base-type :effective-type :coercion-strategy :semantic-type :database-type :name])
+                       (update-keys u/->snake_case_en))]
+    (merge
+     field-info
+     ;; add in a default unit for this Field so we know to wrap datetime strings in `absolute-datetime` below based on
+     ;; its presence. Its unit will get replaced by the`:temporal-unit` in `:field` options in the method below if
+     ;; present
+     (when (types/temporal-field? field-info)
+       {:unit :default}))))
 
 (defn- str-id-field->type-info
   "Return _type info_ for `_field` with string `field-name`, coming from the source query or joins."
@@ -72,6 +79,8 @@
 
 (defmethod type-info :expression [[_ _name opts]]
   (merge
+   (when (isa? (:base-type opts) :type/Temporal)
+     {:unit :default})
    (when (:temporal-unit opts)
      {:unit (:temporal-unit opts)})
    (when (:base-type opts)
@@ -251,11 +260,11 @@
 (defmethod add-type-info String
   [s {:keys [unit], :as info} & {:keys [parse-datetime-strings?]
                                  :or   {parse-datetime-strings? true}}]
-  (if (and (or unit (when info (types/temporal-field? info)))
+  (if (and unit
            parse-datetime-strings?
            (seq s))
     (let [effective-type ((some-fn :effective_type :base_type) info)]
-      (parse-temporal-string-literal effective-type s (or unit :default)))
+      (parse-temporal-string-literal effective-type s unit))
     [:value s info]))
 
 ;;; -------------------------------------------- wrap-literals-in-clause ---------------------------------------------

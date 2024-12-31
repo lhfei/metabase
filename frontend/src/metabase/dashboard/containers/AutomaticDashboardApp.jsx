@@ -2,6 +2,7 @@
 import cx from "classnames";
 import { dissoc } from "icepick";
 import { Component } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -12,7 +13,6 @@ import Link from "metabase/core/components/Link";
 import Tooltip from "metabase/core/components/Tooltip";
 import CS from "metabase/css/core/index.css";
 import { DashboardTabs } from "metabase/dashboard/components/DashboardTabs";
-import { DASHBOARD_PARAMETERS_PDF_EXPORT_NODE_ID } from "metabase/dashboard/constants";
 import { Dashboard } from "metabase/dashboard/containers/Dashboard";
 import { DashboardData } from "metabase/dashboard/hoc/DashboardData";
 import { getIsHeaderVisible, getTabs } from "metabase/dashboard/selectors";
@@ -21,7 +21,6 @@ import Dashboards from "metabase/entities/dashboards";
 import title from "metabase/hoc/Title";
 import withToast from "metabase/hoc/Toast";
 import { color } from "metabase/lib/colors";
-import { connect } from "metabase/lib/redux";
 import * as Urls from "metabase/lib/urls";
 import { ParametersList } from "metabase/parameters/components/ParametersList";
 import { getMetadata } from "metabase/selectors/metadata";
@@ -170,7 +169,6 @@ class AutomaticDashboardAppInner extends Component {
             {parameters && parameters.length > 0 && (
               <div className={cx(CS.px1, CS.pt1)}>
                 <FixedWidthContainer
-                  id={DASHBOARD_PARAMETERS_PDF_EXPORT_NODE_ID}
                   data-testid="fixed-width-filters"
                   isFixedWidth={dashboard?.width === "fixed"}
                 >

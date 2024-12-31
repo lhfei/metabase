@@ -110,12 +110,10 @@ describe("CombineColumns", () => {
       const column = getColumn("EMAIL");
       expect(getDefaultSeparator(column)).toBe("");
     });
-
     it("should return '/' for any other column type", () => {
       const column = getColumn("URL");
       expect(getDefaultSeparator(column)).toBe("/");
     });
-
     it("should return ' ' for any other column type", () => {
       const string = getColumn("STRING");
       expect(getDefaultSeparator(string)).toBe(" ");

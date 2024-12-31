@@ -1,12 +1,8 @@
 import _userEvent from "@testing-library/user-event";
 
 import { renderWithProviders, screen } from "__support__/ui";
-import { DATE_PICKER_UNITS } from "metabase/querying/filters/constants";
-import type {
-  DatePickerUnit,
-  RelativeIntervalDirection,
-} from "metabase/querying/filters/types";
 
+import type { RelativeIntervalDirection } from "../../types";
 import type { DateOffsetIntervalValue } from "../types";
 
 import { DateOffsetIntervalPicker } from "./DateOffsetIntervalPicker";
@@ -29,23 +25,17 @@ const userEvent = _userEvent.setup({
 
 interface SetupOpts {
   value: DateOffsetIntervalValue;
-  availableUnits?: DatePickerUnit[];
-  submitButtonLabel?: string;
+  isNew?: boolean;
 }
 
-function setup({
-  value,
-  availableUnits = DATE_PICKER_UNITS,
-  submitButtonLabel = "Apply",
-}: SetupOpts) {
+function setup({ value, isNew = false }: SetupOpts) {
   const onChange = jest.fn();
   const onSubmit = jest.fn();
 
   renderWithProviders(
     <DateOffsetIntervalPicker
       value={value}
-      availableUnits={availableUnits}
-      submitButtonLabel={submitButtonLabel}
+      isNew={isNew}
       onChange={onChange}
       onSubmit={onSubmit}
     />,
@@ -160,24 +150,6 @@ describe("DateOffsetIntervalPicker", () => {
           offsetUnit: "year",
         });
         expect(onSubmit).not.toHaveBeenCalled();
-      });
-
-      it("should allow to set only available units", async () => {
-        setup({
-          value: defaultValue,
-          availableUnits: ["day", "year"],
-        });
-
-        await userEvent.click(screen.getByLabelText("Unit"));
-        expect(screen.getByText("days")).toBeInTheDocument();
-        expect(screen.getByText("years")).toBeInTheDocument();
-        expect(screen.queryByText("months")).not.toBeInTheDocument();
-
-        const suffix = direction === "last" ? "ago" : "from now";
-        await userEvent.click(screen.getByLabelText("Starting from unit"));
-        expect(screen.getByText(`days ${suffix}`)).toBeInTheDocument();
-        expect(screen.getByText(`years ${suffix}`)).toBeInTheDocument();
-        expect(screen.queryByText(`months ${suffix}`)).not.toBeInTheDocument();
       });
 
       it("should change the offset interval", async () => {

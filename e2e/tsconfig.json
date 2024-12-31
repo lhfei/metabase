@@ -10,9 +10,8 @@
       "@cypress/grep"
     ],
     "paths": {
-      "e2e/*": ["./*"],
-      "@metabase/embedding-sdk-react": ["../enterprise/frontend/src/embedding-sdk/index.ts"],
-      "*": ["../frontend/src/*"]
+      "*": ["../frontend/src/*"],
+      "e2e/*": ["./*"]
     }
   },
   "include": ["**/*"]

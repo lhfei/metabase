@@ -2,7 +2,6 @@ import moment from "moment"; // eslint-disable-line no-restricted-imports -- dep
 import { t } from "ttag";
 import _ from "underscore";
 
-import { formatValue } from "metabase/lib/formatting";
 import { formatDateTimeRangeWithUnit } from "metabase/lib/formatting/date";
 import { isEmpty } from "metabase/lib/validate";
 import { computeChange } from "metabase/visualizations/lib/numeric";
@@ -11,7 +10,12 @@ import { formatChange } from "metabase/visualizations/visualizations/SmartScalar
 import * as Lib from "metabase-lib";
 import { isDate } from "metabase-lib/v1/types/utils/isa";
 
-export function computeTrend(series, insights, settings, { getColor }) {
+export function computeTrend(
+  series,
+  insights,
+  settings,
+  { formatValue, getColor },
+) {
   try {
     const comparisons = settings["scalar.comparisons"] || [];
     const currentMetricData = getCurrentMetricData({
@@ -24,7 +28,7 @@ export function computeTrend(series, insights, settings, { getColor }) {
       currentMetricData;
 
     const displayValue = formatValue(value, formatOptions);
-    const displayDate = formatDateStr({ date, dateUnitSettings });
+    const displayDate = formatDateStr({ date, dateUnitSettings, formatValue });
 
     return {
       trend: {
@@ -41,6 +45,7 @@ export function computeTrend(series, insights, settings, { getColor }) {
             currentMetricData,
             series,
             settings,
+            formatValue,
             getColor,
           }),
         ),
@@ -58,6 +63,7 @@ function buildComparisonObject({
   currentMetricData,
   series,
   settings,
+  formatValue,
   getColor,
 }) {
   const { formatOptions, value } = currentMetricData;
@@ -67,6 +73,7 @@ function buildComparisonObject({
       comparison,
       currentMetricData,
       series,
+      formatValue,
     }) || {};
 
   const percentChange = !isEmpty(comparisonValue)
@@ -82,6 +89,7 @@ function buildComparisonObject({
     comparisonValue,
     formatOptions,
     percentChange,
+    formatValue,
   });
 
   const changeColor = !isEmpty(changeArrowIconName)
@@ -106,7 +114,12 @@ function buildComparisonObject({
   };
 }
 
-function computeComparison({ comparison, currentMetricData, series }) {
+function computeComparison({
+  comparison,
+  currentMetricData,
+  series,
+  formatValue,
+}) {
   const { type } = comparison;
 
   if (type === COMPARISON_TYPES.ANOTHER_COLUMN) {
@@ -121,6 +134,7 @@ function computeComparison({ comparison, currentMetricData, series }) {
     return computeTrendPreviousValue({
       currentMetricData,
       series,
+      formatValue,
     });
   }
 
@@ -132,6 +146,7 @@ function computeComparison({ comparison, currentMetricData, series }) {
       comparison,
       currentMetricData,
       series,
+      formatValue,
     });
   }
 
@@ -268,7 +283,7 @@ function computeTrendStaticValue({ comparison }) {
   };
 }
 
-function computeTrendPreviousValue({ currentMetricData, series }) {
+function computeTrendPreviousValue({ currentMetricData, series, formatValue }) {
   const [
     {
       data: { rows },
@@ -288,6 +303,7 @@ function computeTrendPreviousValue({ currentMetricData, series }) {
     nextValueRowIndex: latestRowIndex,
     nextDate: date,
     dateUnitSettings,
+    formatValue,
   });
 }
 
@@ -298,6 +314,7 @@ function computeComparisonPreviousValue({
   nextValueRowIndex,
   nextDate,
   dateUnitSettings,
+  formatValue,
 }) {
   const previousRowIndex = _.findLastIndex(rows, (row, i) => {
     if (i >= nextValueRowIndex) {
@@ -322,6 +339,7 @@ function computeComparisonPreviousValue({
     nextDate,
     prevDate,
     dateUnitSettings,
+    formatValue,
   });
 
   return {
@@ -330,7 +348,12 @@ function computeComparisonPreviousValue({
   };
 }
 
-function computeTrendPeriodsAgo({ comparison, currentMetricData, series }) {
+function computeTrendPeriodsAgo({
+  comparison,
+  currentMetricData,
+  series,
+  formatValue,
+}) {
   const [
     {
       data: { rows },
@@ -361,6 +384,7 @@ function computeTrendPeriodsAgo({ comparison, currentMetricData, series }) {
     nextDate: date,
     dateUnitSettings,
     dateUnitsAgo,
+    formatValue,
   });
 }
 
@@ -372,6 +396,7 @@ function computeComparisonPeriodsAgo({
   nextDate,
   dateUnitSettings,
   dateUnitsAgo,
+  formatValue,
 }) {
   const dateUnitDisplay = Lib.describeTemporalUnit(
     dateUnitSettings.dateUnit,
@@ -402,6 +427,7 @@ function computeComparisonPeriodsAgo({
           dateUnitSettings,
           nextDate,
           prevDate,
+          formatValue,
         });
 
   // if no row exists with date "X periods ago"
@@ -490,6 +516,7 @@ function computeComparisonStrPreviousValue({
   dateUnitSettings,
   prevDate,
   nextDate,
+  formatValue,
 }) {
   const isSameDay = moment.parseZone(prevDate).isSame(nextDate, "day");
   const isSameYear = moment.parseZone(prevDate).isSame(nextDate, "year");
@@ -503,12 +530,13 @@ function computeComparisonStrPreviousValue({
     date: prevDate,
     dateUnitSettings,
     options,
+    formatValue,
   });
 
   return t`vs. ${formattedDateStr}`;
 }
 
-function formatDateStr({ date, dateUnitSettings, options }) {
+function formatDateStr({ date, dateUnitSettings, options, formatValue }) {
   const { dateColumn, dateColumnSettings, dateUnit, queryType } =
     dateUnitSettings;
 
@@ -526,24 +554,18 @@ function formatDateStr({ date, dateUnitSettings, options }) {
 }
 
 export const CHANGE_TYPE_OPTIONS = {
-  get MISSING() {
-    return {
-      CHANGE_TYPE: "PREVIOUS_VALUE_MISSING",
-      PERCENT_CHANGE_STR: t`N/A`,
-      COMPARISON_VALUE_STR: t`(No data)`,
-    };
+  MISSING: {
+    CHANGE_TYPE: "PREVIOUS_VALUE_MISSING",
+    PERCENT_CHANGE_STR: t`N/A`,
+    COMPARISON_VALUE_STR: t`(No data)`,
   },
-  get SAME() {
-    return {
-      CHANGE_TYPE: "PREVIOUS_VALUE_SAME",
-      PERCENT_CHANGE_STR: t`No change`,
-      COMPARISON_VALUE_STR: "",
-    };
+  SAME: {
+    CHANGE_TYPE: "PREVIOUS_VALUE_SAME",
+    PERCENT_CHANGE_STR: t`No change`,
+    COMPARISON_VALUE_STR: "",
   },
-  get CHANGED() {
-    return {
-      CHANGE_TYPE: "PREVIOUS_VALUE_CHANGED",
-    };
+  CHANGED: {
+    CHANGE_TYPE: "PREVIOUS_VALUE_CHANGED",
   },
 };
 
@@ -556,6 +578,7 @@ function computeChangeTypeWithOptions({
   comparisonValue,
   formatOptions,
   percentChange,
+  formatValue,
 }) {
   if (isEmpty(comparisonValue)) {
     return {

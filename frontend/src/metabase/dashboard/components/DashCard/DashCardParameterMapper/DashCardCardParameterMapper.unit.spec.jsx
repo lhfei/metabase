@@ -13,7 +13,6 @@ import {
   createMockCard,
   createMockDashboardCard,
   createMockHeadingDashboardCard,
-  createMockIFrameDashboardCard,
   createMockLinkDashboardCard,
   createMockNativeDatasetQuery,
   createMockNativeQuery,
@@ -85,16 +84,17 @@ describe("DashCardCardParameterMapper", () => {
   });
 
   describe("Virtual cards", () => {
-    it("should render an informative parameter mapping state for link cards without variables", () => {
-      const dashcard = createMockLinkDashboardCard({ size_y: 3 });
+    it("should render an informative error state for link cards", () => {
+      const dashcard = createMockLinkDashboardCard();
+
       setup({
+        card: dashcard.card,
         dashcard,
       });
+
       expect(getIcon("info")).toBeInTheDocument();
       expect(
-        screen.getByText(
-          "You can connect widgets to {{variables}} in link cards.",
-        ),
+        screen.getByLabelText(/cannot connect variables to link cards/i),
       ).toBeInTheDocument();
     });
 
@@ -107,19 +107,6 @@ describe("DashCardCardParameterMapper", () => {
       expect(
         screen.getByText(
           "You can connect widgets to {{variables}} in text cards.",
-        ),
-      ).toBeInTheDocument();
-    });
-
-    it("should render an informative parameter mapping state for iframe cards without variables", () => {
-      const textCard = createMockIFrameDashboardCard({ size_y: 3 });
-      setup({
-        dashcard: textCard,
-      });
-      expect(getIcon("info")).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          "You can connect widgets to {{variables}} in iframe cards.",
         ),
       ).toBeInTheDocument();
     });
@@ -241,7 +228,6 @@ describe("DashCardCardParameterMapper", () => {
       expect(screen.queryByText("Auto-connected")).not.toBeInTheDocument();
       expect(getIcon("sparkles")).toBeInTheDocument();
     });
-
     it("should not render an icon when a dashcard is narrow", () => {
       const card = createMockCard();
       const dashcard = createMockDashboardCard({ card, size_y: 3, size_x: 3 });

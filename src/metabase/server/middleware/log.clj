@@ -8,12 +8,13 @@
    [metabase.async.streaming-response.thread-pool :as thread-pool]
    [metabase.async.util :as async.u]
    [metabase.db :as mdb]
-   [metabase.driver.sql-jdbc.execute.diagnostic :as sql-jdbc.execute.diagnostic]
+   [metabase.driver.sql-jdbc.execute.diagnostic
+    :as sql-jdbc.execute.diagnostic]
    [metabase.models.setting :refer [defsetting]]
-   [metabase.request.core :as request]
-   [metabase.server.instance :as server]
+   [metabase.server :as server]
+   [metabase.server.request.util :as req.util]
    [metabase.util :as u]
-   [metabase.util.i18n :refer [deferred-tru]]
+   [metabase.util.i18n :as i18n :refer [deferred-tru trs]]
    [metabase.util.log :as log]
    [toucan2.core :as t2])
   (:import
@@ -44,36 +45,36 @@
   (str
    (format "%s %s %d" (u/upper-case-en (name request-method)) uri status)
    (when async-status
-     (format " [ASYNC: %s]" async-status))))
+     (format " [%s: %s]" (trs "ASYNC") async-status))))
 
 (defn- format-performance-info
   [{:keys [start-time call-count-fn _diag-info-fn]
-    :or {start-time    (u/start-timer)
+    :or {start-time    (System/nanoTime)
          call-count-fn (constantly -1)}}]
-  (let [elapsed-time (u/since-ms start-time)
+  (let [elapsed-time (u/format-nanoseconds (- (System/nanoTime) start-time))
         db-calls     (call-count-fn)]
-    (format "%.0fms (%s DB calls)" elapsed-time db-calls)))
+    (trs "{0} ({1} DB calls)" elapsed-time db-calls)))
 
 (defn- stats [diag-info-fn]
   (str
    (when-let [^PoolBackedDataSource pool (let [data-source (mdb/data-source)]
                                            (when (instance? PoolBackedDataSource data-source)
                                              data-source))]
-     (format "App DB connections: %s/%s"
-             (.getNumBusyConnectionsAllUsers pool) (.getNumConnectionsAllUsers pool)))
+     (trs "App DB connections: {0}/{1}"
+          (.getNumBusyConnectionsAllUsers pool) (.getNumConnectionsAllUsers pool)))
    " "
    (when-let [^QueuedThreadPool pool (some-> (server/instance) .getThreadPool)]
-     (format "Jetty threads: %s/%s (%s idle, %s queued)"
-             (.getBusyThreads pool)
-             (.getMaxThreads pool)
-             (.getIdleThreads pool)
-             (.getQueueSize pool)))
+     (trs "Jetty threads: {0}/{1} ({2} idle, {3} queued)"
+          (.getBusyThreads pool)
+          (.getMaxThreads pool)
+          (.getIdleThreads pool)
+          (.getQueueSize pool)))
    " "
-   (format "(%s total active threads)" (Thread/activeCount))
+   (trs "({0} total active threads)" (Thread/activeCount))
    " "
-   (format "Queries in flight: %s" (thread-pool/active-thread-count))
+   (trs "Queries in flight: {0}" (thread-pool/active-thread-count))
    " "
-   (format "(%s queued)" (thread-pool/queued-thread-count))
+   (trs "({0} queued)" (thread-pool/queued-thread-count))
    (when diag-info-fn
      (when-let [diag-info (not-empty (diag-info-fn))]
        (format
@@ -208,7 +209,7 @@
 (defn- should-log-request? [{:keys [uri], :as request}]
   ;; don't log calls to /health or /util/logs because they clutter up the logs (especially the window in admin) with
   ;; useless lines
-  (and (request/api-call? request)
+  (and (req.util/api-call? request)
        (not ((logging-disabled-uris) uri))))
 
 (defn log-api-call
@@ -222,7 +223,7 @@
       (t2/with-call-count [call-count-fn]
         (sql-jdbc.execute.diagnostic/capturing-diagnostic-info [diag-info-fn]
           (let [info           {:request       request
-                                :start-time    (u/start-timer)
+                                :start-time    (System/nanoTime)
                                 :call-count-fn call-count-fn
                                 :diag-info-fn  diag-info-fn
                                 :log-context   {:metabase-user-id api/*current-user-id*}}

@@ -9,7 +9,6 @@ import { SettingInput } from "../SettingInput";
 import { GenerateButton, SecretKeyWidgetRoot } from "./SecretKeyWidget.styled";
 
 interface SecretKeyWidgetProps {
-  id?: string;
   onChange: (token: string) => void;
   setting: any;
   confirmation: {

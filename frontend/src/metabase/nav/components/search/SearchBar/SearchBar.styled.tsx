@@ -36,7 +36,6 @@ export const SearchInputContainer = styled.div<{
     }
     return css`
       background-color: var(--mb-color-bg-white);
-
       &:hover {
         background-color: var(--mb-color-bg-light);
       }
@@ -44,9 +43,7 @@ export const SearchInputContainer = styled.div<{
   }}
   border: 1px solid var(--mb-color-border);
   overflow: hidden;
-  transition:
-    background 150ms,
-    width 0.2s;
+  transition: background 150ms, width 0.2s;
 
   @media (prefers-reduced-motion) {
     transition: none;

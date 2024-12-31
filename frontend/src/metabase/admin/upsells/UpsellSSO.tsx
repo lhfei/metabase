@@ -23,8 +23,8 @@ export const UpsellSSO = ({ source }: { source: string }) => {
     <UpsellCard
       title={t`Tired of manually managing people and groups?`}
       campaign="sso"
-      buttonText={t`Try Metabase Pro`}
-      buttonLink="https://www.metabase.com/upgrade"
+      buttonText={t`Learn more`}
+      buttonLink="https://www.metabase.com/cloud"
       source={source}
       style={{ maxWidth: 242 }}
     >

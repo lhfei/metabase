@@ -5,20 +5,14 @@ import {
   SdkError,
   SdkLoader,
 } from "embedding-sdk/components/private/PublicComponentWrapper";
-import type { FlexibleSizeProps } from "embedding-sdk/components/public/FlexibleSizeComponent";
-import { FlexibleSizeComponent } from "embedding-sdk/components/public/FlexibleSizeComponent";
+import { useSdkElementSize } from "embedding-sdk/hooks/private/use-sdk-element-size";
 import CS from "metabase/css/core/index.css";
 import QueryVisualization from "metabase/query_builder/components/QueryVisualization";
-import type Question from "metabase-lib/v1/Question";
+import { Box } from "metabase/ui";
 
 import { useInteractiveQuestionContext } from "../context";
 
-export const QuestionVisualization = ({
-  height,
-  width,
-  className,
-  style,
-}: FlexibleSizeProps) => {
+export const QuestionVisualization = () => {
   const {
     question,
     queryResults,
@@ -27,47 +21,40 @@ export const QuestionVisualization = ({
     isQueryRunning,
     navigateToNewCard,
     onNavigateBack,
-    updateQuestion,
   } = useInteractiveQuestionContext();
 
-  // When visualizing a question for the first time, there is no query result yet.
-  const isQueryResultLoading = question && !queryResults;
+  const display = question?.card()?.display;
+  const { height, ref, width } = useSdkElementSize(display);
 
-  if (isQuestionLoading || isQueryResultLoading) {
+  if (isQuestionLoading) {
     return <SdkLoader />;
   }
 
-  if (!question) {
+  if (!question || !queryResults) {
     return <SdkError message={t`Question not found`} />;
   }
 
-  const [result] = queryResults ?? [];
+  const [result] = queryResults;
   const card = question.card();
 
   return (
-    <FlexibleSizeComponent
-      height={height}
-      width={width}
-      className={className}
-      style={style}
-    >
-      <QueryVisualization
-        className={cx(CS.flexFull, CS.fullWidth, CS.fullHeight)}
-        question={question}
-        rawSeries={[{ card, data: result && result.data }]}
-        isRunning={isQueryRunning}
-        isObjectDetail={false}
-        isResultDirty={false}
-        isNativeEditorOpen={false}
-        result={result}
-        noHeader
-        mode={mode}
-        navigateToNewCardInsideQB={navigateToNewCard}
-        onNavigateBack={onNavigateBack}
-        onUpdateQuestion={(question: Question) =>
-          updateQuestion(question, { run: false })
-        }
-      />
-    </FlexibleSizeComponent>
+    <Box w="100%" h="100%" ref={ref}>
+      <Box w={width} h={height}>
+        <QueryVisualization
+          className={cx(CS.flexFull, CS.fullWidth, CS.fullHeight)}
+          question={question}
+          rawSeries={[{ card, data: result && result.data }]}
+          isRunning={isQueryRunning}
+          isObjectDetail={false}
+          isResultDirty={false}
+          isNativeEditorOpen={false}
+          result={result}
+          noHeader
+          mode={mode}
+          navigateToNewCardInsideQB={navigateToNewCard}
+          onNavigateBack={onNavigateBack}
+        />
+      </Box>
+    </Box>
   );
 };

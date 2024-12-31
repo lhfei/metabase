@@ -1,4 +1,11 @@
-import { H } from "e2e/support";
+import {
+  clearFilterWidget,
+  editDashboard,
+  restore,
+  saveDashboard,
+  sidebar,
+  visitDashboard,
+} from "e2e/support/helpers";
 
 const questionDetails = {
   name: "Return input value",
@@ -34,7 +41,7 @@ const dashboardDetails = {
 
 describe("scenarios > dashboard > filters > SQL > simple filter > required ", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.createNativeQuestionAndDashboard({
@@ -55,7 +62,7 @@ describe("scenarios > dashboard > filters > SQL > simple filter > required ", ()
 
       cy.editDashboardCard(dashboardCard, mapFilterToCard);
 
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
   });
 
@@ -67,7 +74,7 @@ describe("scenarios > dashboard > filters > SQL > simple filter > required ", ()
 
     cy.findByDisplayValue("Bar");
 
-    H.clearFilterWidget();
+    clearFilterWidget();
 
     cy.location("search").should("eq", "?text=");
 
@@ -96,18 +103,18 @@ describe("scenarios > dashboard > filters > SQL > simple filter > required ", ()
     cy.location("search").should("eq", "?text=Bar");
 
     // Finally, when we remove dashboard filter's default value, the url should reflect that by removing the placeholder
-    H.editDashboard();
+    editDashboard();
 
     openFilterOptions("Text");
 
-    H.sidebar().within(() => {
+    sidebar().within(() => {
       removeDefaultFilterValue("Bar");
     });
 
-    H.saveDashboard();
+    saveDashboard();
 
-    // The URL query params should include the value from the dashboard filter default
-    cy.location("search").should("eq", "?text=");
+    // The URL query params should include the last used parameter value
+    cy.location("search").should("eq", "?text=Bar");
   });
 });
 

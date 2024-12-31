@@ -5,7 +5,7 @@ import { IS_EMBED_PREVIEW } from "metabase/lib/embed";
 import Question from "metabase-lib/v1/Question";
 import { normalizeParameters } from "metabase-lib/v1/parameters/utils/parameter-values";
 import { isNative } from "metabase-lib/v1/queries/utils/card";
-import { getPivotOptions } from "metabase-lib/v1/queries/utils/pivot";
+import { getPivotColumnSplit } from "metabase-lib/v1/queries/utils/pivot";
 
 // use different endpoints for embed previews
 const embedBase = IS_EMBED_PREVIEW ? "/api/preview_embed" : "/api/embed";
@@ -38,7 +38,7 @@ export function maybeUsePivotEndpoint(api, card, metadata) {
 
   function wrap(api) {
     return (params, ...rest) => {
-      const { pivot_rows, pivot_cols } = getPivotOptions(question);
+      const { pivot_rows, pivot_cols } = getPivotColumnSplit(question);
       return api({ ...params, pivot_rows, pivot_cols }, ...rest);
     };
   }
@@ -206,7 +206,7 @@ export const CollectionsApi = {
   getRoot: GET("/api/collection/root"),
   update: PUT("/api/collection/:id"),
   graph: GET("/api/collection/graph"),
-  updateGraph: PUT("/api/collection/graph?skip-graph=true"),
+  updateGraph: PUT("/api/collection/graph"),
 };
 
 const PIVOT_PUBLIC_PREFIX = "/api/public/pivot/";
@@ -291,6 +291,7 @@ export const TimelineEventApi = {
 };
 
 export const MetabaseApi = {
+  db_add_sample_database: POST("/api/database/sample_database"),
   db_autocomplete_suggestions: GET(
     "/api/database/:dbId/autocomplete_suggestions?:matchStyle=:query",
   ),
@@ -353,12 +354,6 @@ export const PulseApi = {
   unsubscribe: DELETE("/api/pulse/:id/subscription"),
 };
 
-/// this in unauthenticated, for letting people who are not logged in unsubscribe from Alerts/DashboardSubscriptions
-export const PulseUnsubscribeApi = {
-  unsubscribe: POST("/api/pulse/unsubscribe"),
-  undo_unsubscribe: POST("/api/pulse/unsubscribe/undo"),
-};
-
 export const SegmentApi = {
   list: GET("/api/segment"),
   create: POST("/api/segment"),
@@ -392,6 +387,8 @@ export const SessionApi = {
   properties: GET("/api/session/properties"),
   forgot_password: POST("/api/session/forgot_password"),
   reset_password: POST("/api/session/reset_password"),
+  unsubscribe: POST("/api/session/pulse/unsubscribe"),
+  undo_unsubscribe: POST("/api/session/pulse/unsubscribe/undo"),
 };
 
 export const SettingsApi = {
@@ -544,6 +541,10 @@ function setDashboardParameterValuesEndpoint(prefix) {
 }
 
 export const ActionsApi = {
+  list: GET("/api/action"),
+  get: GET("/api/action/:id"),
+  create: POST("/api/action"),
+  update: PUT("/api/action/:id"),
   execute: POST("/api/action/:id/execute"),
   prefetchValues: GET("/api/action/:id/execute"),
   prefetchDashcardValues: GET(
@@ -552,6 +553,9 @@ export const ActionsApi = {
   executeDashcardAction: POST(
     "/api/dashboard/:dashboardId/dashcard/:dashcardId/execute",
   ),
+  createPublicLink: POST("/api/action/:id/public_link"),
+  deletePublicLink: DELETE("/api/action/:id/public_link"),
+  listPublic: GET("/api/action/public"),
 };
 
 export const MetabotApi = {

@@ -128,11 +128,13 @@
 (mu/defn- matching-join? :- :boolean
   [[_ref-kind {:keys [join-alias source-field]} _ref-id] :- ::lib.schema.ref/ref
    column                                                :- ::lib.schema.metadata/column]
-  (if source-field
-    (clojure.core/= source-field (:fk-field-id column))
-    ;; If it's not an implicit join, then either the join aliases must match for an explicit join, or both be nil for
-    ;; an own column.
-    (clojure.core/= (column-join-alias column) join-alias)))
+  ;; If the ref has a source-field, and it matches the column's :fk-field-id then this is an implicitly joined field.
+  ;; Implicitly joined columns have :source-alias ("PRODUCTS__via__PRODUCT_ID") but the refs don't have any join alias.
+  (or (and source-field
+           (clojure.core/= source-field (:fk-field-id column)))
+      ;; If it's not an implicit join, then either the join aliases must match for an explicit join, or both be nil for
+      ;; an own column.
+      (clojure.core/= (column-join-alias column) join-alias)))
 
 (mu/defn- plausible-matches-for-name :- [:sequential ::lib.schema.metadata/column]
   [[_ref-kind opts ref-name :as a-ref] :- ::lib.schema.ref/ref
@@ -359,10 +361,8 @@
   (let [ref-tails (group-by ref-id-or-name refs)
         matches   (or (some->> column :lib/source-uuid (get ref-tails) not-empty)
                       (not-empty (get ref-tails (:id column)))
-                      ;; columns from the previous stage have unique `:lib/desired-column-alias` but not `:name`.
-                      ;; we cannot fallback to `:name` when `:lib/desired-column-alias` is set
-                      (get ref-tails (or (:lib/desired-column-alias column)
-                                         (:name column)))
+                      (not-empty (get ref-tails (:lib/desired-column-alias column)))
+                      (get ref-tails (:name column))
                       [])]
     (case (count matches)
       0 nil

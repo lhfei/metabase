@@ -1,10 +1,20 @@
 import { onlyOn } from "@cypress/skip-test";
 
-import { H } from "e2e/support";
 import {
   ORDERS_DASHBOARD_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  editDashboard,
+  openQuestionsSidebar,
+  questionInfoButton,
+  restore,
+  rightSidebar,
+  saveDashboard,
+  sidebar,
+  visitDashboard,
+  visitQuestion,
+} from "e2e/support/helpers";
 
 const PERMISSIONS = {
   curate: ["admin", "normal", "nodata"],
@@ -16,7 +26,7 @@ describe("revision history", () => {
   beforeEach(() => {
     cy.intercept("POST", "/api/revision/revert").as("revert");
 
-    H.restore();
+    restore();
   });
 
   describe("reproductions", () => {
@@ -26,14 +36,14 @@ describe("revision history", () => {
 
     it("shouldn't render revision history steps when there was no diff (metabase#1926)", () => {
       cy.createDashboard().then(({ body }) => {
-        H.visitDashboard(body.id);
-        H.editDashboard();
+        visitDashboard(body.id);
+        editDashboard();
       });
 
       // Save the dashboard without any changes made to it (TODO: we should probably disable "Save" button in the first place)
-      H.saveDashboard({ awaitRequest: false });
-      H.editDashboard();
-      H.saveDashboard({ awaitRequest: false });
+      saveDashboard({ awaitRequest: false });
+      editDashboard();
+      saveDashboard({ awaitRequest: false });
 
       openRevisionHistory();
 
@@ -68,14 +78,14 @@ describe("revision history", () => {
               cy.intercept("POST", "/api/card/*/query").as("cardQuery");
 
               cy.createDashboard().then(({ body }) => {
-                H.visitDashboard(body.id);
-                H.editDashboard();
+                visitDashboard(body.id);
+                editDashboard();
               });
 
-              H.openQuestionsSidebar();
-              H.sidebar().findByText("Orders, Count").click();
+              openQuestionsSidebar();
+              sidebar().findByText("Orders, Count").click();
               cy.wait("@cardQuery");
-              H.saveDashboard();
+              saveDashboard();
 
               // this is dirty, but seems like the only reliable way
               // to wait until SET_DASHBOARD_EDITING is dispatched,
@@ -84,8 +94,7 @@ describe("revision history", () => {
               cy.wait(100);
 
               openRevisionHistory();
-              H.sidesheet().within(() => {
-                cy.findByRole("tab", { name: "History" }).click();
+              rightSidebar().within(() => {
                 cy.findByText(/added a card/)
                   .siblings("button")
                   .should("not.exist");
@@ -95,7 +104,7 @@ describe("revision history", () => {
 
             // skipped because it's super flaky in CI
             it.skip("should be able to revert a dashboard (metabase#15237)", () => {
-              H.visitDashboard(ORDERS_DASHBOARD_ID);
+              visitDashboard(ORDERS_DASHBOARD_ID);
               openRevisionHistory();
               clickRevert(/created this/);
 
@@ -125,10 +134,9 @@ describe("revision history", () => {
             it("should be able to access the question's revision history via the revision history button in the header of the query builder", () => {
               cy.skipOn(user === "nodata");
 
-              H.visitQuestion(ORDERS_QUESTION_ID);
+              visitQuestion(ORDERS_QUESTION_ID);
 
               cy.findByTestId("revision-history-button").click();
-              cy.findByRole("tab", { name: "History" }).click();
 
               cy.findByTestId("question-revert-button").click();
 
@@ -144,11 +152,11 @@ describe("revision history", () => {
             it("should be able to revert the question via the action button found in the saved question timeline", () => {
               cy.skipOn(user === "nodata");
 
-              H.visitQuestion(ORDERS_QUESTION_ID);
+              visitQuestion(ORDERS_QUESTION_ID);
 
-              H.questionInfoButton().click();
-              cy.findByRole("tab", { name: "History" }).click();
-
+              questionInfoButton().click();
+              // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+              cy.findByText("History").click();
               // Last revert is the original state
               cy.findAllByTestId("question-revert-button").last().click();
 
@@ -168,13 +176,13 @@ describe("revision history", () => {
             it("should not see question nor dashboard revert buttons (metabase#13229)", () => {
               cy.signIn(user);
 
-              H.visitDashboard(ORDERS_DASHBOARD_ID);
+              visitDashboard(ORDERS_DASHBOARD_ID);
               openRevisionHistory();
               cy.findAllByRole("button", { name: "Revert" }).should(
                 "not.exist",
               );
 
-              H.visitQuestion(ORDERS_QUESTION_ID);
+              visitQuestion(ORDERS_QUESTION_ID);
               cy.findByRole("button", { name: /Edited .*/ }).click();
 
               cy.findAllByRole("button", { name: "Revert" }).should(
@@ -197,10 +205,9 @@ function openRevisionHistory() {
   cy.get("main header").within(() => {
     cy.icon("info").click();
   });
-  cy.findByRole("tab", { name: "History" }).click();
   cy.wait("@revisionHistory");
 
-  H.sidesheet().within(() => {
+  rightSidebar().within(() => {
     cy.findByText("History");
     cy.findByTestId("dashboard-history-list").should("be.visible");
   });

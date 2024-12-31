@@ -1,3 +1,4 @@
+import { getIn } from "icepick";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -6,12 +7,11 @@ import { sumArray } from "metabase/lib/arrays";
 import { isPivotGroupColumn } from "metabase/lib/data_grid";
 import { measureText } from "metabase/lib/measure-text";
 import type StructuredQuery from "metabase-lib/v1/queries/StructuredQuery";
-import { migratePivotColumnSplitSetting } from "metabase-lib/v1/queries/utils/pivot";
 import type {
-  ColumnNameColumnSplitSetting,
+  Card,
   DatasetColumn,
   DatasetData,
-  PivotTableColumnSplitSetting,
+  FieldReference,
   VisualizationSettings,
 } from "metabase-types/api";
 
@@ -26,71 +26,58 @@ import {
   ROW_TOGGLE_ICON_WIDTH,
 } from "./constants";
 import { partitions } from "./partitions";
-import type { CustomColumnWidth, HeaderItem } from "./types";
+import type { CustomColumnWidth, HeaderItem, PivotSetting } from "./types";
 
 // adds or removes columns from the pivot settings based on the current query
 export function updateValueWithCurrentColumns(
-  storedValue: PivotTableColumnSplitSetting,
+  storedValue: PivotSetting,
   columns: DatasetColumn[],
-): PivotTableColumnSplitSetting {
-  const migratedValue = migratePivotColumnSplitSetting(storedValue, columns);
-  const currentQueryColumnNames = columns.map(c => c.name);
-  const currentSettingColumnNames = Object.values(migratedValue).flatMap(
-    columnNames => columnNames ?? [],
+) {
+  const currentQueryFieldRefs = columns.map(c => JSON.stringify(c.field_ref));
+  const currentSettingFieldRefs = Object.values(storedValue).flatMap(
+    (fieldRefs: FieldReference[]) =>
+      fieldRefs.map((field_ref: FieldReference) => JSON.stringify(field_ref)),
   );
-  const toAdd = _.difference(
-    currentQueryColumnNames,
-    currentSettingColumnNames,
-  );
-  const toRemove = _.difference(
-    currentSettingColumnNames,
-    currentQueryColumnNames,
-  );
-  // if there are no modifications, it's important to return the original,
-  // potentially legacy settings that use field refs. If the migrated settings
-  // are returned here it would make all saved legacy questions become ad-hoc,
-  // which we should avoid.
-  if (toAdd.length === 0 && toRemove.length === 0) {
-    return storedValue;
-  }
+  const toAdd = _.difference(currentQueryFieldRefs, currentSettingFieldRefs);
+  const toRemove = _.difference(currentSettingFieldRefs, currentQueryFieldRefs);
 
   // remove toRemove
-  const value: ColumnNameColumnSplitSetting = _.mapObject(
-    migratedValue,
-    columnNames =>
-      columnNames?.filter(columnName => !toRemove.includes(columnName)),
+  const value = _.mapObject(storedValue, (fieldRefs: FieldReference[]) =>
+    fieldRefs.filter(
+      (field_ref: FieldReference) =>
+        !toRemove.includes(JSON.stringify(field_ref)),
+    ),
   );
 
   // add toAdd to first partitions where it matches the filter
-  for (const columnName of toAdd) {
+  for (const fieldRef of toAdd) {
     for (const { columnFilter: filter, name } of partitions) {
-      const column = columns.find(c => c.name === columnName);
-      if (column != null && (filter == null || filter(column))) {
-        value[name] = value[name] ?? [];
-        value[name].push(column.name);
+      const column = columns.find(
+        c => JSON.stringify(c.field_ref) === fieldRef,
+      );
+      if (filter == null || filter(column)) {
+        value[name].push(column?.field_ref as FieldReference);
         break;
       }
     }
   }
-
   return value;
 }
 
 // This is a hack. We need to pass pivot_rows and pivot_cols on each query.
 // When a breakout is added to the query, we need to partition it before getting the rows.
 // We pretend the breakouts are columns so we can partition the new breakout.
-export function addMissingCardBreakouts(
-  setting: PivotTableColumnSplitSetting,
-  availableColumns: DatasetColumn[],
-): PivotTableColumnSplitSetting {
-  const { rows = [], columns = [] } = setting;
-  const breakoutColumns = availableColumns.filter(
-    column => column.source === "breakout",
-  );
-  if (breakoutColumns.length <= columns.length + rows.length) {
+export function addMissingCardBreakouts(setting: PivotSetting, card: Card) {
+  const breakouts = getIn(card, ["dataset_query", "query", "breakout"]) || [];
+  if (breakouts.length <= setting.columns.length + setting.rows.length) {
     return setting;
   }
-  return updateValueWithCurrentColumns(setting, availableColumns);
+  const breakoutFieldRefs = breakouts.map((field_ref: any) => ({ field_ref }));
+  const { columns, rows } = updateValueWithCurrentColumns(
+    setting,
+    breakoutFieldRefs,
+  );
+  return { ...setting, columns, rows };
 }
 
 export function isColumnValid(col: DatasetColumn) {
@@ -219,8 +206,15 @@ function databaseSupportsPivotTables(query: StructuredQuery) {
   return database.supportsPivots();
 }
 
-export function isSensible({ cols }: { cols: DatasetColumn[] }) {
-  return cols.length >= 2 && cols.every(isColumnValid);
+export function isSensible(
+  { cols }: { cols: DatasetColumn[] },
+  query: StructuredQuery,
+) {
+  return (
+    cols.length >= 2 &&
+    cols.every(isColumnValid) &&
+    databaseSupportsPivotTables(query)
+  );
 }
 
 export function checkRenderable(

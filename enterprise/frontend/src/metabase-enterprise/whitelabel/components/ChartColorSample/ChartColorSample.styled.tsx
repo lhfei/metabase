@@ -5,7 +5,7 @@ export const ChartRoot = styled.div`
   height: 100%;
 `;
 
-const ChartLayer = styled.div`
+export const ChartLayer = styled.div`
   position: absolute;
   top: 0;
   left: 0;

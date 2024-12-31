@@ -1,4 +1,4 @@
-import fetchMock, { type MockOptionsMethodGet } from "fetch-mock";
+import fetchMock from "fetch-mock";
 import querystring from "querystring";
 
 import type {
@@ -17,8 +17,6 @@ export function setupRecentViewsEndpoints(recentItems: RecentItem[]) {
 export function setupRecentViewsAndSelectionsEndpoints(
   recentItems: RecentItem[],
   context: RecentContexts[] = ["selections", "views"],
-  mockOptions: MockOptionsMethodGet = {},
-  mockPostRequest: boolean = true,
 ) {
   fetchMock.get(
     url =>
@@ -28,12 +26,9 @@ export function setupRecentViewsAndSelectionsEndpoints(
     {
       recents: recentItems,
     },
-    { ...mockOptions },
   );
 
-  if (mockPostRequest) {
-    fetchMock.post("path:/api/activity/recents", 200);
-  }
+  fetchMock.post("path:/api/activity/recents", 200);
 }
 
 export function setupPopularItemsEndpoints(popularItems: PopularItem[]) {

@@ -1,18 +1,10 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
-import {
-  type ComponentType,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type ComponentType, useCallback, useEffect, useState } from "react";
 
 import {
   ALL_MODELS,
   COLLECTION_PAGE_SIZE,
-  type CollectionContentTableColumn,
-  DEFAULT_VISIBLE_COLUMNS_LIST,
 } from "metabase/collections/components/CollectionContent/constants";
 import CollectionEmptyState from "metabase/collections/components/CollectionEmptyState";
 import type {
@@ -21,7 +13,6 @@ import type {
 } from "metabase/collections/types";
 import { isRootTrashCollection } from "metabase/collections/utils";
 import { ItemsTable } from "metabase/components/ItemsTable";
-import { getVisibleColumnsMap } from "metabase/components/ItemsTable/utils";
 import { PaginationControls } from "metabase/components/PaginationControls";
 import CS from "metabase/css/core/index.css";
 import Search from "metabase/entities/search";
@@ -77,7 +68,7 @@ export type CollectionItemsTableProps = {
   selected: CollectionItem[];
   toggleItem: (item: CollectionItem) => void;
   onClick: (item: CollectionItem) => void;
-  visibleColumns?: CollectionContentTableColumn[];
+  showActionMenu: boolean;
   EmptyContentComponent?: ComponentType<{
     collection?: Collection;
   }>;
@@ -114,7 +105,7 @@ export const CollectionItemsTable = ({
   pageSize = COLLECTION_PAGE_SIZE,
   models = ALL_MODELS,
   onClick,
-  visibleColumns = DEFAULT_VISIBLE_COLUMNS_LIST,
+  showActionMenu = true,
   EmptyContentComponent = DefaultEmptyContentComponent,
 }: CollectionItemsTableProps) => {
   const isEmbeddingSdk = useSelector(getIsEmbeddingSdk);
@@ -126,11 +117,6 @@ export const CollectionItemsTable = ({
 
   const { handleNextPage, handlePreviousPage, setPage, page, resetPage } =
     usePagination();
-
-  const visibleColumnsMap = useMemo(
-    () => getVisibleColumnsMap(visibleColumns),
-    [visibleColumns],
-  );
 
   useEffect(() => {
     if (collectionId) {
@@ -154,9 +140,7 @@ export const CollectionItemsTable = ({
     models,
     limit: pageSize,
     offset: pageSize * page,
-    ...(showAllItems
-      ? { show_dashboard_questions: true }
-      : { pinned_state: "is_not_pinned" }),
+    ...(showAllItems ? {} : { pinned_state: "is_not_pinned" }),
     ...unpinnedItemsSorting,
   };
 
@@ -224,7 +208,7 @@ export const CollectionItemsTable = ({
               onSelectAll={handleSelectAll}
               onSelectNone={clear}
               onClick={onClick}
-              visibleColumnsMap={visibleColumnsMap}
+              showActionMenu={showActionMenu}
             />
             <div className={cx(CS.flex, CS.justifyEnd, CS.my3)}>
               {hasPagination && (

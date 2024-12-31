@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Component } from "react";
+import { connect } from "react-redux";
 import { push } from "react-router-redux";
 import _ from "underscore";
 
@@ -13,7 +14,6 @@ import {
   getSelectedTabId,
   getSlowCards,
 } from "metabase/dashboard/selectors";
-import { connect } from "metabase/lib/redux";
 import { setErrorPage } from "metabase/redux/app";
 
 const mapStateToProps = (state, props) => {

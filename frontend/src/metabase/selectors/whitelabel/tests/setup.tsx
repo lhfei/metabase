@@ -17,7 +17,7 @@ export interface SetupOpts {
 
 export function setup({
   loadingMessage = "doing-science",
-  applicationName = "Metabase",
+  applicationName = "Dataos",
   showMetabaseLinks = true,
   tokenFeatures = {},
   hasEnterprisePlugins = false,

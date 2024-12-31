@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.query-processor-test.alternative-date-test
+(ns metabase.query-processor-test.alternative-date-test
   "Tests for columns that mimic dates: integral types as UNIX timestamps and string columns as ISO8601DateTimeString and
   related types."
   (:require
@@ -240,13 +240,6 @@
       (assoc (mt/mbql-query just-dates {:order-by [[:asc $id]]})
              :middleware {:format-rows? false}))))
 
-(defmethod iso-8601-text-fields-query :databricks
-  [_driver]
-  (mt/dataset
-    just-dates
-    (assoc (mt/mbql-query just_dates {:order-by [[:asc $id]]})
-           :middleware {:format-rows? false})))
-
 (defmulti iso-8601-text-fields-expected-rows
   "Expected rows for the [[iso-8601-text-fields]] test below."
   {:arglists '([driver])}
@@ -266,12 +259,6 @@
   [[1 "foo" #t "2004-10-19T10:23:54Z[UTC]" #t "2004-10-19"]
    [2 "bar" #t "2008-10-19T10:23:54Z[UTC]" #t "2008-10-19"]
    [3 "baz" #t "2012-10-19T10:23:54Z[UTC]" #t "2012-10-19"]])
-
-(defmethod iso-8601-text-fields-expected-rows :databricks
-  [_driver]
-  [[1 "foo" (t/offset-date-time #t "2004-10-19T10:23:54Z") #t "2004-10-19"]
-   [2 "bar" (t/offset-date-time #t "2008-10-19T10:23:54Z") #t "2008-10-19"]
-   [3 "baz" (t/offset-date-time #t "2012-10-19T10:23:54Z") #t "2012-10-19"]])
 
 ;;; oracle doesn't have a time type
 (defmethod iso-8601-text-fields-expected-rows :oracle
@@ -335,13 +322,6 @@
     {:filter [:= !day.ts "2008-10-19"]
      :fields [$ts]}))
 
-(defmethod iso-8601-text-fields-should-be-queryable-datetime-test-query :databricks
-  [_driver]
-  (mt/mbql-query
-    times
-    {:filter [:= !day.ts "2008-10-19"]
-     :fields [$d $ts]}))
-
 (deftest ^:parallel iso-8601-text-fields-should-be-queryable-datetime-test
   (testing "text fields with semantic_type :type/ISO8601DateTimeString"
     (testing "are queryable as dates"
@@ -372,8 +352,7 @@
           (mt/test-drivers (mt/normal-drivers-with-feature ::iso-8601-test-fields-are-queryable ::parse-string-to-date)
             (is (= 1
                    (->> (mt/run-mbql-query times
-                          {:fields [$d]
-                           :filter [:= !day.d "2008-10-19"]})
+                          {:filter [:= !day.d "2008-10-19"]})
                         mt/rows
                         count)))))))))
 
@@ -490,9 +469,9 @@
 
 (defmethod yyyymmddhhmmss-dates-expected-rows :redshift
   [_driver]
-  [[1 "foo" (OffsetDateTime/from #t "2019-04-21T16:43Z[UTC]")]
-   [2 "bar" (OffsetDateTime/from #t "2020-04-21T16:43Z[UTC]")]
-   [3 "baz" (OffsetDateTime/from #t "2021-04-21T16:43Z[UTC]")]])
+  [[1 "foo" #t "2019-04-21T16:43Z[UTC]"]
+   [2 "bar" #t "2020-04-21T16:43Z[UTC]"]
+   [3 "baz" #t "2021-04-21T16:43Z[UTC]"]])
 
 (doseq [driver [:h2 :postgres]]
   (defmethod yyyymmddhhmmss-dates-expected-rows driver

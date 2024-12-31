@@ -1,7 +1,9 @@
 (ns metabase.query-processor.card-test
   "There are more e2e tests in [[metabase.api.card-test]]."
   (:require
+   [cheshire.core :as json]
    [clojure.test :refer :all]
+   [metabase.api.common :as api]
    [metabase.models :refer [Card]]
    [metabase.models.data-permissions :as data-perms]
    [metabase.models.interface :as mi]
@@ -11,7 +13,6 @@
    [metabase.query-processor.card :as qp.card]
    [metabase.test :as mt]
    [metabase.util :as u]
-   [metabase.util.json :as json]
    [toucan2.tools.with-temp :as t2.with-temp]))
 
 (defn run-query-for-card
@@ -19,7 +20,7 @@
   [card-id]
   ;; TODO -- we shouldn't do the perms checks if there is no current User context. It seems like API-level perms check
   ;; stuff doesn't belong in the Dashboard QP namespace
-  (mt/as-admin
+  (binding [api/*current-user-permissions-set* (atom #{"/"})]
     (qp.card/process-query-for-card
      card-id :api
      :make-run (constantly
@@ -164,7 +165,7 @@
                                                           {:aggregation [[:count]]})
 
                                                         :visualization_settings
-                                                        {:column_settings {(json/encode
+                                                        {:column_settings {(json/generate-string
                                                                             [:ref [:field Integer/MAX_VALUE {:base-type :type/DateTime, :temporal-unit :month}]])
                                                                            {:date_abbreviate true
                                                                             :some_other_key  [:ref [:field Integer/MAX_VALUE {:base-type :type/DateTime, :temporal-unit :month}]]}}}}]

@@ -49,7 +49,7 @@ describe("LoadingAndErrorWrapper", () => {
           <LoadingAndErrorWrapper
             loading={true}
             error={null}
-            getLoadingMessages={() => ["One", "Two", "Three"]}
+            loadingMessages={["One", "Two", "Three"]}
             messageInterval={interval}
           />,
         );

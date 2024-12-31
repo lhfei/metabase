@@ -96,10 +96,10 @@ class ChartSettingFieldsPartition extends Component {
   };
 
   render() {
-    const value = _.mapObject(this.props.value || {}, columnNames =>
-      columnNames
-        .map(columnName =>
-          this.props.columns.find(col => col.name === columnName),
+    const value = _.mapObject(this.props.value || {}, fieldRefs =>
+      fieldRefs
+        .map(field_ref =>
+          this.props.columns.find(col => _.isEqual(col.field_ref, field_ref)),
         )
         .filter(col => col != null),
     );
@@ -128,8 +128,8 @@ class ChartSettingFieldsPartition extends Component {
                     ) : (
                       columns.map((col, index) => (
                         <Draggable
-                          key={`draggable-${col.name}`}
-                          draggableId={`draggable-${col.name}`}
+                          key={`draggable-${col.display_name}`}
+                          draggableId={`draggable-${col.display_name}`}
                           index={index}
                         >
                           {provided => (
@@ -140,7 +140,7 @@ class ChartSettingFieldsPartition extends Component {
                               className={CS.mb1}
                             >
                               <Column
-                                key={`${partitionName}-${col.name}`}
+                                key={`${partitionName}-${col.display_name}`}
                                 column={col}
                                 index={index}
                                 onEditFormatting={this.handleEditFormatting}

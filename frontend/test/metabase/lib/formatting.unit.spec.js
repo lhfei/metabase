@@ -54,19 +54,16 @@ describe("formatting", () => {
     it("should format 0 correctly", () => {
       expect(formatNumber(0)).toEqual("0");
     });
-
     it("should format 1 and -1 correctly", () => {
       expect(formatNumber(1)).toEqual("1");
       expect(formatNumber(-1)).toEqual("-1");
     });
-
     it("should format large positive and negative numbers correctly", () => {
       expect(formatNumber(10)).toEqual("10");
       expect(formatNumber(99999999)).toEqual("99,999,999");
       expect(formatNumber(-10)).toEqual("-10");
       expect(formatNumber(-99999999)).toEqual("-99,999,999");
     });
-
     it("should format large numbers correctly with non-default number separator", () => {
       const options = { number_separators: ",." };
       expect(formatNumber(10.1, options)).toEqual("10,1");
@@ -74,54 +71,45 @@ describe("formatting", () => {
       expect(formatNumber(-10.1, options)).toEqual("-10,1");
       expect(formatNumber(-99999999.9, options)).toEqual("-99.999.999,9");
     });
-
     it("should format to 2 significant digits", () => {
       expect(formatNumber(1 / 3)).toEqual("0.33");
       expect(formatNumber(-1 / 3)).toEqual("-0.33");
       expect(formatNumber(0.0001 / 3)).toEqual("0.000033");
     });
-
     describe("in enclosing negative mode", () => {
       it("should format -4 as (4)", () => {
         expect(formatNumber(-4, { negativeInParentheses: true })).toEqual(
           "(4)",
         );
       });
-
       it("should format 7 as 7", () => {
         expect(formatNumber(7, { negativeInParentheses: true })).toEqual("7");
       });
-
       it("should format 0 as 0", () => {
         expect(formatNumber(0, { negativeInParentheses: true })).toEqual("0");
       });
     });
-
     describe("in compact mode", () => {
       it("should format 0 as 0", () => {
         expect(formatNumber(0, { compact: true })).toEqual("0");
       });
-
       it("shouldn't display small numbers as 0", () => {
         expect(formatNumber(0.1, { compact: true })).toEqual("0.1");
         expect(formatNumber(-0.1, { compact: true })).toEqual("−0.1");
         expect(formatNumber(0.01, { compact: true })).toEqual("0.01");
         expect(formatNumber(-0.01, { compact: true })).toEqual("−0.01");
       });
-
       it("should round up and down", () => {
         expect(formatNumber(1.01, { compact: true })).toEqual("1.01");
         expect(formatNumber(-1.01, { compact: true })).toEqual("−1.01");
         expect(formatNumber(1.9, { compact: true })).toEqual("1.9");
         expect(formatNumber(-1.9, { compact: true })).toEqual("−1.9");
       });
-
       it("should format large numbers with metric units", () => {
         expect(formatNumber(1, { compact: true })).toEqual("1");
         expect(formatNumber(1000, { compact: true })).toEqual("1.0k");
         expect(formatNumber(1111, { compact: true })).toEqual("1.1k");
       });
-
       it("should format percentages", () => {
         const options = { compact: true, number_style: "percent" };
         expect(formatNumber(0.867, { number_style: "percent" })).toEqual(
@@ -141,7 +129,6 @@ describe("formatting", () => {
         expect(formatNumber(11.11, options)).toEqual("1.1k%");
         expect(formatNumber(-0.22, options)).toEqual("−22%");
       });
-
       it("should format scientific notation", () => {
         const options = { compact: true, number_style: "scientific" };
         expect(formatNumber(0, options)).toEqual("0.0e+0");
@@ -151,7 +138,6 @@ describe("formatting", () => {
         expect(formatNumber(123456.78, options)).toEqual("1.2e+5");
         expect(formatNumber(-123456.78, options)).toEqual("-1.2e+5");
       });
-
       it("should obey custom separators in scientific notiation", () => {
         const options = {
           compact: true,
@@ -165,7 +151,6 @@ describe("formatting", () => {
         expect(formatNumber(123456.78, options)).toEqual("1,2e+5");
         expect(formatNumber(-123456.78, options)).toEqual("-1,2e+5");
       });
-
       it("should format currency values", () => {
         const options = {
           compact: true,
@@ -188,7 +173,6 @@ describe("formatting", () => {
         ).toEqual("$1.2M");
       });
     });
-
     it("should format to correct number of decimal places", () => {
       expect(formatNumber(0.1)).toEqual("0.1");
       expect(formatNumber(0.11)).toEqual("0.11");
@@ -246,18 +230,15 @@ describe("formatting", () => {
       expect(formatValue(null)).toEqual(null);
       expect(formatValue(undefined)).toEqual(null);
     });
-
     it("should format null as (empty) when stringifyNull option is true", () => {
       expect(formatValue(null, { stringifyNull: true })).toEqual("(empty)");
       expect(formatValue(undefined, { stringifyNull: true })).toEqual(
         "(empty)",
       );
     });
-
     it("should format numbers with null column", () => {
       expect(formatValue(12345)).toEqual("12345");
     });
-
     it("should format numbers with commas", () => {
       expect(
         formatValue(12345, {
@@ -265,7 +246,6 @@ describe("formatting", () => {
         }),
       ).toEqual("12,345");
     });
-
     it("should format zip codes without commas", () => {
       expect(
         formatValue(12345, {
@@ -273,7 +253,6 @@ describe("formatting", () => {
         }),
       ).toEqual("12345");
     });
-
     it("should format latitude and longitude columns correctly", () => {
       expect(
         formatValue(37.7749, {
@@ -286,7 +265,6 @@ describe("formatting", () => {
         }),
       ).toEqual("122.41940000° W");
     });
-
     it("should return the component for external links in jsx + rich mode", () => {
       expect(
         isElementOfType(
@@ -295,13 +273,11 @@ describe("formatting", () => {
         ),
       ).toEqual(true);
     });
-
     it("should return a component for internal links in jsx + rich mode", () => {
       expect(
         isElementOfType(formatValue(SITE_URL, { jsx: true, rich: true }), Link),
       ).toBe(true);
     });
-
     it("should return a component for relative links in jsx + rich mode", () => {
       const column = createMockColumn({
         name: "column_name",
@@ -326,7 +302,6 @@ describe("formatting", () => {
         ),
       ).toEqual(true);
     });
-
     it("should not return an ExternalLink for links in jsx + rich mode if there's click behavior", () => {
       const formatted = formatValue("http://metabase.com/", {
         jsx: true,
@@ -344,7 +319,6 @@ describe("formatting", () => {
       // expect the text to be in a div (which has link formatting) rather than ExternalLink
       expect(formatted.props["data-testid"]).toEqual("link-formatted-text");
     });
-
     it("should render image", () => {
       const formatted = formatValue("http://metabase.com/logo.png", {
         jsx: true,
@@ -355,7 +329,6 @@ describe("formatting", () => {
       expect(formatted.type).toEqual("img");
       expect(formatted.props.src).toEqual("http://metabase.com/logo.png");
     });
-
     it("should render image with a click behavior in jsx + rich mode (metabase#17161)", () => {
       const formatted = formatValue("http://metabase.com/logo.png", {
         jsx: true,
@@ -371,7 +344,6 @@ describe("formatting", () => {
       expect(formatted.type).toEqual("img");
       expect(formatted.props.src).toEqual("http://metabase.com/logo.png");
     });
-
     it("should return a component for email addresses in jsx + rich mode", () => {
       expect(
         isElementOfType(
@@ -380,7 +352,6 @@ describe("formatting", () => {
         ),
       ).toEqual(true);
     });
-
     it("should not add mailto prefix if there's a different semantic type", () => {
       expect(
         formatValue("foobar@example.test", {
@@ -390,7 +361,6 @@ describe("formatting", () => {
         }),
       ).toEqual("foobar@example.test");
     });
-
     it("should display hour-of-day with 12 hour clock", () => {
       expect(
         formatValue(24, {
@@ -404,7 +374,6 @@ describe("formatting", () => {
         }),
       ).toEqual("12:00 AM");
     });
-
     it("should display hour-of-day with 24 hour clock", () => {
       expect(
         formatValue(24, {
@@ -418,7 +387,6 @@ describe("formatting", () => {
         }),
       ).toEqual("00:00");
     });
-
     it("should not include time for type/Date type (metabase#7494)", () => {
       expect(
         formatValue("2019-07-07T00:00:00.000Z", {
@@ -438,7 +406,6 @@ describe("formatting", () => {
     it("should return a string when not in jsx mode", () => {
       expect(formatUrl("http://metabase.com/")).toEqual("http://metabase.com/");
     });
-
     it("should return a component for http:, https:, and mailto: links in jsx mode", () => {
       expect(
         isElementOfType(
@@ -459,7 +426,6 @@ describe("formatting", () => {
         ),
       ).toEqual(true);
     });
-
     it("should return a component for custom protocols if the column type is URL", () => {
       expect(
         isElementOfType(
@@ -472,7 +438,6 @@ describe("formatting", () => {
         ),
       ).toEqual(true);
     });
-
     it("should not return a component for bad urls if the column type is URL", () => {
       expect(
         formatUrl("invalid-blah-blah-blah", {
@@ -482,13 +447,11 @@ describe("formatting", () => {
         }),
       ).toEqual("invalid-blah-blah-blah");
     });
-
     it("should not return a component for custom protocols if the column type isn't URL", () => {
       expect(
         formatUrl("myproto:some-custom-thing", { jsx: true, rich: true }),
       ).toEqual("myproto:some-custom-thing");
     });
-
     it("should not return a link component for unrecognized links in jsx mode", () => {
       expect(
         isElementOfType(
@@ -497,7 +460,6 @@ describe("formatting", () => {
         ),
       ).toEqual(false);
     });
-
     it("should return a string for javascript:, data:, and other links in jsx mode", () => {
       expect(
         formatUrl("javascript:alert('pwnd')", { jsx: true, rich: true }),

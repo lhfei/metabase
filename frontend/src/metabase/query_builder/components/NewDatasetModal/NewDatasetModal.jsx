@@ -1,28 +1,32 @@
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
 import { t } from "ttag";
 
 import ModalContent from "metabase/components/ModalContent";
 import Button from "metabase/core/components/Button";
 import Link from "metabase/core/components/Link";
 import CS from "metabase/css/core/index.css";
-import { connect } from "metabase/lib/redux";
-import { turnQuestionIntoModel } from "metabase/query_builder/actions";
-import { Box, Text } from "metabase/ui";
+import { turnQuestionIntoDataset } from "metabase/query_builder/actions";
 
-import NewDatasetModalS from "./NewDatasetModal.module.css";
+import {
+  DatasetImg,
+  DatasetTitle,
+  DatasetValueProp,
+  FeatureOverviewContainer,
+} from "./NewDatasetModal.styled";
 
 const propTypes = {
-  turnQuestionIntoModel: PropTypes.func.isRequired,
+  turnQuestionIntoDataset: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = {
-  turnQuestionIntoModel,
+  turnQuestionIntoDataset,
 };
 
-function NewDatasetModal({ turnQuestionIntoModel, onClose }) {
+function NewDatasetModal({ turnQuestionIntoDataset, onClose }) {
   const onConfirm = () => {
-    turnQuestionIntoModel();
+    turnQuestionIntoDataset();
     onClose();
   };
 
@@ -41,24 +45,24 @@ function NewDatasetModal({ turnQuestionIntoModel, onClose }) {
         >{t`Turn this into a model`}</Button>,
       ]}
     >
-      <Box p="2rem 1rem 0">
-        <Box component="img" pt="md" src="app/img/model-illustration.svg" />
-        <Text component="h2" mt="2rem" mb="md">{t`Models`}</Text>
+      <FeatureOverviewContainer>
+        <DatasetImg src="app/img/model-illustration.svg" />
+        <DatasetTitle>{t`Models`}</DatasetTitle>
         <ul>
-          <li className={NewDatasetModalS.DatasetValueProp}>
+          <DatasetValueProp>
             {t`Let you update column descriptions and customize metadata to create
             great starting points for exploration.`}
-          </li>
-          <li className={NewDatasetModalS.DatasetValueProp}>
+          </DatasetValueProp>
+          <DatasetValueProp>
             {t`Show up higher in search results and get highlighted when other
             users start new questions to promote reuse.`}
-          </li>
-          <li className={NewDatasetModalS.DatasetValueProp}>
+          </DatasetValueProp>
+          <DatasetValueProp>
             {t`Live in collections to keep them separate from messy database
             schemas.`}
-          </li>
+          </DatasetValueProp>
         </ul>
-      </Box>
+      </FeatureOverviewContainer>
     </ModalContent>
   );
 }

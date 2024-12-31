@@ -4,8 +4,8 @@ import { DragLayer } from "react-dnd";
 import _ from "underscore";
 
 import PinnedItemCard from "metabase/collections/components/PinnedItemCard";
+import BodyComponent from "metabase/components/BodyComponent";
 import { BaseItemsTable } from "metabase/components/ItemsTable/BaseItemsTable";
-import { Box, Portal } from "metabase/ui";
 
 // NOTE: our version of react-hot-loader doesn't play nice with react-dnd's DragLayer,
 // so we exclude files named `*DragLayer.jsx` in webpack.config.js
@@ -19,7 +19,6 @@ class ItemsDragLayerInner extends Component {
       pinnedItems,
       item,
       collection,
-      visibleColumnsMap,
     } = this.props;
     if (!isDragging || !currentOffset) {
       return null;
@@ -28,27 +27,24 @@ class ItemsDragLayerInner extends Component {
     const x = currentOffset.x + window.scrollX;
     const y = currentOffset.y + window.scrollY;
     return (
-      <Portal>
-        <Box
-          pos="absolute"
-          left={0}
-          top={0}
-          opacity={0.65}
-          style={{
-            transform: `translate(${x}px, ${y}px)`,
-            pointerEvents: "none",
-            zIndex: 999,
-          }}
-        >
-          <DraggedItems
-            items={items}
-            draggedItem={item.item}
-            pinnedItems={pinnedItems}
-            collection={collection}
-            visibleColumnsMap={visibleColumnsMap}
-          />
-        </Box>
-      </Portal>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          transform: `translate(${x}px, ${y}px)`,
+          pointerEvents: "none",
+          opacity: 0.65,
+          zIndex: 999,
+        }}
+      >
+        <DraggedItems
+          items={items}
+          draggedItem={item.item}
+          pinnedItems={pinnedItems}
+          collection={collection}
+        />
+      </div>
     );
   }
 }
@@ -61,7 +57,7 @@ const ItemsDragLayer = DragLayer((monitor, props) => ({
   isDragging: monitor.isDragging(),
 }))(ItemsDragLayerInner);
 
-export default ItemsDragLayer;
+export default BodyComponent(ItemsDragLayer);
 
 class DraggedItems extends Component {
   shouldComponentUpdate(nextProps) {
@@ -111,7 +107,7 @@ class DraggedItems extends Component {
   };
 
   render() {
-    const { items, draggedItem, visibleColumnsMap } = this.props;
+    const { items, draggedItem } = this.props;
     const index = _.findIndex(items, draggedItem);
     const allPinned = items.every(item => this.checkIsPinned(item));
     return (
@@ -128,7 +124,6 @@ class DraggedItems extends Component {
           isInDragLayer
           style={{ width: allPinned ? 400 : undefined }}
           includeColGroup={!allPinned}
-          visibleColumnsMap={visibleColumnsMap}
         />
       </div>
     );

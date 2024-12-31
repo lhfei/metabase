@@ -5,9 +5,9 @@
 files:
   # migrations related files
   'resources/migrations/**':
-    - team:core-workflows
+    - team:core-backend-components
   'src/metabase/db/custom_migrations.clj':
-    - team:core-workflows
+    - team:core-backend-components
 
 options:
   ignore_draft: true

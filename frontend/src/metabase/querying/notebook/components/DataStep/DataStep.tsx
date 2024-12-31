@@ -1,29 +1,26 @@
-import { type CSSProperties, useMemo } from "react";
+import { useMemo } from "react";
 import { t } from "ttag";
 
-import IconButtonWrapper from "metabase/components/IconButtonWrapper";
 import { Icon, Popover, Tooltip } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
 import type { NotebookStepProps } from "../../types";
 import { FieldPicker, type FieldPickerItem } from "../FieldPicker";
 import { NotebookCell, NotebookCellItem } from "../NotebookCell";
-import { CONTAINER_PADDING } from "../NotebookCell/constants";
 import { NotebookDataPicker } from "../NotebookDataPicker";
 
-import S from "./DataStep.module.css";
+import { DataStepIconButton } from "./DataStep.styled";
 
 export const DataStep = ({
   query,
   step,
-  readOnly = false,
+  readOnly,
   color,
   updateQuery,
 }: NotebookStepProps) => {
-  const { question, stageIndex } = step;
+  const { stageIndex } = step;
   const tableId = Lib.sourceTableOrCardId(query);
   const table = tableId ? Lib.tableOrCardMetadata(query, tableId) : undefined;
-  const isMetric = question.type() === "metric";
 
   const isRaw = useMemo(() => {
     return (
@@ -39,12 +36,7 @@ export const DataStep = ({
     metadataProvider: Lib.MetadataProvider,
   ) => {
     const newQuery = Lib.queryFromTableOrCardMetadata(metadataProvider, table);
-    const newAggregations = Lib.aggregations(newQuery, stageIndex);
-    if (isMetric && newAggregations.length === 0) {
-      await updateQuery(Lib.aggregateByCount(newQuery, stageIndex));
-    } else {
-      await updateQuery(newQuery);
-    }
+    await updateQuery(newQuery);
   };
 
   return (
@@ -62,17 +54,15 @@ export const DataStep = ({
           )
         }
         containerStyle={{ padding: 0 }}
-        rightContainerStyle={{ width: 37, padding: 0 }}
+        rightContainerStyle={{ width: 37, height: 37, padding: 0 }}
         data-testid="data-step-cell"
       >
         <NotebookDataPicker
+          title={t`Pick your starting data`}
           query={query}
           stageIndex={stageIndex}
           table={table}
-          title={t`Pick your starting data`}
-          canChangeDatabase
           hasMetrics
-          isDisabled={readOnly}
           onChange={handleTableChange}
         />
       </NotebookCellItem>
@@ -95,18 +85,12 @@ function DataFieldPopover({
     <Popover position="bottom-start">
       <Popover.Target>
         <Tooltip label={t`Pick columns`}>
-          <IconButtonWrapper
-            className={S.DataStepIconButton}
-            style={
-              {
-                "--notebook-cell-container-padding": CONTAINER_PADDING,
-              } as CSSProperties
-            }
+          <DataStepIconButton
             aria-label={t`Pick columns`}
             data-testid="fields-picker"
           >
             <Icon name="chevrondown" />
-          </IconButtonWrapper>
+          </DataStepIconButton>
         </Tooltip>
       </Popover.Target>
       <Popover.Dropdown>

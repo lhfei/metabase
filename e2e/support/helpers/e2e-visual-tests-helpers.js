@@ -60,10 +60,6 @@ export function chartPathWithFillColor(color) {
   return echartsContainer().find(`path[fill="${color}"]`);
 }
 
-export function sankeyEdge(color) {
-  return echartsContainer().find(`path[fill="${color}"][fill-opacity="0.2"]`);
-}
-
 export function chartPathsWithFillColors(colors) {
   return colors.map(color => chartPathWithFillColor(color));
 }
@@ -83,14 +79,6 @@ export function cartesianChartCircleWithColor(color) {
 
 export function cartesianChartCircleWithColors(colors) {
   return colors.map(color => cartesianChartCircleWithColor(color));
-}
-
-export function otherSeriesChartPaths() {
-  return chartPathWithFillColor("#949AAB");
-}
-
-export function scatterBubbleWithColor(color) {
-  return echartsContainer().find(`path[d="${CIRCLE_PATH}"][fill="${color}"]`);
 }
 
 export function getValueLabels() {
@@ -145,10 +133,6 @@ export function tooltipHeader() {
   return cy.findByTestId("echarts-tooltip-header");
 }
 
-function tooltipFooter() {
-  return cy.findByTestId("echarts-tooltip-footer");
-}
-
 export function assertTooltipRow(
   name,
   { color, value, secondaryValue, index } = {},
@@ -174,22 +158,7 @@ export function assertTooltipRow(
     });
 }
 
-function assertTooltipFooter({ name, value, secondaryValue }) {
-  tooltipFooter().within(() => {
-    if (name) {
-      cy.findByText(name);
-    }
-    if (value) {
-      cy.findByText(value);
-    }
-    if (secondaryValue) {
-      cy.findByText(secondaryValue);
-    }
-  });
-}
-
-export function assertEChartsTooltip({ header, rows, footer, blurAfter }) {
-  echartsTooltip().should("be.visible");
+export function assertEChartsTooltip({ header, rows, blurAfter }) {
   echartsTooltip().within(() => {
     if (header != null) {
       tooltipHeader().should("have.text", header);
@@ -201,21 +170,9 @@ export function assertEChartsTooltip({ header, rows, footer, blurAfter }) {
         assertTooltipRow(name, rest);
       });
     }
-
-    if (footer != null) {
-      assertTooltipFooter(footer);
-    }
   });
 
   if (blurAfter) {
     echartsTriggerBlur();
   }
-}
-
-export function assertEChartsTooltipNotContain(rows) {
-  echartsTooltip().within(() => {
-    rows.forEach(row => {
-      cy.findByText(row).should("not.exist");
-    });
-  });
 }

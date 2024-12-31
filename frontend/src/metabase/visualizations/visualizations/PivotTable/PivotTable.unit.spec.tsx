@@ -2,7 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "__support__/ui";
-import { createMockVisualizationSettings } from "metabase-types/api/mocks";
+import type { VisualizationSettings } from "metabase-types/api";
 
 import {
   PIVOT_TABLE_MOCK_DATA,
@@ -90,13 +90,13 @@ describe("Visualizations > PivotTable > PivotTable", () => {
       });
 
       it("should collapse columns", () => {
-        const hiddenSettings = createMockVisualizationSettings({
+        const hiddenSettings = {
           ...settings,
           "pivot_table.collapsed_rows": {
-            rows: [cols[0].name, cols[1].name, cols[2].name],
+            rows: [cols[0].field_ref, cols[1].field_ref, cols[2].field_ref],
             value: ["2"],
           },
-        });
+        } as unknown as VisualizationSettings;
 
         setup({
           initialSettings: hiddenSettings,
@@ -124,13 +124,13 @@ describe("Visualizations > PivotTable > PivotTable", () => {
       });
 
       it("expanding collapsed columns", async () => {
-        const hiddenSettings = createMockVisualizationSettings({
+        const hiddenSettings = {
           ...settings,
           "pivot_table.collapsed_rows": {
-            rows: [cols[0].name, cols[1].name, cols[2].name],
+            rows: [cols[0].field_ref, cols[1].field_ref, cols[2].field_ref],
             value: ["2"],
           },
-        });
+        } as unknown as VisualizationSettings;
 
         setup({
           initialSettings: hiddenSettings,

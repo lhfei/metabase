@@ -15,7 +15,6 @@
    [metabase.models.serialization :as serdes]
    [metabase.test :as mt]
    [metabase.util :as u]
-   [metabase.util.json :as json]
    [toucan2.core :as t2]))
 
 (defn- no-labels [path]
@@ -363,7 +362,6 @@
           field3s    (atom nil)
           dash1s     (atom nil)
           dash2s     (atom nil)
-          tab2s      (atom nil)
           card1s     (atom nil)
           dashcard1s (atom nil)
           user1s     (atom nil)
@@ -373,7 +371,6 @@
           field2d    (atom nil)
           user1d     (atom nil)
           dash1d     (atom nil)
-          tab2d      (atom nil)
           card1d     (atom nil)
           dashcard1d (atom nil)
           db2d       (atom nil)
@@ -392,7 +389,6 @@
             (reset! user1s   (ts/create! User  :first_name "Tom" :last_name "Scholz" :email "tom@bost.on"))
             (reset! dash1s   (ts/create! Dashboard :name "My Dashboard" :collection_id (:id @coll1s) :creator_id (:id @user1s)))
             (reset! dash2s   (ts/create! Dashboard :name "Linked dashboard" :collection_id (:id @coll1s) :creator_id (:id @user1s)))
-            (reset! tab2s    (ts/create! :model/DashboardTab :name "Tab for dash2" :dashboard_id (:id @dash2s) :position 0))
             (let [columns           [{:name     "SOME_FIELD"
                                       :fieldRef [:field (:id @field1s) nil]
                                       :enabled  true}
@@ -423,12 +419,11 @@
                                               :table.cell_column  "sum"
                                               :table.columns      columns
                                               :column_settings
-                                              {(json/encode [:ref [:field (:id @field1s) nil]])
+                                              {(str "[\"ref\",[\"field\"," (:id @field1s) ",null]]")
                                                {:click_behavior {:type     "link"
                                                                  :linkType "dashboard"
-                                                                 :targetId (:id @dash2s)
-                                                                 :tabId    (:id @tab2s)}}
-                                               (json/encode [:ref [:field (:id @field2s) nil]])
+                                                                 :targetId (:id @dash2s)}}
+                                               (str "[\"ref\",[\"field\"," (:id @field2s) ",null]]")
                                                {:column_title "Locus"
                                                 :click_behavior
                                                 {:type     "link"
@@ -438,7 +433,7 @@
                                                  {mapping-id {:id     mapping-id
                                                               :source {:type "column" :id "Category_ID" :name "Category ID"}
                                                               :target {:type "dimension" :id mapping-id :dimension mapping-dimension}}}}}
-                                               (json/encode [:ref [:field (:id @field3s) nil]])
+                                               (str "[\"ref\",[\"field\"," (:id @field3s) ",null]]")
                                                {:click_behavior
                                                 {:type     "link"
                                                  :linkType "question"
@@ -487,22 +482,19 @@
                                     :column_settings
                                     {"[\"ref\",[\"field\",[\"my-db\",null,\"orders\",\"invoice\"],null]]" {:column_title "Locus"}}}
                       dimension    [:dimension [:field ["my-db" nil "orders" "invoice"] {:source-field ["my-db" nil "orders" "subtotal"]}]]
-                      dimension-id (json/encode [:dimension [:fk->
-                                                             [:field [:my-db nil :orders :subtotal] nil]
-                                                             [:field [:my-db nil :orders :invoice] nil]]])
+                      dimension-id "[\"dimension\",[\"fk->\",[\"field\",[\"my-db\",null,\"orders\",\"subtotal\"],null],[\"field\",[\"my-db\",null,\"orders\",\"invoice\"],null]]]"
                       exp-dashcard (-> exp-card
                                        (assoc :click_behavior {:type     "link"
                                                                :linkType "question"
                                                                :targetId (:entity_id @card1s)})
                                        (assoc-in [:column_settings
-                                                  (json/encode [:ref [:field [:my-db nil :orders :subtotal] nil]])
+                                                  "[\"ref\",[\"field\",[\"my-db\",null,\"orders\",\"subtotal\"],null]]"
                                                   :click_behavior]
                                                  {:type     "link"
                                                   :linkType "dashboard"
-                                                  :targetId (:entity_id @dash2s)
-                                                  :tabId    [(:entity_id @dash2s) (:entity_id @tab2s)]})
+                                                  :targetId (:entity_id @dash2s)})
                                        (assoc-in [:column_settings
-                                                  (json/encode [:ref [:field [:my-db nil :orders :invoice] nil]])
+                                                  "[\"ref\",[\"field\",[\"my-db\",null,\"orders\",\"invoice\"],null]]"
                                                   :click_behavior]
                                                  {:type     "link"
                                                   :linkType "question"
@@ -513,7 +505,7 @@
                                                     :source {:type "column" :id "Category_ID" :name "Category ID"}
                                                     :target {:type "dimension" :id dimension-id :dimension dimension}}}})
                                        (assoc-in [:column_settings
-                                                  (json/encode [:ref [:field [:my-db nil :orders :discount] nil]])
+                                                  "[\"ref\",[\"field\",[\"my-db\",null,\"orders\",\"discount\"],null]]"
                                                   :click_behavior]
                                                  {:type "link"
                                                   :linkType "question"
@@ -546,7 +538,6 @@
             (reset! field1d    (t2/select-one Field :table_id (:id @table1d) :name "subtotal"))
             (reset! field2d    (t2/select-one Field :table_id (:id @table1d) :name "invoice"))
             (reset! dash1d     (t2/select-one Dashboard :name "My Dashboard"))
-            (reset! tab2d      (t2/select-one :model/DashboardTab :name "Tab for dash2"))
             (reset! card1d     (t2/select-one Card :name "The Card"))
             (reset! dashcard1d (t2/select-one DashboardCard :card_id (:id @card1d) :dashboard_id (:id @dash1d)))
 
@@ -568,13 +559,7 @@
               (is (= [{:parameter_id "deadbeef"
                        :card_id      (:id @card1d)
                        :target       [:dimension [:field (:id @field1d) {:source-field (:id @field2d)}]]}]
-                     (:parameter_mappings @dashcard1d))))
-            (testing "DashboardTab was exported even though he wasn't mentioned by click_behavior"
-              (is (= (:entity_id @tab2s) (:entity_id @tab2d)))
-              (let [settings (-> @dashcard1d :visualization_settings :column_settings)
-                    setting  (get settings (json/encode [:ref [:field (:id @field1d) nil]]))]
-                (is (= (:id @tab2d)
-                       (-> setting :click_behavior :tabId)))))))))))
+                     (:parameter_mappings @dashcard1d))))))))))
 
 (deftest timelines-test
   (testing "timelines"
@@ -982,7 +967,7 @@
                                             :type          :query
                                             :dataset_query (mt/mbql-query users {:limit 1})
                                             :database_id   (:id db)})]
-            (reset! serialized (into [] (serdes.extract/extract {:no-settings true})))
+            (reset! serialized (into [] (serdes.extract/extract {})))
             (let [action-serialized (first (filter (fn [{[{:keys [model id]}] :serdes/meta}]
                                                      (and (= model "Action") (= id eid)))
                                                    @serialized))]
@@ -1194,23 +1179,18 @@
                             :visualization_settings {:click_behavior {:type     "link"
                                                                       :linkType "dashboard"
                                                                       :targetId (:id dash1)}})
-          card-2 (ts/create! :model/Card :name "card-2" :dashboard_id (:id dash1))
           ser   (into [] (serdes.extract/extract {:no-settings   true
                                                   :no-data-model true}))]
       (t2/delete! DashboardCard :id [:in (map :id [dc1 dc2 dc3])])
       (testing "Circular dependencies are loaded correctly"
         (is (serdes.load/load-metabase! (ingestion-in-memory ser)))
         (let [select-target #(-> % :visualization_settings :click_behavior :targetId)]
-
           (is (= (:id dash2)
                  (t2/select-one-fn select-target DashboardCard :entity_id (:entity_id dc1))))
           (is (= (:id dash3)
                  (t2/select-one-fn select-target DashboardCard :entity_id (:entity_id dc2))))
           (is (= (:id dash1)
-                 (t2/select-one-fn select-target DashboardCard :entity_id (:entity_id dc3)))))
-        (testing "Circular dependencies work for Dashboard Questions as well"
-          (is (= (:id dash1)
-                 (t2/select-one-fn :dashboard_id :model/Card :entity_id (:entity_id card-2)))))))))
+                 (t2/select-one-fn select-target DashboardCard :entity_id (:entity_id dc3)))))))))
 
 (deftest continue-on-error-test
   (let [change-ser    (fn [ser changes] ;; kind of like left-join, but right side is indexed
@@ -1356,37 +1336,3 @@
                     (testing (format "%s has identity hash in the db" model)
                       (is (= (serdes/identity-hash e)
                              (serdes/entity-id (name model) e))))))))))))))
-
-(deftest identically-named-fields-test
-  (mt/with-empty-h2-app-db
-    (let [db (ts/create! Database :name "mydb")
-          t  (ts/create! Table :name "table" :db_id (:id db))
-          f1 (ts/create! Field :name "field" :table_id (:id t))
-          ;; name is the same, but parent_id is different
-          f2 (ts/create! Field :name "field" :table_id (:id t) :parent_id (:id f1))
-          f3 (ts/create! Field :name "field" :table_id (:id t) :parent_id (:id f2)
-                         :description "desc")
-
-          ser (into [] (serdes.extract/extract {}))]
-
-      (is (=? {:parent_id   ["mydb" nil "table" "field"]
-               :serdes/meta [{:model "Database" :id "mydb"}
-                             {:model "Table" :id "table"}
-                             {:model "Field" :id "field"}
-                             {:model "Field" :id "field"}]}
-              (ts/extract-one "Field" (:id f2))))
-
-      (is (=? {:parent_id   ["mydb" nil "table" "field" "field"],
-               :serdes/meta [{:model "Database" :id "mydb"}
-                             {:model "Table" :id "table"}
-                             {:model "Field" :id "field"}
-                             {:model "Field" :id "field"}
-                             {:model "Field" :id "field"}]}
-              (ts/extract-one "Field" (:id f3))))
-
-      (t2/update! :model/Field (:id f3) {:description "some new one"})
-
-      (is (serdes.load/load-metabase! (ingestion-in-memory ser)))
-
-      (is (= "desc"
-             (t2/select-one-fn :description :model/Field (:id f3)))))))

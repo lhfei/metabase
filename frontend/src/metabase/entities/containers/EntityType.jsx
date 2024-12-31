@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 import { bindActionCreators } from "@reduxjs/toolkit";
 import { Component } from "react";
-
-import { connect } from "metabase/lib/redux";
+import { connect } from "react-redux";
 
 /**
  * @deprecated HOCs are deprecated

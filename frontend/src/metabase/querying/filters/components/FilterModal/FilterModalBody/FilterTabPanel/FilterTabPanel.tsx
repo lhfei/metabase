@@ -1,11 +1,10 @@
-import type { GroupItem } from "metabase/querying/filters/types";
-import { Tabs } from "metabase/ui";
+import type { GroupItem } from "metabase/querying/filters/hooks/use-filter-modal";
 import type * as Lib from "metabase-lib";
 
 import { ColumnFilterList } from "../ColumnFilterList";
 import { SegmentFilterItem } from "../SegmentFilterItem";
 
-import S from "./FilterTabPanel.module.css";
+import { TabPanelRoot } from "./FilterTabPanel.styled";
 
 export interface FilterTabPanelProps {
   query: Lib.Query;
@@ -23,7 +22,7 @@ export function FilterTabPanel({
   onInput,
 }: FilterTabPanelProps) {
   return (
-    <Tabs.Panel className={S.TabPanelRoot} value={groupItem.key}>
+    <TabPanelRoot value={groupItem.key}>
       <ul>
         {groupItem.segmentItems.length > 0 && (
           <SegmentFilterItem
@@ -42,6 +41,6 @@ export function FilterTabPanel({
           />
         )}
       </ul>
-    </Tabs.Panel>
+    </TabPanelRoot>
   );
 }

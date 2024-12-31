@@ -235,7 +235,6 @@ describe("CompareAggregations", () => {
         expect(input).toHaveValue(2);
       });
     });
-
     describe("unit input", () => {
       it("should not pluralize the unit", async () => {
         setup({ query: queryWithCountAggregation });

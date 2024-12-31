@@ -166,8 +166,9 @@
 (deftest premium-feature-test
   (testing "It requires the premium feature"
     (mt/with-premium-features #{}
-      (mt/assert-has-premium-feature-error "Query Reference Validation"
-                                           (mt/user-http-request :crowberto :get 402 url)))))
+      (is (= (str "Query Reference Validation is a paid feature not currently available to your instance. Please upgrade to"
+                  " use it. Learn more at metabase.com/upgrade/")
+             (mt/user-http-request :crowberto :get 402 url))))))
 
 (defn- with-data-keys [{:keys [data] :as resp} ks]
   (assoc resp :data (map (fn [d] (select-keys d ks)) data)))

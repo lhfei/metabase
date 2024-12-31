@@ -1,11 +1,17 @@
-import { H } from "e2e/support";
 import { THIRD_COLLECTION_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  entityPickerModal,
+  entityPickerModalTab,
+  modal,
+  restore,
+  visitCollection,
+} from "e2e/support/helpers";
 
 const modelName = "A name";
 
 describe("scenarios > models > create", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
     cy.intercept("POST", "/api/dataset").as("dataset");
   });
@@ -17,7 +23,7 @@ describe("scenarios > models > create", () => {
 
     // Cancel creation with confirmation modal
     cy.findByTestId("dataset-edit-bar").button("Cancel").click();
-    H.modal().button("Discard changes").click();
+    modal().button("Discard changes").click();
 
     // Now we will create a model
     navigateToNewModelPage();
@@ -25,7 +31,7 @@ describe("scenarios > models > create", () => {
     // Clicking on metadata should not work until we run a query
     cy.findByTestId("editor-tabs-metadata").should("be.disabled");
 
-    H.focusNativeEditor().type("select * from ORDERS");
+    cy.get(".ace_editor").should("be.visible").type("select * from ORDERS");
 
     cy.findByTestId("native-query-editor-container").icon("play").click();
     cy.wait("@dataset");
@@ -44,10 +50,10 @@ describe("scenarios > models > create", () => {
   });
 
   it("suggest the currently viewed collection when saving a new native query", () => {
-    H.visitCollection(THIRD_COLLECTION_ID);
+    visitCollection(THIRD_COLLECTION_ID);
 
     navigateToNewModelPage();
-    H.focusNativeEditor().type("select * from ORDERS");
+    cy.get(".ace_editor").should("be.visible").type("select * from ORDERS");
     cy.findByTestId("native-query-editor-container").icon("play").click();
     cy.wait("@dataset");
 
@@ -55,20 +61,20 @@ describe("scenarios > models > create", () => {
       cy.contains("button", "Save").click();
     });
     cy.findByTestId("save-question-modal").within(() => {
-      cy.findByLabelText(/Where do you want to save this/).should(
+      cy.findByLabelText(/Which collection should this go in/).should(
         "have.text",
         "Third collection",
       );
     });
   });
 
-  it("suggest the last accessed collection when saving a new structured query model", () => {
-    H.visitCollection(THIRD_COLLECTION_ID);
+  it("suggest the currently viewed collection when saving a new structured query", () => {
+    visitCollection(THIRD_COLLECTION_ID);
 
     navigateToNewModelPage("structured");
 
-    H.entityPickerModal().within(() => {
-      H.entityPickerModalTab("Tables").click();
+    entityPickerModal().within(() => {
+      entityPickerModalTab("Tables").click();
       cy.findByText("Orders").click();
     });
 
@@ -77,7 +83,7 @@ describe("scenarios > models > create", () => {
     });
 
     cy.findByTestId("save-question-modal").within(() => {
-      cy.findByLabelText(/Where do you want to save this/).should(
+      cy.findByLabelText(/Which collection should this go in/).should(
         "have.text",
         "Third collection",
       );
@@ -96,7 +102,7 @@ function navigateToNewModelPage(queryType = "native") {
 }
 
 function checkIfPinned() {
-  H.visitCollection("root");
+  visitCollection("root");
 
   cy.findByText(modelName)
     .closest("a")

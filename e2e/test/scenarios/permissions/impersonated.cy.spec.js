@@ -1,17 +1,24 @@
-import { H } from "e2e/support";
 import { USER_GROUPS } from "e2e/support/cypress_data";
+import {
+  createTestRoles,
+  describeEE,
+  openNativeEditor,
+  restore,
+  runNativeQuery,
+  setTokenFeatures,
+} from "e2e/support/helpers";
 
 const { ALL_USERS_GROUP, COLLECTION_GROUP } = USER_GROUPS;
 
 const PG_DB_ID = 2;
 
-H.describeEE("impersonated permission", () => {
+describeEE("impersonated permission", () => {
   describe("admins", () => {
     beforeEach(() => {
-      H.restore("postgres-12");
-      H.createTestRoles({ type: "postgres" });
+      restore("postgres-12");
+      createTestRoles({ type: "postgres" });
       cy.signInAsAdmin();
-      H.setTokenFeatures("all");
+      setTokenFeatures("all");
     });
 
     describe("impersonated users", () => {
@@ -44,10 +51,10 @@ H.describeEE("impersonated permission", () => {
       };
 
       beforeEach(() => {
-        H.restore("postgres-12");
-        H.createTestRoles({ type: "postgres" });
+        restore("postgres-12");
+        createTestRoles({ type: "postgres" });
         cy.signInAsAdmin();
-        H.setTokenFeatures("all");
+        setTokenFeatures("all");
 
         setImpersonatedPermission();
 
@@ -72,10 +79,10 @@ H.describeEE("impersonated permission", () => {
         cy.findAllByTestId("header-cell").contains("Subtotal");
 
         // No access through the native query builder
-        H.openNativeEditor({ databaseName: "QA Postgres12" }).type(
+        openNativeEditor({ databaseName: "QA Postgres12" }).type(
           "select * from reviews",
         );
-        H.runNativeQuery();
+        runNativeQuery();
 
         cy.findByTestId("query-builder-main").within(() => {
           cy.findByText("An error occurred in your query");
@@ -87,7 +94,7 @@ H.describeEE("impersonated permission", () => {
           .type("{selectall}{backspace}", { delay: 50 })
           .type("select * from orders");
 
-        H.runNativeQuery();
+        runNativeQuery();
 
         cy.findAllByTestId("header-cell").contains("subtotal");
       });

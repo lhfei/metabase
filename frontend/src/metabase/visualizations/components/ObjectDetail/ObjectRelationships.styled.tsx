@@ -9,7 +9,7 @@ export const ObjectRelationships = styled.div`
   background-color: var(--mb-color-bg-light);
 `;
 
-interface ObjectRelationshipContentProps {
+export interface ObjectRelationshipContentProps {
   isClickable: boolean;
 }
 

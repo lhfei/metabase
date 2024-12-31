@@ -1,17 +1,19 @@
 import { useCallback } from "react";
-import { push } from "react-router-redux";
+import { t } from "ttag";
 import _ from "underscore";
 
 import { useGetDefaultCollectionId } from "metabase/collections/hooks";
 import Modal from "metabase/components/Modal";
 import QuestionSavedModal from "metabase/components/QuestionSavedModal";
 import { AddToDashSelectDashModal } from "metabase/containers/AddToDashSelectDashModal";
+import { MoveModal } from "metabase/containers/MoveModal";
 import { SaveQuestionModal } from "metabase/containers/SaveQuestionModal";
+import { ROOT_COLLECTION } from "metabase/entities/collections/constants";
 import EntityCopyModal from "metabase/entities/containers/EntityCopyModal";
+import Questions from "metabase/entities/questions";
 import { useDispatch, useSelector } from "metabase/lib/redux";
-import * as Urls from "metabase/lib/urls";
-import { CreateAlertModalContent } from "metabase/notifications/AlertModals";
 import type { UpdateQuestionOpts } from "metabase/query_builder/actions/core/updateQuestion";
+import { CreateAlertModalContent } from "metabase/query_builder/components/AlertModals";
 import { ImpossibleToCreateModelModal } from "metabase/query_builder/components/ImpossibleToCreateModelModal";
 import NewDatasetModal from "metabase/query_builder/components/NewDatasetModal";
 import { PreviewQueryModal } from "metabase/query_builder/components/view/PreviewQueryModal";
@@ -19,16 +21,18 @@ import type { QueryModalType } from "metabase/query_builder/constants";
 import { MODAL_TYPES } from "metabase/query_builder/constants";
 import { getQuestionWithParameters } from "metabase/query_builder/selectors";
 import { FilterModal } from "metabase/querying/filters/components/FilterModal";
+import QuestionMoveToast from "metabase/questions/components/QuestionMoveToast";
 import ArchiveQuestionModal from "metabase/questions/containers/ArchiveQuestionModal";
 import EditEventModal from "metabase/timelines/questions/containers/EditEventModal";
 import MoveEventModal from "metabase/timelines/questions/containers/MoveEventModal";
 import NewEventModal from "metabase/timelines/questions/containers/NewEventModal";
 import * as Lib from "metabase-lib";
 import type Question from "metabase-lib/v1/Question";
-import type { Alert, Card, User } from "metabase-types/api";
-import type { QueryBuilderMode } from "metabase-types/store";
-
-import { MoveQuestionModal } from "../MoveQuestionModal";
+import type { Alert, Card, CollectionId, User } from "metabase-types/api";
+import type {
+  QueryBuilderMode,
+  QueryBuilderUIControls,
+} from "metabase-types/store";
 
 interface QueryModalsProps {
   questionAlerts: Alert[];
@@ -38,9 +42,10 @@ interface QueryModalsProps {
   question: Question;
   updateQuestion: (question: Question, config?: UpdateQuestionOpts) => void;
   setQueryBuilderMode: (mode: QueryBuilderMode) => void;
+  setUIControls: (opts: Partial<QueryBuilderUIControls>) => void;
   originalQuestion: Question;
   card: Card;
-  onCreate: (question: Question) => Promise<Question>;
+  onCreate: (question: Question) => Promise<void>;
   onSave: (
     question: Question,
     config?: { rerunQuery: boolean },
@@ -106,65 +111,24 @@ export function QueryModals({
 
   const handleCreateAndClose = useCallback(
     async (question: Question) => {
-      const newQuestion = await onCreate(question);
+      await onCreate(question);
       onCloseModal();
-      return newQuestion;
     },
     [onCloseModal, onCreate],
   );
 
-  const nativeToDashboarQuestionDashboard = useCallback(
-    (question: Question) => {
-      const dashboardId = question.dashboardId();
-
-      if (!dashboardId) {
-        throw new Error("must provide a valid dashboard question");
-      }
-
-      dispatch(
-        push(Urls.dashboard({ id: dashboardId, name: "" }, { editMode: true })),
-      );
-    },
-    [dispatch],
-  );
-
   const handleSaveModalCreate = useCallback(
     async (question: Question) => {
-      const newQuestion = await onCreate(question);
+      await onCreate(question);
       const type = question.type();
-      const isDashboardQuestion = _.isNumber(question.dashboardId());
-
       if (type === "model" || type === "metric") {
         onCloseModal();
         setQueryBuilderMode("view");
-      } else if (isDashboardQuestion) {
-        nativeToDashboarQuestionDashboard(newQuestion);
-      } else {
-        onOpenModal(MODAL_TYPES.SAVED);
-      }
-
-      return newQuestion;
-    },
-    [
-      onCloseModal,
-      onCreate,
-      onOpenModal,
-      setQueryBuilderMode,
-      nativeToDashboarQuestionDashboard,
-    ],
-  );
-
-  const handleCopySaved = useCallback(
-    (newQuestion: Question) => {
-      const isDashboardQuestion = _.isNumber(newQuestion.dashboardId());
-
-      if (isDashboardQuestion) {
-        nativeToDashboarQuestionDashboard(newQuestion);
       } else {
         onOpenModal(MODAL_TYPES.SAVED);
       }
     },
-    [onOpenModal, nativeToDashboarQuestionDashboard],
+    [onCloseModal, onCreate, onOpenModal, setQueryBuilderMode],
   );
 
   switch (modal) {
@@ -176,8 +140,7 @@ export function QueryModals({
           initialCollectionId={initialCollectionId}
           onSave={handleSaveAndClose}
           onCreate={handleSaveModalCreate}
-          onClose={onCloseModal}
-          opened={true}
+          onCancel={onCloseModal}
         />
       );
     case MODAL_TYPES.SAVED:
@@ -202,12 +165,10 @@ export function QueryModals({
             onOpenModal(MODAL_TYPES.ADD_TO_DASHBOARD);
           }}
           onCreate={async question => {
-            const newQuestion = await onCreate(question);
+            await onCreate(question);
             onOpenModal(MODAL_TYPES.ADD_TO_DASHBOARD);
-            return newQuestion;
           }}
-          onClose={onCloseModal}
-          opened={true}
+          onCancel={onCloseModal}
           multiStep
         />
       );
@@ -238,12 +199,10 @@ export function QueryModals({
             showAlertsAfterQuestionSaved();
           }}
           onCreate={async question => {
-            const newQuestion = await onCreate(question);
+            await onCreate(question);
             showAlertsAfterQuestionSaved();
-            return newQuestion;
           }}
-          onClose={onCloseModal}
-          opened={true}
+          onCancel={onCloseModal}
           multiStep
           initialCollectionId={initialCollectionId}
         />
@@ -255,8 +214,7 @@ export function QueryModals({
           originalQuestion={originalQuestion}
           onSave={handleSaveAndClose}
           onCreate={handleCreateAndClose}
-          onClose={onCloseModal}
-          opened={true}
+          onCancel={onCloseModal}
           multiStep
           initialCollectionId={initialCollectionId}
         />
@@ -264,13 +222,39 @@ export function QueryModals({
     case MODAL_TYPES.FILTERS:
       return (
         <FilterModal
-          question={question}
+          query={question.query()}
           onSubmit={onQueryChange}
           onClose={onCloseModal}
         />
       );
     case MODAL_TYPES.MOVE:
-      return <MoveQuestionModal question={question} onClose={onCloseModal} />;
+      return (
+        <MoveModal
+          title={t`Which collection should this be in?`}
+          initialCollectionId={question.collectionId() ?? "root"}
+          onClose={onCloseModal}
+          onMove={(collection: { id: CollectionId }) => {
+            dispatch(
+              Questions.actions.setCollection(
+                { id: question.id() },
+                { id: collection.id },
+                {
+                  notify: {
+                    message: (
+                      <QuestionMoveToast
+                        collectionId={collection.id || ROOT_COLLECTION.id}
+                        question={question}
+                      />
+                    ),
+                    undo: false,
+                  },
+                },
+              ),
+            );
+            onCloseModal();
+          }}
+        />
+      );
     case MODAL_TYPES.ARCHIVE:
       return (
         <Modal onClose={onCloseModal}>
@@ -297,14 +281,13 @@ export function QueryModals({
                 questionWithParameters
                   .setDisplayName(formValues.name)
                   .setCollectionId(formValues.collection_id)
-                  .setDashboardId(formValues.dashboard_id)
                   .setDescription(formValues.description || null),
               );
 
-              return object;
+              return { payload: { object } };
             }}
             onClose={onCloseModal}
-            onSaved={handleCopySaved}
+            onSaved={() => onOpenModal(MODAL_TYPES.SAVED)}
           />
         </Modal>
       );

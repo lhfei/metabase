@@ -1,19 +1,24 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  openNativeEditor,
+  popover,
+  restore,
+  visitQuestionAdhoc,
+} from "e2e/support/helpers";
 
 const { PEOPLE, PEOPLE_ID } = SAMPLE_DATABASE;
 
 describe("scenarios > visualizations > maps", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
   it("should display a pin map for a native query", () => {
     cy.signInAsNormalUser();
     // create a native query with lng/lat fields
-    H.openNativeEditor().type(
+    openNativeEditor().type(
       "select -80 as lng, 40 as lat union all select -120 as lng, 40 as lat",
     );
     cy.findByTestId("native-query-editor-container").icon("play").click();
@@ -22,33 +27,30 @@ describe("scenarios > visualizations > maps", () => {
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.contains("Visualization").click();
     cy.icon("pinmap").click();
-    cy.findByTestId("Map-container").within(() => {
+    cy.findByTestId("Map-button").within(() => {
       cy.icon("gear").click();
     });
 
-    toggleFieldSelectElement("Map type");
-    H.popover().findByText("Pin map").click();
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("Map type").next().click();
+    popover().contains("Pin map").click();
 
     // When the settings sidebar opens, both latitude and longitude selects are
     // open. That makes it difficult to select each in Cypress, so we click
-    // inside both of them before reopening them one-by-one. :(
-    // Please see: https://github.com/metabase/metabase/issues/18063#issuecomment-927836691
-    ["Latitude field", "Longitude field"].map(field =>
-      H.leftSidebar().within(() => {
-        toggleFieldSelectElement(field);
-      }),
-    );
+    // outside twice to close both of them before reopening them one-by-one. :(
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("New question").click();
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("New question").click();
 
     // select both columns
-    H.leftSidebar().within(() => {
-      toggleFieldSelectElement("Latitude field");
-    });
-    H.popover().findByText("LAT").click();
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("Latitude field").next().click();
+    popover().contains("LAT").click();
 
-    H.leftSidebar().within(() => {
-      toggleFieldSelectElement("Longitude field");
-    });
-    H.popover().findByText("LNG").click();
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("Longitude field").next().click();
+    popover().contains("LNG").click();
 
     // check that a map appears
     cy.get(".leaflet-container");
@@ -84,7 +86,7 @@ describe("scenarios > visualizations > maps", () => {
 
   it("should not assign the full name of the state as the filter value on a drill-through (metabase#14650)", () => {
     cy.intercept("/app/assets/geojson/**").as("geojson");
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         database: SAMPLE_DB_ID,
         query: {
@@ -132,7 +134,7 @@ describe("scenarios > visualizations > maps", () => {
   });
 
   it("should display a tooltip for a grid map without a metric column (metabase#17940)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       display: "map",
       dataset_query: {
         database: SAMPLE_DB_ID,
@@ -172,15 +174,15 @@ describe("scenarios > visualizations > maps", () => {
     cy.get(".leaflet-interactive").trigger("mousemove");
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
-    cy.findByText("Latitude: 10°:");
+    cy.findByText("Latitude:");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
-    cy.findByText("Longitude: 10°:");
+    cy.findByText("Longitude:");
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("1");
   });
 
   it("should render grid map visualization for native questions (metabase#8362)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "native",
         native: {
@@ -208,17 +210,17 @@ describe("scenarios > visualizations > maps", () => {
     cy.findByText("Visualization").click();
 
     // Ensure the Map visualization is sensible
-    cy.findByTestId("display-options-sensible").as("sensibleOptions");
-
-    cy.get("@sensibleOptions").within(() => {
-      cy.findByTestId("Map-button").should("be.visible");
-    });
+    cy.findByTestId("Map-button").should(
+      "have.attr",
+      "data-is-sensible",
+      "true",
+    );
   });
 
   it("should apply brush filters by dragging map", () => {
     cy.viewport(1280, 800);
 
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         database: SAMPLE_DB_ID,
@@ -252,9 +254,3 @@ describe("scenarios > visualizations > maps", () => {
     cy.findByTestId("filter-pill").should("have.length", 1);
   });
 });
-
-function toggleFieldSelectElement(field) {
-  return cy.get(`[data-field-title="${field}"]`).within(() => {
-    cy.findByTestId("chart-setting-select").click();
-  });
-}

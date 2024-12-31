@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 
-import { getColumnGroupIcon } from "metabase/common/utils/column-groups";
+import {
+  getColumnGroupIcon,
+  getColumnGroupName,
+} from "metabase/common/utils/column-groups";
 import {
   HoverParent,
   QueryColumnInfoIcon,
@@ -12,7 +15,6 @@ import { DelayGroup } from "metabase/ui";
 import * as Lib from "metabase-lib";
 
 import { BucketPickerPopover } from "./BucketPickerPopover";
-import S from "./QueryColumnPicker.module.css";
 import { StyledAccordionList } from "./QueryColumnPicker.styled";
 
 export type ColumnListItem = Lib.ColumnDisplayInfo & {
@@ -76,7 +78,7 @@ export function QueryColumnPicker({
         }));
 
         return {
-          name: groupInfo.displayName,
+          name: getColumnGroupName(groupInfo),
           icon: getColumnGroupIcon(groupInfo),
           items,
         };
@@ -139,34 +141,20 @@ export function QueryColumnPicker({
   );
 
   const renderItemExtra = useCallback(
-    (item: ColumnListItem) => {
-      const isEditing = checkIsColumnSelected(item);
-
-      return (
-        (hasBinning || hasTemporalBucketing) && (
-          <BucketPickerPopover
-            classNames={{
-              root: S.itemWrapper,
-              /*
-              isEditing controls "selected" state of the item, so if a row is selected, we want to show icon
-              otherwise we show chevron down icon only when we hover over a row, to control this behavior
-              we pass or not pass chevronDown class, which hides this icon by default
-            */
-              chevronDown: isEditing ? undefined : S.chevronDown,
-            }}
-            query={query}
-            stageIndex={stageIndex}
-            column={item.column}
-            isEditing={isEditing}
-            hasBinning={hasBinning}
-            hasTemporalBucketing={hasTemporalBucketing}
-            hasChevronDown={withInfoIcons}
-            color={color}
-            onSelect={handleSelect}
-          />
-        )
-      );
-    },
+    (item: ColumnListItem) =>
+      (hasBinning || hasTemporalBucketing) && (
+        <BucketPickerPopover
+          query={query}
+          stageIndex={stageIndex}
+          column={item.column}
+          isEditing={checkIsColumnSelected(item)}
+          hasBinning={hasBinning}
+          hasTemporalBucketing={hasTemporalBucketing}
+          hasChevronDown={withInfoIcons}
+          color={color}
+          onSelect={handleSelect}
+        />
+      ),
     [
       query,
       stageIndex,
@@ -226,7 +214,7 @@ function renderItemName(item: ColumnListItem) {
 }
 
 function renderItemWrapper(content: ReactNode) {
-  return <HoverParent className={S.itemWrapper}>{content}</HoverParent>;
+  return <HoverParent>{content}</HoverParent>;
 }
 
 function omitItemDescription() {

@@ -1,73 +1,61 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import {
-  DownloadsStatusLarge,
-  type DownloadsStatusLargeProps,
-} from "./DownloadsStatusLarge";
+import { DownloadsStatusLarge } from "./DownloadsStatusLarge";
 
 export default {
   title: "Status/DownloadsStatusLarge",
   component: DownloadsStatusLarge,
 };
 
-const Template: StoryFn<DownloadsStatusLargeProps> = args => {
+const Template: ComponentStory<typeof DownloadsStatusLarge> = args => {
   return <DownloadsStatusLarge {...args} />;
 };
 
-export const Incomplete = {
-  render: Template,
-
-  args: {
-    downloads: [
-      {
-        id: 1,
-        title: "is-alex?.csv",
-        status: "in-progress",
-      },
-      {
-        id: 2,
-        title: "top-secret.xlsx",
-        status: "in-progress",
-      },
-    ],
-  },
+export const Incomplete = Template.bind({});
+Incomplete.args = {
+  downloads: [
+    {
+      id: 1,
+      title: "is-alex?.csv",
+      status: "in-progress",
+    },
+    {
+      id: 2,
+      title: "top-secret.xlsx",
+      status: "in-progress",
+    },
+  ],
 };
 
-export const Complete = {
-  render: Template,
-
-  args: {
-    downloads: [
-      {
-        id: 1,
-        title: "is-alex?.csv",
-        status: "complete",
-      },
-      {
-        id: 2,
-        title: "top-secret.xlsx",
-        status: "complete",
-      },
-    ],
-  },
+export const Complete = Template.bind({});
+Complete.args = {
+  downloads: [
+    {
+      id: 1,
+      title: "is-alex?.csv",
+      status: "complete",
+    },
+    {
+      id: 2,
+      title: "top-secret.xlsx",
+      status: "complete",
+    },
+  ],
 };
 
-export const Aborted = {
-  render: Template,
-
-  args: {
-    downloads: [
-      {
-        id: 1,
-        title: "is-alex?.csv",
-        status: "error",
-        error: "Out of memory: too many people named Alex",
-      },
-      {
-        id: 2,
-        title: "top-secret.xlsx",
-        status: "error",
-      },
-    ],
-  },
+export const Aborted = Template.bind({});
+Aborted.args = {
+  downloads: [
+    {
+      id: 1,
+      title: "is-alex?.csv",
+      status: "error",
+      error: "Out of memory: too many people named Alex",
+    },
+    {
+      id: 2,
+      title: "top-secret.xlsx",
+      status: "error",
+    },
+  ],
 };

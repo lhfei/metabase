@@ -6,7 +6,7 @@ export const AppBarRoot = styled.div`
   background-color: var(--mb-color-bg-white);
 `;
 
-interface AppBarHeaderProps {
+export interface AppBarHeaderProps {
   isSubheaderVisible?: boolean;
 }
 
@@ -47,7 +47,7 @@ export const AppBarSearchContainer = styled.div`
   flex: 1 1 auto;
 `;
 
-interface AppBarLogoContainerProps {
+export interface AppBarLogoContainerProps {
   isVisible?: boolean;
 }
 

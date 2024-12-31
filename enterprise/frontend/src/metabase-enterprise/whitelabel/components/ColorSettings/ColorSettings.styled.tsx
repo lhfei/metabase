@@ -6,7 +6,7 @@ export const SettingRoot = styled.div`
   flex: 1 1 auto;
 `;
 
-interface SettingTitleProps {
+export interface SettingTitleProps {
   hasDescription?: boolean;
 }
 

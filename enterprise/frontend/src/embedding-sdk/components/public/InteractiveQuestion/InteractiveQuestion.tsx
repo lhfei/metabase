@@ -1,91 +1,51 @@
 import type { PropsWithChildren } from "react";
 
-import { EditorViewControl } from "embedding-sdk/components/private/EditorViewControl";
 import {
   BackButton,
-  Breakout,
-  BreakoutDropdown,
-  ChartTypeDropdown,
-  ChartTypeSelector,
-  Editor,
-  EditorButton,
   Filter,
+  FilterBar,
   FilterButton,
-  FilterDropdown,
+  Notebook,
+  NotebookButton,
   QuestionResetButton,
-  QuestionSettings,
   QuestionVisualization,
   SaveButton,
-  SdkSaveQuestionForm,
+  SaveQuestion,
   Summarize,
   SummarizeButton,
-  SummarizeDropdown,
   Title,
 } from "embedding-sdk/components/private/InteractiveQuestion/components";
-import {
-  InteractiveQuestionProvider,
-  type InteractiveQuestionProviderProps,
-} from "embedding-sdk/components/private/InteractiveQuestion/context";
+import { InteractiveQuestionProvider } from "embedding-sdk/components/private/InteractiveQuestion/context";
 import {
   InteractiveQuestionResult,
   type InteractiveQuestionResultProps,
 } from "embedding-sdk/components/private/InteractiveQuestionResult";
 import { withPublicComponentWrapper } from "embedding-sdk/components/private/PublicComponentWrapper";
-import type { FlexibleSizeProps } from "embedding-sdk/components/public/FlexibleSizeComponent";
+import type { SdkPluginsConfig } from "embedding-sdk/lib/plugins";
+import type { CardEntityId, CardId } from "metabase-types/api";
 
 export type InteractiveQuestionProps = PropsWithChildren<{
-  questionId?: InteractiveQuestionProviderProps["cardId"];
-  plugins?: InteractiveQuestionProviderProps["componentPlugins"];
-}> &
-  Pick<
-    InteractiveQuestionProviderProps,
-    | "onBeforeSave"
-    | "onSave"
-    | "entityTypeFilter"
-    | "isSaveEnabled"
-    | "saveToCollectionId"
-    | "initialSqlParameters"
-  >;
+  questionId?: CardId | CardEntityId;
+  plugins?: SdkPluginsConfig;
+}>;
 
 export const _InteractiveQuestion = ({
   questionId,
   withResetButton = true,
-  title,
+  withTitle = false,
+  customTitle,
   plugins,
   height,
-  width,
-  className,
-  style,
   children = null,
-  onBeforeSave,
-  onSave,
-  entityTypeFilter,
-  isSaveEnabled,
-  saveToCollectionId,
-  withChartTypeSelector = true,
-  initialSqlParameters,
 }: InteractiveQuestionProps &
-  InteractiveQuestionResultProps &
-  FlexibleSizeProps): JSX.Element | null => (
-  <InteractiveQuestionProvider
-    cardId={questionId}
-    componentPlugins={plugins}
-    onBeforeSave={onBeforeSave}
-    onSave={onSave}
-    entityTypeFilter={entityTypeFilter}
-    isSaveEnabled={isSaveEnabled}
-    saveToCollectionId={saveToCollectionId}
-    initialSqlParameters={initialSqlParameters}
-  >
+  InteractiveQuestionResultProps): JSX.Element | null => (
+  <InteractiveQuestionProvider cardId={questionId} componentPlugins={plugins}>
     {children ?? (
       <InteractiveQuestionResult
         height={height}
-        width={width}
-        className={className}
-        style={style}
-        title={title}
+        customTitle={customTitle}
         withResetButton={withResetButton}
-        withChartTypeSelector={withChartTypeSelector}
+        withTitle={withTitle}
       />
     )}
   </InteractiveQuestionProvider>
@@ -95,54 +55,32 @@ const InteractiveQuestion = withPublicComponentWrapper(
   _InteractiveQuestion,
 ) as typeof _InteractiveQuestion & {
   BackButton: typeof BackButton;
+  FilterBar: typeof FilterBar;
   Filter: typeof Filter;
-  FilterDropdown: typeof FilterDropdown;
   FilterButton: typeof FilterButton;
   ResetButton: typeof QuestionResetButton;
   Title: typeof Title;
   Summarize: typeof Summarize;
   SummarizeButton: typeof SummarizeButton;
-  SummarizeDropdown: typeof SummarizeDropdown;
-  /** @deprecated Use `InteractiveQuestion.Editor` instead */
-  Notebook: typeof Editor;
-  Editor: typeof Editor;
-  /** @deprecated Use `InteractiveQuestion.EditorButton` instead */
-  NotebookButton: typeof EditorButton;
-  EditorButton: typeof EditorButton;
+  Notebook: typeof Notebook;
+  NotebookButton: typeof NotebookButton;
   QuestionVisualization: typeof QuestionVisualization;
-  SaveQuestionForm: typeof SdkSaveQuestionForm;
+  SaveQuestionForm: typeof SaveQuestion;
   SaveButton: typeof SaveButton;
-  ChartTypeSelector: typeof ChartTypeSelector;
-  ChartTypeDropdown: typeof ChartTypeDropdown;
-  EditorViewControl: typeof EditorViewControl;
-  QuestionSettings: typeof QuestionSettings;
-  Breakout: typeof Breakout;
-  BreakoutDropdown: typeof BreakoutDropdown;
 };
 
 InteractiveQuestion.BackButton = BackButton;
+InteractiveQuestion.FilterBar = FilterBar;
 InteractiveQuestion.Filter = Filter;
-InteractiveQuestion.FilterDropdown = FilterDropdown;
 InteractiveQuestion.FilterButton = FilterButton;
 InteractiveQuestion.ResetButton = QuestionResetButton;
 InteractiveQuestion.Title = Title;
 InteractiveQuestion.Summarize = Summarize;
 InteractiveQuestion.SummarizeButton = SummarizeButton;
-InteractiveQuestion.SummarizeDropdown = SummarizeDropdown;
-/** @deprecated Use `InteractiveQuestion.Editor` instead */
-InteractiveQuestion.Notebook = Editor;
-InteractiveQuestion.Editor = Editor;
-/** @deprecated Use `InteractiveQuestion.EditorButton` instead */
-InteractiveQuestion.NotebookButton = EditorButton;
-InteractiveQuestion.EditorButton = EditorButton;
+InteractiveQuestion.Notebook = Notebook;
+InteractiveQuestion.NotebookButton = NotebookButton;
 InteractiveQuestion.QuestionVisualization = QuestionVisualization;
-InteractiveQuestion.SaveQuestionForm = SdkSaveQuestionForm;
+InteractiveQuestion.SaveQuestionForm = SaveQuestion;
 InteractiveQuestion.SaveButton = SaveButton;
-InteractiveQuestion.ChartTypeSelector = ChartTypeSelector;
-InteractiveQuestion.EditorViewControl = EditorViewControl;
-InteractiveQuestion.QuestionSettings = QuestionSettings;
-InteractiveQuestion.BreakoutDropdown = BreakoutDropdown;
-InteractiveQuestion.Breakout = Breakout;
-InteractiveQuestion.ChartTypeDropdown = ChartTypeDropdown;
 
 export { InteractiveQuestion };

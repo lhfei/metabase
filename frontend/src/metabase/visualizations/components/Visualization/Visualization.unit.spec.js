@@ -56,7 +56,6 @@ describe("Visualization", () => {
         expect(chartPathsWithColor(color("brand"))).toHaveLength(2);
       });
     });
-
     describe("multiseries: multiple metrics", () => {
       it("should have correct colors", async () => {
         await renderViz([
@@ -80,7 +79,6 @@ describe("Visualization", () => {
         expect(chartPathsWithColor(color("accent1"))).toHaveLength(2); // "sum"
       });
     });
-
     describe("multiseries: multiple breakouts", () => {
       it("should have correct colors", async () => {
         await renderViz([
@@ -106,7 +104,6 @@ describe("Visualization", () => {
         expect(chartPathsWithColor(color("accent2"))).toHaveLength(2); // "b"
       });
     });
-
     describe("multiseries: dashcard", () => {
       it("should have correct colors", async () => {
         await renderViz([

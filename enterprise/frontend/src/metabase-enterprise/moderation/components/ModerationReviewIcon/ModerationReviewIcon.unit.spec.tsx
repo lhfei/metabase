@@ -37,6 +37,7 @@ describe("ModerationReviewIcon", () => {
         moderator_id: 1,
         created_at: "2021-01-01T20:10:30.200",
       }),
+      moderator: createMockUser({ id: 1 }),
       currentUser: createMockUser({ id: 1 }),
     });
 

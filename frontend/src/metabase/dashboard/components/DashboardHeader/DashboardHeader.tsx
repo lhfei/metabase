@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMount } from "react-use";
 import { t } from "ttag";
 
-import { useGetCollectionQuery } from "metabase/api";
+import { useCollectionQuery } from "metabase/common/hooks";
 import { LeaveConfirmationModalContent } from "metabase/components/LeaveConfirmationModal";
 import Modal from "metabase/components/Modal";
 import {
@@ -22,9 +22,8 @@ import type {
   DashboardNightModeControls,
   DashboardRefreshPeriodControls,
 } from "metabase/dashboard/types";
-import { isEmbeddingSdk } from "metabase/env";
 import { useDispatch, useSelector } from "metabase/lib/redux";
-import { fetchPulseFormInput } from "metabase/notifications/pulse/actions";
+import { fetchPulseFormInput } from "metabase/pulse/actions";
 import { getSetting } from "metabase/selectors/settings";
 import { Flex, Loader } from "metabase/ui";
 import type { Dashboard } from "metabase-types/api";
@@ -75,7 +74,7 @@ export const DashboardHeaderInner = ({
   );
 
   const { data: collection, isLoading: isLoadingCollection } =
-    useGetCollectionQuery({ id: dashboard.collection_id || "root" });
+    useCollectionQuery({ id: dashboard.collection_id || "root" });
 
   const onRequestCancel = () => {
     if (isDirty && isEditing) {
@@ -154,12 +153,8 @@ export const DashboardHeaderInner = ({
             : "",
         )}
         editingButtons={editingButtons}
-        onLastEditInfoClick={
-          isEmbeddingSdk
-            ? undefined
-            : () => {
-                dispatch(setSidebar({ name: SIDEBAR_NAME.info }));
-              }
+        onLastEditInfoClick={() =>
+          dispatch(setSidebar({ name: SIDEBAR_NAME.info }))
         }
         refreshPeriod={refreshPeriod}
         onRefreshPeriodChange={onRefreshPeriodChange}

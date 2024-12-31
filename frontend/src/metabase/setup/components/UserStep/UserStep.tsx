@@ -16,7 +16,6 @@ import { StepDescription } from "./UserStep.styled";
 
 export const UserStep = ({ stepLabel }: NumberedStepProps): JSX.Element => {
   const { isStepActive, isStepCompleted } = useStep("user_info");
-
   const user = useSelector(getUser);
   const isHosted = useSelector(getIsHosted);
 
@@ -46,7 +45,6 @@ export const UserStep = ({ stepLabel }: NumberedStepProps): JSX.Element => {
       )}
       <UserForm
         user={user}
-        isHosted={isHosted}
         onValidatePassword={validatePassword}
         onSubmit={handleSubmit}
       />

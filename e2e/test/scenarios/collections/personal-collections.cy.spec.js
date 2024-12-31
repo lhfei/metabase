@@ -1,14 +1,22 @@
-import { H } from "e2e/support";
 import { USERS } from "e2e/support/cypress_data";
 import {
   ADMIN_PERSONAL_COLLECTION_ID,
   NORMAL_USER_ID,
   NO_DATA_PERSONAL_COLLECTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  getCollectionActions,
+  modal,
+  navigationSidebar,
+  openCollectionMenu,
+  openNewCollectionItemFlowFor,
+  popover,
+  restore,
+} from "e2e/support/helpers";
 
 describe("personal collections", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
   });
 
   describe("admin", () => {
@@ -56,10 +64,10 @@ describe("personal collections", () => {
       cy.findAllByRole("tree")
         .contains("Your personal collection")
         .should("be.visible");
-      H.navigationSidebar().within(() => {
+      navigationSidebar().within(() => {
         cy.icon("ellipsis").click();
       });
-      H.popover().findByText("Other users' personal collections").click();
+      popover().findByText("Other users' personal collections").click();
       cy.location("pathname").should("eq", "/collection/users");
       cy.findByTestId("browsercrumbs").findByText(/All personal collections/i);
       Object.values(USERS).forEach(user => {
@@ -80,7 +88,7 @@ describe("personal collections", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Your personal collection").click();
 
-      H.getCollectionActions().within(() => {
+      getCollectionActions().within(() => {
         cy.icon("ellipsis").should("not.exist");
       });
 
@@ -95,12 +103,12 @@ describe("personal collections", () => {
       // });
 
       // Go to the newly created sub-collection "Foo"
-      H.navigationSidebar().findByText("Foo").click();
+      navigationSidebar().findByText("Foo").click();
 
       // It should be possible to edit sub-collections' details, but not its permissions
       cy.findByDisplayValue("Foo").should("be.enabled");
-      H.openCollectionMenu();
-      H.popover().within(() => {
+      openCollectionMenu();
+      popover().within(() => {
         cy.findByText("Edit permissions").should("not.exist");
       });
 
@@ -114,7 +122,7 @@ describe("personal collections", () => {
       // Go to random user's personal collection
       cy.visit(`/collection/${NO_DATA_PERSONAL_COLLECTION_ID}`);
 
-      H.getCollectionActions().within(() => {
+      getCollectionActions().within(() => {
         cy.icon("ellipsis").should("not.exist");
       });
     });
@@ -143,7 +151,7 @@ describe("personal collections", () => {
 
           // Create initial collection inside the personal collection and navigate to it
           addNewCollection("Foo");
-          H.navigationSidebar().as("sidebar").findByText("Foo").click();
+          navigationSidebar().as("sidebar").findByText("Foo").click();
         });
 
         it("should be able to edit collection(s) inside personal collection", () => {
@@ -160,10 +168,10 @@ describe("personal collections", () => {
             "should be able to archive collection(s) inside personal collection (metabase#15343)",
           );
 
-          H.openCollectionMenu();
+          openCollectionMenu();
           // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
-          H.popover().within(() => cy.findByText("Move to trash").click());
-          H.modal().findByRole("button", { name: "Move to trash" }).click();
+          popover().within(() => cy.findByText("Move to trash").click());
+          modal().findByRole("button", { name: "Move to trash" }).click();
           // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
           cy.findByText("Trashed collection");
           cy.get("@sidebar").findByText("Foo").should("not.exist");
@@ -174,7 +182,7 @@ describe("personal collections", () => {
 });
 
 function addNewCollection(name) {
-  H.openNewCollectionItemFlowFor("collection");
+  openNewCollectionItemFlowFor("collection");
   cy.findByPlaceholderText("My new fantastic collection").type(name, {
     delay: 0,
   });

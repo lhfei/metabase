@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.models.model-index-test
+(ns metabase.models.model-index-test
   (:require
    [clojure.set :as set]
    [clojure.test :refer :all]
@@ -7,7 +7,9 @@
    [malli.error :as me]
    [metabase.driver.util :as driver.u]
    [metabase.models.card :refer [Card]]
-   [metabase.models.model-index :as model-index :refer [ModelIndex ModelIndexValue]]
+   [metabase.models.model-index
+    :as model-index
+    :refer [ModelIndex ModelIndexValue]]
    [metabase.query-processor :as qp]
    [metabase.query-processor.compile :as qp.compile]
    [metabase.task :as task]
@@ -19,7 +21,7 @@
    [toucan2.core :as t2]
    [toucan2.tools.with-temp :as t2.with-temp]))
 
-(defmacro ^:private with-scheduler-setup! [& body]
+(defmacro with-scheduler-setup! [& body]
   `(let [scheduler# (#'tu/in-memory-scheduler)]
      ;; need cross thread rebinding from with-redefs not a binding
      (with-redefs [task/scheduler (constantly scheduler#)]
@@ -51,16 +53,16 @@
                                                          :name "model index test"
                                                          :visualization_settings {}
                                                          :display "table"))
-                model       (t2/select-one :model/Card :id (u/the-id response))
+                model       (t2/select-one :model/Card :id (:id response))
                 model-index (mt/user-http-request :rasta :post 200 "/model-index"
-                                                  {:model_id  (u/the-id model)
+                                                  {:model_id  (:id model)
                                                    :pk_ref    pk_ref
                                                    :value_ref value_ref})
                 by-key      (fn [k xs]
                               (some (fn [x] (when (= (:key x) k) x)) xs))]
             (testing "We can get the model index"
               (is (=? {:state      "indexed"
-                       :model_id   (u/the-id model)
+                       :model_id   (:id model)
                        :error      nil}
                       (mt/user-http-request :rasta :get 200 (str "/model-index/" (:id model-index))))))
             (testing "We can invoke the task ourself manually"
@@ -75,7 +77,7 @@
             (testing "When the values change the indexed values change"
               ;; update the filter on the model to simulate different values indexed
               (t2/update! :model/Card
-                          (u/the-id model)
+                          (:id model)
                           {:dataset_query (mt/mbql-query products
                                             {:filter [:and
                                                       [:> $id 10]
@@ -90,7 +92,7 @@
                      (t2/select-fn-set :name ModelIndexValue :model_index_id (:id model-index))))
               (is (=? {:error nil
                        :state "indexed"}
-                      (t2/select-one :model/ModelIndex :id (u/the-id model-index)))))
+                      (t2/select-one :model/ModelIndex :id (:id model-index)))))
             (let [index-trigger! #(->> (task/scheduler-info)
                                        :jobs
                                        (by-key "metabase.task.IndexValues.job")
@@ -104,34 +106,30 @@
                   (is (= {"model-index-id" (:id model-index)}
                          (:data trigger)))))
               (testing "Deleting the model index removes the indexing task"
-                (t2/delete! ModelIndex :id (u/the-id model-index))
+                (t2/delete! ModelIndex :id (:id model-index))
                 (is (nil? (index-trigger!)) "Index trigger not removed")))))))))
 
-(def ^:private empty-changes "empty state map for find changes"
+(def empty-changes "empty state map for find changes"
   {:additions #{}, :deletions #{}})
 
-(deftest ^:parallel find-changes-test
+(deftest find-changes-test
   (testing "Identifies no changes"
     (let [values [[1 "apple"] [2 "banana"]]]
       (is (= empty-changes (model-index/find-changes {:current-index values
-                                                      :source-values values}))))))
-
-(deftest ^:parallel find-changes-test-2
+                                                      :source-values values})))))
   (testing "identifies additions"
     (let [values    [[1 "apple"] [2 "banana"]]
           new-value [3 "cherry"]]
       (is (= (update empty-changes :additions conj new-value)
              (model-index/find-changes {:current-index values
-                                        :source-values (conj values new-value)}))))))
+                                        :source-values (conj values new-value)})))))
 
-(deftest ^:parallel find-changes-test-3
   (testing "identifies removals"
     (let [values [[1 "apple"] [2 "banana"]]]
       (is (= (update empty-changes :deletions conj (first values))
              (model-index/find-changes {:current-index values
-                                        :source-values (rest values)}))))))
+                                        :source-values (rest values)})))))
 
-(deftest ^:parallel find-changes-test-4
   (testing "identifies updates"
     (let [values     [[1 "apple"] [2 "banana"]]
           new-values [[1 "applesauce"] [2 "banana"]]]
@@ -139,9 +137,8 @@
                  (update :deletions conj [1 "apple"])
                  (update :additions conj [1 "applesauce"]))
              (model-index/find-changes {:current-index values
-                                        :source-values new-values}))))))
+                                        :source-values new-values})))))
 
-(deftest ^:parallel find-changes-test-5
   (testing "Handles duplicate keys (only one goes into db)"
     (let [values     [[1 "apple"] [2 "banana"]]
           ;; maybe a join involved. Later values win.
@@ -150,17 +147,15 @@
                  (update :deletions conj [1 "apple"])
                  (update :additions conj [1 "applesauce"]))
              (model-index/find-changes {:current-index values
-                                        :source-values new-values}))))))
+                                        :source-values new-values})))))
 
-(deftest ^:parallel find-changes-test-6
   (testing "When no indexed values are present all are additions"
     (let [values (into [] (map (fn [i] [i (mt/random-name)])) (range 5000))]
       (is (= {:additions (set values)
               :deletions #{}}
              (model-index/find-changes {:current-index []
-                                        :source-values (shuffle values)}))))))
+                                        :source-values (shuffle values)})))))
 
-(deftest ^:parallel find-changes-test-7
   (testing "All together"
     (let [already-indexed (into [] (map (fn [i] [i (mt/random-name)])) (range 5000))
 
@@ -175,7 +170,7 @@
              (model-index/find-changes {:current-index already-indexed
                                         :source-values fresh-values}))))))
 
-(deftest ^:parallel fetch-values-test
+(deftest fetch-values-test
   (mt/test-drivers (disj (mt/normal-drivers) :mongo)
     (mt/dataset test-data
       (doseq [[scenario query [field-refs]]
@@ -192,26 +187,29 @@
                                   (qp.compile/compile
                                    (mt/mbql-query products {:fields [$id $title]})))]
                        (when (driver.u/supports? (:engine (mt/db)) :left-join (mt/db))
-                         [:join (mt/mbql-query people
-                                  {:joins [{:fields       :all,
-                                            :source-table $$orders,
-                                            :condition    [:=
-                                                           $people.id
-                                                           &Orders.orders.user_id],
-                                            :alias        "Orders"}
-                                           {:fields       :all,
-                                            :source-table $$products,
-                                            :condition    [:=
-                                                           &Orders.orders.product_id
-                                                           &Products.products.id],
-                                            :alias        "Products"}]})
+                         [:join (mt/$ids
+                                  {:type     :query,
+                                   :query    {:source-table $$people,
+                                              :joins        [{:fields       :all,
+                                                              :source-table $$orders,
+                                                              :condition    [:=
+                                                                             $people.id
+                                                                             &Orders.orders.user_id],
+                                                              :alias        "Orders"}
+                                                             {:fields       :all,
+                                                              :source-table $$products,
+                                                              :condition    [:=
+                                                                             &Orders.orders.product_id
+                                                                             &Products.products.id],
+                                                              :alias        "Products"}]},
+                                   :database (mt/id)})
                           [(mt/$ids [&Products.products.id &Products.products.title])]])])]
         (t2.with-temp/with-temp [Card model (mt/card-with-source-metadata-for-query
                                              query)]
           (testing (str "scenario: " scenario)
             (let [[pk-ref value-ref] (or field-refs
                                          (->> model :result_metadata (map :field_ref)))
-                  [error values]  (#'model-index/fetch-values {:model_id  (u/the-id model)
+                  [error values]  (#'model-index/fetch-values {:model_id  (:id model)
                                                                :pk_ref    pk-ref
                                                                :value_ref value-ref})]
               (is (nil? error))
@@ -221,7 +219,7 @@
                   (-> (mc/explain [:sequential [:tuple number? string?]] values)
                       (me/humanize))))))))))
 
-(defn- test-index!
+(defn- test-index
   "Takes a query, pk and value names so it can look up the exact field ref from the metadata. This is what the UI would
   do and ensures that items in the options map are correct."
   [{:keys [query pk-name value-name quantity subset scenario]}]
@@ -237,13 +235,13 @@
                                                     {:fields (map :name (:result_metadata model))
                                                      :field  n}))))
             model-index (mt/user-http-request :rasta :post 200 "model-index"
-                                              {:model_id  (u/the-id model)
+                                              {:model_id  (:id model)
                                                :pk_ref    (by-name pk-name)
                                                :value_ref (by-name value-name)})]
         ;; post most likely creates this, but duplicate to be sure
         (model-index/add-values! model-index)
         (is (= "indexed"
-               (t2/select-one-fn :state ModelIndex :id (u/the-id model-index))))
+               (t2/select-one-fn :state ModelIndex :id (:id model-index))))
         (is (= quantity
                (t2/count ModelIndexValue :model_index_id (:id model-index))))
         (is (set/subset? subset (t2/select-fn-set :name ModelIndexValue
@@ -253,47 +251,41 @@
 (deftest model-index-test
   (mt/dataset test-data
     (testing "Simple queries"
-      (test-index! {:query      (mt/mbql-query products)
-                    :pk-name    "id"
-                    :value-name "title"
-                    :quantity   200
-                    :subset     #{"Awesome Concrete Shoes" "Mediocre Wooden Bench"}
-                    :scenario   :simple-table}))))
-
-(deftest model-index-test-2
-  (mt/dataset test-data
+      (test-index {:query      (mt/mbql-query products)
+                   :pk-name    "id"
+                   :value-name "title"
+                   :quantity   200
+                   :subset     #{"Awesome Concrete Shoes" "Mediocre Wooden Bench"}
+                   :scenario   :simple-table}))
     (testing "With joins"
-      (test-index! {:query      (mt/mbql-query people
-                                  {:joins [{:fields       :all,
-                                            :source-table $$orders,
-                                            :condition    [:=
-                                                           [:field $people.id nil]
-                                                           [:field $orders.user_id {:join-alias "Orders"}]],
-                                            :alias        "Orders"}
-                                           {:fields       :all,
-                                            :source-table $$products,
-                                            :condition    [:=
-                                                           [:field $orders.product_id {:join-alias "Orders"}]
-                                                           [:field $products.id {:join-alias "Products"}]],
-                                            :alias        "Products"}]})
-                    :pk-name    "Products → ID"
-                    :value-name "Products → Title"
-                    :quantity   200
-                    :subset     #{"Awesome Concrete Shoes" "Mediocre Wooden Bench"}
-                    :scenario   :with-joins}))))
-
-(deftest model-index-test-3
-  (mt/dataset test-data
+      (test-index {:query      (mt/$ids
+                                 {:type     :query,
+                                  :query    {:source-table $$people,
+                                             :joins        [{:fields       :all,
+                                                             :source-table $$orders,
+                                                             :condition    [:=
+                                                                            [:field $people.id nil]
+                                                                            [:field $orders.user_id {:join-alias "Orders"}]],
+                                                             :alias        "Orders"}
+                                                            {:fields       :all,
+                                                             :source-table $$products,
+                                                             :condition    [:=
+                                                                            [:field $orders.product_id {:join-alias "Orders"}]
+                                                                            [:field $products.id {:join-alias "Products"}]],
+                                                             :alias        "Products"}]},
+                                  :database (mt/id)})
+                   :pk-name    "Products → ID"
+                   :value-name "Products → Title"
+                   :quantity   200
+                   :subset     #{"Awesome Concrete Shoes" "Mediocre Wooden Bench"}
+                   :scenario   :with-joins}))
     (testing "Native"
-      (test-index! {:query      (mt/native-query (qp.compile/compile (mt/mbql-query products)))
-                    :pk-name    "id"
-                    :value-name "title"
-                    :quantity   200
-                    :subset     #{"Awesome Concrete Shoes" "Mediocre Wooden Bench"}
-                    :scenario   :native}))))
-
-(deftest model-index-test-4
-  (mt/dataset test-data
+      (test-index {:query      (mt/native-query (qp.compile/compile (mt/mbql-query products)))
+                   :pk-name    "id"
+                   :value-name "title"
+                   :quantity   200
+                   :subset     #{"Awesome Concrete Shoes" "Mediocre Wooden Bench"}
+                   :scenario   :native}))
     (testing "Records error message on failure"
       (let [query             (mt/mbql-query products {:fields [$id $title]})
             pk-ref            (mt/$ids $products.id)
@@ -301,14 +293,14 @@
         (t2.with-temp/with-temp [Card model (assoc (mt/card-with-source-metadata-for-query query)
                                                    :type :model
                                                    :name "model index test")
-                                 ModelIndex mi {:model_id   (u/the-id model)
+                                 ModelIndex mi {:model_id   (:id model)
                                                 :pk_ref     pk-ref
                                                 :value_ref  invalid-value-ref
                                                 :creator_id (mt/user->id :rasta)
                                                 :schedule   "0 0 23 * * ? *"
                                                 :state      "initial"}]
           (model-index/add-values! mi)
-          (let [bad-attempt (t2/select-one ModelIndex :id (u/the-id mi))]
+          (let [bad-attempt (t2/select-one ModelIndex :id (:id mi))]
             (is (=? {:state "error"
                      :error #"(?s)Error executing query.*"}
                     bad-attempt))))))))

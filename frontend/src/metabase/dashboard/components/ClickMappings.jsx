@@ -2,6 +2,7 @@
 import cx from "classnames";
 import { assocIn, dissocIn, getIn } from "icepick";
 import { Component } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -9,7 +10,6 @@ import Select from "metabase/core/components/Select";
 import CS from "metabase/css/core/index.css";
 import { getParameters } from "metabase/dashboard/selectors";
 import { isPivotGroupColumn } from "metabase/lib/data_grid";
-import { connect } from "metabase/lib/redux";
 import MetabaseSettings from "metabase/lib/settings";
 import { loadMetadataForCard } from "metabase/questions/actions";
 import { getMetadata } from "metabase/selectors/metadata";
@@ -79,7 +79,7 @@ class ClickMappings extends Component {
             <p className={cx(CS.mb2, CS.textMedium)}>
               {this.getTargetsHeading(setTargets)}
             </p>
-            <div data-testid="unset-click-mappings">
+            <div>
               {unsetTargetsWithSourceOptions.map(
                 ({ target, sourceOptions }) => (
                   <TargetWithoutSource
@@ -182,9 +182,7 @@ function TargetWithoutSource({
   return (
     <Select
       key={id}
-      triggerElement={
-        <TargetTrigger data-testid="click-target-column">{name}</TargetTrigger>
-      }
+      triggerElement={<TargetTrigger>{name}</TargetTrigger>}
       value={null}
       sections={Object.entries(sourceOptions).map(([sourceType, items]) => ({
         name: {

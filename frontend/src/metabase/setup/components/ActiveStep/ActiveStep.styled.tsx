@@ -42,3 +42,8 @@ export const StepLabelText = styled.span`
   font-weight: 700;
   line-height: 1;
 `;
+
+export const StepDescription = styled.div`
+  color: var(--mb-color-text-medium);
+  margin: 0.875rem 0;
+`;

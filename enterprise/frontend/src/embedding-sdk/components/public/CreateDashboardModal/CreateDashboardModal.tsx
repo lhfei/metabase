@@ -9,19 +9,15 @@ import type { State } from "metabase-types/store";
 
 export interface CreateDashboardModalProps {
   initialCollectionId?: CollectionId | null;
-  isOpen?: boolean;
   onCreate: (dashboard: Dashboard) => void;
   onClose?: () => void;
 }
 
-const CreateDashboardModalInner = ({
-  initialCollectionId,
-  isOpen = true,
-  onCreate,
-  onClose,
-}: CreateDashboardModalProps) => {
+const CreateDashboardModalInner = (props: CreateDashboardModalProps) => {
+  const { initialCollectionId, onCreate, onClose } = props;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal onClose={onClose}>
       <CreateDashboardModalConnected
         onCreate={onCreate}
         onClose={onClose}

@@ -28,36 +28,27 @@ function renderValue(fields, formatOptions, value, options) {
   );
 }
 
-function setup(opts = {}) {
-  const onChange = jest.fn();
-  const onSearchChange = jest.fn();
-
-  render(
-    <SingleSelectListField
-      onChange={onChange}
-      onSearchChange={onSearchChange}
-      value={value}
-      options={options}
-      optionRenderer={option => renderValue(fields, formatOptions, option[0])}
-      {...opts}
-    />,
-  );
-
-  return {
-    onChange,
-    onSearchChange,
-  };
-}
-
 describe("SingleSelectListField", () => {
   it("displays search input", () => {
-    setup();
+    render(
+      <SingleSelectListField
+        value={value}
+        options={options}
+        optionRenderer={option => renderValue(fields, formatOptions, option[0])}
+      />,
+    );
 
     expect(screen.getByPlaceholderText("Find...")).toBeInTheDocument();
   });
 
   it("displays options", () => {
-    setup({ alwaysShowOptions: true });
+    render(
+      <SingleSelectListField
+        value={value}
+        options={options}
+        optionRenderer={option => renderValue(fields, formatOptions, option[0])}
+      />,
+    );
 
     expect(screen.getByText(firstOption)).toBeInTheDocument();
     expect(screen.getByText(secondOption)).toBeInTheDocument();

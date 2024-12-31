@@ -1,22 +1,17 @@
 import { PointerSensor, useSensor } from "@dnd-kit/core";
 import { useCallback } from "react";
 
-import type {
-  DragEndEvent,
-  SortableDivider,
-} from "metabase/core/components/Sortable";
+import type { DragEndEvent } from "metabase/core/components/Sortable";
 import { Sortable, SortableList } from "metabase/core/components/Sortable";
-import type { AccentColorOptions } from "metabase/lib/colors/types";
 import type { IconProps } from "metabase/ui";
 
 import { ColumnItem } from "../ColumnItem";
 
-export interface SortableItem {
+interface SortableItem {
   enabled: boolean;
   color?: string;
   icon?: IconProps["name"];
   isOther?: boolean;
-  hideSettings?: boolean;
 }
 
 interface SortableColumnFunctions<T> {
@@ -33,10 +28,6 @@ interface ChartSettingOrderedItemsProps<T extends SortableItem>
   onSortEnd: ({ id, newIndex }: DragEndEvent) => void;
   items: T[];
   getId: (item: T) => string | number;
-  removeIcon?: IconProps["name"];
-  accentColorOptions?: AccentColorOptions;
-  getItemColor?: (item: SortableItem) => string | undefined;
-  dividers?: SortableDivider[];
 }
 
 export function ChartSettingOrderedItems<T extends SortableItem>({
@@ -50,10 +41,6 @@ export function ChartSettingOrderedItems<T extends SortableItem>({
   items,
   onColorChange,
   getId,
-  removeIcon,
-  accentColorOptions,
-  getItemColor = item => item.color,
-  dividers = [],
 }: ChartSettingOrderedItemsProps<T>) {
   const isDragDisabled = items.length < 1;
   const pointerSensor = useSensor(PointerSensor, {
@@ -72,7 +59,7 @@ export function ChartSettingOrderedItems<T extends SortableItem>({
           <ColumnItem
             title={getItemName(item)}
             onEdit={
-              onEdit && !item.hideSettings
+              onEdit
                 ? (targetElement: HTMLElement) => onEdit(item, targetElement)
                 : undefined
             }
@@ -89,18 +76,15 @@ export function ChartSettingOrderedItems<T extends SortableItem>({
                 ? (color: string) => onColorChange(item, color)
                 : undefined
             }
-            color={getItemColor(item)}
+            color={item.color}
             draggable={!isDragDisabled}
             icon={item.icon}
-            removeIcon={removeIcon}
             role="listitem"
-            accentColorOptions={accentColorOptions}
           />
         </Sortable>
       ) : null,
     [
       isDragDisabled,
-      removeIcon,
       getItemName,
       onEdit,
       onRemove,
@@ -108,8 +92,6 @@ export function ChartSettingOrderedItems<T extends SortableItem>({
       onAdd,
       onEnable,
       onColorChange,
-      accentColorOptions,
-      getItemColor,
     ],
   );
 
@@ -120,7 +102,6 @@ export function ChartSettingOrderedItems<T extends SortableItem>({
       items={items}
       onSortEnd={onSortEnd}
       sensors={[pointerSensor]}
-      dividers={dividers}
     />
   );
 }

@@ -20,7 +20,7 @@ import { color } from "metabase/lib/colors";
 import { useSelector } from "metabase/lib/redux";
 import { isEmpty } from "metabase/lib/validate";
 import { getLoginPageIllustration } from "metabase/selectors/whitelabel";
-import { PulseUnsubscribeApi } from "metabase/services";
+import { SessionApi } from "metabase/services";
 import { Center, Stack, Text } from "metabase/ui";
 
 const ERRORS = {
@@ -32,7 +32,7 @@ const SUBSCRIPTION = {
   RESUBSCRIBE: "resubscribe",
 } as const;
 
-type Subscription = (typeof SUBSCRIPTION)[keyof typeof SUBSCRIPTION];
+type Subscription = typeof SUBSCRIPTION[keyof typeof SUBSCRIPTION];
 
 export const UnsubscribePage = ({
   location,
@@ -99,9 +99,7 @@ function SuccessfulUnsubscribe({
   return (
     <SuccessfulRequestWrapper
       text={jt`You've unsubscribed ${(
-        <ExternalLink key="link" href={`mailto:${email}`}>
-          {email}
-        </ExternalLink>
+        <ExternalLink href={`mailto:${email}`}>{email}</ExternalLink>
       )} from the "${alertTitle}" alert.`}
       buttonText={t`Undo`}
       action={action}
@@ -117,9 +115,7 @@ function SuccessfulResubscribe({
   return (
     <SuccessfulRequestWrapper
       text={jt`Okay, ${(
-        <ExternalLink key="link" href={`mailto:${email}`}>
-          {email}
-        </ExternalLink>
+        <ExternalLink href={`mailto:${email}`}>{email}</ExternalLink>
       )} is subscribed to the "${alertTitle}" alert again.`}
       buttonText={t`Unsubscribe`}
       action={action}
@@ -164,7 +160,7 @@ function useUnsubscribeRequest({
     }
 
     if (subscriptionChange === SUBSCRIPTION.UNSUBSCRIBE) {
-      return await PulseUnsubscribeApi.unsubscribe({
+      return await SessionApi.unsubscribe({
         hash,
         email,
         "pulse-id": pulseId,
@@ -172,7 +168,7 @@ function useUnsubscribeRequest({
     }
 
     if (subscriptionChange === SUBSCRIPTION.RESUBSCRIBE) {
-      return await PulseUnsubscribeApi.undo_unsubscribe({
+      return await SessionApi.undo_unsubscribe({
         hash,
         email,
         "pulse-id": pulseId,

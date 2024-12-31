@@ -9,21 +9,6 @@ import ButtonsS from "metabase/css/components/buttons.module.css";
 import CS from "metabase/css/core/index.css";
 import Settings from "metabase/lib/settings";
 
-const CHANNEL_MAP = {
-  email: {
-    name: "email",
-    link: "/admin/settings/email",
-  },
-  slack: {
-    name: "Slack",
-    link: "/admin/settings/notifications/slack",
-  },
-  webhook: {
-    name: "Webhook",
-    link: "/admin/settings/notifications",
-  },
-};
-
 export default class ChannelSetupMessage extends Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
@@ -31,7 +16,7 @@ export default class ChannelSetupMessage extends Component {
   };
 
   static defaultProps = {
-    channels: ["email", "Slack", "webhook"],
+    channels: ["email", "Slack"],
   };
 
   render() {
@@ -40,20 +25,16 @@ export default class ChannelSetupMessage extends Component {
     if (user.is_superuser) {
       content = (
         <div>
-          {channels.map(c => {
-            const config = CHANNEL_MAP[c.toLowerCase()];
-
-            return config ? (
-              <Link
-                to={CHANNEL_MAP[c.toLowerCase()].link}
-                key={c.toLowerCase()}
-                className={cx(ButtonsS.Button, ButtonsS.ButtonPrimary, CS.mr1)}
-                target={window.OSX ? null : "_blank"}
-              >
-                {t`Configure`} {c}
-              </Link>
-            ) : null;
-          })}
+          {channels.map(c => (
+            <Link
+              to={"/admin/settings/" + c.toLowerCase()}
+              key={c.toLowerCase()}
+              className={cx(ButtonsS.Button, ButtonsS.ButtonPrimary, CS.mr1)}
+              target={window.OSX ? null : "_blank"}
+            >
+              {t`Configure`} {c}
+            </Link>
+          ))}
         </div>
       );
     } else {

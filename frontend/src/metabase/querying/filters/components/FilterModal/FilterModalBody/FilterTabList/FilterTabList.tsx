@@ -1,7 +1,7 @@
-import type { GroupItem } from "metabase/querying/filters/types";
+import type { GroupItem } from "metabase/querying/filters/hooks/use-filter-modal";
 import { Icon, Tabs } from "metabase/ui";
 
-import S from "./FilterTabList.module.css";
+import { TabsListSidebar } from "./FilterTabList.styled";
 
 export interface FilterTabListProps {
   groupItems: GroupItem[];
@@ -9,7 +9,7 @@ export interface FilterTabListProps {
 
 export function FilterTabList({ groupItems }: FilterTabListProps) {
   return (
-    <Tabs.List className={S.TabsListSidebar} w="25%" pt="sm" pl="md">
+    <TabsListSidebar w="25%" pt="sm" pl="md">
       {groupItems.map(groupItem => (
         <Tabs.Tab
           key={groupItem.key}
@@ -20,6 +20,6 @@ export function FilterTabList({ groupItems }: FilterTabListProps) {
           {groupItem.displayName}
         </Tabs.Tab>
       ))}
-    </Tabs.List>
+    </TabsListSidebar>
   );
 }

@@ -1,9 +1,10 @@
 (ns metabase.metabot.feedback
   (:require
+   [cheshire.core :as json]
    [clj-http.client :as http]
    [metabase.analytics.snowplow :as snowplow]
-   [metabase.metabot.settings :as metabot-settings]
-   [metabase.util.json :as json]))
+   [metabase.api.common :as api]
+   [metabase.metabot.settings :as metabot-settings]))
 
 (def ^:private snowplow-keys [:entity_type :prompt_template_versions :feedback_type])
 (def ^:private feedback-keys (into snowplow-keys [:prompt :sql]))
@@ -15,7 +16,9 @@
         {:keys [status body]} (http/request
                                {:url              (metabot-settings/metabot-feedback-url)
                                 :method           :post
-                                :body             (json/encode feedback {:pretty true})
+                                :body             (json/generate-string
+                                                   feedback
+                                                   {:pretty true})
                                 :throw-exceptions false
                                 :as               :json
                                 :accept           :json
@@ -27,6 +30,7 @@
   and more detailed values in a separate endpoint."
   [feedback]
   (let [snowplow-feedback (select-keys feedback snowplow-keys)]
-    (snowplow/track-event! ::snowplow/metabot
-                           (assoc snowplow-feedback :event :metabot-feedback-received))
+    (snowplow/track-event!
+     ::snowplow/metabot-feedback-received api/*current-user-id*
+     snowplow-feedback)
     (store-detailed-feedback feedback)))

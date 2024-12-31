@@ -1,8 +1,6 @@
-import type { StoryObj } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import DeprecationNotice, {
-  type DeprecationNoticeProps,
-} from "./DeprecationNotice";
+import DeprecationNotice from "./DeprecationNotice";
 
 export default {
   title: "Admin/App/DeprecationNotice",
@@ -12,14 +10,12 @@ export default {
   },
 };
 
-export const Default: StoryObj<DeprecationNoticeProps> = {
-  render: args => {
-    return <DeprecationNotice {...args} />;
-  },
+export const Default: ComponentStory<typeof DeprecationNotice> = args => {
+  return <DeprecationNotice {...args} />;
+};
 
-  args: {
-    hasSlackBot: true,
-    hasDeprecatedDatabase: true,
-    isEnabled: true,
-  },
+Default.args = {
+  hasSlackBot: true,
+  hasDeprecatedDatabase: true,
+  isEnabled: true,
 };

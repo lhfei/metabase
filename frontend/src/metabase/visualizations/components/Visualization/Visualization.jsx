@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
 import { PureComponent } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -10,7 +11,6 @@ import ExplicitSize from "metabase/components/ExplicitSize";
 import CS from "metabase/css/core/index.css";
 import DashboardS from "metabase/css/dashboard.module.css";
 import { formatNumber } from "metabase/lib/formatting";
-import { connect } from "metabase/lib/redux";
 import { equals } from "metabase/lib/utils";
 import { getIsShowingRawTable } from "metabase/query_builder/selectors";
 import { getIsEmbeddingSdk } from "metabase/selectors/embed";
@@ -56,7 +56,6 @@ const defaultProps = {
   isSettings: false,
   isQueryBuilder: false,
   isEmbeddingSdk: false,
-  onUpdateQuestion: () => {},
   onUpdateVisualizationSettings: () => {},
   // prefer passing in a function that doesn't cause the application to reload
   onChangeLocation: location => {
@@ -245,6 +244,10 @@ class Visualization extends PureComponent {
   }
 
   visualizationIsClickable = clicked => {
+    const { onChangeCardAndRun } = this.props;
+    if (!onChangeCardAndRun) {
+      return false;
+    }
     try {
       return this.getClickActions(clicked).length > 0;
     } catch (e) {
@@ -537,7 +540,6 @@ class Visualization extends PureComponent {
               clicked={clicked}
               clickActions={regularClickActions}
               onChangeCardAndRun={this.handleOnChangeCardAndRun}
-              onUpdateQuestion={this.props.onUpdateQuestion}
               onClose={this.hideActions}
               series={series}
               onUpdateVisualizationSettings={onUpdateVisualizationSettings}

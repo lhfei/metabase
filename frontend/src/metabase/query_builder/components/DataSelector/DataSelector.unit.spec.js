@@ -113,8 +113,6 @@ describe("DataSelector", () => {
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         databases={[MULTI_SCHEMA_DATABASE, SAMPLE_DATABASE, ANOTHER_DATABASE]}
-        models={[]}
-        metrics={[]}
         metadata={metadata}
         isOpen={true}
         setSourceTableFn={setTable}
@@ -165,8 +163,6 @@ describe("DataSelector", () => {
       combineDatabaseSchemaSteps: true,
       triggerElement: <div />,
       databases: [],
-      models: [],
-      metrics: [],
       metadata: emptyMetadata,
       isOpen: true,
       fetchDatabases,
@@ -190,7 +186,7 @@ describe("DataSelector", () => {
     // on initial load, we fetch databases
     await delay(1);
     expect(fetchDatabases).toHaveBeenCalled();
-    rerender(<DataSelector {...props} allLoading />);
+    rerender(<DataSelector {...props} loading />);
     expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
 
     // select a db
@@ -233,8 +229,6 @@ describe("DataSelector", () => {
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         databases={[SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         metadata={metadata}
         isOpen={true}
       />,
@@ -251,8 +245,6 @@ describe("DataSelector", () => {
         triggerElement={<div>button</div>}
         metadata={emptyMetadata}
         databases={[]}
-        models={[]}
-        metrics={[]}
         fetchDatabases={fetchDatabases}
       />,
     );
@@ -269,8 +261,6 @@ describe("DataSelector", () => {
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         databases={[MULTI_SCHEMA_DATABASE, SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         metadata={metadata}
         isOpen={true}
       />,
@@ -290,8 +280,6 @@ describe("DataSelector", () => {
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         databases={[MULTI_SCHEMA_DATABASE, SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         metadata={metadata}
         isOpen={true}
       />,
@@ -321,8 +309,6 @@ describe("DataSelector", () => {
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         databases={[MULTI_SCHEMA_DATABASE, SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         metadata={metadata}
         isOpen={true}
       />,
@@ -354,8 +340,6 @@ describe("DataSelector", () => {
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         databases={[MULTI_SCHEMA_DATABASE, SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         metadata={metadata}
         isOpen={true}
       />,
@@ -386,8 +370,6 @@ describe("DataSelector", () => {
         steps={["SCHEMA", "TABLE", "FIELD"]}
         selectedDatabaseId={SAMPLE_DATABASE.id}
         databases={[SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         triggerElement={<div />}
         metadata={metadata}
         isOpen={true}
@@ -404,8 +386,6 @@ describe("DataSelector", () => {
         steps={["SCHEMA", "TABLE", "FIELD"]}
         selectedDatabaseId={MULTI_SCHEMA_DATABASE.id}
         databases={[MULTI_SCHEMA_DATABASE]}
-        models={[]}
-        metrics={[]}
         triggerElement={<div />}
         metadata={metadata}
         isOpen={true}
@@ -422,8 +402,6 @@ describe("DataSelector", () => {
         steps={["DATABASE"]}
         databases={[SAMPLE_DATABASE, MULTI_SCHEMA_DATABASE]}
         selectedDatabaseId={SAMPLE_DATABASE.id}
-        models={[]}
-        metrics={[]}
         triggerElement={<div />}
         metadata={metadata}
         isOpen={true}
@@ -431,7 +409,9 @@ describe("DataSelector", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Sample Database" }),
+      screen.getByText("Sample Database", {
+        selector: "[data-element-id=list-item] h4",
+      }),
     ).toBeInTheDocument();
   });
 
@@ -440,8 +420,6 @@ describe("DataSelector", () => {
       <DataSelector
         steps={["DATABASE", "SCHEMA", "TABLE"]}
         databases={[MULTI_SCHEMA_DATABASE, OTHER_MULTI_SCHEMA_DATABASE]}
-        models={[]}
-        metrics={[]}
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         metadata={metadata}
@@ -463,8 +441,6 @@ describe("DataSelector", () => {
       <DataSelector
         steps={["DATABASE", "SCHEMA", "TABLE"]}
         databases={[SAMPLE_DATABASE, ANOTHER_DATABASE]}
-        models={[]}
-        metrics={[]}
         combineDatabaseSchemaSteps
         triggerElement={<div />}
         metadata={metadata}
@@ -492,8 +468,6 @@ describe("DataSelector", () => {
       <DataSelector
         steps={["DATABASE", "SCHEMA", "TABLE"]}
         databases={[]}
-        models={[]}
-        metrics={[]}
         triggerElement={<div />}
         isOpen={true}
       />,
@@ -510,8 +484,6 @@ describe("DataSelector", () => {
         steps={["BUCKET", "DATABASE", "SCHEMA", "TABLE"]}
         combineDatabaseSchemaSteps
         databases={[SAMPLE_DATABASE, SAVED_QUESTIONS_DATABASE]}
-        models={[]}
-        metrics={[]}
         hasNestedQueriesEnabled
         hasTableSearch
         loaded
@@ -531,8 +503,6 @@ describe("DataSelector", () => {
         steps={["BUCKET", "DATABASE", "SCHEMA", "TABLE"]}
         combineDatabaseSchemaSteps
         databases={[SAMPLE_DATABASE]}
-        models={[]}
-        metrics={[]}
         hasNestedQueriesEnabled
         hasTableSearch
         loaded

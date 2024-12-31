@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "__support__/ui";
+import { fireEvent, render, screen } from "__support__/ui";
 import * as Lib from "metabase-lib";
 import { columnFinder, createQuery } from "metabase-lib/test-helpers";
 
@@ -26,13 +26,6 @@ describe("QueryColumnInfoIcon", () => {
 
     fireEvent.mouseEnter(icon);
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("Category")).toBeInTheDocument();
-      },
-      {
-        timeout: 1200,
-      },
-    );
+    expect(await screen.findByText("Category")).toBeInTheDocument();
   });
 });

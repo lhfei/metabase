@@ -89,7 +89,6 @@ export const Archived = ({
 export const SmallGenericError = ({
   message = t`Something’s gone wrong.`,
   bordered = true,
-  ...props
 }: {
   message?: string;
   bordered?: boolean;
@@ -104,7 +103,7 @@ export const SmallGenericError = ({
     : message + t` Click for more information`;
 
   return (
-    <ErrorPageRoot bordered={bordered} {...props}>
+    <ErrorPageRoot bordered={bordered}>
       <Tooltip label={tooltipMessage}>
         {isEmbedded ? (
           <Icon name="warning" size={32} color={color("text-light")} />

@@ -2,8 +2,5 @@ export * from "./Box";
 export * from "./DelayGroup";
 export * from "./Divider";
 export * from "./FocusTrap";
-export * from "./PreventEagerPortal";
 export * from "./Paper";
-export * from "./Portal";
-export * from "./Space";
 export * from "./Transition";

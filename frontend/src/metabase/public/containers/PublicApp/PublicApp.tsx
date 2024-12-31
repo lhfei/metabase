@@ -1,4 +1,5 @@
-import { connect } from "metabase/lib/redux";
+import { connect } from "react-redux";
+
 import { PublicError } from "metabase/public/components/PublicError";
 import { PublicNotFound } from "metabase/public/components/PublicNotFound";
 import { getErrorPage } from "metabase/selectors/app";

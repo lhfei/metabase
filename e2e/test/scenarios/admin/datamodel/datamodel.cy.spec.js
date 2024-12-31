@@ -1,4 +1,3 @@
-import { H } from "e2e/support";
 import {
   SAMPLE_DB_ID,
   SAMPLE_DB_SCHEMA_ID,
@@ -6,6 +5,28 @@ import {
 } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import { ORDERS_QUESTION_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  entityPickerModal,
+  entityPickerModalTab,
+  filter,
+  getNotebookStep,
+  modal,
+  openOrdersTable,
+  openReviewsTable,
+  openTable,
+  popover,
+  resetTestTable,
+  restore,
+  resyncDatabase,
+  saveQuestion,
+  startNewQuestion,
+  summarize,
+  visitAlias,
+  visitQuestion,
+  visitQuestionAdhoc,
+  withDatabase,
+} from "e2e/support/helpers";
+import { createSegment } from "e2e/support/helpers/e2e-table-metadata-helpers";
 
 const { ORDERS, ORDERS_ID, PRODUCTS, REVIEWS, REVIEWS_ID, PRODUCTS_ID } =
   SAMPLE_DATABASE;
@@ -30,7 +51,7 @@ describe("scenarios > admin > datamodel > field > field type", () => {
   function setFieldType({ oldValue, newValue } = {}) {
     getFieldType(oldValue).click();
 
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText(oldValue).closest(".ReactVirtualized__Grid").scrollTo(0, 0); // HACK: scroll to the top of the list. Ideally we should probably disable AccordionList virtualization
       searchFieldType(newValue);
       cy.findByText(newValue).click();
@@ -40,17 +61,14 @@ describe("scenarios > admin > datamodel > field > field type", () => {
   function checkNoFieldType({ oldValue, newValue } = {}) {
     getFieldType(oldValue).click();
 
-    H.popover().within(() => {
+    popover().within(() => {
       searchFieldType(newValue);
       cy.findByText(newValue).should("not.exist");
     });
   }
 
-  function searchFieldType(value) {
-    // .type() is flaky when used for ListSearchField - typed characters can
-    // sometimes get rearranged while typing.
-    // Unclear why. Possibly because it's rendered as a virtualized list item.
-    cy.findByPlaceholderText("Find...").invoke("val", value).trigger("blur");
+  function searchFieldType(type) {
+    cy.findByPlaceholderText("Find...").type(type);
   }
 
   function getFKTargetField(targetField) {
@@ -64,13 +82,13 @@ describe("scenarios > admin > datamodel > field > field type", () => {
   function setFKTargetField(field) {
     cy.findByText("Select a target").click();
 
-    H.popover().contains(field).click();
+    popover().contains(field).click();
   }
 
   beforeEach(() => {
     cy.intercept("GET", "/api/table/*/query_metadata*").as("metadata");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     ordersColumns.forEach(column => {
@@ -82,22 +100,26 @@ describe("scenarios > admin > datamodel > field > field type", () => {
     cy.intercept("PUT", "/api/field/*").as("fieldUpdate");
   });
 
-  it("should let you change the type to 'No semantic type'", () => {
-    H.visitAlias("@ORDERS_PRODUCT_ID_URL");
-    cy.wait(["@metadata", "@metadata"]);
+  it(
+    "should let you change the type to 'No semantic type'",
+    { tags: "@flaky" },
+    () => {
+      visitAlias("@ORDERS_PRODUCT_ID_URL");
+      cy.wait(["@metadata", "@metadata"]);
 
-    setFieldType({ oldValue: "Foreign Key", newValue: "No semantic type" });
+      setFieldType({ oldValue: "Foreign Key", newValue: "No semantic type" });
 
-    waitAndAssertOnResponse("fieldUpdate");
+      waitAndAssertOnResponse("fieldUpdate");
 
-    cy.reload();
-    cy.wait("@metadata");
+      cy.reload();
+      cy.wait("@metadata");
 
-    getFieldType("No semantic type");
-  });
+      getFieldType("No semantic type");
+    },
+  );
 
   it("should let you change the type to 'Foreign Key' and choose the target field", () => {
-    H.visitAlias("@ORDERS_QUANTITY_URL");
+    visitAlias("@ORDERS_QUANTITY_URL");
     cy.wait("@metadata");
 
     setFieldType({ oldValue: "Quantity", newValue: "Foreign Key" });
@@ -116,7 +138,7 @@ describe("scenarios > admin > datamodel > field > field type", () => {
   });
 
   it("should not let you change the type to 'Number' (metabase#16781)", () => {
-    H.visitAlias("@ORDERS_PRODUCT_ID_URL");
+    visitAlias("@ORDERS_PRODUCT_ID_URL");
     cy.wait(["@metadata", "@metadata"]);
 
     checkNoFieldType({ oldValue: "Foreign Key", newValue: "Number" });
@@ -125,7 +147,7 @@ describe("scenarios > admin > datamodel > field > field type", () => {
 
 describe("scenarios > admin > datamodel > field", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     ["CREATED_AT", "PRODUCT_ID", "QUANTITY"].forEach(name => {
@@ -139,10 +161,10 @@ describe("scenarios > admin > datamodel > field", () => {
   });
 
   describe("Name and Description", () => {
-    before(H.restore);
+    before(restore);
 
     it("lets you change field name and description", () => {
-      H.visitAlias("@ORDERS_CREATED_AT_URL");
+      visitAlias("@ORDERS_CREATED_AT_URL");
 
       cy.get('input[name="display_name"]').as("display_name");
       cy.get('input[name="description"]').as("description");
@@ -172,10 +194,10 @@ describe("scenarios > admin > datamodel > field", () => {
 
   describe("Formatting", () => {
     it("should allow you to change field formatting", () => {
-      H.visitAlias("@ORDERS_QUANTITY_URL");
+      visitAlias("@ORDERS_QUANTITY_URL");
       cy.findByRole("link", { name: "Formatting" }).click();
       cy.findByLabelText("Style").click();
-      H.popover().findByText("Percent").click();
+      popover().findByText("Percent").click();
       cy.wait("@fieldUpdate");
       cy.findByRole("list", { name: "undo-list" })
         .findByText("Updated Quantity")
@@ -184,10 +206,10 @@ describe("scenarios > admin > datamodel > field", () => {
   });
 
   describe("Visibility", () => {
-    before(H.restore);
+    before(restore);
 
     it("lets you change field visibility", () => {
-      H.visitAlias("@ORDERS_CREATED_AT_URL");
+      visitAlias("@ORDERS_CREATED_AT_URL");
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.contains("Everywhere").click();
@@ -202,10 +224,10 @@ describe("scenarios > admin > datamodel > field", () => {
   });
 
   describe("Filtering on this field", () => {
-    before(H.restore);
+    before(restore);
 
     it("lets you change to 'Search box'", () => {
-      H.visitAlias("@ORDERS_QUANTITY_URL");
+      visitAlias("@ORDERS_QUANTITY_URL");
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.contains("A list of all values").click();
@@ -220,10 +242,10 @@ describe("scenarios > admin > datamodel > field", () => {
   });
 
   describe("Display Values", () => {
-    before(H.restore);
+    before(restore);
 
     it("lets you change to 'Use foreign key' and change the target for field with fk", () => {
-      H.visitAlias("@ORDERS_PRODUCT_ID_URL");
+      visitAlias("@ORDERS_PRODUCT_ID_URL");
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.contains("Use original value").click();
@@ -244,10 +266,10 @@ describe("scenarios > admin > datamodel > field", () => {
       const dbId = 2;
       const remappedNullValue = "nothin";
 
-      H.restore("withSqlite");
+      restore("withSqlite");
       cy.signInAsAdmin();
 
-      H.withDatabase(
+      withDatabase(
         dbId,
         ({ NUMBER_WITH_NULLS: { NUM }, NUMBER_WITH_NULLS_ID }) => {
           cy.request("GET", `/api/database/${dbId}/schemas`).then(
@@ -265,14 +287,14 @@ describe("scenarios > admin > datamodel > field", () => {
             .closest("section")
             .findByText("Use original value")
             .click();
-          H.popover().findByText("Custom mapping").click();
+          popover().findByText("Custom mapping").click();
 
           cy.findByDisplayValue("null").clear().type(remappedNullValue);
           cy.button("Save").click();
           cy.button("Saved!").should("be.visible");
 
           cy.log("Make sure custom mapping appears in QB");
-          H.openTable({ database: dbId, table: NUMBER_WITH_NULLS_ID });
+          openTable({ database: dbId, table: NUMBER_WITH_NULLS_ID });
           cy.get("[data-testid=cell-data]").should(
             "contain",
             remappedNullValue,
@@ -292,10 +314,10 @@ describe("Unfold JSON", () => {
   }
 
   beforeEach(() => {
-    H.resetTestTable({ type: "postgres", table: "many_data_types" });
-    H.restore("postgres-writable");
+    resetTestTable({ type: "postgres", table: "many_data_types" });
+    restore("postgres-writable");
     cy.signInAsAdmin();
-    H.resyncDatabase({ dbId: WRITABLE_DB_ID, tableName: "many_data_types" });
+    resyncDatabase({ dbId: WRITABLE_DB_ID, tableName: "many_data_types" });
   });
 
   it("lets you enable/disable 'Unfold JSON' for JSON columns", () => {
@@ -315,7 +337,7 @@ describe("Unfold JSON", () => {
     });
 
     getUnfoldJsonContent().findByText(/Yes/i).click();
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText(/No/i).click();
     });
 
@@ -352,7 +374,7 @@ describe("scenarios > admin > datamodel > hidden tables (metabase#9759)", () => 
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     // Toggle the table to be hidden as admin user
@@ -376,9 +398,9 @@ describe("scenarios > admin > datamodel > hidden tables (metabase#9759)", () => 
     cy.contains("Orders").should("not.exist");
 
     // It shouldn't show in a new question data picker
-    H.startNewQuestion();
-    H.entityPickerModal().within(() => {
-      H.entityPickerModalTab("Tables").click();
+    startNewQuestion();
+    entityPickerModal().within(() => {
+      entityPickerModalTab("Tables").click();
       cy.contains("Products").should("exist");
       cy.contains("Orders").should("not.exist");
     });
@@ -394,7 +416,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.intercept("PUT", "/api/field/*").as("fieldUpdate");
@@ -405,7 +427,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
       `/admin/datamodel/database/${SAMPLE_DB_ID}/schema/${SAMPLE_DB_SCHEMA_ID}/table/${ORDERS_ID}/field/${ORDERS.PRODUCT_ID}/general`,
     ).as("ORDERS_PRODUCT_ID_URL");
 
-    H.visitAlias("@ORDERS_PRODUCT_ID_URL");
+    visitAlias("@ORDERS_PRODUCT_ID_URL");
 
     cy.findByPlaceholderText("PRODUCT_ID")
       .clear()
@@ -414,7 +436,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
 
     cy.wait("@fieldUpdate");
 
-    H.openOrdersTable({ limit: 5 });
+    openOrdersTable({ limit: 5 });
 
     cy.findAllByTestId("header-cell").should("contain", "Remapped Product ID");
   });
@@ -424,7 +446,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
       `/admin/datamodel/database/${SAMPLE_DB_ID}/schema/${SAMPLE_DB_SCHEMA_ID}/table/${ORDERS_ID}`,
     ).as("ORDERS_TABLE_URL");
 
-    H.visitAlias("@ORDERS_TABLE_URL");
+    visitAlias("@ORDERS_TABLE_URL");
 
     cy.findByDisplayValue("Product ID")
       .clear()
@@ -433,7 +455,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
 
     cy.wait("@fieldUpdate");
 
-    H.openOrdersTable({ limit: 5 });
+    openOrdersTable({ limit: 5 });
 
     cy.findAllByTestId("header-cell").should("contain", "Remapped Product ID");
   });
@@ -451,7 +473,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
     cy.findByText("Use original value").click();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Use foreign key").click();
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText("Title").click();
     });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -460,7 +482,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
     );
 
     cy.log("Name of the product should be displayed instead of its ID");
-    H.openOrdersTable();
+    openOrdersTable();
     cy.findAllByText("Awesome Concrete Shoes");
   });
 
@@ -498,7 +520,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
     cy.findByText("Save").click();
 
     cy.log("Numeric ratings should be remapped to custom strings");
-    H.openReviewsTable();
+    openReviewsTable();
     Object.values(customMap).forEach(rating => {
       cy.findAllByText(rating);
     });
@@ -541,8 +563,8 @@ describe("scenarios > admin > datamodel > metadata", () => {
       fk_target_field_id: ORDERS.CREATED_AT,
     });
 
-    H.openReviewsTable({ mode: "notebook" });
-    H.summarize({ mode: "notebook" });
+    openReviewsTable({ mode: "notebook" });
+    summarize({ mode: "notebook" });
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Count of rows").click();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -561,20 +583,20 @@ describe("scenarios > admin > datamodel > metadata", () => {
       fk_target_field_id: PRODUCTS.ID,
     });
 
-    H.openReviewsTable({ mode: "notebook" });
-    H.summarize({ mode: "notebook" });
-    H.getNotebookStep("summarize")
+    openReviewsTable({ mode: "notebook" });
+    summarize({ mode: "notebook" });
+    getNotebookStep("summarize")
       .findByText("Pick a column to group by")
       .click();
 
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findAllByTestId("dimension-list-item")
         .eq(3)
         .should("have.text", "Rating");
       cy.get("[data-element-id=list-section-header]").should("have.length", 3);
       cy.get("[data-element-id=list-section-header]")
         .eq(0)
-        .should("have.text", "Reviews");
+        .should("have.text", "Review");
       cy.get("[data-element-id=list-section-header]")
         .eq(1)
         .should("have.text", "Product");
@@ -590,16 +612,16 @@ describe("scenarios > admin > datamodel > metadata", () => {
     );
 
     openOptionsForSection("Filtering on this field");
-    H.popover().findByText("Search box").click();
+    popover().findByText("Search box").click();
 
     openOptionsForSection("Display values");
-    H.popover().findByText("Custom mapping").should("not.exist");
+    popover().findByText("Custom mapping").should("not.exist");
 
     openOptionsForSection("Filtering on this field");
-    H.popover().findByText("A list of all values").click();
+    popover().findByText("A list of all values").click();
 
     openOptionsForSection("Display values");
-    H.popover().findByText("Custom mapping");
+    popover().findByText("Custom mapping");
   });
 
   describe("column formatting options", () => {
@@ -635,7 +657,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
       });
 
       // if you change the style to currency, currency settings should appear
-      H.popover().findByText("Currency").click();
+      popover().findByText("Currency").click();
       cy.wait("@updateField");
 
       cy.findByTestId("column-settings").within(() => {
@@ -657,7 +679,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
 
       cy.wait("@updateField");
 
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           database: SAMPLE_DB_ID,
           query: {
@@ -675,7 +697,7 @@ describe("scenarios > admin > datamodel > metadata", () => {
 
 describe("scenarios > admin > datamodel > segments", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
     cy.viewport(1400, 860);
   });
@@ -691,17 +713,15 @@ describe("scenarios > admin > datamodel > segments", () => {
 
       cy.button("New segment").click();
 
-      cy.findByTestId("segment-editor").findByText("Select a table").click();
-      H.entityPickerModal().within(() => {
-        cy.findByText("Orders").click();
-      });
+      cy.findByTestId("gui-builder").findByText("Select a table").click();
+      popover().findByText("Orders").click();
 
-      cy.findByTestId("segment-editor")
+      cy.findByTestId("gui-builder")
         .findByText("Add filters to narrow your answer")
         .click();
 
       cy.log("Fails in v0.36.0 and v0.36.3. It exists in v0.35.4");
-      H.popover().findByText("Custom Expression");
+      popover().findByText("Custom Expression");
     });
 
     it("should show no segments", () => {
@@ -718,7 +738,7 @@ describe("scenarios > admin > datamodel > segments", () => {
 
     beforeEach(() => {
       // Create a segment through API
-      H.createSegment({
+      createSegment({
         name: SEGMENT_NAME,
         description: "All orders with a total under $100.",
         table_id: ORDERS_ID,
@@ -787,19 +807,17 @@ describe("scenarios > admin > datamodel > segments", () => {
       cy.findByTestId("filter-pill").should("have.text", "Orders < 100");
       cy.findAllByTestId("cell-data").should("contain", "37.65");
 
-      H.summarize();
+      summarize();
       cy.findAllByTestId("sidebar-right").button("Done").click();
       cy.findByTestId("scalar-value").should("have.text", "13,005");
-      H.saveQuestion("Foo");
+      saveQuestion("Foo");
 
       // Check list
       cy.visit("/reference/segments/1/questions");
       cy.wait(["@metadata", "@metadata", "@metadata"]);
 
       cy.get("@emptyStateMessage").should("not.exist");
-      cy.findByTestId("data-reference-list-item")
-        .findByText("Foo")
-        .should("be.visible");
+      cy.findByRole("heading", { name: "Foo" }).should("be.visible");
     });
 
     it("should update that segment", () => {
@@ -814,21 +832,24 @@ describe("scenarios > admin > datamodel > segments", () => {
         .parent()
         .find(".Icon-ellipsis")
         .click();
-      H.popover().contains("Edit Segment").click();
+      popover().contains("Edit Segment").click();
 
       // update the filter from "< 100" to "> 10"
       cy.url().should("match", /segment\/1$/);
       cy.get("label").contains("Edit Your Segment");
-      cy.findByTestId("filter-pill")
+      cy.findByTestId("filter-widget-target")
         .contains(/Total\s+is less than/)
         .click();
-      H.popover().findByLabelText("Filter operator").click();
-      H.popover().contains("Greater than").click();
-      H.popover().findByPlaceholderText("Enter a number").type("{SelectAll}10");
-      H.popover().contains("Update filter").click();
+      popover().findByTestId("operator-select").click();
+      popover().contains("Greater than").click();
+      popover()
+        .findByTestId("field-values-widget")
+        .find("input")
+        .type("{SelectAll}10");
+      popover().contains("Update filter").click();
 
       // confirm that the preview updated
-      cy.findByTestId("segment-editor").contains("18758 rows");
+      cy.findByTestId("gui-builder").contains("18758 rows");
 
       // update name and description, set a revision note, and save the update
       cy.get('[name="name"]').clear().type("Orders > 10");
@@ -851,9 +872,9 @@ describe("scenarios > admin > datamodel > segments", () => {
         .parent()
         .find(".Icon-ellipsis")
         .click();
-      H.popover().findByText("Retire Segment").click();
-      H.modal().find("textarea").type("delete it");
-      H.modal().contains("button", "Retire").click();
+      popover().findByText("Retire Segment").click();
+      modal().find("textarea").type("delete it");
+      modal().contains("button", "Retire").click();
     });
 
     it("should show segment revision history (metabase#45577, metabase#45594)", () => {
@@ -880,7 +901,7 @@ describe("scenarios > admin > datamodel > segments", () => {
         .filter(`:contains(${SEGMENT_NAME})`)
         .icon("ellipsis")
         .click();
-      H.popover().findByTextEnsureVisible("Revision History").click();
+      popover().findByTextEnsureVisible("Revision History").click();
 
       cy.location("pathname").should(
         "eq",
@@ -928,7 +949,7 @@ describe("scenarios > admin > databases > table", () => {
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -1005,8 +1026,8 @@ describe("scenarios > admin > databases > table", () => {
   describe.skip("turning table visibility off shouldn't prevent editing related question (metabase#15947)", () => {
     it("simple question (metabase#15947-1)", () => {
       turnTableVisibilityOff(ORDERS_ID);
-      H.visitQuestion(ORDERS_QUESTION_ID);
-      H.filter();
+      visitQuestion(ORDERS_QUESTION_ID);
+      filter();
     });
 
     it("question with joins (metabase#15947-2)", () => {

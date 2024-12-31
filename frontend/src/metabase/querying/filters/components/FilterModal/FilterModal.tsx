@@ -1,22 +1,25 @@
 import { Flex, Modal } from "metabase/ui";
 import type * as Lib from "metabase-lib";
-import type Question from "metabase-lib/v1/Question";
 
 import { useFilterModal } from "../../hooks/use-filter-modal";
 
-import S from "./FilterModal.module.css";
+import { ModalBody, ModalFooter, ModalHeader } from "./FilterModal.styled";
 import { FilterModalBody } from "./FilterModalBody";
 import { FilterModalFooter } from "./FilterModalFooter";
 import { FilterModalHeader } from "./FilterModalHeader";
 import { getModalTitle, getModalWidth } from "./utils";
 
 export interface FilterModalProps {
-  question: Question;
+  query: Lib.Query;
   onSubmit: (newQuery: Lib.Query) => void;
   onClose: () => void;
 }
 
-export function FilterModal({ question, onSubmit, onClose }: FilterModalProps) {
+export function FilterModal({
+  query: initialQuery,
+  onSubmit,
+  onClose,
+}: FilterModalProps) {
   const {
     query,
     version,
@@ -33,7 +36,7 @@ export function FilterModal({ question, onSubmit, onClose }: FilterModalProps) {
     handleReset,
     handleSubmit,
     handleSearch,
-  } = useFilterModal(question, onSubmit);
+  } = useFilterModal(initialQuery, onSubmit);
 
   const onSubmitFilters = () => {
     handleSubmit();
@@ -44,14 +47,14 @@ export function FilterModal({ question, onSubmit, onClose }: FilterModalProps) {
     <Modal.Root opened size={getModalWidth(groupItems)} onClose={onClose}>
       <Modal.Overlay />
       <Modal.Content>
-        <Modal.Header className={S.ModalHeader} p="lg">
+        <ModalHeader p="lg">
           <Modal.Title>{getModalTitle(groupItems)}</Modal.Title>
           <Flex mx="md" justify="end" style={{ flex: 1 }}>
             <FilterModalHeader value={searchText} onChange={handleSearch} />
           </Flex>
           <Modal.CloseButton />
-        </Modal.Header>
-        <Modal.Body className={S.ModalBody} p={0}>
+        </ModalHeader>
+        <ModalBody p={0}>
           <FilterModalBody
             groupItems={visibleItems}
             query={query}
@@ -62,20 +65,15 @@ export function FilterModal({ question, onSubmit, onClose }: FilterModalProps) {
             onInput={handleInput}
             onTabChange={setTab}
           />
-        </Modal.Body>
-        <Flex
-          className={S.ModalFooter}
-          p="md"
-          direction="row"
-          justify="space-between"
-        >
+        </ModalBody>
+        <ModalFooter p="md" direction="row" justify="space-between">
           <FilterModalFooter
             canRemoveFilters={canRemoveFilters}
             onClearFilters={handleReset}
             isChanged={isChanged}
             onApplyFilters={onSubmitFilters}
           />
-        </Flex>
+        </ModalFooter>
       </Modal.Content>
     </Modal.Root>
   );

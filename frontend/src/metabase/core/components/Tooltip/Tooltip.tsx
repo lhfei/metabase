@@ -1,11 +1,10 @@
 import * as Tippy from "@tippyjs/react";
-import cx from "classnames";
 import { useMemo } from "react";
 import * as React from "react";
 import * as ReactIs from "react-is";
 
-import { EMBEDDING_SDK_PORTAL_ROOT_ELEMENT_ID } from "embedding-sdk/config";
-import ZIndex from "metabase/css/core/z-index.module.css";
+import { EMBEDDING_SDK_ROOT_ELEMENT_ID } from "embedding-sdk/config";
+import { DEFAULT_Z_INDEX } from "metabase/components/Popover/constants";
 import { isReducedMotionPreferred } from "metabase/lib/dom";
 import { isReactDOMTypeElement } from "metabase-types/guards";
 
@@ -25,7 +24,6 @@ export interface TooltipProps
   isOpen?: boolean;
   maxWidth?: string | number | undefined;
   isPadded?: boolean;
-  className?: string;
 }
 
 // Tippy relies on child nodes forwarding refs, so when `children` is neither
@@ -51,8 +49,7 @@ function getTargetProps(
 
 function appendTo() {
   return (
-    document.getElementById(EMBEDDING_SDK_PORTAL_ROOT_ELEMENT_ID) ||
-    document.body
+    document.getElementById(EMBEDDING_SDK_ROOT_ELEMENT_ID) || document.body
   );
 }
 
@@ -71,7 +68,6 @@ function Tooltip({
   isPadded = true,
   preventOverflow = false,
   maxWidth = 300,
-  className,
 }: TooltipProps) {
   const visible = isOpen != null ? isOpen : undefined;
   const animationDuration = isReducedMotionPreferred() ? 0 : undefined;
@@ -99,14 +95,11 @@ function Tooltip({
   // Tippy theming API: https://atomiks.github.io/tippyjs/v6/themes/
   const theme = `tooltip ${isPadded ? "" : "no-padding"}`;
 
-  const zIndex = "var(--mb-overlay-z-index)" as unknown as number;
-
   if (tooltip && targetProps) {
     return (
       <TippyComponent
         theme={theme}
-        className={cx("popover", ZIndex.Overlay, className)}
-        zIndex={zIndex}
+        className="popover"
         appendTo={appendTo}
         content={tooltip}
         visible={visible}
@@ -117,6 +110,7 @@ function Tooltip({
         delay={delay}
         placement={placement}
         offset={offset}
+        zIndex={DEFAULT_Z_INDEX}
         popperOptions={popperOptions}
         {...targetProps}
       />

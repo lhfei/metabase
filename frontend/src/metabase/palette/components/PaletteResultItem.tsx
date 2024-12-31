@@ -1,16 +1,11 @@
+import { Link } from "react-router";
 import { t } from "ttag";
 
-import ExternalLink from "metabase/core/components/ExternalLink";
-import Link from "metabase/core/components/Link";
-import { PLUGIN_MODERATION } from "metabase/plugins";
+import { color } from "metabase/lib/colors";
 import { Box, Flex, Icon, Text } from "metabase/ui";
 
 import type { PaletteActionImpl } from "../types";
-import {
-  getCommandPaletteIcon,
-  isAbsoluteURL,
-  locationDescriptorToURL,
-} from "../utils";
+import { getCommandPaletteIcon } from "../utils";
 
 interface PaletteResultItemProps {
   item: PaletteActionImpl;
@@ -32,13 +27,13 @@ export const PaletteResultItem = ({ item, active }: PaletteResultItemProps) => {
       gap="0.5rem"
       fw={700}
       style={{
-        cursor: item.disabled ? "default" : "pointer",
+        cursor: item.disabled ? "default" : "cursor",
         borderRadius: "0.5rem",
         flexGrow: 1,
         flexBasis: 0,
       }}
-      bg={active ? "var(--mb-color-brand)" : undefined}
-      c={active ? "var(--mb-color-text-white)" : "var(--mb-color-text-dark)"}
+      bg={active ? color("brand") : "none"}
+      c={active ? color("text-white") : color("text-dark")}
       aria-label={item.name}
       aria-disabled={item.disabled ? true : false}
     >
@@ -71,36 +66,24 @@ export const PaletteResultItem = ({ item, active }: PaletteResultItemProps) => {
           <Text component="span" c="inherit" lh="1rem">
             {item.name}
           </Text>
-          {item.extra?.moderatedStatus && (
-            <PLUGIN_MODERATION.ModerationStatusIcon
-              status={item.extra.moderatedStatus}
-              filled
-              size={14}
-              color={
-                active ? "var(--mb-color-text-white)" : "var(--mb-color-brand)"
-              }
+          {item.extra?.isVerified && (
+            <Icon
+              name="verified_filled"
+              color={active ? color("text-white") : color("brand")}
               style={{
-                verticalAlign: "text-bottom",
+                verticalAlign: "sub",
+                marginLeft: "0.25rem",
               }}
-              ml="0.5rem"
             />
           )}
           {subtext && (
             <Text
               component="span"
               ml="0.25rem"
-              c={
-                active
-                  ? "var(--mb-color-brand-light)"
-                  : "var(--mb-color-text-light)"
-              }
+              c={active ? color("brand-light") : color("text-light")}
               fz="0.75rem"
               lh="1rem"
               fw="normal"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-              }}
             >
               — {subtext}
             </Text>
@@ -108,9 +91,7 @@ export const PaletteResultItem = ({ item, active }: PaletteResultItemProps) => {
         </Box>
         <Text
           component="span"
-          color={
-            active ? "var(--mb-color-text-white)" : "var(--mb-color-text-light)"
-          }
+          color={active ? "text-white" : "text-light"}
           fw="normal"
           style={{
             textOverflow: "ellipsis",
@@ -129,32 +110,13 @@ export const PaletteResultItem = ({ item, active }: PaletteResultItemProps) => {
       )}
     </Flex>
   );
+
   if (item.extra?.href) {
-    const url = locationDescriptorToURL(item.extra.href);
-    if (isAbsoluteURL(url)) {
-      return (
-        <Box
-          component={
-            // This is needed to make external links work when Metabase is
-            // hosted on a subpath
-            ExternalLink
-          }
-          href={url}
-          target="_blank"
-          role="link"
-          w="100%"
-          lh={1}
-        >
-          {content}
-        </Box>
-      );
-    } else {
-      return (
-        <Box component={Link} to={item.extra.href} role="link" w="100%" lh={1}>
-          {content}
-        </Box>
-      );
-    }
+    return (
+      <Box component={Link} to={item.extra.href} w="100%">
+        {content}
+      </Box>
+    );
   } else {
     return content;
   }

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Component } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -8,7 +9,6 @@ import Text from "metabase/components/type/Text";
 import Button from "metabase/core/components/Button";
 import CS from "metabase/css/core/index.css";
 import Users from "metabase/entities/users";
-import { connect } from "metabase/lib/redux";
 
 // NOTE: we have to load the list of users because /api/user/:id doesn't return deactivated users
 // but that's ok because it's probably already loaded through the people PeopleListingApp

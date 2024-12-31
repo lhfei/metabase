@@ -1,27 +1,25 @@
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders, screen } from "__support__/ui";
+
 import {
   DATE_PICKER_EXTRACTION_UNITS,
   DATE_PICKER_OPERATORS,
-} from "metabase/querying/filters/constants";
-import type {
-  DatePickerExtractionUnit,
-  DatePickerOperator,
-} from "metabase/querying/filters/types";
+} from "../constants";
+import type { DatePickerExtractionUnit, DatePickerOperator } from "../types";
 
 import { ExcludeDatePicker } from "./ExcludeDatePicker";
 
 interface SetupOpts {
-  availableOperators?: DatePickerOperator[];
-  availableUnits?: DatePickerExtractionUnit[];
-  submitButtonLabel?: string;
+  availableOperators?: ReadonlyArray<DatePickerOperator>;
+  availableUnits?: ReadonlyArray<DatePickerExtractionUnit>;
+  isNew?: boolean;
 }
 
 function setup({
   availableOperators = DATE_PICKER_OPERATORS,
   availableUnits = DATE_PICKER_EXTRACTION_UNITS,
-  submitButtonLabel = "Apply",
+  isNew = false,
 }: SetupOpts = {}) {
   const onChange = jest.fn();
   const onBack = jest.fn();
@@ -30,7 +28,7 @@ function setup({
     <ExcludeDatePicker
       availableOperators={availableOperators}
       availableUnits={availableUnits}
-      submitButtonLabel={submitButtonLabel}
+      isNew={isNew}
       onChange={onChange}
       onBack={onBack}
     />,
@@ -41,16 +39,13 @@ function setup({
 
 describe("ExcludeDatePicker", () => {
   it("should allow to exclude days", async () => {
-    const { onChange } = setup();
+    const { onChange } = setup({ isNew: true });
 
     await userEvent.click(screen.getByText("Days of the week…"));
-    await userEvent.click(screen.getByLabelText("Monday"));
-    await userEvent.click(screen.getByLabelText("Sunday"));
-    expect(screen.getByLabelText("Monday")).toBeChecked();
-    expect(screen.getByLabelText("Sunday")).toBeChecked();
-    expect(screen.getByLabelText("Tuesday")).not.toBeChecked();
+    await userEvent.click(screen.getByText("Monday"));
+    await userEvent.click(screen.getByText("Sunday"));
+    await userEvent.click(screen.getByText("Add filter"));
 
-    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
     expect(onChange).toHaveBeenCalledWith({
       type: "exclude",
       operator: "!=",
@@ -59,64 +54,29 @@ describe("ExcludeDatePicker", () => {
     });
   });
 
-  it("should allow to exclude all options", async () => {
-    const { onChange } = setup();
-
-    await userEvent.click(screen.getByText("Days of the week…"));
-    expect(screen.getByLabelText("Select all")).not.toBeChecked();
-    expect(screen.getByLabelText("Monday")).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled();
-
-    await userEvent.click(screen.getByLabelText("Select all"));
-    expect(screen.getByLabelText("Select none")).toBeChecked();
-    expect(screen.getByLabelText("Monday")).toBeChecked();
-    expect(screen.getByRole("button", { name: "Apply" })).toBeEnabled();
-
-    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
-    expect(onChange).toHaveBeenCalledWith({
-      type: "exclude",
-      operator: "!=",
-      unit: "day-of-week",
-      values: [1, 2, 3, 4, 5, 6, 7],
-    });
-  });
-
-  it("should allow to deselect all options", async () => {
-    const { onChange } = setup();
-
-    await userEvent.click(screen.getByText("Days of the week…"));
-    await userEvent.click(screen.getByLabelText("Select all"));
-    await userEvent.click(screen.getByLabelText("Select none"));
-
-    expect(screen.getByLabelText("Select all")).not.toBeChecked();
-    expect(screen.getByLabelText("Monday")).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled();
-    expect(onChange).not.toHaveBeenCalled();
-  });
-
   it("should allow to exclude months", async () => {
-    const { onChange } = setup();
+    const { onChange } = setup({ isNew: true });
 
     await userEvent.click(screen.getByText("Months of the year…"));
-    await userEvent.click(screen.getByLabelText("January"));
-    await userEvent.click(screen.getByLabelText("December"));
-    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+    await userEvent.click(screen.getByText("January"));
+    await userEvent.click(screen.getByText("December"));
+    await userEvent.click(screen.getByText("Add filter"));
 
     expect(onChange).toHaveBeenCalledWith({
       type: "exclude",
       operator: "!=",
       unit: "month-of-year",
-      values: [1, 12],
+      values: [0, 11],
     });
   });
 
   it("should allow to exclude quarters", async () => {
-    const { onChange } = setup();
+    const { onChange } = setup({ isNew: true });
 
     await userEvent.click(screen.getByText("Quarters of the year…"));
-    await userEvent.click(screen.getByLabelText("1st"));
-    await userEvent.click(screen.getByLabelText("4th"));
-    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+    await userEvent.click(screen.getByText("1st"));
+    await userEvent.click(screen.getByText("4th"));
+    await userEvent.click(screen.getByText("Add filter"));
 
     expect(onChange).toHaveBeenCalledWith({
       type: "exclude",
@@ -127,13 +87,13 @@ describe("ExcludeDatePicker", () => {
   });
 
   it("should allow to exclude hours", async () => {
-    const { onChange } = setup();
+    const { onChange } = setup({ isNew: true });
 
     await userEvent.click(screen.getByText("Hours of the day…"));
-    await userEvent.click(screen.getByLabelText("12 AM"));
-    await userEvent.click(screen.getByLabelText("2 AM"));
-    await userEvent.click(screen.getByLabelText("5 PM"));
-    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+    await userEvent.click(screen.getByText("12 AM"));
+    await userEvent.click(screen.getByText("2 AM"));
+    await userEvent.click(screen.getByText("5 PM"));
+    await userEvent.click(screen.getByText("Add filter"));
 
     expect(onChange).toHaveBeenCalledWith({
       type: "exclude",

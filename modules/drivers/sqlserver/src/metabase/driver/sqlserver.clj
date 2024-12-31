@@ -4,7 +4,6 @@
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.walk :as walk]
    [honey.sql :as sql]
    [honey.sql.helpers :as sql.helpers]
    [java-time.api :as t]
@@ -21,27 +20,18 @@
    [metabase.lib.util.match :as lib.util.match]
    [metabase.query-processor.interface :as qp.i]
    [metabase.query-processor.timezone :as qp.timezone]
-   [metabase.util :as u]
    [metabase.util.honey-sql-2 :as h2x]
    [metabase.util.log :as log])
   (:import
-   (java.sql Connection PreparedStatement ResultSet Time)
-   (java.time
-    LocalDate
-    LocalDateTime
-    LocalTime
-    OffsetDateTime
-    OffsetTime
-    ZonedDateTime)
-   (java.time.format DateTimeFormatter)
-   [java.util UUID]))
+   (java.sql Connection ResultSet Time)
+   (java.time LocalDate LocalDateTime LocalTime OffsetDateTime OffsetTime ZonedDateTime)
+   (java.time.format DateTimeFormatter)))
 
 (set! *warn-on-reflection* true)
 
 (driver/register! :sqlserver, :parent :sql-jdbc)
 
 (doseq [[feature supported?] {:case-sensitivity-string-filter-options false
-                              :uuid-type                              true
                               :convert-timezone                       true
                               :datetime-diff                          true
                               :index-info                             true
@@ -301,29 +291,19 @@
   ;; Work around this by converting the timestamps to minutes instead before calling DATEADD().
   (date-add :minute (h2x// expr 60) (h2x/literal "1970-01-01")))
 
-(defn- sanitize-contents
-  "Parsed xml may contain whitespace elements as `\"\n\n\t\t\"` in its contents. Leave only maps in content for
-  purposes of [[zone-id->windows-zone]]."
-  [parsed]
-  (walk/postwalk
-   (fn [x]
-     (if (and (map? x)
-              (contains? x :content)
-              (seq (:content x)))
-       (update x :content (partial filter map?))
-       x))
-   parsed))
-
 (defonce
   ^{:private true
     :doc     "A map of all zone-id to the corresponding windows-zone.
              I.e {\"Asia/Tokyo\" \"Tokyo Standard Time\"}"}
   zone-id->windows-zone
-  (let [parsed (-> (io/resource "timezones/windowsZones.xml")
-                   io/reader
-                   xml/parse)
-        sanitized (sanitize-contents parsed)
-        data (-> sanitized :content second :content first :content)]
+  (let [data (-> (io/resource "timezones/windowsZones.xml")
+                 io/reader
+                 xml/parse
+                 :content
+                 second
+                 :content
+                 first
+                 :content)]
     (->> (for [mapZone data
                :let [attrs       (:attrs mapZone)
                      window-zone (:other attrs)
@@ -640,10 +620,6 @@
                          args)]
         ((get-method sql.qp/->honeysql [:sql-jdbc op]) driver clause)))))
 
-(defmethod sql.qp/->honeysql [:sqlserver ::sql.qp/cast-to-text]
-  [driver [_ expr]]
-  (sql.qp/->honeysql driver [::sql.qp/cast expr "varchar(256)"]))
-
 (defmethod driver/db-default-timezone :sqlserver
   [driver database]
   (sql-jdbc.execute/do-with-connection-with-options
@@ -805,24 +781,6 @@
 (defmethod sql-jdbc.execute/set-parameter [:sqlserver OffsetTime]
   [driver ps i t]
   (sql-jdbc.execute/set-parameter driver ps i (t/local-time (t/with-offset-same-instant t (t/zone-offset 0)))))
-
-;; Azure Synapse supports the uuid data type, but it errors if you actually pass it a uuid as a parameter.
-;; Passing uuids as strings avoids that issue, and normal SQL Server also seems to be fine with this.
-(defmethod sql-jdbc.execute/set-parameter [:sqlserver UUID]
-  [_ ^PreparedStatement prepared-statement i object]
-  (.setObject prepared-statement i (str object)))
-
-(defmethod sql-jdbc.execute/read-column-thunk [:sqlserver java.sql.Types/CHAR]
-  [driver ^java.sql.ResultSet rs ^java.sql.ResultSetMetaData rsmeta ^Integer i]
-  (condp = (u/lower-case-en (.getColumnTypeName rsmeta i))
-    "uniqueidentifier"
-    (fn read-column-as-UUID []
-      (when-let [s (.getObject rs i)]
-        (try
-          (UUID/fromString s)
-          (catch IllegalArgumentException _
-            s))))
-    ((get-method sql-jdbc.execute/read-column-thunk [:sql-jdbc java.sql.Types/CHAR]) driver rs rsmeta i)))
 
 ;; instead of default `microsoft.sql.DateTimeOffset`
 (defmethod sql-jdbc.execute/read-column-thunk [:sqlserver microsoft.sql.Types/DATETIMEOFFSET]

@@ -1,17 +1,13 @@
-(ns ^:mb/driver-tests metabase.query-processor.streaming.csv-test
+(ns metabase.query-processor.streaming.csv-test
   (:require
+   [cheshire.core :as json]
    [clojure.data.csv :as csv]
-   [clojure.string :as str]
    [clojure.test :refer :all]
    [metabase.driver :as driver]
-   [metabase.models.data-permissions :as data-perms]
-   [metabase.models.permissions-group :as perms-group]
    [metabase.query-processor :as qp]
    [metabase.query-processor.streaming.interface :as qp.si]
    [metabase.test :as mt]
-   [metabase.test.data.dataset-definitions :as defs]
-   [metabase.util :as u]
-   [metabase.util.json :as json])
+   [metabase.test.data.dataset-definitions :as defs])
   (:import
    (java.io BufferedOutputStream ByteArrayOutputStream)))
 
@@ -39,11 +35,6 @@
   [_driver _feature _database]
   false)
 
-;; Oracle's DATE has a time part. It is mapped to `:type/DateTime`.
-(defmethod driver/database-supports? [:oracle ::date-columns-should-be-emitted-without-time]
-  [_driver _feature _database]
-  false)
-
 (deftest ^:parallel date-columns-should-be-emitted-without-time
   (mt/test-drivers (mt/normal-drivers-with-feature ::date-columns-should-be-emitted-without-time)
     (is (= [["1" "April 7, 2014"      "5" "12"]
@@ -52,33 +43,14 @@
             ["4" "March 11, 2014"     "5" "4"]
             ["5" "May 5, 2013"        "3" "49"]]
            (let [result (mt/user-http-request :crowberto :post 200 "dataset/csv" :query
-                                              (json/encode (mt/mbql-query checkins {:order-by [[:asc $id]], :limit 5}))
-                                              :format_rows true)]
+                                              (json/generate-string (mt/mbql-query checkins {:order-by [[:asc $id]], :limit 5})))]
              (take 5 (parse-and-sort-csv result)))))))
-
-(deftest errors-not-include-visualization-settings
-  (testing "Queries that error should not include visualization settings"
-    (mt/with-temp [:model/Card {card-id :id} {:dataset_query          (mt/mbql-query orders
-                                                                        {:order-by [[:asc $id]], :limit 5})
-                                              :visualization_settings {:column_settings {}
-                                                                       :notvisiblekey   :notvisiblevalue}}]
-      (mt/with-no-data-perms-for-all-users!
-        (data-perms/set-database-permission! (perms-group/all-users)
-                                             (u/the-id (mt/db))
-                                             :perms/create-queries :query-builder)
-        (let [results        (mt/user-http-request :rasta :post 200 (format "card/%d/query/csv" card-id))
-              results-string (str results)
-              illegal-strings ["notvisiblekey" "notvisiblevalue" "column_settings"
-                               "visualization-settings" "viz-settings"]]
-          (doseq [illegal illegal-strings]
-            (is (false? (str/includes? results-string illegal)))))))))
 
 (deftest check-an-empty-date-column
   (testing "NULL values should be written correctly"
     (mt/dataset defs/test-data-null-date
       (let [result (mt/user-http-request :crowberto :post 200 "dataset/csv" :query
-                                         (json/encode (mt/mbql-query checkins {:order-by [[:asc $id]], :limit 5}))
-                                         :format_rows true)]
+                                         (json/generate-string (mt/mbql-query checkins {:order-by [[:asc $id]], :limit 5})))]
         (is (= [["1" "April 7, 2014"      "" "5" "12"]
                 ["2" "September 18, 2014" "" "1" "31"]
                 ["3" "September 15, 2014" "" "8" "56"]
@@ -88,8 +60,7 @@
 
 (deftest datetime-fields-are-untouched-when-exported
   (let [result (mt/user-http-request :crowberto :post 200 "dataset/csv" :query
-                                     (json/encode (mt/mbql-query users {:order-by [[:asc $id]], :limit 5}))
-                                     :format_rows true)]
+                                     (json/generate-string (mt/mbql-query users {:order-by [[:asc $id]], :limit 5})))]
     (is (= [["1" "Plato Yeshua" "April 1, 2014, 8:30 AM"]
             ["2" "Felipinho Asklepios" "December 5, 2014, 3:15 PM"]
             ["3" "Kaneonuskatew Eiran" "November 6, 2014, 4:15 PM"]
@@ -101,7 +72,7 @@
   (testing "Ensure CSV longitude and latitude values are correctly exported"
     (let [result (mt/user-http-request
                   :rasta :post 200 "dataset/csv" :query
-                  (json/encode
+                  (json/generate-string
                    {:database (mt/id)
                     :type     :query
                     :query    {:source-table (mt/id :venues)
@@ -109,8 +80,7 @@
                                               [:field (mt/id :venues :longitude) {:base-type :type/Float}]
                                               [:field (mt/id :venues :latitude) {:base-type :type/Float}]]
                                :order-by     [[:asc (mt/id :venues :id)]]
-                               :limit        5}})
-                  :format_rows true)]
+                               :limit        5}}))]
       (is (= [["1" "165.37400000° W" "10.06460000° N"]
               ["2" "118.32900000° W" "34.09960000° N"]
               ["3" "118.42800000° W" "34.04060000° N"]

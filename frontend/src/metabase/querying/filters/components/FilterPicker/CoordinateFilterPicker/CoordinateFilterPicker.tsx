@@ -14,7 +14,7 @@ import { NumberFilterValuePicker } from "../../FilterValuePicker";
 import { FilterOperatorPicker } from "../FilterOperatorPicker";
 import { FilterPickerFooter } from "../FilterPickerFooter";
 import { FilterPickerHeader } from "../FilterPickerHeader";
-import { WIDTH } from "../constants";
+import { MAX_WIDTH, MIN_WIDTH } from "../constants";
 import type { FilterPickerWidgetProps } from "../types";
 
 import { CoordinateColumnPicker } from "./CoordinateColumnPicker";
@@ -55,7 +55,9 @@ export function CoordinateFilterPicker({
     filter,
   });
 
-  const handleOperatorChange = (newOperator: Lib.CoordinateFilterOperator) => {
+  const handleOperatorChange = (
+    newOperator: Lib.CoordinateFilterOperatorName,
+  ) => {
     setOperator(newOperator);
     setValues(getDefaultValues(newOperator, values));
   };
@@ -72,7 +74,8 @@ export function CoordinateFilterPicker({
   return (
     <Box
       component="form"
-      w={WIDTH}
+      miw={MIN_WIDTH}
+      maw={MAX_WIDTH}
       data-testid="coordinate-filter-picker"
       onSubmit={handleSubmit}
     >

@@ -1,21 +1,27 @@
-import { H } from "e2e/support";
+import {
+  chartPathWithFillColor,
+  echartsContainer,
+  openPeopleTable,
+  popover,
+  restore,
+  summarize,
+} from "e2e/support/helpers";
 
 import { LONGITUDE_OPTIONS } from "./shared/constants";
 
 describe("scenarios > binning > correctness > longitude", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.openPeopleTable();
-    H.summarize();
+    openPeopleTable();
+    summarize();
     openPopoverFromDefaultBucketSize("Longitude", "Auto bin");
   });
 
   Object.entries(LONGITUDE_OPTIONS).forEach(
     ([bucketSize, { selected, representativeValues }]) => {
       it(`should return correct values for ${bucketSize}`, () => {
-        H.popover().within(() => {
-          cy.findByText("More…").click();
+        popover().within(() => {
           cy.findByText(bucketSize).click();
         });
 
@@ -27,7 +33,7 @@ describe("scenarios > binning > correctness > longitude", () => {
         cy.findByText("Done").click();
 
         getTitle(`Count by Longitude: ${selected}`);
-        H.chartPathWithFillColor("#509EE3");
+        chartPathWithFillColor("#509EE3");
 
         assertOnXYAxisLabels();
         assertOnXAxisTicks(representativeValues);
@@ -36,8 +42,7 @@ describe("scenarios > binning > correctness > longitude", () => {
   );
 
   it("Don't bin", () => {
-    H.popover().within(() => {
-      cy.findByText("More…").click();
+    popover().within(() => {
       cy.findByText("Don't bin").click();
     });
 
@@ -75,13 +80,13 @@ function getTitle(title) {
 }
 
 function assertOnXYAxisLabels() {
-  H.echartsContainer().get("text").contains("Count");
-  H.echartsContainer().get("text").contains("Longitude");
+  echartsContainer().get("text").contains("Count");
+  echartsContainer().get("text").contains("Longitude");
 }
 
 function assertOnXAxisTicks(values) {
   if (values) {
-    H.echartsContainer().within(() => {
+    echartsContainer().within(() => {
       values.forEach(value => {
         cy.findByText(value);
       });

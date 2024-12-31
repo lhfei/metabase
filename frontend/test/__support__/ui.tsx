@@ -10,6 +10,7 @@ import { KBarProvider } from "kbar";
 import type * as React from "react";
 import { DragDropContextProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
+import { Provider } from "react-redux";
 import { Router, useRouterHistory } from "react-router";
 import { routerMiddleware, routerReducer } from "react-router-redux";
 import _ from "underscore";
@@ -24,7 +25,6 @@ import { createMockSdkState } from "embedding-sdk/test/mocks/state";
 import { Api } from "metabase/api";
 import { UndoListing } from "metabase/containers/UndoListing";
 import { baseStyle } from "metabase/css/core/base.styled";
-import { MetabaseReduxProvider } from "metabase/lib/redux";
 import { mainReducers } from "metabase/reducers-main";
 import { publicReducers } from "metabase/reducers-public";
 import { ThemeProvider } from "metabase/ui";
@@ -88,12 +88,6 @@ export function renderWithProviders(
       { sdk: createMockSdkState(), ...initialState },
       ...sdkReducerNames,
     ) as SdkStoreState;
-
-    // Enable the embedding_sdk premium feature by default in SDK tests, unless explicitly disabled.
-    // Without this, SDK components will not render due to missing token features.
-    if (!storeInitialState.settings && initialState.settings) {
-      initialState.settings.values["token-features"].embedding_sdk = true;
-    }
   }
 
   // We need to call `useRouterHistory` to ensure the history has a `query` object,
@@ -133,21 +127,14 @@ export function renderWithProviders(
     storeMiddleware,
   ) as unknown as Store<State>;
 
-  // Prevent spamming the console during tests
-  if (sdkProviderProps) {
-    sdkProviderProps.allowConsoleLog = false;
-  }
-
   const wrapper = (props: any) => {
     if (mode === "sdk") {
       return (
-        <MetabaseReduxProvider store={store}>
-          <MetabaseProviderInternal
-            {...props}
-            {...sdkProviderProps}
-            store={store}
-          />
-        </MetabaseReduxProvider>
+        <MetabaseProviderInternal
+          {...props}
+          {...sdkProviderProps}
+          store={store}
+        />
       );
     }
 
@@ -203,7 +190,7 @@ export function TestWrapper({
   theme?: MantineThemeOverride;
 }): JSX.Element {
   return (
-    <MetabaseReduxProvider store={store}>
+    <Provider store={store}>
       <MaybeDNDProvider hasDND={withDND}>
         <ThemeProvider theme={theme}>
           <GlobalStylesForTest />
@@ -216,7 +203,7 @@ export function TestWrapper({
           {withUndos && <UndoListing />}
         </ThemeProvider>
       </MaybeDNDProvider>
-    </MetabaseReduxProvider>
+    </Provider>
   );
 }
 

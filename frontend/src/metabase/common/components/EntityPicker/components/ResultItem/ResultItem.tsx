@@ -5,12 +5,27 @@ import { color } from "metabase/lib/colors";
 import { humanize, titleize } from "metabase/lib/formatting";
 import { getIcon } from "metabase/lib/icon";
 import { getName } from "metabase/lib/name";
-import { PLUGIN_MODERATION } from "metabase/plugins";
 import { FixedSizeIcon, Flex, Tooltip } from "metabase/ui";
+import type { SearchResult } from "metabase-types/api";
 
-import type { SearchItem } from "../../types";
+import { ENTITY_PICKER_Z_INDEX } from "../EntityPickerModal";
 
 import { ChunkyListItem } from "./ResultItem.styled";
+
+export type ResultItemType = Pick<SearchResult, "model" | "name"> &
+  Partial<
+    Pick<
+      SearchResult,
+      | "id"
+      | "collection"
+      | "description"
+      | "collection_authority_level"
+      | "moderated_status"
+      | "display"
+      | "database_name"
+      | "table_schema"
+    >
+  >;
 
 export const ResultItem = ({
   item,
@@ -18,7 +33,7 @@ export const ResultItem = ({
   isSelected,
   isLast,
 }: {
-  item: SearchItem;
+  item: ResultItemType;
   onClick: () => void;
   isSelected?: boolean;
   isLast?: boolean;
@@ -46,13 +61,13 @@ export const ResultItem = ({
         <Ellipsified style={{ fontWeight: "bold" }}>
           {getName(item)}
         </Ellipsified>
-        <PLUGIN_MODERATION.ModerationStatusIcon
-          status={item.moderated_status}
-          filled
-          size={14}
-        />
         {item.description && (
-          <Tooltip maw="20rem" multiline label={item.description}>
+          <Tooltip
+            maw="20rem"
+            multiline
+            label={item.description}
+            zIndex={ENTITY_PICKER_Z_INDEX}
+          >
             <FixedSizeIcon color="brand" name="info" />
           </Tooltip>
         )}
@@ -76,7 +91,7 @@ export const ResultItem = ({
   );
 };
 
-function getParentInfo(item: SearchItem) {
+function getParentInfo(item: ResultItemType) {
   if (item.model === "table") {
     const icon = getIcon({ model: "database" }).name;
     const databaseName = item.database_name ?? t`Database`;
@@ -97,13 +112,6 @@ function getParentInfo(item: SearchItem) {
   if (item.model === "collection" && item?.collection?.id === item?.id) {
     // some APIs return collection items with themselves populated as their own parent 🥴
     return null;
-  }
-
-  if (item.dashboard) {
-    return {
-      icon: getIcon({ model: "dashboard", ...item.dashboard }).name,
-      name: getName(item.dashboard),
-    };
   }
 
   if (!item.collection) {

@@ -1,4 +1,4 @@
-import type { CSSProperties, ChangeEvent, FocusEvent } from "react";
+import type { ChangeEvent, FocusEvent } from "react";
 import { useMemo, useState } from "react";
 import { t } from "ttag";
 
@@ -9,13 +9,12 @@ import {
   Stack,
   Text,
   TextInput,
-  useMantineTheme,
 } from "metabase/ui";
 import type { FieldValue } from "metabase-types/api";
 
 import { getEffectiveOptions, getFieldOptions } from "../utils";
 
-import S from "./ListValuePicker.module.css";
+import { ColumnGrid } from "./ListValuePicker.styled";
 import { LONG_OPTION_LENGTH, MAX_INLINE_OPTIONS } from "./constants";
 import { searchOptions } from "./utils";
 
@@ -52,33 +51,15 @@ function CheckboxListPicker({
 }: ListValuePickerProps) {
   const [searchValue, setSearchValue] = useState("");
   const [elevatedValues] = useState(selectedValues);
-  const availableOptions = getEffectiveOptions(
+  const options = getEffectiveOptions(
     fieldValues,
     selectedValues,
     elevatedValues,
   );
-  const filteredOptions = searchOptions(availableOptions, searchValue);
-  const selectedValuesSet = new Set(selectedValues);
-  const selectedFilteredOptions = filteredOptions.filter(option =>
-    selectedValuesSet.has(option.value),
-  );
-  const isAll = selectedFilteredOptions.length === filteredOptions.length;
-  const isNone = selectedFilteredOptions.length === 0;
+  const visibleOptions = searchOptions(options, searchValue);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.currentTarget.value);
-  };
-
-  const handleToggleAll = () => {
-    const newSelectedValuesSet = new Set(selectedValues);
-    filteredOptions.forEach(option => {
-      if (isAll) {
-        newSelectedValuesSet.delete(option.value);
-      } else {
-        newSelectedValuesSet.add(option.value);
-      }
-    });
-    onChange(Array.from(newSelectedValuesSet));
   };
 
   return (
@@ -87,46 +68,28 @@ function CheckboxListPicker({
         value={searchValue}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        icon={<Icon name="search" c="text-light" />}
         onChange={handleInputChange}
       />
-      {filteredOptions.length > 0 ? (
-        <Stack>
-          <Checkbox
-            variant="stacked"
-            label={getToggleAllLabel(searchValue, isAll)}
-            checked={isAll}
-            indeterminate={!isAll && !isNone}
-            onChange={handleToggleAll}
-          />
-          <Checkbox.Group value={selectedValues} onChange={onChange}>
-            <Stack>
-              {filteredOptions.map(option => (
-                <Checkbox
-                  key={option.value}
-                  value={option.value}
-                  label={option.label}
-                />
-              ))}
-            </Stack>
-          </Checkbox.Group>
-        </Stack>
-      ) : (
-        <Stack c="text-light" justify="center" align="center">
-          <Icon name="search" size={40} />
-          <Text c="text-medium" fw="bold">{t`Didn't find anything`}</Text>
-        </Stack>
-      )}
+      <Checkbox.Group value={selectedValues} onChange={onChange}>
+        {visibleOptions.length > 0 ? (
+          <Stack>
+            {visibleOptions.map(option => (
+              <Checkbox
+                key={option.value}
+                value={option.value}
+                label={option.label}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <Stack c="text-light" justify="center" align="center">
+            <Icon name="search" size={40} />
+            <Text c="text-medium" fw="bold">{t`Didn't find anything`}</Text>
+          </Stack>
+        )}
+      </Checkbox.Group>
     </Stack>
   );
-}
-
-function getToggleAllLabel(searchValue: string, isAll: boolean) {
-  if (isAll) {
-    return t`Select none`;
-  } else {
-    return searchValue ? t`Select these` : t`Select all`;
-  }
 }
 
 function CheckboxGridPicker({
@@ -140,19 +103,10 @@ function CheckboxGridPicker({
   );
   const cols = hasLongOptions ? 1 : 2;
   const rows = Math.ceil(options.length / cols);
-  const theme = useMantineTheme();
 
   return (
     <Checkbox.Group value={selectedValues} onChange={onChange}>
-      <div
-        className={S.ColumnGrid}
-        style={
-          {
-            "--column-grid-rows": rows,
-            "--column-grid-gap": theme.spacing.md,
-          } as CSSProperties
-        }
-      >
+      <ColumnGrid rows={rows}>
         {options.map(option => (
           <Checkbox
             key={option.value}
@@ -160,7 +114,7 @@ function CheckboxGridPicker({
             label={option.label}
           />
         ))}
-      </div>
+      </ColumnGrid>
     </Checkbox.Group>
   );
 }

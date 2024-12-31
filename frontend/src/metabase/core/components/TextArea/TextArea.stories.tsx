@@ -1,16 +1,14 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import TextArea, { type TextAreaProps } from "./TextArea";
+import TextArea from "./TextArea";
 
 export default {
   title: "Core/Text Area",
   component: TextArea,
 };
 
-const Template: StoryFn<TextAreaProps> = args => {
+const Template: ComponentStory<typeof TextArea> = args => {
   return <TextArea {...args} />;
 };
 
-export const Default = {
-  render: Template,
-};
+export const Default = Template.bind({});

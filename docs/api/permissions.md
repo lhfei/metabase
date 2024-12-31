@@ -118,9 +118,7 @@ You must be a superuser to do this.
 
 ### PARAMS:
 
--  **`skip-graph`** nullable value must be a valid boolean string ('true' or 'false').
-
--  **`force`** nullable value must be a valid boolean string ('true' or 'false').
+-  **`skip-graph`** nullable boolean.
 
 -  **`body`** map.
 

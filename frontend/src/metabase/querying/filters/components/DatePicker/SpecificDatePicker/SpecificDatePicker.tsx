@@ -1,20 +1,16 @@
 import { useMemo, useState } from "react";
 
-import type {
-  DatePickerOperator,
-  DatePickerUnit,
-  SpecificDatePickerValue,
-} from "metabase/querying/filters/types";
 import { Divider, Flex, PopoverBackButton, Tabs } from "metabase/ui";
+
+import type { DatePickerOperator, SpecificDatePickerValue } from "../types";
 
 import { DateRangePicker, type DateRangePickerValue } from "./DateRangePicker";
 import {
   SingleDatePicker,
   type SingleDatePickerValue,
 } from "./SingleDatePicker";
-import S from "./SpecificDatePicker.modules.css";
+import { TabList } from "./SpecificDatePicker.styled";
 import {
-  canSetTime,
   coerceValue,
   getDate,
   getDefaultValue,
@@ -27,9 +23,8 @@ import {
 
 interface SpecificDatePickerProps {
   value?: SpecificDatePickerValue;
-  availableOperators: DatePickerOperator[];
-  availableUnits: DatePickerUnit[];
-  submitButtonLabel: string;
+  availableOperators: ReadonlyArray<DatePickerOperator>;
+  isNew: boolean;
   onChange: (value: SpecificDatePickerValue) => void;
   onBack: () => void;
 }
@@ -37,14 +32,15 @@ interface SpecificDatePickerProps {
 export function SpecificDatePicker({
   value: initialValue,
   availableOperators,
-  availableUnits,
-  submitButtonLabel,
+  isNew,
   onChange,
   onBack,
 }: SpecificDatePickerProps) {
-  const tabs = useMemo(() => getTabs(availableOperators), [availableOperators]);
+  const tabs = useMemo(() => {
+    return getTabs(availableOperators);
+  }, [availableOperators]);
+
   const [value, setValue] = useState(() => initialValue ?? getDefaultValue());
-  const hasTimeToggle = canSetTime(value, availableUnits);
 
   const handleTabChange = (tabValue: string | null) => {
     const tab = tabs.find(tab => tab.operator === tabValue);
@@ -72,13 +68,13 @@ export function SpecificDatePicker({
     <Tabs value={value.operator} onTabChange={handleTabChange}>
       <Flex>
         <PopoverBackButton p="sm" onClick={onBack} />
-        <Tabs.List className={S.TabList}>
+        <TabList>
           {tabs.map(tab => (
             <Tabs.Tab key={tab.operator} value={tab.operator}>
               {tab.label}
             </Tabs.Tab>
           ))}
-        </Tabs.List>
+        </TabList>
       </Flex>
       <Divider />
       {tabs.map(tab => (
@@ -86,16 +82,14 @@ export function SpecificDatePicker({
           {isDateRange(value.values) ? (
             <DateRangePicker
               value={{ dateRange: value.values, hasTime: value.hasTime }}
-              submitButtonLabel={submitButtonLabel}
-              hasTimeToggle={hasTimeToggle}
+              isNew={isNew}
               onChange={handleDateRangeChange}
               onSubmit={handleSubmit}
             />
           ) : (
             <SingleDatePicker
               value={{ date: getDate(value), hasTime: value.hasTime }}
-              submitButtonLabel={submitButtonLabel}
-              hasTimeToggle={hasTimeToggle}
+              isNew={isNew}
               onChange={handleDateChange}
               onSubmit={handleSubmit}
             />

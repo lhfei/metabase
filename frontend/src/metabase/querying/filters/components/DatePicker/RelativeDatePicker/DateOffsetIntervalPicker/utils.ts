@@ -1,14 +1,14 @@
 import { t } from "ttag";
 
-import type {
-  DatePickerTruncationUnit,
-  DatePickerUnit,
-  RelativeIntervalDirection,
-} from "metabase/querying/filters/types";
 import * as Lib from "metabase-lib";
 
+import { DATE_PICKER_TRUNCATION_UNITS } from "../../constants";
+import type {
+  DatePickerTruncationUnit,
+  RelativeIntervalDirection,
+} from "../../types";
 import type { DateIntervalValue, DateOffsetIntervalValue } from "../types";
-import { getAvailableTruncationUnits, getDirection } from "../utils";
+import { getDirection } from "../utils";
 
 export function getDirectionText(value: DateOffsetIntervalValue): string {
   const direction = getDirection(value);
@@ -51,20 +51,16 @@ export function removeOffset(
   return { ...value, offsetValue: undefined, offsetUnit: undefined };
 }
 
-export function getOffsetUnitOptions(
-  value: DateOffsetIntervalValue,
-  availableUnits: DatePickerUnit[],
-) {
-  const truncationUnits = getAvailableTruncationUnits(availableUnits);
+export function getOffsetUnitOptions(value: DateOffsetIntervalValue) {
   const direction = getDirection(value);
-  const unitIndex = truncationUnits.indexOf(value.unit);
+  const unitIndex = DATE_PICKER_TRUNCATION_UNITS.indexOf(value.unit);
 
-  return truncationUnits
-    .filter((_, index) => index >= unitIndex)
-    .map(unit => ({
-      value: unit,
-      label: getOffsetUnitText(unit, direction, value.offsetValue),
-    }));
+  return DATE_PICKER_TRUNCATION_UNITS.filter(
+    (_, index) => index >= unitIndex,
+  ).map(unit => ({
+    value: unit,
+    label: getOffsetUnitText(unit, direction, value.offsetValue),
+  }));
 }
 
 function getOffsetUnitText(

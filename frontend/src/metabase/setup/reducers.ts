@@ -17,33 +17,15 @@ import {
   updateTracking,
 } from "./actions";
 
-const getUserFromQueryParams = () => {
-  const params = new URLSearchParams(window.location.search);
-  const getParam = (key: string, defaultValue = "") =>
-    params.get(key) || defaultValue;
-
-  return {
-    first_name: getParam("first_name") || null,
-    last_name: getParam("last_name") || null,
-    email: getParam("email"),
-    site_name: getParam("site_name"),
-    password: "",
-    password_confirm: "",
-  };
-};
-
 const initialState: SetupState = {
   step: "welcome",
   isLocaleLoaded: false,
   isTrackingAllowed: true,
-  user: getUserFromQueryParams(),
 };
 
 export const reducer = createReducer(initialState, builder => {
   builder.addCase(loadUserDefaults.fulfilled, (state, { payload: user }) => {
-    if (user) {
-      state.user = user;
-    }
+    state.user = user;
   });
   builder.addCase(
     loadLocaleDefaults.fulfilled,

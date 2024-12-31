@@ -1,18 +1,13 @@
 import { PERSONAL_COLLECTIONS } from "metabase/entities/collections/constants";
 import type {
   CollectionId,
-  CollectionItemModel,
   ListCollectionItemsRequest,
 } from "metabase-types/api";
 
 import type { PickerState } from "../EntityPicker";
 import type { QuestionPickerItem } from "../QuestionPicker";
 
-import type {
-  CollectionPickerItem,
-  CollectionPickerModel,
-  CollectionPickerStatePath,
-} from "./types";
+import type { CollectionPickerItem } from "./types";
 
 export const getCollectionIdPath = (
   collection: Pick<
@@ -20,6 +15,7 @@ export const getCollectionIdPath = (
     "id" | "location" | "is_personal" | "effective_location"
   >,
   userPersonalCollectionId?: CollectionId,
+  isPersonal?: boolean,
 ): CollectionId[] => {
   if (collection.id === null || collection.id === "root") {
     return ["root"];
@@ -43,10 +39,10 @@ export const getCollectionIdPath = (
     (collection.id === userPersonalCollectionId ||
       pathFromRoot.includes(userPersonalCollectionId));
 
-  if (isInUserPersonalCollection) {
-    return [...pathFromRoot, collection.id];
-  } else if (collection.is_personal) {
+  if (isPersonal) {
     return ["personal", ...pathFromRoot, collection.id];
+  } else if (isInUserPersonalCollection) {
+    return [...pathFromRoot, collection.id];
   } else {
     return ["root", ...pathFromRoot, collection.id];
   }
@@ -55,12 +51,10 @@ export const getCollectionIdPath = (
 export const getStateFromIdPath = ({
   idPath,
   namespace,
-  models,
 }: {
   idPath: CollectionId[];
   namespace?: "snippets";
-  models: CollectionPickerModel[];
-}): CollectionPickerStatePath => {
+}): PickerState<CollectionPickerItem, ListCollectionItemsRequest> => {
   const statePath: PickerState<
     CollectionPickerItem,
     ListCollectionItemsRequest
@@ -82,7 +76,7 @@ export const getStateFromIdPath = ({
     statePath.push({
       query: {
         id,
-        models,
+        models: ["collection"],
         namespace,
       },
       selectedItem: nextLevelId
@@ -100,14 +94,11 @@ export const getStateFromIdPath = ({
   return statePath;
 };
 
-export const isFolderFactory =
-  (models: CollectionItemModel[]) =>
-  (item: CollectionPickerItem): boolean => {
-    return Boolean(
-      item.model === "collection" &&
-        models.some(model => item?.here?.includes(model)),
-    );
-  };
+export const isFolder = (item: CollectionPickerItem): boolean => {
+  return Boolean(
+    item.model === "collection" && item?.here?.includes("collection"),
+  );
+};
 
 export const getParentCollectionId = (
   location?: string | null,

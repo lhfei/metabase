@@ -1,6 +1,13 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  getBinningButtonForDimension,
+  openTable,
+  popover,
+  restore,
+  summarize,
+  visitQuestionAdhoc,
+} from "e2e/support/helpers";
 
 const { ORDERS_ID, ORDERS, PEOPLE_ID, PEOPLE, PRODUCTS_ID, PRODUCTS } =
   SAMPLE_DATABASE;
@@ -80,9 +87,6 @@ const LONGITUDE_BUCKETS = [
   "Bin every 1 degree",
   "Bin every 10 degrees",
   "Bin every 20 degrees",
-  "Bin every 0.05 degrees",
-  "Bin every 0.01 degrees",
-  "Bin every 0.005 degrees",
   "Don't bin",
 ];
 
@@ -98,7 +102,7 @@ const LONGITUDE_BUCKETS = [
 describe("scenarios > binning > binning options", () => {
   beforeEach(() => {
     cy.intercept("POST", "/api/dataset").as("dataset");
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -128,11 +132,7 @@ describe("scenarios > binning > binning options", () => {
       getTitle("Count by Longitude: Auto binned");
 
       openBinningListForDimension("Longitude", "Auto binned");
-      getAllOptions({
-        options: LONGITUDE_BUCKETS,
-        isSelected: "Auto bin",
-        shouldExpandList: true,
-      });
+      getAllOptions({ options: LONGITUDE_BUCKETS, isSelected: "Auto bin" });
     });
   });
 
@@ -186,18 +186,14 @@ describe("scenarios > binning > binning options", () => {
       cy.findByText("Longitude: Auto binned").click();
       openBinningListForDimension("Longitude", "Auto binned");
 
-      getAllOptions({
-        options: LONGITUDE_BUCKETS,
-        isSelected: "Auto bin",
-        shouldExpandList: true,
-      });
+      getAllOptions({ options: LONGITUDE_BUCKETS, isSelected: "Auto bin" });
     });
   });
 
   context("via time series footer (metabase#11183)", () => {
     // TODO: enable again when metabase#35546 is completed
     it.skip("should render time series binning options correctly", () => {
-      H.openTable({ table: ORDERS_ID });
+      openTable({ table: ORDERS_ID });
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Created At").click();
@@ -282,8 +278,8 @@ describe("scenarios > binning > binning options", () => {
 });
 
 function chooseInitialBinningOption({ table, column, mode = null } = {}) {
-  H.openTable({ table, mode });
-  H.summarize({ mode });
+  openTable({ table, mode });
+  summarize({ mode });
 
   if (mode === "notebook") {
     cy.findByText("Count of rows").click();
@@ -298,9 +294,9 @@ function chooseInitialBinningOptionForExplicitJoin({
   baseTableQuery,
   column,
 } = {}) {
-  H.visitQuestionAdhoc({ dataset_query: baseTableQuery });
+  visitQuestionAdhoc({ dataset_query: baseTableQuery });
 
-  H.summarize();
+  summarize();
 
   cy.findByTestId("sidebar-right").within(() => {
     cy.findByText("Count"); // Test fails without this because of some weird race condition
@@ -309,7 +305,7 @@ function chooseInitialBinningOptionForExplicitJoin({
 }
 
 function openBinningListForDimension(column, binning) {
-  H.getBinningButtonForDimension({ name: column, isSelected: true })
+  getBinningButtonForDimension({ name: column, isSelected: true })
     .should("contain", binning)
     .click();
 }
@@ -325,7 +321,7 @@ function getAllOptions({ options, isSelected, shouldExpandList } = {}) {
   // Custom question has two popovers open.
   // The binning options are in the latest (last) one.
   // Using `.last()` works even when only one popover is open so it covers both scenarios.
-  H.popover()
+  popover()
     .last()
     .within(() => {
       if (shouldExpandList) {

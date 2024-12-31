@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
 import { Component } from "react";
+import { connect } from "react-redux";
 import { t } from "ttag";
 import _ from "underscore";
 
@@ -11,7 +12,6 @@ import Link from "metabase/core/components/Link";
 import AdminS from "metabase/css/admin.module.css";
 import CS from "metabase/css/core/index.css";
 import Segments from "metabase/entities/segments";
-import { connect } from "metabase/lib/redux";
 
 class SegmentListAppInner extends Component {
   render() {

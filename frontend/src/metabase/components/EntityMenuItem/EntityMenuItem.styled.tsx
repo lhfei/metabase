@@ -2,15 +2,16 @@ import styled from "@emotion/styled";
 import { Link } from "react-router";
 
 import ExternalLink from "metabase/core/components/ExternalLink";
-import { color } from "metabase/lib/colors";
+import { alpha, color } from "metabase/lib/colors";
 import type { ColorName } from "metabase/lib/colors/types";
 import { Icon } from "metabase/ui";
 
-interface MenuItemProps {
+export interface MenuItemProps {
   color?: ColorName;
   hoverColor?: ColorName;
   hoverBgColor?: ColorName;
   disabled?: boolean;
+  isSelected?: boolean;
 }
 
 export const MenuItemContent = styled.div<MenuItemProps>`
@@ -22,6 +23,8 @@ export const MenuItemContent = styled.div<MenuItemProps>`
     color(props.disabled ? "text-light" : props.color || "text-dark")};
   padding: 0.85em 1.45em;
   text-decoration: none;
+  background-color: ${props =>
+    props.isSelected ? alpha("brand", 0.2) : "unset"};
 
   :hover {
     color: ${props => color((!props.disabled && props.hoverColor) || "brand")};

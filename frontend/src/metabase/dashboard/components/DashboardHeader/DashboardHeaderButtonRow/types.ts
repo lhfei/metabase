@@ -31,7 +31,6 @@ export type HeaderButtonProps = {
   formInput: any;
   isAdmin: boolean;
   isEmbeddingSdk: boolean;
-  openSettingsSidebar: () => void;
 } & DashboardHeaderButtonRowProps;
 
 export type DashboardActionButton = {

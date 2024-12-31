@@ -41,7 +41,6 @@ export type BaseSeriesModel = {
   name: string;
   color: string;
   dataKey: DataKey;
-  visible: boolean;
   column: DatasetColumn;
   columnIndex: number;
 };
@@ -234,9 +233,6 @@ export type BaseCartesianChartModel = {
 
   trendLinesModel?: TrendLinesModel;
   seriesLabelsFormatters: SeriesFormatters;
-
-  // For `graph.max_categories` setting
-  groupedSeriesModels?: SeriesModel[];
 };
 
 export type CartesianChartModel = BaseCartesianChartModel & {

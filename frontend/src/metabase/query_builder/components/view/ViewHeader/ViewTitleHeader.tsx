@@ -1,4 +1,3 @@
-import cx from "classnames";
 import type React from "react";
 import { useEffect } from "react";
 import { usePrevious } from "react-use";
@@ -10,9 +9,7 @@ import type Question from "metabase-lib/v1/Question";
 import type { Dataset } from "metabase-types/api";
 import type { DatasetEditorTab, QueryBuilderMode } from "metabase-types/store";
 
-import ViewSection from "../ViewSection";
-
-import ViewTitleHeaderS from "./ViewTitleHeader.module.css";
+import { ViewHeaderContainer } from "./ViewTitleHeader.styled";
 import {
   AdHocQuestionLeftSide,
   DashboardBackButton,
@@ -62,11 +59,13 @@ interface ViewTitleHeaderProps {
       datasetEditorTab?: DatasetEditorTab;
     },
   ) => void;
+  turnModelIntoQuestion: () => void;
   areFiltersExpanded: boolean;
   onExpandFilters: () => void;
   onCollapseFilters: () => void;
   isShowingQuestionInfoSidebar: boolean;
   onCloseQuestionInfo: () => void;
+  onModelPersistenceChange: () => void;
 
   updateQuestion: (question: Question, opts: { run: boolean }) => void;
 
@@ -100,8 +99,10 @@ export function ViewTitleHeader({
   onEditSummary,
   onCloseSummary,
   setQueryBuilderMode,
+  turnModelIntoQuestion,
   isShowingQuestionInfoSidebar,
   onCloseQuestionInfo,
+  onModelPersistenceChange,
   className,
   style,
 }: ViewTitleHeaderProps): React.JSX.Element {
@@ -147,14 +148,14 @@ export function ViewTitleHeader({
 
   return (
     <>
-      <ViewSection
-        className={cx(ViewTitleHeaderS.ViewHeaderContainer, className, {
-          [ViewTitleHeaderS.isNavBarOpen]: isNavBarOpen,
-        })}
+      <ViewHeaderContainer
+        className={className}
         style={style}
         data-testid="qb-header"
+        isNavBarOpen={isNavBarOpen}
       >
-        <DashboardBackButton mr="sm" />
+        <DashboardBackButton />
+
         {isSaved ? (
           <SavedQuestionLeftSide
             question={question}
@@ -191,10 +192,12 @@ export function ViewTitleHeader({
           onEditSummary={onEditSummary}
           onCloseSummary={onCloseSummary}
           setQueryBuilderMode={setQueryBuilderMode}
+          turnModelIntoQuestion={turnModelIntoQuestion}
           toggleBookmark={toggleBookmark}
           onOpenQuestionInfo={onOpenQuestionInfo}
           onCloseQuestionInfo={onCloseQuestionInfo}
           isShowingQuestionInfoSidebar={isShowingQuestionInfoSidebar}
+          onModelPersistenceChange={onModelPersistenceChange}
           isObjectDetail={isObjectDetail}
           isSaved={isSaved}
           isModelOrMetric={isModelOrMetric}
@@ -202,7 +205,7 @@ export function ViewTitleHeader({
           onExpandFilters={expandFilters}
           onCollapseFilters={collapseFilters}
         />
-      </ViewSection>
+      </ViewHeaderContainer>
 
       {QuestionFiltersHeader.shouldRender({
         question,

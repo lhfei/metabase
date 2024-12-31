@@ -14,13 +14,11 @@ describe("metabase-lib/v1/expressions/compiler", () => {
       expect(expr("42")).toEqual(42);
       expect(expr("'Universe'")).toEqual("Universe");
     });
-
     /// TODO: Fix w/ some type info
     it("should compile dimensions", () => {
       expect(expr("[Price]")).toEqual(["dimension", "Price"]);
       expect(expr("([X])")).toEqual(["dimension", "X"]);
     });
-
     it("should compile arithmetic operations", () => {
       expect(expr("1+2")).toEqual(["+", 1, 2]);
       expect(expr("3-4")).toEqual(["-", 3, 4]);
@@ -28,7 +26,6 @@ describe("metabase-lib/v1/expressions/compiler", () => {
       expect(expr("7/8")).toEqual(["/", 7, 8]);
       expect(expr("-(1+2)")).toEqual(["-", ["+", 1, 2]]);
     });
-
     it("should compile comparisons", () => {
       expect(expr("1<2")).toEqual(["<", 1, 2]);
       expect(expr("3>4")).toEqual([">", 3, 4]);
@@ -37,7 +34,6 @@ describe("metabase-lib/v1/expressions/compiler", () => {
       expect(expr("9=9")).toEqual(["=", 9, 9]);
       expect(expr("9!=0")).toEqual(["!=", 9, 0]);
     });
-
     it("should logical operators", () => {
       expect(expr("7 or 8")).toEqual(["or", 7, 8]);
       expect(expr("7 and 8")).toEqual(["and", 7, 8]);
@@ -47,7 +43,6 @@ describe("metabase-lib/v1/expressions/compiler", () => {
         ["and", 7, ["dimension", "Size"]],
       ]);
     });
-
     it("should handle parenthesized expression", () => {
       expect(expr("(42)")).toEqual(42);
       expect(expr("-42")).toEqual(-42);

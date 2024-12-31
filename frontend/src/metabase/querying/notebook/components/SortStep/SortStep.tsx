@@ -8,7 +8,7 @@ import * as Lib from "metabase-lib";
 import type { NotebookStepProps } from "../../types";
 import { ClauseStep } from "../ClauseStep";
 
-import S from "./SortStep.module.css";
+import { SortDirectionButton } from "./SortStep.styled";
 
 export function SortStep({
   query,
@@ -166,8 +166,7 @@ function SortDisplayName({
 }: SortDisplayNameProps) {
   const icon = displayInfo.direction === "asc" ? "arrow_up" : "arrow_down";
   return (
-    <button
-      className={S.SortDirectionButton}
+    <SortDirectionButton
       aria-label={t`Change direction`}
       onClick={event => {
         event.stopPropagation();
@@ -176,6 +175,6 @@ function SortDisplayName({
     >
       <Icon name={icon} />
       <span>{displayInfo.longDisplayName}</span>
-    </button>
+    </SortDirectionButton>
   );
 }

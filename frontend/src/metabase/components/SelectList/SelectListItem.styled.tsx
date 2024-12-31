@@ -1,10 +1,11 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
+import Label from "metabase/components/type/Label";
 import { color } from "metabase/lib/colors";
-import { Icon, Text, type TextProps } from "metabase/ui";
+import { Icon } from "metabase/ui";
 
-export const ItemTitle = styled(Text)<TextProps>`
+export const ItemTitle = styled(Label)`
   margin: 0;
   word-break: break-word;
 `;

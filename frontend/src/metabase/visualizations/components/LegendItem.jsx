@@ -4,14 +4,14 @@ import PropTypes from "prop-types";
 import { Component } from "react";
 
 import { Ellipsified } from "metabase/core/components/Ellipsified";
+import Tooltip from "metabase/core/components/Tooltip";
 import CS from "metabase/css/core/index.css";
 import DashboardS from "metabase/css/dashboard.module.css";
 import EmbedFrameS from "metabase/public/components/EmbedFrame/EmbedFrame.module.css";
-import { Icon, Tooltip } from "metabase/ui";
+import { Icon } from "metabase/ui";
 
 import LegendS from "./Legend.module.css";
 import { IconContainer } from "./LegendItem.styled";
-import { LegendItemDot } from "./legend/LegendItemDot";
 
 const propTypes = {
   icon: PropTypes.object,
@@ -26,7 +26,6 @@ export default class LegendItem extends Component {
   static defaultProps = {
     showDot: true,
     showTitle: true,
-    isVisible: true,
     isMuted: false,
     showTooltip: true,
     showDotTooltip: true,
@@ -39,7 +38,6 @@ export default class LegendItem extends Component {
       icon,
       showDot,
       showTitle,
-      isVisible,
       isMuted,
       showTooltip,
       showDotTooltip,
@@ -49,7 +47,6 @@ export default class LegendItem extends Component {
       description,
       onClick,
       infoClassName,
-      onToggleSeriesVisibility,
     } = this.props;
 
     return (
@@ -73,7 +70,6 @@ export default class LegendItem extends Component {
         style={{
           overflowX: "hidden",
           flex: "0 1 auto",
-          paddingLeft: showDot ? "4px" : "0",
         }}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -85,23 +81,21 @@ export default class LegendItem extends Component {
           </IconContainer>
         )}
         {showDot && (
-          <Tooltip
-            label={title}
-            disabled={!showTooltip || !showDotTooltip}
-            arrowPosition="center"
-          >
-            <LegendItemDot
-              color={color}
-              isVisible={isVisible}
-              onClick={onToggleSeriesVisibility}
+          <Tooltip tooltip={title} isEnabled={showTooltip && showDotTooltip}>
+            <div
+              className={cx(CS.flexNoShrink, CS.inlineBlock, CS.circular)}
+              style={{
+                width: 13,
+                height: 13,
+                margin: 4,
+                marginRight: 8,
+                backgroundColor: color,
+              }}
             />
           </Tooltip>
         )}
         {showTitle && (
-          <div
-            className={cx(CS.flex, CS.alignCenter, CS.overflowHidden)}
-            style={showDot && { marginLeft: "4px" }}
-          >
+          <div className={cx(CS.flex, CS.alignCenter, CS.overflowHidden)}>
             <Ellipsified showTooltip={showTooltip}>{title}</Ellipsified>
             {description && (
               <div

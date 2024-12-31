@@ -1,7 +1,17 @@
 import moment from "moment-timezone"; // eslint-disable-line no-restricted-imports -- deprecated usage
 
-import { H } from "e2e/support";
 import { USER_GROUPS, WRITABLE_DB_ID } from "e2e/support/cypress_data";
+import {
+  createImplicitActions,
+  createModelFromTableName,
+  popover,
+  resetTestTable,
+  restore,
+  resyncDatabase,
+  undoToastList,
+  visitDashboard,
+  visitModel,
+} from "e2e/support/helpers";
 
 const WRITABLE_TEST_TABLE = "scoreboard_actions";
 const FIRST_SCORE_ROW_ID = 11;
@@ -27,8 +37,8 @@ describe(
         "prefetchValues",
       );
 
-      H.resetTestTable({ type: "postgres", table: WRITABLE_TEST_TABLE });
-      H.restore("postgres-writable");
+      resetTestTable({ type: "postgres", table: WRITABLE_TEST_TABLE });
+      restore("postgres-writable");
       asAdmin(() => {
         cy.updatePermissionsGraph({
           [ALL_USERS_GROUP]: {
@@ -39,12 +49,12 @@ describe(
           },
         });
 
-        H.resyncDatabase({
+        resyncDatabase({
           dbId: WRITABLE_DB_ID,
           tableName: WRITABLE_TEST_TABLE,
         });
 
-        H.createModelFromTableName({
+        createModelFromTableName({
           tableName: WRITABLE_TEST_TABLE,
           idAlias: "modelId",
         });
@@ -55,7 +65,7 @@ describe(
       beforeEach(() => {
         asAdmin(() => {
           cy.get("@modelId").then(modelId => {
-            H.createImplicitActions({ modelId });
+            createImplicitActions({ modelId });
 
             cy.createQuestionAndDashboard({
               questionDetails: {
@@ -76,7 +86,7 @@ describe(
 
       it("does not show model actions in model visualization on a dashboard", () => {
         asAdmin(() => {
-          H.visitDashboard("@dashboardId");
+          visitDashboard("@dashboardId");
 
           cy.findByTestId("dashcard").within(() => {
             assertActionsDropdownNotExists();
@@ -115,7 +125,7 @@ describe(
               });
 
               asAdmin(() => {
-                H.createImplicitActions({ modelId });
+                createImplicitActions({ modelId });
               });
 
               permissionFn(() => {
@@ -192,7 +202,7 @@ describe(
       cy.signInAsAdmin();
 
       cy.get("@modelId").then(modelId => {
-        H.createImplicitActions({ modelId });
+        createImplicitActions({ modelId });
         visitObjectDetail(modelId, FIRST_SCORE_ROW_ID);
         openUpdateObjectModal();
       });
@@ -231,7 +241,7 @@ function asNormalUser(callback) {
 }
 
 function visitObjectDetail(modelId, objectId) {
-  H.visitModel(modelId);
+  visitModel(modelId);
   cy.get("main").findByText("Loading...").should("not.exist");
   cy.findByTestId("TableInteractive-root").findByText(objectId).click();
 }
@@ -242,12 +252,12 @@ function openObjectDetailModal(objectId) {
 
 function openUpdateObjectModal() {
   cy.findByTestId("actions-menu").click();
-  H.popover().findByText("Update").should("be.visible").click();
+  popover().findByText("Update").should("be.visible").click();
 }
 
 function openDeleteObjectModal() {
   cy.findByTestId("actions-menu").click();
-  H.popover().findByText("Delete").should("be.visible").click();
+  popover().findByText("Delete").should("be.visible").click();
 }
 
 function assertActionsDropdownExists() {
@@ -301,7 +311,7 @@ function assertUpdatedScoreNotInTable() {
 
 function assertSuccessfullUpdateToast() {
   cy.log("it shows a toast informing the update was successful");
-  H.undoToastList()
+  undoToastList()
     .last()
     .should("be.visible")
     .should("have.attr", "color", "success")
@@ -310,7 +320,7 @@ function assertSuccessfullUpdateToast() {
 
 function assertSuccessfullDeleteToast() {
   cy.log("it shows a toast informing the delete was successful");
-  H.undoToastList()
+  undoToastList()
     .last()
     .should("be.visible")
     .should("have.attr", "color", "success")

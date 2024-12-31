@@ -1,7 +1,28 @@
-import { H } from "e2e/support";
-import { SAMPLE_DB_ID, WRITABLE_DB_ID } from "e2e/support/cypress_data";
+import { WRITABLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import { ORDERS_QUESTION_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  addOrUpdateDashboardCard,
+  assertDescendantNotOverflowsContainer,
+  assertIsEllipsified,
+  assertIsNotEllipsified,
+  createQuestion,
+  cypressWaitAll,
+  echartsContainer,
+  editDashboard,
+  getDashboardCard,
+  openNavigationSidebar,
+  pieSlices,
+  popover,
+  queryBuilderHeader,
+  resetTestTable,
+  restore,
+  resyncDatabase,
+  saveDashboard,
+  showDashboardCardActions,
+  sidebar,
+  visitDashboard,
+} from "e2e/support/helpers";
 import { createMockParameter } from "metabase-types/api/mocks";
 
 const { ORDERS, ORDERS_ID, REVIEWS, PRODUCTS, PRODUCTS_ID, REVIEWS_ID } =
@@ -9,7 +30,7 @@ const { ORDERS, ORDERS_ID, REVIEWS, PRODUCTS, PRODUCTS_ID, REVIEWS_ID } =
 
 describe("issue 18067", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -19,10 +40,10 @@ describe("issue 18067", () => {
     () => {
       const dialect = "mysql";
       const TEST_TABLE = "many_data_types";
-      H.resetTestTable({ type: dialect, table: TEST_TABLE });
-      H.restore(`${dialect}-writable`);
+      resetTestTable({ type: dialect, table: TEST_TABLE });
+      restore(`${dialect}-writable`);
       cy.signInAsAdmin();
-      H.resyncDatabase({
+      resyncDatabase({
         dbId: WRITABLE_DB_ID,
         tableName: TEST_TABLE,
         tableAlias: "testTable",
@@ -41,17 +62,17 @@ describe("issue 18067", () => {
           dashboardDetails,
           questionDetails,
         }).then(({ body: { dashboard_id } }) => {
-          H.visitDashboard(dashboard_id);
+          visitDashboard(dashboard_id);
         });
       });
 
-      H.editDashboard();
+      editDashboard();
 
       cy.log('Select "click behavior" option');
-      H.showDashboardCardActions();
+      showDashboardCardActions();
       cy.findByTestId("dashboardcard-actions-panel").icon("click").click();
 
-      H.sidebar().within(() => {
+      sidebar().within(() => {
         cy.findByText("Boolean").scrollIntoView().click();
         cy.contains("Click behavior for Boolean").should("be.visible");
       });
@@ -61,7 +82,7 @@ describe("issue 18067", () => {
 
 describe("issue 15993", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -76,7 +97,7 @@ describe("issue 15993", () => {
         ({ body: { id: nativeId } }) => {
           cy.createDashboard().then(({ body: { id: dashboardId } }) => {
             // Add native question to the dashboard
-            H.addOrUpdateDashboardCard({
+            addOrUpdateDashboardCard({
               dashboard_id: dashboardId,
               card_id: nativeId,
               card: {
@@ -84,7 +105,7 @@ describe("issue 15993", () => {
                 visualization_settings: getVisualizationSettings(question1Id),
               },
             });
-            H.visitDashboard(dashboardId);
+            visitDashboard(dashboardId);
           });
         },
       );
@@ -129,12 +150,8 @@ describe("issue 15993", () => {
 
 describe("issue 16334", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    cy.intercept("POST", "/api/dataset").as("dataset");
-    cy.intercept("POST", "/api/dashboard/*/dashcard/*/card/*/query").as(
-      "dashcardQuery",
-    );
   });
 
   it("should not change the visualization type in a targetted question with mapped filter (metabase#16334)", () => {
@@ -145,7 +162,7 @@ describe("issue 16334", () => {
       },
     };
 
-    H.createQuestion({
+    cy.createQuestion({
       name: "16334",
       query: {
         "source-table": PRODUCTS_ID,
@@ -154,9 +171,9 @@ describe("issue 16334", () => {
       },
       display: "pie",
     }).then(({ body: { id: question1Id } }) => {
-      H.createQuestionAndDashboard({ questionDetails }).then(
+      cy.createQuestionAndDashboard({ questionDetails }).then(
         ({ body: { id, card_id, dashboard_id } }) => {
-          H.addOrUpdateDashboardCard({
+          addOrUpdateDashboardCard({
             dashboard_id,
             card_id,
             card: {
@@ -165,26 +182,23 @@ describe("issue 16334", () => {
             },
           });
 
-          H.visitDashboard(dashboard_id);
-          cy.wait("@dashcardQuery");
+          visitDashboard(dashboard_id);
         },
       );
     });
 
     cy.findAllByTestId("cell-data").contains("5").first().click();
-    cy.wait("@dataset");
 
     // Make sure filter is set
-    cy.findByTestId("qb-filters-panel").should(
-      "contain.text",
-      "Rating is equal to 5",
-    );
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.findByText("Rating is equal to 5");
 
     // Make sure it's connected to the original question
-    cy.findByTestId("app-bar").should("contain.text", "Started from 16334");
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.contains("Started from 16334");
 
     // Make sure the original visualization didn't change
-    H.pieSlices().should("have.length", 2);
+    pieSlices().should("have.length", 2);
 
     const getVisualizationSettings = targetId => ({
       column_settings: {
@@ -192,28 +206,19 @@ describe("issue 16334", () => {
           click_behavior: {
             targetId,
             parameterMapping: {
-              [`["dimension",["field",${PRODUCTS.RATING},null],{"stage-number":0}]`]:
-                {
-                  source: {
-                    type: "column",
-                    id: "RATING",
-                    name: "Rating",
-                  },
-                  target: {
-                    type: "dimension",
-                    id: [
-                      `["dimension",["field",${PRODUCTS.RATING},null],{"stage-number":0}]`,
-                    ],
-                    dimension: [
-                      "dimension",
-                      ["field", PRODUCTS.RATING, null],
-                      { "stage-number": 0 },
-                    ],
-                  },
-                  id: [
-                    `["dimension",["field",${PRODUCTS.RATING},null],{"stage-number":0}]`,
-                  ],
+              [`["dimension",["field",${PRODUCTS.RATING},null]]`]: {
+                source: {
+                  type: "column",
+                  id: "RATING",
+                  name: "Rating",
                 },
+                target: {
+                  type: "dimension",
+                  id: [`["dimension",["field",${PRODUCTS.RATING},null]]`],
+                  dimension: ["dimension", ["field", PRODUCTS.RATING, null]],
+                },
+                id: [`["dimension",["field",${PRODUCTS.RATING},null]]`],
+              },
             },
             linkType: "question",
             type: "link",
@@ -267,7 +272,7 @@ describe("issue 17160", () => {
           cy.wrap(dashboardId).as("sourceDashboardId");
 
           // Add the question to the dashboard
-          H.addOrUpdateDashboardCard({
+          addOrUpdateDashboardCard({
             dashboard_id: dashboardId,
             card_id: questionId,
           }).then(({ body: { id: dashCardId } }) => {
@@ -429,7 +434,7 @@ describe("issue 17160", () => {
 
   function visitSourceDashboard() {
     cy.get("@sourceDashboardId").then(id => {
-      H.visitDashboard(id);
+      visitDashboard(id);
     });
   }
 
@@ -444,7 +449,7 @@ describe("issue 17160", () => {
   beforeEach(() => {
     cy.intercept("POST", "/api/card/*/query").as("cardQuery");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -524,12 +529,12 @@ describe("issue 18454", () => {
   };
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.createQuestionAndDashboard({ questionDetails }).then(
       ({ body: { id, card_id, dashboard_id } }) => {
-        H.visitDashboard(dashboard_id);
+        visitDashboard(dashboard_id);
       },
     );
   });
@@ -613,7 +618,7 @@ describe("adding an additional series to a dashcard (metabase#20637)", () => {
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -632,7 +637,7 @@ describe("adding an additional series to a dashcard (metabase#20637)", () => {
     cy.wait("@additionalSeriesCardQuery");
 
     cy.findByTestId("add-series-modal").button("Done").click();
-    H.saveDashboard();
+    saveDashboard();
 
     // refresh the page and make sure the dashcard query endpoint was used
     cy.reload();
@@ -658,7 +663,7 @@ describe("issue 22265", () => {
   };
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.intercept("GET", "/api/card/*/series?limit=*").as("seriesQuery");
@@ -685,11 +690,11 @@ describe("issue 22265", () => {
         });
 
         cy.wrap(dashboard_id).as("dashboardId");
-        H.visitDashboard(dashboard_id);
+        visitDashboard(dashboard_id);
       },
     );
 
-    H.editDashboard();
+    editDashboard();
     cy.findByTestId("add-series-button").click({ force: true });
     cy.wait("@seriesQuery");
 
@@ -717,8 +722,8 @@ describe("issue 22265", () => {
       cy.request("PUT", `/api/card/${invalidQuestionId}`, questionDetailUpdate);
     });
 
-    H.visitDashboard("@dashboardId");
-    H.editDashboard();
+    visitDashboard("@dashboardId");
+    editDashboard();
     cy.findByTestId("add-series-button").click({ force: true });
     cy.wait("@seriesQuery");
 
@@ -747,7 +752,7 @@ describe("issue 23137", () => {
   };
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
     cy.intercept("POST", "/api/card/*/query").as("cardQuery");
   });
@@ -758,7 +763,7 @@ describe("issue 23137", () => {
     cy.createQuestionAndDashboard({
       questionDetails: GAUGE_QUESTION_DETAILS,
     }).then(({ body: { id, card_id, dashboard_id } }) => {
-      H.addOrUpdateDashboardCard({
+      addOrUpdateDashboardCard({
         card_id,
         dashboard_id,
         card: {
@@ -774,12 +779,12 @@ describe("issue 23137", () => {
         },
       });
 
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
     cy.findByTestId("gauge-arc-1").click();
     cy.wait("@cardQuery");
-    H.queryBuilderHeader().findByDisplayValue("Orders").should("be.visible");
+    queryBuilderHeader().findByDisplayValue("Orders").should("be.visible");
   });
 
   it("should navigate to a target from a progress card (metabase#23137)", () => {
@@ -788,7 +793,7 @@ describe("issue 23137", () => {
     cy.createQuestionAndDashboard({
       questionDetails: PROGRESS_QUESTION_DETAILS,
     }).then(({ body: { id, card_id, dashboard_id } }) => {
-      H.addOrUpdateDashboardCard({
+      addOrUpdateDashboardCard({
         card_id,
         dashboard_id,
         card: {
@@ -804,12 +809,12 @@ describe("issue 23137", () => {
         },
       });
 
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
     cy.findByTestId("progress-bar").click();
     cy.wait("@cardQuery");
-    H.queryBuilderHeader().findByDisplayValue("Orders").should("be.visible");
+    queryBuilderHeader().findByDisplayValue("Orders").should("be.visible");
   });
 });
 
@@ -856,7 +861,7 @@ describe("issues 27020 and 27105: static-viz fails to render for certain date fo
   }
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -864,9 +869,11 @@ describe("issues 27020 and 27105: static-viz fails to render for certain date fo
     // This is currently the default setting, anyway.
     // But we want to explicitly set it in case something changes in the future,
     // because it is a crucial step for this reproduction.
-    H.updateSetting("custom-formatting", {
-      "type/Temporal": {
-        date_style: "MMMM D, YYYY",
+    cy.request("PUT", "/api/setting/custom-formatting", {
+      value: {
+        "type/Temporal": {
+          date_style: "MMMM D, YYYY",
+        },
       },
     });
 
@@ -934,7 +941,7 @@ describe("issue 29304", () => {
 
   describe("display: scalar", () => {
     beforeEach(() => {
-      H.restore();
+      restore();
       cy.signInAsAdmin();
       cy.intercept("api/dashboard/*/dashcard/*/card/*/query").as(
         "getDashcardQuery",
@@ -1074,7 +1081,7 @@ describe("issue 31628", () => {
 
   const setupDashboardWithQuestionInCards = (question, cards) => {
     cy.createDashboard().then(({ body: dashboard }) => {
-      H.cypressWaitAll(
+      cypressWaitAll(
         cards.map(card => {
           return cy.createQuestionAndAddToDashboard(
             question,
@@ -1084,22 +1091,20 @@ describe("issue 31628", () => {
         }),
       );
 
-      H.visitDashboard(dashboard.id);
+      visitDashboard(dashboard.id);
     });
   };
 
   const assertDescendantsNotOverflowDashcards = descendantsSelector => {
-    cy.findAllByTestId("dashcard").should(dashcards => {
-      dashcards.each((dashcardIndex, dashcard) => {
-        const descendants = dashcard.querySelectorAll(descendantsSelector);
+    cy.findAllByTestId("dashcard").each((dashcard, dashcardIndex) => {
+      const descendants = dashcard.find(descendantsSelector);
 
-        descendants.forEach(descendant => {
-          H.assertDescendantNotOverflowsContainer(
-            descendant,
-            dashcard,
-            `dashcard[${dashcardIndex}] [data-testid="${descendant.dataset.testid}"]`,
-          );
-        });
+      descendants.each((_descendantIndex, descendant) => {
+        assertDescendantNotOverflowsContainer(
+          descendant,
+          dashcard[0],
+          `dashcard[${dashcardIndex}] [data-testid="${descendant.dataset.testid}"]`,
+        );
       });
     });
   };
@@ -1117,14 +1122,14 @@ describe("issue 31628", () => {
 
         describe(`${width}x${height} - ${sidebar} - ${name}`, () => {
           beforeEach(() => {
-            H.restore();
+            restore();
             cy.viewport(width, height);
             cy.signInAsAdmin();
             setupDashboardWithQuestionInCards(SCALAR_QUESTION, cards);
 
             if (openSidebar) {
               cy.wait(100);
-              H.openNavigationSidebar();
+              openNavigationSidebar();
             }
           });
 
@@ -1137,7 +1142,7 @@ describe("issue 31628", () => {
 
     describe("1x2 card", () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
         setupDashboardWithQuestionInCards(SCALAR_QUESTION, [
           { size_x: 1, size_y: 2, row: 0, col: 0 },
@@ -1150,7 +1155,7 @@ describe("issue 31628", () => {
          */
         const scalarContainer = cy.findByTestId("scalar-container");
 
-        scalarContainer.then($element => H.assertIsEllipsified($element[0]));
+        scalarContainer.then($element => assertIsEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip").findByText("18,760").should("exist");
@@ -1173,7 +1178,7 @@ describe("issue 31628", () => {
 
     describe("2x2 card", () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
         setupDashboardWithQuestionInCards(SCALAR_QUESTION, [
           { size_x: 2, size_y: 2, row: 0, col: 0 },
@@ -1186,7 +1191,7 @@ describe("issue 31628", () => {
          */
         const scalarContainer = cy.findByTestId("scalar-container");
 
-        scalarContainer.then($element => H.assertIsNotEllipsified($element[0]));
+        scalarContainer.then($element => assertIsNotEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip").should("not.exist");
@@ -1201,7 +1206,7 @@ describe("issue 31628", () => {
          */
         const scalarTitle = cy.findByTestId("scalar-title");
 
-        scalarTitle.then($element => H.assertIsEllipsified($element[0]));
+        scalarTitle.then($element => assertIsEllipsified($element[0]));
         scalarTitle.realHover();
 
         cy.findByRole("tooltip")
@@ -1221,7 +1226,7 @@ describe("issue 31628", () => {
 
     describe("5x3 card", () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
         setupDashboardWithQuestionInCards(SCALAR_QUESTION, [
           { size_x: 6, size_y: 3, row: 0, col: 0 },
@@ -1234,7 +1239,7 @@ describe("issue 31628", () => {
          */
         const scalarContainer = cy.findByTestId("scalar-container");
 
-        scalarContainer.then($element => H.assertIsNotEllipsified($element[0]));
+        scalarContainer.then($element => assertIsNotEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip").should("not.exist");
@@ -1249,7 +1254,7 @@ describe("issue 31628", () => {
          */
         const scalarTitle = cy.findByTestId("scalar-title");
 
-        scalarTitle.then($element => H.assertIsNotEllipsified($element[0]));
+        scalarTitle.then($element => assertIsNotEllipsified($element[0]));
         scalarTitle.realHover();
 
         cy.findByRole("tooltip").should("not.exist");
@@ -1259,7 +1264,7 @@ describe("issue 31628", () => {
          */
         cy.findByTestId("scalar-description").realHover();
 
-        H.popover().findByText(SCALAR_QUESTION.description).should("exist");
+        popover().findByText(SCALAR_QUESTION.description).should("exist");
       });
     });
   });
@@ -1277,13 +1282,13 @@ describe("issue 31628", () => {
 
         describe(`${width}x${height} - ${sidebar} - ${name}`, () => {
           beforeEach(() => {
-            H.restore();
+            restore();
             cy.viewport(width, height);
             cy.signInAsAdmin();
             setupDashboardWithQuestionInCards(SMART_SCALAR_QUESTION, cards);
 
             if (openSidebar) {
-              H.openNavigationSidebar();
+              openNavigationSidebar();
             }
           });
 
@@ -1296,7 +1301,7 @@ describe("issue 31628", () => {
 
     describe("2x2 card", () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
         setupDashboardWithQuestionInCards(SMART_SCALAR_QUESTION, [
           { size_x: 2, size_y: 2, row: 0, col: 0 },
@@ -1309,7 +1314,7 @@ describe("issue 31628", () => {
          */
         const scalarContainer = cy.findByTestId("scalar-container");
 
-        scalarContainer.then($element => H.assertIsNotEllipsified($element[0]));
+        scalarContainer.then($element => assertIsNotEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip").should("not.exist");
@@ -1324,7 +1329,7 @@ describe("issue 31628", () => {
          */
         const scalarTitle = cy.findByTestId("legend-caption-title");
 
-        scalarTitle.then($element => H.assertIsEllipsified($element[0]));
+        scalarTitle.then($element => assertIsEllipsified($element[0]));
         scalarTitle.realHover();
 
         cy.findByRole("tooltip")
@@ -1349,7 +1354,7 @@ describe("issue 31628", () => {
         previousValue.within(() => {
           cy.contains("34.7%").should("exist");
           cy.contains("• vs. previous month: 527").should("not.exist");
-          previousValue.then($element => H.assertIsNotEllipsified($element[0]));
+          previousValue.then($element => assertIsNotEllipsified($element[0]));
         });
       });
 
@@ -1362,7 +1367,7 @@ describe("issue 31628", () => {
           cy.contains("34.7%").should("exist");
           cy.contains("34.72%").should("not.exist");
           cy.contains("• vs. previous month: 527").should("not.exist");
-          previousValue.then($element => H.assertIsNotEllipsified($element[0]));
+          previousValue.then($element => assertIsNotEllipsified($element[0]));
         });
       });
 
@@ -1375,7 +1380,7 @@ describe("issue 31628", () => {
           cy.contains("35%").should("exist");
           cy.contains("34.72%").should("not.exist");
           cy.contains("• vs. previous month: 527").should("not.exist");
-          previousValue.then($element => H.assertIsNotEllipsified($element[0]));
+          previousValue.then($element => assertIsNotEllipsified($element[0]));
         });
       });
 
@@ -1386,13 +1391,13 @@ describe("issue 31628", () => {
 
         previousValue
           .findByText("35%")
-          .then($element => H.assertIsEllipsified($element[0]));
+          .then($element => assertIsEllipsified($element[0]));
       });
     });
 
     describe("7x3 card", () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
         setupDashboardWithQuestionInCards(SMART_SCALAR_QUESTION, [
           { size_x: 7, size_y: 3, row: 0, col: 0 },
@@ -1405,7 +1410,7 @@ describe("issue 31628", () => {
          */
         let scalarContainer = cy.findByTestId("scalar-container");
 
-        scalarContainer.then($element => H.assertIsNotEllipsified($element[0]));
+        scalarContainer.then($element => assertIsNotEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip").should("not.exist");
@@ -1420,7 +1425,7 @@ describe("issue 31628", () => {
          */
         scalarContainer = cy.findByTestId("legend-caption-title");
 
-        scalarContainer.then($element => H.assertIsEllipsified($element[0]));
+        scalarContainer.then($element => assertIsEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip")
@@ -1444,7 +1449,7 @@ describe("issue 31628", () => {
         previousValue.within(() => {
           cy.contains("34.72%").should("exist");
           cy.contains("• vs. previous month: 527").should("exist");
-          previousValue.then($element => H.assertIsNotEllipsified($element[0]));
+          previousValue.then($element => assertIsNotEllipsified($element[0]));
         });
 
         /**
@@ -1458,7 +1463,7 @@ describe("issue 31628", () => {
 
     describe("7x4 card", () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
         setupDashboardWithQuestionInCards(SMART_SCALAR_QUESTION, [
           { size_x: 7, size_y: 4, row: 0, col: 0 },
@@ -1471,7 +1476,7 @@ describe("issue 31628", () => {
          */
         let scalarContainer = cy.findByTestId("scalar-container");
 
-        scalarContainer.then($element => H.assertIsNotEllipsified($element[0]));
+        scalarContainer.then($element => assertIsNotEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip").should("not.exist");
@@ -1486,7 +1491,7 @@ describe("issue 31628", () => {
          */
         scalarContainer = cy.findByTestId("legend-caption-title");
 
-        scalarContainer.then($element => H.assertIsEllipsified($element[0]));
+        scalarContainer.then($element => assertIsEllipsified($element[0]));
         scalarContainer.realHover();
 
         cy.findByRole("tooltip")
@@ -1510,7 +1515,7 @@ describe("issue 31628", () => {
         previousValue.within(() => {
           cy.contains("34.72%").should("exist");
           cy.contains("• vs. previous month: 527").should("exist");
-          previousValue.then($element => H.assertIsNotEllipsified($element[0]));
+          previousValue.then($element => assertIsNotEllipsified($element[0]));
         });
 
         /**
@@ -1557,7 +1562,7 @@ describe("issue 32231", () => {
   const defaultError = "Which fields do you want to use for the X and Y axes?";
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.intercept("GET", "/api/card/*/series?limit=*").as("seriesQuery");
@@ -1580,30 +1585,30 @@ describe("issue 32231", () => {
           ],
         });
 
-        H.visitDashboard(dashboard_id);
+        visitDashboard(dashboard_id);
       },
     );
 
-    H.editDashboard();
+    editDashboard();
     cy.findByTestId("add-series-button").click({ force: true });
     cy.wait("@seriesQuery");
 
     cy.findByTestId("add-series-modal").within(() => {
-      H.echartsContainer().should("exist");
+      echartsContainer().should("exist");
       cy.findByText(issue32231Error).should("not.exist");
       cy.findByText(multipleSeriesError).should("not.exist");
       cy.findByText(defaultError).should("not.exist");
 
       cy.findByLabelText(incompleteQuestion.name).click();
 
-      H.echartsContainer().should("not.exist");
+      echartsContainer().should("not.exist");
       cy.findByText(issue32231Error).should("not.exist");
       cy.findByText(multipleSeriesError).should("exist");
       cy.findByText(defaultError).should("not.exist");
 
       cy.findByLabelText(incompleteQuestion.name).click();
 
-      H.echartsContainer().should("exist");
+      echartsContainer().should("exist");
       cy.findByText(issue32231Error).should("not.exist");
       cy.findByText(multipleSeriesError).should("not.exist");
       cy.findByText(defaultError).should("not.exist");
@@ -1627,7 +1632,7 @@ describe("issue 32231", () => {
         ],
       });
 
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     });
 
     cy.findByTestId("dashcard").findByText(defaultError).should("exist");
@@ -1677,13 +1682,13 @@ describe("issue 43219", () => {
   const getQuestionAlias = index => `question-${index}`;
 
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
-    H.cypressWaitAll(
+    cypressWaitAll(
       Array.from({ length: cardsCount }, (_value, index) => {
         const name = `Series ${index + 1}`;
-        return H.createQuestion({ ...questionDetails, name }).then(
+        return createQuestion({ ...questionDetails, name }).then(
           ({ body: question }) => {
             cy.wrap(question).as(getQuestionAlias(index));
           },
@@ -1713,18 +1718,18 @@ describe("issue 43219", () => {
           },
         ],
       }).then(({ dashboard }) => {
-        H.visitDashboard(dashboard.id);
+        visitDashboard(dashboard.id);
       });
     });
   });
 
   it("is possible to map parameters to dashcards with lots of series (metabase#43219)", () => {
-    H.editDashboard();
+    editDashboard();
     cy.findByTestId("edit-dashboard-parameters-widget-container")
       .findByText("Text")
       .click();
 
-    H.getDashboardCard(0).within(() => {
+    getDashboardCard(0).within(() => {
       cy.findByText("Series 10").should("exist").and("not.be.visible");
 
       cy.findByTestId("visualization-root").scrollTo("bottom");
@@ -1732,212 +1737,5 @@ describe("issue 43219", () => {
 
       cy.findByText("Series 10").should("be.visible");
     });
-  });
-});
-
-describe("issue 48878", () => {
-  beforeEach(() => {
-    H.restore();
-    cy.signInAsAdmin();
-    H.setActionsEnabledForDB(SAMPLE_DB_ID);
-
-    cy.signInAsNormalUser();
-    cy.intercept("POST", "/api/dataset").as("dataset");
-    cy.intercept("POST", "/api/card").as("saveQuestion");
-    cy.intercept("POST", "/api/action").as("createAction");
-    cy.intercept("GET", "/api/dashboard/*").as("getDashboard");
-    cy.intercept("PUT", "/api/dashboard/*").as("updateDashboard");
-
-    let fetchCardRequestsCount = 0;
-
-    cy.intercept("GET", "/api/card/*", request => {
-      // we only want to simulate the race condition 4th time this request is triggered
-      if (fetchCardRequestsCount === 2) {
-        request.continue(
-          () => new Promise(resolve => setTimeout(resolve, 2000)),
-        );
-      } else {
-        request.continue();
-      }
-
-      ++fetchCardRequestsCount;
-    }).as("fetchCard");
-    setup();
-  });
-
-  // I could only reproduce this issue in Cypress when I didn't use any helpers like createQuestion, etc.
-  it("does not crash the action button viz (metabase#48878)", () => {
-    cy.reload();
-    cy.wait("@fetchCard");
-    H.getDashboardCard(0).findByText("Click Me").should("be.visible");
-  });
-
-  function setup() {
-    cy.log("create dummy model");
-
-    // Create a dummy model so that GET /api/search does not return the model want to test.
-    // If we don't do this, GET /api/search will return and put card object with dataset_query
-    // attribute in the redux store (entity framework) which would prevent the issue from happening.
-    cy.visit("/model/new");
-    createModel({
-      name: "Dummy model",
-      query: "select 1",
-    });
-
-    cy.log("create model");
-
-    cy.button("New").click();
-    H.popover().findByText("Model").click();
-    createModel({
-      name: "SQL Model",
-      query: "select * from orders limit 5",
-    });
-
-    cy.log("create model action");
-
-    cy.findByTestId("qb-header-info-button").click();
-    H.modal().findByText("See more about this model").click();
-
-    cy.findByRole("tab", { name: "Actions" }).click();
-    cy.findByTestId("model-actions-header").findByText("New action").click();
-
-    H.modal().within(() => {
-      H.focusNativeEditor().type("UPDATE orders SET plan = {{ plan ", {
-        parseSpecialCharSequences: false,
-      });
-      cy.button("Save").click();
-    });
-
-    H.modal()
-      .last()
-      .within(() => {
-        cy.findByPlaceholderText("My new fantastic action").type("Test action");
-        cy.button("Create").click();
-        cy.wait("@createAction");
-      });
-
-    cy.visit("/");
-
-    cy.log("create dashoard");
-
-    cy.button("New").click();
-    H.popover().findByText("Dashboard").click();
-
-    H.modal().within(() => {
-      cy.findByPlaceholderText("What is the name of your dashboard?").type(
-        "Dash",
-      );
-      cy.button("Create").click();
-      cy.wait("@getDashboard");
-    });
-
-    cy.button("Add action").click();
-    cy.button("Pick an action").click();
-    H.modal().within(() => {
-      cy.findByText("SQL Model").click();
-      cy.findByText("Test action").click();
-      cy.button("Done").click();
-    });
-    cy.button("Save").click();
-    cy.wait("@updateDashboard");
-    cy.wait("@fetchCard");
-  }
-
-  function createModel({ name, query }) {
-    cy.findByTestId("new-model-options")
-      .findByText("Use a native query")
-      .click();
-
-    H.focusNativeEditor().type(query);
-    cy.findByTestId("native-query-editor-sidebar")
-      .findByTestId("run-button")
-      .click();
-    cy.wait("@dataset");
-    cy.button("Save").click();
-
-    H.modal().within(() => {
-      cy.findByPlaceholderText("What is the name of your model?").type(name);
-      cy.button("Save").click();
-      cy.wait("@saveQuestion");
-    });
-    cy.wait("@fetchCard");
-  }
-});
-
-describe("issue 46318", () => {
-  const query = `SELECT 'group_1' AS main_group, 'sub_group_1' AS sub_group, 111 AS value_sum, 'group_1__sub_group_1' AS group_name
-UNION ALL
-SELECT 'group_1', 'sub_group_2', 68, 'group_1__sub_group_2'
-UNION ALL
-SELECT 'group_2', 'sub_group_1', 79, 'group_2__sub_group_1'
-UNION ALL
-SELECT 'group_2', 'sub_group_2', 52, 'group_2__sub_group_2';
-`;
-
-  beforeEach(() => {
-    H.restore();
-    cy.signInAsAdmin();
-
-    H.createNativeQuestionAndDashboard({
-      questionDetails: {
-        name: "46318",
-        native: { query },
-        display: "row",
-        visualization_settings: {
-          "graph.dimensions": ["MAIN_GROUP", "SUB_GROUP"],
-          "graph.series_order_dimension": null,
-          "graph.series_order": null,
-          "graph.metrics": ["VALUE_SUM"],
-        },
-      },
-    }).then(response => {
-      H.visitDashboard(response.body.dashboard_id);
-    });
-
-    H.editDashboard();
-    H.getDashboardCard().realHover().icon("click").click();
-    cy.get("aside").within(() => {
-      cy.findByText("Go to a custom destination").click();
-      cy.findByText("URL").click();
-    });
-    H.modal().within(() => {
-      cy.findByPlaceholderText("e.g. http://acme.com/id/{{user_id}}").type(
-        "http://localhost:4000/?q={{group_name}}",
-        { parseSpecialCharSequences: false },
-      );
-      cy.button("Done").click();
-    });
-    H.saveDashboard();
-  });
-
-  it("passes values from unused columns of row visualization to click behavior (metabase#46318)", () => {
-    cy.findAllByRole("graphics-symbol").eq(0).click();
-    cy.location("href").should(
-      "eq",
-      "http://localhost:4000/?q=group_1__sub_group_1",
-    );
-
-    cy.go("back");
-
-    cy.findAllByRole("graphics-symbol").eq(2).click(); // intentionally eq(2), not eq(1) - that's how row viz works
-    cy.location("href").should(
-      "eq",
-      "http://localhost:4000/?q=group_1__sub_group_2",
-    );
-
-    cy.go("back");
-
-    cy.findAllByRole("graphics-symbol").eq(1).click(); // intentionally eq(1), not eq(2) - that's how row viz works
-    cy.location("href").should(
-      "eq",
-      "http://localhost:4000/?q=group_2__sub_group_1",
-    );
-    cy.go("back");
-
-    cy.findAllByRole("graphics-symbol").eq(3).click();
-    cy.location("href").should(
-      "eq",
-      "http://localhost:4000/?q=group_2__sub_group_2",
-    );
   });
 });

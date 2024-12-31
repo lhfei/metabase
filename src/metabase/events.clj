@@ -19,12 +19,7 @@
    [metabase.util.methodical.null-cache :as u.methodical.null-cache]
    [metabase.util.methodical.unsorted-dispatcher
     :as u.methodical.unsorted-dispatcher]
-   [methodical.core :as methodical]
-   [potemkin :as p]))
-
-(p/import-vars
- [events.schema
-  topic->schema])
+   [methodical.core :as methodical]))
 
 (set! *warn-on-reflection* true)
 
@@ -132,7 +127,7 @@
       (assert (map? event)
               (format "Invalid event %s: event must be a map." (pr-str event)))
       (try
-        (when-let [schema (and (mu/instrument-ns? *ns*) (events.schema/topic->schema topic))]
+        (when-let [schema (events.schema/topic->schema topic)]
           (mu/validate-throw schema event))
         (next-method topic event)
         (catch Throwable e

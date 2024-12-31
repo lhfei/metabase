@@ -2,12 +2,6 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { t } from "ttag";
 
-import { DATE_PICKER_OPERATORS } from "metabase/querying/filters/constants";
-import type {
-  DatePickerOperator,
-  DatePickerUnit,
-  DatePickerValue,
-} from "metabase/querying/filters/types";
 import { Button, Stack } from "metabase/ui";
 
 import { DateOperatorPicker } from "../DateOperatorPicker";
@@ -16,17 +10,17 @@ import { SimpleDateIntervalPicker } from "../RelativeDatePicker/DateIntervalPick
 import { isIntervalValue, isRelativeValue } from "../RelativeDatePicker/utils";
 import { SimpleSpecificDatePicker } from "../SpecificDatePicker/SimpleSpecificDatePicker";
 import { isSpecificValue } from "../SpecificDatePicker/utils";
+import { DATE_PICKER_OPERATORS } from "../constants";
+import type { DatePickerOperator, DatePickerValue } from "../types";
 
 interface SimpleDatePickerProps {
   value?: DatePickerValue;
-  availableOperators?: DatePickerOperator[];
-  availableUnits: DatePickerUnit[];
+  availableOperators?: ReadonlyArray<DatePickerOperator>;
   onChange: (value: DatePickerValue | undefined) => void;
 }
 
 export function SimpleDatePicker({
   value: initialValue,
-  availableUnits,
   availableOperators = DATE_PICKER_OPERATORS,
   onChange,
 }: SimpleDatePickerProps) {
@@ -46,18 +40,10 @@ export function SimpleDatePicker({
           onChange={setValue}
         />
         {isRelativeValue(value) && isIntervalValue(value) && (
-          <SimpleDateIntervalPicker
-            value={value}
-            availableUnits={availableUnits}
-            onChange={setValue}
-          />
+          <SimpleDateIntervalPicker value={value} onChange={setValue} />
         )}
         {isRelativeValue(value) && !isIntervalValue(value) && (
-          <CurrentDatePicker
-            value={value}
-            availableUnits={availableUnits}
-            onChange={setValue}
-          />
+          <CurrentDatePicker value={value} onChange={setValue} />
         )}
         {isSpecificValue(value) && (
           <SimpleSpecificDatePicker value={value} onChange={setValue} />

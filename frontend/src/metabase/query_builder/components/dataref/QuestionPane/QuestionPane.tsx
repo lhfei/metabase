@@ -6,12 +6,12 @@ import DateTime from "metabase/components/DateTime";
 import {
   Description,
   EmptyDescription,
-} from "metabase/components/MetadataInfo/MetadataInfo";
+} from "metabase/components/MetadataInfo/MetadataInfo.styled";
 import Collections from "metabase/entities/collections";
 import Questions from "metabase/entities/questions";
 import Tables from "metabase/entities/tables";
 import SidebarContent from "metabase/query_builder/components/SidebarContent";
-import { Box, Flex, Icon, type IconName } from "metabase/ui";
+import type { IconName } from "metabase/ui";
 import type Question from "metabase-lib/v1/Question";
 import type Table from "metabase-lib/v1/metadata/Table";
 import { getQuestionVirtualTableId } from "metabase-lib/v1/metadata/utils/saved-questions";
@@ -20,9 +20,16 @@ import type { Collection } from "metabase-types/api/collection";
 import type { State } from "metabase-types/store";
 
 import FieldList from "../FieldList";
-import { NodeListTitleText } from "../NodeList";
+import { PaneContent } from "../Pane.styled";
 
-import S from "./QuestionPane.module.css";
+import {
+  QuestionPaneDescription,
+  QuestionPaneDetail,
+  QuestionPaneDetailLink,
+  QuestionPaneDetailLinkText,
+  QuestionPaneDetailText,
+  QuestionPaneIcon,
+} from "./QuestionPane.styled";
 
 interface QuestionPaneProps {
   onItemClick: (type: string, item: unknown) => void;
@@ -57,63 +64,38 @@ const QuestionPane = ({
       onBack={onBack}
       onClose={onClose}
     >
-      <Box pl="lg" pr="lg">
-        <Box p="0 0.5rem 1rem 0.5rem">
+      <PaneContent>
+        <QuestionPaneDescription>
           {question.description() ? (
             <Description>{question.description()}</Description>
           ) : (
             <EmptyDescription>{t`No description`}</EmptyDescription>
           )}
-        </Box>
-        <Flex
-          color="var(--mb-color-text-medium)"
-          align="center"
-          p="0.25rem 0.5rem"
-          fw={700}
-        >
-          <a
-            className={S.QuestionPaneDetailLink}
+        </QuestionPaneDescription>
+        <QuestionPaneDetail>
+          <QuestionPaneDetailLink
             href={ML_Urls.getUrl(question)}
             target="_blank"
             rel="noreferrer"
           >
-            <Icon className={S.QuestionPaneIcon} name="share" />
-            <NodeListTitleText>{t`See it`}</NodeListTitleText>
-          </a>
-        </Flex>
-        <Flex
-          color="var(--mb-color-text-medium)"
-          align="center"
-          p="0.25rem 0.5rem"
-          fw={700}
-        >
-          <Icon className={S.QuestionPaneIcon} name="label" />
-          <Box
-            component="span"
-            ml="sm"
-            fw="normal"
-          >{t`ID #${question.id()}`}</Box>
-        </Flex>
-        <Flex
-          color="var(--mb-color-text-medium)"
-          align="center"
-          p="0.25rem 0.5rem"
-          fw={700}
-        >
-          <Icon className={S.QuestionPaneIcon} name="collection" />
-          <Box component="span" ml="sm" fw="normal">
+            <QuestionPaneIcon name="share" />
+            <QuestionPaneDetailLinkText>{t`See it`}</QuestionPaneDetailLinkText>
+          </QuestionPaneDetailLink>
+        </QuestionPaneDetail>
+        <QuestionPaneDetail>
+          <QuestionPaneIcon name="label" />
+          <QuestionPaneDetailText>{t`ID #${question.id()}`}</QuestionPaneDetailText>
+        </QuestionPaneDetail>
+        <QuestionPaneDetail>
+          <QuestionPaneIcon name="collection" />
+          <QuestionPaneDetailText>
             {collection?.name ?? t`Our analytics`}
-          </Box>
-        </Flex>
+          </QuestionPaneDetailText>
+        </QuestionPaneDetail>
         {question.lastEditInfo() && (
-          <Flex
-            color="var(--mb-color-text-medium)"
-            align="center"
-            p="0.25rem 0.5rem"
-            fw={700}
-          >
-            <Icon className={S.QuestionPaneIcon} name="calendar" />
-            <Box component="span" ml="sm" fw="normal">
+          <QuestionPaneDetail>
+            <QuestionPaneIcon name="calendar" />
+            <QuestionPaneDetailText>
               {jt`Last edited ${(
                 <DateTime
                   key="day"
@@ -121,8 +103,8 @@ const QuestionPane = ({
                   value={question.lastEditInfo().timestamp}
                 />
               )}`}
-            </Box>
-          </Flex>
+            </QuestionPaneDetailText>
+          </QuestionPaneDetail>
         )}
         {table.fields && (
           <FieldList
@@ -130,7 +112,7 @@ const QuestionPane = ({
             onFieldClick={f => onItemClick("field", f)}
           />
         )}
-      </Box>
+      </PaneContent>
     </SidebarContent>
   );
 };

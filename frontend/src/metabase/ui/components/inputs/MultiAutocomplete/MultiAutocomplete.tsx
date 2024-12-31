@@ -12,7 +12,6 @@ import { parseValues, unique } from "./utils";
 
 export type MultiAutocompleteProps = Omit<MultiSelectProps, "shouldCreate"> & {
   shouldCreate?: (query: string, selectedValues: string[]) => boolean;
-  showInfoIcon?: boolean;
 };
 
 export function MultiAutocomplete({
@@ -23,7 +22,6 @@ export function MultiAutocomplete({
   placeholder,
   autoFocus,
   shouldCreate = defaultShouldCreate,
-  showInfoIcon = true,
   rightSection,
   onChange,
   onSearchChange,
@@ -181,7 +179,7 @@ export function MultiAutocomplete({
       onBlur={handleBlur}
       onSearchChange={handleSearchChange}
       onPaste={handlePaste}
-      rightSection={rightSection ?? (showInfoIcon ? infoIcon : null)}
+      rightSection={rightSection ?? infoIcon}
     />
   );
 }

@@ -1,5 +1,3 @@
-import dayjs from "dayjs";
-
 import type { EnterpriseSettings } from "metabase-enterprise/settings/types";
 import type {
   Engine,
@@ -7,7 +5,6 @@ import type {
   EngineSource,
   FontFile,
   SettingDefinition,
-  SettingKey,
   Settings,
   TokenFeatures,
   TokenStatus,
@@ -96,7 +93,6 @@ export const createMockTokenStatus = (
   valid: true,
   trial: false,
   "valid-thru": "2022-12-30T23:00:00Z",
-  features: [],
   ...opts,
 });
 
@@ -110,7 +106,6 @@ export const createMockTokenFeatures = (
   disable_password_login: false,
   content_verification: false,
   embedding: false,
-  embedding_sdk: false,
   hosting: false,
   official_collections: false,
   llm_autodescription: false,
@@ -129,18 +124,16 @@ export const createMockTokenFeatures = (
   collection_cleanup: false,
   upload_management: false,
   query_reference_validation: false,
-  serialization: false,
   ...opts,
 });
 
-export const createMockSettingDefinition = <
-  Key extends SettingKey = SettingKey,
->(
-  opts: SettingDefinition<Key>,
-): SettingDefinition<Key> => ({
+export const createMockSettingDefinition = (
+  opts?: Partial<SettingDefinition>,
+): SettingDefinition => ({
+  key: "key",
   env_name: "",
   is_env_setting: false,
-  value: opts.value,
+  value: null,
   ...opts,
 });
 
@@ -148,29 +141,14 @@ export const createMockSettings = (
   opts?: Partial<Settings | EnterpriseSettings>,
 ): EnterpriseSettings => ({
   "admin-email": "admin@metabase.test",
-  "airgap-enabled": false,
-  "allowed-iframe-hosts": "*",
   "anon-tracking-enabled": false,
   "application-colors": {},
   "application-font": "Lato",
   "application-font-files": [],
   // eslint-disable-next-line no-literal-metabase-strings -- This is a mock
   "application-name": "Metabase",
-  "application-favicon-url": "",
   "available-fonts": [],
-  "available-locales": [
-    // this is a subset of the locales we have in the real app
-    ["de", "German"],
-    ["en", "English"],
-    ["es", "Spanish"],
-    ["ko", "Korean"],
-    ["pt_BR", "Portuguese (Brazil)"],
-    ["zh", "Chinese"],
-    ["zh_CN", "Chinese (China)"],
-    ["zh_HK", "Chinese (Hong Kong SAR China)"],
-    ["zh_TW", "Chinese (Taiwan)"],
-  ],
-  "bug-reporting-enabled": false,
+  "available-locales": null,
   "bcc-enabled?": true,
   "cloud-gateway-ips": null,
   "custom-formatting": {},
@@ -189,15 +167,9 @@ export const createMockSettings = (
   "email-smtp-username": null,
   "email-smtp-password": null,
   "embedding-app-origin": "",
-  "embedding-app-origins-sdk": "",
-  "embedding-app-origins-interactive": "",
   "enable-embedding": false,
-  "enable-embedding-static": false,
-  "enable-embedding-sdk": false,
-  "enable-embedding-interactive": false,
   "enable-enhancements?": false,
   "enable-nested-queries": true,
-  "enable-pivoted-exports": true,
   "expand-browse-in-nav": true,
   "expand-bookmarks-in-nav": true,
   "query-caching-ttl-ratio": 10,
@@ -209,13 +181,13 @@ export const createMockSettings = (
   "example-dashboard-id": 1,
   "has-user-setup": true,
   "hide-embed-branding?": true,
-  "instance-creation": dayjs().toISOString(),
   "show-static-embed-terms": true,
   "google-auth-auto-create-accounts-domain": null,
   "google-auth-client-id": null,
   "google-auth-configured": false,
   "google-auth-enabled": false,
   "is-hosted?": false,
+  "is-metabot-enabled": false,
   "jwt-enabled": false,
   "jwt-configured": false,
   "ldap-configured?": false,
@@ -224,12 +196,11 @@ export const createMockSettings = (
   "ldap-group-membership-filter": "(member={dn})",
   "loading-message": "doing-science",
   "map-tile-server-url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  "native-query-autocomplete-match-style": "substring",
   "openai-api-key": null,
   "openai-organization": null,
   "openai-model": null,
   "openai-available-models": [],
-  "other-sso-enabled?": false,
+  "other-sso-enabled?": null,
   "password-complexity": { total: 6, digit: 1 },
   "persisted-models-enabled": false,
   "persisted-model-refresh-cron-schedule": "0 0 0/6 * * ? *",
@@ -239,7 +210,6 @@ export const createMockSettings = (
   "report-timezone-long": "Europe/London",
   "saml-configured": false,
   "saml-enabled": false,
-  "saml-identity-provider-uri": null,
   "scim-enabled": false,
   "scim-base-url": "http://localhost:3000/api/ee/scim/v2/",
   "snowplow-url": "",
@@ -247,7 +217,6 @@ export const createMockSettings = (
   "setup-token": null,
   "session-cookies": null,
   "session-cookie-samesite": "lax",
-  "slack-bug-report-channel": null,
   "snowplow-enabled": false,
   "show-database-syncing-modal": false,
   "show-homepage-data": false,
@@ -281,12 +250,9 @@ export const createMockSettings = (
   "last-acknowledged-version": "v1",
   "last-used-native-database-id": 1,
   "embedding-homepage": "hidden",
+  "setup-embedding-autoenabled": false,
   "setup-license-active-at-setup": false,
   "notebook-native-preview-shown": false,
   "notebook-native-preview-sidebar-width": null,
-  "query-analysis-enabled": false,
-  "check-for-updates": true,
-  "update-channel": "latest",
-  "trial-banner-dismissal-timestamp": null,
   ...opts,
 });

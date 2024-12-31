@@ -1,31 +1,27 @@
 import { useState } from "react";
 import { msgid, ngettext, t } from "ttag";
+import _ from "underscore";
 
-import { archiveAndTrack } from "metabase/archive/analytics";
 import {
   BulkActionBar,
   BulkActionButton,
 } from "metabase/components/BulkActionBar";
-import { UndoListOverlay, UndoToast } from "metabase/containers/UndoListing";
+import { UndoToast } from "metabase/containers/UndoListing";
 import type { CollectionItem } from "metabase-types/api";
 import type { Undo } from "metabase-types/store/undo";
-
-import type { StaleCollectionItem } from "../types";
 
 import CS from "./CleanupCollectionBulkActions.module.css";
 
 interface CleanupCollectionBulkActionsProps {
-  selected: StaleCollectionItem[];
+  selected: CollectionItem[];
   clearSelectedItem: () => void;
   resetPagination: () => void;
-  onArchive: ({ totalArchivedItems }: { totalArchivedItems: number }) => void;
 }
 
 export const CleanupCollectionBulkActions = ({
   selected,
   clearSelectedItem,
   resetPagination,
-  onArchive,
 }: CleanupCollectionBulkActionsProps) => {
   const [undo, setUndo] = useState<Undo | undefined>();
 
@@ -38,30 +34,13 @@ export const CleanupCollectionBulkActions = ({
   };
 
   const handleBulkArchive = async () => {
-    const actions = selected.map(item => {
-      return archiveAndTrack({
-        archive: () =>
-          item.setArchived
-            ? item.setArchived(true, { notify: false })
-            : Promise.resolve(),
-        model: item.model,
-        modelId: item.id,
-        triggeredFrom: "cleanup_modal",
-      });
-    });
+    const actions = selected.map(item =>
+      item?.setArchived?.(true, { notify: false }),
+    );
 
-    Promise.allSettled(actions)
-      .then(results => {
+    Promise.all(actions)
+      .then(() => {
         resetPagination();
-
-        const successfullyArchivedItems = results
-          .map((result, index) =>
-            result.status === "fulfilled" ? selected[index] : undefined,
-          )
-          .filter((x): x is StaleCollectionItem => !!x);
-        const totalArchivedItems = successfullyArchivedItems.length;
-
-        onArchive({ totalArchivedItems });
 
         const id = Date.now();
         const timeoutId = setTimeout(() => {
@@ -69,14 +48,14 @@ export const CleanupCollectionBulkActions = ({
         }, 5000) as unknown as number;
 
         const message = ngettext(
-          msgid`${totalArchivedItems} item has been moved to the trash.`,
-          `${totalArchivedItems} items have been moved to the trash.`,
-          totalArchivedItems,
+          msgid`${selected.length} item has been moved to the trash.`,
+          `${selected.length} items have been moved to the trash.`,
+          selected.length,
         );
 
         setUndo({
           id,
-          actions: [() => handleUndo(successfullyArchivedItems)],
+          actions: [() => handleUndo(selected)],
           icon: "check",
           canDismiss: true,
           message,
@@ -96,13 +75,13 @@ export const CleanupCollectionBulkActions = ({
   return (
     <>
       {undo && (
-        <UndoListOverlay>
+        <div className={CS.undoContainer} data-testid="undo-list">
           <UndoToast
             undo={undo}
             onUndo={() => undo.actions?.[0]()}
             onDismiss={() => setUndo(undefined)}
           />
-        </UndoListOverlay>
+        </div>
       )}
 
       <BulkActionBar

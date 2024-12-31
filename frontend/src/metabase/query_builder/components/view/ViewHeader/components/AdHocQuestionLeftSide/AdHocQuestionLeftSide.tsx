@@ -1,19 +1,20 @@
 import type React from "react";
 import { t } from "ttag";
 
+import {
+  AdHocLeftSideRoot,
+  AdHocViewHeading,
+  ViewHeaderLeftSubHeading,
+  ViewHeaderMainLeftContentContainer,
+} from "metabase/query_builder/components/view/ViewHeader/ViewTitleHeader.styled";
+import {
+  QuestionDataSource,
+  QuestionDescription,
+} from "metabase/query_builder/components/view/ViewHeader/components";
 import type { QueryModalType } from "metabase/query_builder/constants";
 import { MODAL_TYPES } from "metabase/query_builder/constants";
-import { Box, Flex } from "metabase/ui";
 import * as Lib from "metabase-lib";
 import type Question from "metabase-lib/v1/Question";
-
-import { ViewHeading, ViewSubHeading } from "../../../ViewSection";
-import ViewTitleHeaderS from "../../ViewTitleHeader.module.css";
-import { DashboardSaveLocation } from "../DashboardSaveLocation";
-import { QuestionDataSource } from "../QuestionDataSource";
-import { QuestionDescription } from "../QuestionDescription";
-
-import AdHocQuestionLeftSideS from "./AdHocQuestionLeftSide.module.css";
 
 interface AdHocQuestionLeftSideProps {
   question: Question;
@@ -44,15 +45,10 @@ export function AdHocQuestionLeftSide(
     }
   };
 
-  const dashboardName = question.dashboardName();
-
   return (
-    <Box className={AdHocQuestionLeftSideS.AdHocLeftSideRoot}>
-      <Flex align="center" wrap="nowrap">
-        <ViewHeading
-          className={ViewTitleHeaderS.AdHocViewHeading}
-          color="medium"
-        >
+    <AdHocLeftSideRoot>
+      <ViewHeaderMainLeftContentContainer>
+        <AdHocViewHeading color="medium">
           {isNative ? (
             t`New question`
           ) : (
@@ -64,9 +60,9 @@ export function AdHocQuestionLeftSide(
               onClick={handleTitleClick}
             />
           )}
-        </ViewHeading>
-      </Flex>
-      <ViewSubHeading className={ViewTitleHeaderS.ViewHeaderLeftSubHeading}>
+        </AdHocViewHeading>
+      </ViewHeaderMainLeftContentContainer>
+      <ViewHeaderLeftSubHeading>
         {isSummarized && (
           <QuestionDataSource
             question={question}
@@ -75,10 +71,7 @@ export function AdHocQuestionLeftSide(
             subHead
           />
         )}
-        {dashboardName && (
-          <DashboardSaveLocation dashboardName={dashboardName} />
-        )}
-      </ViewSubHeading>
-    </Box>
+      </ViewHeaderLeftSubHeading>
+    </AdHocLeftSideRoot>
   );
 }

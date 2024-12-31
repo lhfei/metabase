@@ -25,6 +25,7 @@ import { ActionFormButtonContainer } from "./ActionForm.styled";
 interface ActionFormProps {
   action: WritebackAction;
   initialValues?: ActionFormInitialValues;
+  prefetchesInitialValues?: boolean;
 
   // Parameters that shouldn't be displayed in the form
   // Can be used to "lock" certain parameter values.
@@ -43,6 +44,7 @@ interface ActionFormProps {
 function ActionForm({
   action,
   initialValues: rawInitialValues = {},
+  prefetchesInitialValues,
   hiddenFields = [],
   onSubmit,
   onClose,
@@ -51,6 +53,7 @@ function ActionForm({
     useActionForm({
       action,
       initialValues: rawInitialValues,
+      prefetchesInitialValues,
     });
 
   const editableFields = useMemo(

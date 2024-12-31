@@ -1,12 +1,6 @@
 import { assocIn, updateIn } from "icepick";
-import { useMemo } from "react";
 
-import {
-  databaseApi,
-  skipToken,
-  useListDatabaseSchemaTablesQuery,
-  useListVirtualDatabaseTablesQuery,
-} from "metabase/api";
+import { databaseApi } from "metabase/api";
 import Questions from "metabase/entities/questions";
 import { createEntity, entityCompatibleQuery } from "metabase/lib/entities";
 import { SchemaSchema } from "metabase/schema";
@@ -30,13 +24,6 @@ import {
 export default createEntity({
   name: "schemas",
   schema: SchemaSchema,
-
-  rtk: {
-    getUseGetQuery: () => ({
-      useGetQuery,
-    }),
-  },
-
   api: {
     list: async ({ dbId, getAll = false, ...args }, dispatch) => {
       if (!dbId) {
@@ -193,44 +180,3 @@ function addTableAvoidingDuplicates(tables, tableId) {
   }
   return tables.includes(tableId) ? tables : [...tables, tableId];
 }
-
-const useGetQuery = query => {
-  const { id, ...args } = query;
-  const [dbId, schemaName, options] = parseSchemaId(id);
-
-  if (query !== skipToken && (!dbId || schemaName === undefined)) {
-    throw new Error("Schemas ID is of the form dbId:schemaName");
-  }
-
-  const finalQuery =
-    query === skipToken ? skipToken : { id: dbId, schema: schemaName, ...args };
-
-  const virtualDatabaseTables = useListVirtualDatabaseTablesQuery(
-    options?.isDatasets ? finalQuery : skipToken,
-  );
-
-  const databaseSchemaTables = useListDatabaseSchemaTablesQuery(
-    options?.isDatasets ? skipToken : finalQuery,
-  );
-
-  const tables = options?.isDatasets
-    ? virtualDatabaseTables
-    : databaseSchemaTables;
-
-  const data = useMemo(() => {
-    if (tables.isLoading || tables.error) {
-      return tables.data;
-    }
-
-    return {
-      id,
-      name: schemaName,
-      tables: tables.data,
-      database: { id: dbId },
-    };
-  }, [id, schemaName, tables, dbId]);
-
-  const result = useMemo(() => ({ ...tables, data }), [data, tables]);
-
-  return result;
-};

@@ -6,13 +6,13 @@ redirect_from:
 
 # Slack
 
-If you want to have your [dashboard subscriptions](../dashboards/subscriptions.md) or [alerts](../questions/alerts.md) sent to Slack channels (or people on Slack), an admin must first integrate your Metabase with Slack.
+If you want to have your [dashboard subscriptions](../dashboards/subscriptions.md) or [alerts](../questions/sharing/alerts.md) sent to Slack channels (or people on Slack), an admin must first integrate your Metabase with Slack.
 
 ## Create your Slack App
 
 For Metabase to post to your Slack channels, you’ll need to create a Slack App and make it available to Metabase.
 
-From any Metabase page, go to **Admin settings** > **Settings** > **Notification channels** > **Slack**.
+From any Metabase page, go to **Admin settings** > **Settings** > **Slack**.
 
 Click on **Open Slack Apps**. Metabase will open a new browser tab and send you over to the Slack website to create the Slack app.
 
@@ -87,7 +87,7 @@ Once your Metabase app is added to the private channel, you'll need to type out 
 
 ## Further reading
 
-- [Alerts](../questions/alerts.md)
+- [Alerts](../questions/sharing/alerts.md)
 - [Dashboard subscriptions](../dashboards/subscriptions.md)
 - [Notification permissions](../permissions/notifications.md)
 - [Setting up email](./email.md)

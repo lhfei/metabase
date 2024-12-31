@@ -2,7 +2,6 @@ import type {
   CardId,
   DashboardId,
   DashboardTabId,
-  DimensionTargetOptions,
   FieldReference,
   ParameterId,
   TemplateTagName,
@@ -21,9 +20,7 @@ export interface ClickBehaviorSource {
 export interface ClickBehaviorDimensionTarget {
   id: StringifiedDimension;
   type: "dimension";
-  dimension:
-    | ["dimension", FieldReference | null | undefined]
-    | ["dimension", FieldReference | null | undefined, DimensionTargetOptions];
+  dimension: ["dimension", FieldReference | null | undefined];
 }
 
 export interface ClickBehaviorParameterTarget {

@@ -1,18 +1,17 @@
 (ns metabase.api.testing
   "Endpoints for testing."
   (:require
+   [cheshire.core :as json]
    [clojure.java.jdbc :as jdbc]
    [clojure.string :as str]
    [compojure.core :refer [POST]]
    [java-time.api :as t]
    [java-time.clock]
-   [metabase.analytics.stats :as stats]
    [metabase.api.common :as api]
    [metabase.config :as config]
    [metabase.db :as mdb]
    [metabase.util.date-2 :as u.date]
    [metabase.util.files :as u.files]
-   [metabase.util.json :as json]
    [metabase.util.log :as log]
    [metabase.util.malli.schema :as ms]
    [toucan2.core :as t2])
@@ -155,7 +154,7 @@
     {:status 400
      :body {:error-code "oops"}}
     {:status 200
-     :body (json/decode+kw body)}))
+     :body (json/decode body true)}))
 
 (api/defendpoint POST "/mark-stale"
   "Mark the card or dashboard as stale"
@@ -174,11 +173,5 @@
     (case model
       "card"      (t2/update! :model/Card :id id {:last_used_at date})
       "dashboard" (t2/update! :model/Dashboard :id id {:last_viewed_at date}))))
-
-(api/defendpoint POST "/stats"
-  "Triggers a send of instance usage stats"
-  []
-  (stats/phone-home-stats!)
-  {:success true})
 
 (api/define-routes)

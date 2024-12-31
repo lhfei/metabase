@@ -1,13 +1,13 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import ChartSkeleton, { type ChartSkeletonProps } from "./ChartSkeleton";
+import ChartSkeleton from "./ChartSkeleton";
 
 export default {
   title: "Visualizations/ChartSkeleton",
   component: ChartSkeleton,
 };
 
-const Template: StoryFn<ChartSkeletonProps> = args => {
+const Template: ComponentStory<typeof ChartSkeleton> = args => {
   return (
     <div style={{ padding: 8, height: 250, backgroundColor: "white" }}>
       <ChartSkeleton {...args} />
@@ -15,132 +15,90 @@ const Template: StoryFn<ChartSkeletonProps> = args => {
   );
 };
 
-export const Default = {
-  render: Template,
-
-  args: {
-    display: "table",
-    description: "Description",
-  },
+export const Default = Template.bind({});
+Default.args = {
+  display: "table",
+  description: "Description",
 };
 
 export const Empty = Template.bind({
   display: null,
 });
 
-export const Area = {
-  render: Template,
-
-  args: {
-    display: "area",
-    name: "Area",
-  },
+export const Area = Template.bind({});
+Area.args = {
+  display: "area",
+  name: "Area",
 };
 
-export const Bar = {
-  render: Template,
-
-  args: {
-    display: "bar",
-    name: "Bar",
-  },
+export const Bar = Template.bind({});
+Bar.args = {
+  display: "bar",
+  name: "Bar",
 };
 
-export const Funnel = {
-  render: Template,
-
-  args: {
-    display: "funnel",
-    name: "Funnel",
-  },
+export const Funnel = Template.bind({});
+Funnel.args = {
+  display: "funnel",
+  name: "Funnel",
 };
 
-export const Line = {
-  render: Template,
-
-  args: {
-    display: "line",
-    name: "Line",
-  },
+export const Line = Template.bind({});
+Line.args = {
+  display: "line",
+  name: "Line",
 };
 
-export const Map = {
-  render: Template,
-
-  args: {
-    display: "map",
-    name: "Map",
-  },
+export const Map = Template.bind({});
+Map.args = {
+  display: "map",
+  name: "Map",
 };
 
-export const Pie = {
-  render: Template,
-
-  args: {
-    display: "pie",
-    name: "Pie",
-  },
+export const Pie = Template.bind({});
+Pie.args = {
+  display: "pie",
+  name: "Pie",
 };
 
-export const Progress = {
-  render: Template,
-
-  args: {
-    display: "progress",
-    name: "Progress",
-  },
+export const Progress = Template.bind({});
+Progress.args = {
+  display: "progress",
+  name: "Progress",
 };
 
-export const Row = {
-  render: Template,
-
-  args: {
-    display: "row",
-    name: "Row",
-  },
+export const Row = Template.bind({});
+Row.args = {
+  display: "row",
+  name: "Row",
 };
 
-export const Scalar = {
-  render: Template,
-
-  args: {
-    display: "scalar",
-    name: "Scalar",
-  },
+export const Scalar = Template.bind({});
+Scalar.args = {
+  display: "scalar",
+  name: "Scalar",
 };
 
-export const Scatter = {
-  render: Template,
-
-  args: {
-    display: "scatter",
-    name: "Scatter",
-  },
+export const Scatter = Template.bind({});
+Scatter.args = {
+  display: "scatter",
+  name: "Scatter",
 };
 
-export const SmartScalar = {
-  render: Template,
-
-  args: {
-    display: "smartscalar",
-    name: "SmartScalar",
-  },
+export const SmartScalar = Template.bind({});
+SmartScalar.args = {
+  display: "smartscalar",
+  name: "SmartScalar",
 };
 
-export const Table = {
-  render: Template,
-
-  args: {
-    display: "table",
-    name: "Table",
-  },
+export const Table = Template.bind({});
+Table.args = {
+  display: "table",
+  name: "Table",
 };
 
-export const Waterfall = {
-  render: Template,
-
-  args: {
-    display: "waterfall",
-    name: "Waterfall",
-  },
+export const Waterfall = Template.bind({});
+Waterfall.args = {
+  display: "waterfall",
+  name: "Waterfall",
 };

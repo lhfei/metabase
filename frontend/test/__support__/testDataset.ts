@@ -265,7 +265,7 @@ export const testDataset: DatasetData = createMockDatasetData({
     [
       "2",
       "7663515285824",
-      "Small Marble Shoes ".repeat(20), // long description
+      "Small Marble Shoes",
       "Doohickey",
       "Balistreri-Ankunding",
       70.07989613071763,

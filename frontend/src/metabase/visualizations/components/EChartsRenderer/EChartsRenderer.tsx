@@ -21,6 +21,7 @@ export interface EChartsRendererProps {
   width: number | "auto";
   height: number | "auto";
   onInit?: (chart: EChartsType) => void;
+  onDispose?: () => void;
   notMerge?: boolean;
 }
 
@@ -33,6 +34,7 @@ export const EChartsRenderer = forwardRef<HTMLDivElement, EChartsRendererProps>(
       width,
       height,
       onInit,
+      onDispose,
       notMerge = true,
     }: EChartsRendererProps,
     ref,
@@ -52,7 +54,15 @@ export const EChartsRenderer = forwardRef<HTMLDivElement, EChartsRendererProps>(
     });
 
     useUnmount(() => {
+      onDispose?.();
+
+      eventHandlers?.forEach(h =>
+        chartRef.current?.off(h.eventName, h.handler),
+      );
+
       chartRef.current?.dispose();
+
+      chartRef.current = undefined;
     });
 
     useUpdateEffect(() => {

@@ -4,7 +4,7 @@ import ConfirmContent from "metabase/components/ConfirmContent";
 import Modal from "metabase/components/Modal";
 import type { ModalProps } from "metabase/components/Modal/Modal";
 
-interface ConfirmDeleteModalProps extends ModalProps {
+interface ConfirmDeleteModalProps extends Omit<ModalProps, "isOpen"> {
   name: string;
   onDelete: () => void;
 }

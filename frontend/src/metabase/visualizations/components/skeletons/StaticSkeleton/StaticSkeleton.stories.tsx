@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
 import StaticSkeleton from "./StaticSkeleton";
 
@@ -7,7 +7,7 @@ export default {
   component: StaticSkeleton,
 };
 
-const Template: StoryFn<typeof StaticSkeleton> = args => {
+const Template: ComponentStory<typeof StaticSkeleton> = args => {
   return (
     <div style={{ padding: 8, height: 250, backgroundColor: "white" }}>
       <StaticSkeleton {...args} />
@@ -15,16 +15,15 @@ const Template: StoryFn<typeof StaticSkeleton> = args => {
   );
 };
 
-export const Default = {
-  render: Template,
-
-  args: {
-    name: "Question",
-    description: "This is the question’s description",
-    icon: { name: "bar" },
-  },
+export const Default = Template.bind({});
+Default.args = {
+  name: "Question",
+  icon: { name: "bar" },
 };
 
-export const WithDescription = {
-  render: Template,
+export const WithDescription = Template.bind({});
+Default.args = {
+  name: "Question",
+  description: "This is the question’s description",
+  icon: { name: "bar" },
 };

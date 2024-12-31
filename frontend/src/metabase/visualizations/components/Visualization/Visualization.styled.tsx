@@ -14,7 +14,7 @@ export const VisualizationHeader = styled.div`
   flex-shrink: 0;
 `;
 
-interface VisualizationSlowSpinnerProps {
+export interface VisualizationSlowSpinnerProps {
   isUsuallySlow: boolean;
 }
 

@@ -35,7 +35,7 @@ export const AppBarRightContainer = styled.div`
   justify-content: end;
 `;
 
-interface AppBarInfoContainerProps {
+export interface AppBarInfoContainerProps {
   isVisible?: boolean;
 }
 

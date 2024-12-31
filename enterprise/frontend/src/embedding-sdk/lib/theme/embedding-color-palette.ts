@@ -24,9 +24,7 @@ type NEW_SEMANTIC_COLOR =
   | "background-selected"
   | "background-disabled"
   | "background-inverse"
-  | "background-brand"
-  | "brand-light"
-  | "brand-lighter";
+  | "background-brand";
 
 /**
  * Mapping of SDK colors to main app colors. There could be additional values
@@ -37,8 +35,6 @@ export const SDK_TO_MAIN_APP_COLORS_MAPPING: Record<
   (ColorName | NEW_SEMANTIC_COLOR)[]
 > = {
   brand: ["brand"],
-  "brand-hover": ["brand-light"],
-  "brand-hover-light": ["brand-lighter"],
   border: ["border"],
   filter: ["filter"],
   summarize: ["summarize"],
@@ -47,11 +43,16 @@ export const SDK_TO_MAIN_APP_COLORS_MAPPING: Record<
   "text-tertiary": ["text-light", "text-tertiary"],
   background: ["bg-white", "background"],
   "background-hover": ["bg-light"],
-  "background-secondary": ["bg-medium"],
-  "background-disabled": ["background-disabled"],
   shadow: ["shadow"],
   positive: ["success"],
   negative: ["danger"],
+
+  // positive: "success",
+  // negative: "danger",
+  // warning: "warning",
+
+  // white
+  // black
 };
 
 const originalColors = { ...colors };

@@ -9,13 +9,12 @@
    [metabase.legacy-mbql.normalize :as mbql.normalize]
    [metabase.legacy-mbql.schema :as mbql.s]
    [metabase.legacy-mbql.util :as mbql.u]
-   [metabase.lib.binning :as lib.binning]
    [metabase.lib.convert :as lib.convert]
    [metabase.lib.core :as lib]
    [metabase.lib.metadata :as lib.metadata]
    [metabase.lib.metadata.calculation :as lib.metadata.calculation]
    [metabase.lib.schema.common :as lib.schema.common]
-   [metabase.lib.temporal-bucket :as lib.temporal-bucket]
+   [metabase.lib.util :as lib.util]
    [metabase.lib.util.match :as lib.util.match]
    [metabase.models.humanization :as humanization]
    [metabase.query-processor.debug :as qp.debug]
@@ -81,7 +80,7 @@
                          :type             qp.error-type/qp}))))))
 
 (defn- annotate-native-cols [cols]
-  (let [unique-name-fn (mbql.u/unique-name-generator)]
+  (let [unique-name-fn (lib.util/unique-name-generator (qp.store/metadata-provider))]
     (mapv (fn [{col-name :name, base-type :base_type, :as driver-col-metadata}]
             (let [col-name (name col-name)]
               (merge
@@ -139,8 +138,6 @@
 
     [:field _ (_ :guard :temporal-unit)]
     true
-    [:expression _ (_ :guard :temporal-unit)]
-    true
 
     :+
     (some (partial mbql.u/is-clause? :interval) (rest clause))
@@ -163,9 +160,6 @@
 
     (number? expression)
     {:base_type :type/Number}
-
-    (boolean? expression)
-    {:base_type :type/Boolean}
 
     (mbql.u/is-clause? :field expression)
     (col-info-for-field-clause {} expression)
@@ -211,9 +205,6 @@
     (mbql.u/is-clause? mbql.s/numeric-functions expression)
     {:base_type :type/Float}
 
-    (mbql.u/is-clause? mbql.s/boolean-functions expression)
-    {:base_type :type/Boolean}
-
     :else
     {:base_type :type/*}))
 
@@ -232,16 +223,14 @@
           [:expression expression-name])))))
 
 (defn- col-info-for-expression
-  [inner-query [_expression expression-name {:keys [temporal-unit] :as _opts} :as clause]]
+  [inner-query [_expression expression-name :as clause]]
   (merge
    (infer-expression-type (mbql.u/expression-with-name inner-query expression-name))
    {:name            expression-name
     :display_name    expression-name
     ;; provided so the FE can add easily add sorts and the like when someone clicks a column header
     :expression_name expression-name
-    :field_ref       (fe-friendly-expression-ref clause)}
-   (when temporal-unit
-     {:unit temporal-unit})))
+    :field_ref       (fe-friendly-expression-ref clause)}))
 
 (mu/defn- col-info-for-field-clause*
   [{:keys [source-metadata], :as inner-query} [_ id-or-name opts :as clause] :- mbql.s/field]
@@ -283,10 +272,9 @@
                        qp.store/->legacy-metadata)))))
 
       (:binning opts)
-      (-> (assoc :binning_info (-> (:binning opts)
-                                   (set/rename-keys {:strategy :binning-strategy})
-                                   u/snake-keys))
-          (assoc :was_binned true))
+      (assoc :binning_info (-> (:binning opts)
+                               (set/rename-keys {:strategy :binning-strategy})
+                               u/snake-keys))
 
       (:temporal-unit opts)
       (assoc :unit (:temporal-unit opts))
@@ -592,10 +580,8 @@
   metadata returned by the driver's impl of `execute-reducible-query` and (b) column metadata inferred by logic in
   this namespace."
   [query {cols-returned-by-driver :cols, :as result} :- [:maybe :map]]
-  (->> (merge-cols-returned-by-driver (column-info query result) cols-returned-by-driver)
-       (deduplicate-cols-names)
-       (map lib.temporal-bucket/ensure-temporal-unit-in-display-name)
-       (map lib.binning/ensure-binning-in-display-name)))
+  (deduplicate-cols-names
+   (merge-cols-returned-by-driver (column-info query result) cols-returned-by-driver)))
 
 (defn base-type-inferer
   "Native queries don't have the type information from the original `Field` objects used in the query.

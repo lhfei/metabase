@@ -1,5 +1,17 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
+import {
+  cartesianChartCircle,
+  changeBinningForDimension,
+  chartPathWithFillColor,
+  echartsContainer,
+  openTable,
+  restore,
+  snapshot,
+  summarize,
+  tableHeaderClick,
+  visitQuestionAdhoc,
+  visualize,
+} from "e2e/support/helpers";
 
 const questionDetails = {
   name: "SQL Binning",
@@ -13,7 +25,7 @@ let questionId;
 
 describe("scenarios > binning > from a saved sql question", () => {
   before(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.createNativeQuestion(questionDetails, {
@@ -23,27 +35,27 @@ describe("scenarios > binning > from a saved sql question", () => {
 
     cy.get("@questionId").then(id => (questionId = id));
 
-    H.snapshot("binningSql");
+    snapshot("binningSql");
   });
 
   beforeEach(() => {
     cy.intercept("POST", "/api/dataset").as("dataset");
 
-    H.restore("binningSql");
+    restore("binningSql");
     cy.signInAsAdmin();
   });
 
   context("via simple question", () => {
     beforeEach(() => {
-      H.openTable({
+      openTable({
         database: SAMPLE_DB_ID,
         table: `card__${questionId}`,
         mode: "notebook",
       });
 
-      H.visualize();
+      visualize();
       cy.findByTextEnsureVisible("LONGITUDE");
-      H.summarize();
+      summarize();
     });
 
     it("should work for time series", () => {
@@ -51,7 +63,7 @@ describe("scenarios > binning > from a saved sql question", () => {
        * If `result_metadata` is not loaded (SQL question is not run before saving),
        * the granularity is much finer and one can see "by minute" as the default bucket (metabase#16671).
        */
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "CREATED_AT",
         fromBinning: "by month",
         toBinning: "Year",
@@ -61,11 +73,11 @@ describe("scenarios > binning > from a saved sql question", () => {
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by CREATED_AT: Year");
-      H.cartesianChartCircle();
+      cartesianChartCircle();
     });
 
     it("should work for number", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "TOTAL",
         fromBinning: "Auto bin",
         toBinning: "50 bins",
@@ -75,11 +87,11 @@ describe("scenarios > binning > from a saved sql question", () => {
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by TOTAL: 50 bins");
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
 
     it("should work for longitude", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "LONGITUDE",
         fromBinning: "Auto bin",
         toBinning: "Bin every 10 degrees",
@@ -89,13 +101,13 @@ describe("scenarios > binning > from a saved sql question", () => {
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by LONGITUDE: 10°");
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
   });
 
   context("via custom question", () => {
     beforeEach(() => {
-      H.visitQuestionAdhoc(
+      visitQuestionAdhoc(
         {
           dataset_query: {
             database: SAMPLE_DB_ID,
@@ -115,7 +127,7 @@ describe("scenarios > binning > from a saved sql question", () => {
     });
 
     it("should work for time series", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "CREATED_AT",
         fromBinning: "by month",
         toBinning: "Year",
@@ -124,15 +136,15 @@ describe("scenarios > binning > from a saved sql question", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by CREATED_AT: Year");
 
-      H.visualize(response => {
+      visualize(response => {
         assertOnResponse(response);
       });
 
-      H.cartesianChartCircle();
+      cartesianChartCircle();
     });
 
     it("should work for number", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "TOTAL",
         fromBinning: "Auto bin",
         toBinning: "50 bins",
@@ -141,15 +153,15 @@ describe("scenarios > binning > from a saved sql question", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by TOTAL: 50 bins");
 
-      H.visualize(response => {
+      visualize(response => {
         assertOnResponse(response);
       });
 
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
 
     it("should work for longitude", () => {
-      H.changeBinningForDimension({
+      changeBinningForDimension({
         name: "LONGITUDE",
         fromBinning: "Auto bin",
         toBinning: "Bin every 10 degrees",
@@ -158,17 +170,17 @@ describe("scenarios > binning > from a saved sql question", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by LONGITUDE: 10°");
 
-      H.visualize(response => {
+      visualize(response => {
         assertOnResponse(response);
       });
 
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
   });
 
   context("via column popover", () => {
     beforeEach(() => {
-      H.openTable({
+      openTable({
         database: SAMPLE_DB_ID,
         table: `card__${questionId}`,
       });
@@ -176,14 +188,14 @@ describe("scenarios > binning > from a saved sql question", () => {
     });
 
     it("should work for time series", () => {
-      H.tableHeaderClick("CREATED_AT");
+      tableHeaderClick("CREATED_AT");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Distribution").click();
 
       assertOnXYAxisLabels({ xLabel: "CREATED_AT", yLabel: "Count" });
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by CREATED_AT: Month");
-      H.cartesianChartCircle();
+      cartesianChartCircle();
 
       // Open a popover with bucket options from the time series footer
       cy.findByTestId("timeseries-bucket-button").contains("Month").click();
@@ -197,25 +209,25 @@ describe("scenarios > binning > from a saved sql question", () => {
     });
 
     it("should work for number", () => {
-      H.tableHeaderClick("TOTAL");
+      tableHeaderClick("TOTAL");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Distribution").click();
 
       assertOnXYAxisLabels({ xLabel: "TOTAL", yLabel: "Count" });
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by TOTAL: Auto binned");
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
     });
 
     it("should work for longitude", () => {
-      H.tableHeaderClick("LONGITUDE");
+      tableHeaderClick("LONGITUDE");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Distribution").click();
 
       assertOnXYAxisLabels({ xLabel: "LONGITUDE", yLabel: "Count" });
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Count by LONGITUDE: Auto binned");
-      H.chartPathWithFillColor("#509EE3");
+      chartPathWithFillColor("#509EE3");
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("170° W");
     });
@@ -223,9 +235,9 @@ describe("scenarios > binning > from a saved sql question", () => {
 });
 
 function assertOnXYAxisLabels({ xLabel, yLabel } = {}) {
-  H.echartsContainer().get("text").contains(xLabel);
+  echartsContainer().get("text").contains(xLabel);
 
-  H.echartsContainer().get("text").contains(yLabel);
+  echartsContainer().get("text").contains(yLabel);
 }
 
 function waitAndAssertOnRequest(requestAlias) {

@@ -1,4 +1,3 @@
-;; -*- outline-regexp: "[; ]+#+[[:space:]]+" -*-
 (ns metabase.models.serialization
   "Defines core interfaces for serialization.
 
@@ -14,8 +13,6 @@
 
   - Add it to the appropriate list in [[metabase-enterprise.serialization.v2.models]]
   - If it is in the `excluded-models` list, then your job is done
-  - If it's not, you probably want `entity_id` field autopopulated (that's a most common way to make model
-    transportable between instances), add `(derive :model/Model :hook/entity-id)` to your model
   - Define serialization multi-methods on a model (see `Card` and `Collection` for more complex examples or `Action`
     and `Segment` for less involved stuff)
     - `serdes/make-spec` - this is the main entry point. Should list every field in the model (this is checked in
@@ -53,6 +50,7 @@
     format distinguishes between `nil` and absence)"
   (:refer-clojure :exclude [descendants])
   (:require
+   [cheshire.core :as json]
    [clojure.core.match :refer [match]]
    [clojure.set :as set]
    [clojure.string :as str]
@@ -61,10 +59,9 @@
    [metabase.lib.schema.id :as lib.schema.id]
    [metabase.lib.util.match :as lib.util.match]
    [metabase.models.interface :as mi]
-   [metabase.models.visualization-settings :as mb.viz]
+   [metabase.shared.models.visualization-settings :as mb.viz]
    [metabase.util :as u]
    [metabase.util.date-2 :as u.date]
-   [metabase.util.json :as json]
    [metabase.util.log :as log]
    [toucan2.core :as t2]
    [toucan2.model :as t2.model]
@@ -447,7 +444,7 @@
     (catch Exception e
       (when-not (or (:skip (ex-data e))
                     (:continue-on-error opts))
-        (throw (ex-info (format "Error extracting %s %s" model (:id instance))
+        (throw (ex-info (format "Exception extracting %s %s" model (:id instance))
                         {:model     model
                          :table     (->> model (keyword "model") t2/table-name)
                          :id        (:id instance)
@@ -501,7 +498,7 @@
       (t2/reducible-select model {:where [:and
                                           [:or
                                            [:in :collection_id collection-set]
-                                           (when (some nil? collection-set)
+                                           (when (contains? collection-set nil)
                                              [:= :collection_id nil])]
                                           (when where
                                             where)]}))))
@@ -513,8 +510,8 @@
       nested? (extract-reducible-nested model-name (dissoc opts :where)))))
 
 (defmulti descendants
-  "Returns map of `{[model-name database-id] {initiating-model id}}` for all entities contained or used by this
-   entity. e.g. the Dashboard implementation should return pairs for all DashboardCard entities it contains, etc.
+  "Returns set of `[model-name database-id]` pairs for all entities contained or used by this entity. e.g. the Dashboard
+   implementation should return pairs for all DashboardCard entities it contains, etc.
 
    Dispatched on model-name."
   {:arglists '([model-name db-id])}
@@ -524,9 +521,9 @@
   nil)
 
 (defmulti ascendants
-  "Return map of `{[model-name database-id] {initiating-model id}}` for all entities containing this entity, required
-  to successfully load this entity in destination db. Notice that ascendants are searched recursively, but their
-  descendants are not analyzed.
+  "Return set of `[model-name database-id]` pairs for all entities containing this entity, required to successfully
+  load this entity in destination db. Notice that ascendants are searched recursively, but their descendants are not
+  analyzed.
 
   Dispatched on model-name."
   {:arglists '([model-name db-id])}
@@ -730,10 +727,10 @@
   [ingested maybe-local]
   (let [model-name (ingested-model ingested)
         adjusted   (xform-one model-name ingested)
-        instance   (binding [mi/*deserializing?* true]
-                     (if (nil? maybe-local)
-                       (load-insert! model-name adjusted)
-                       (load-update! model-name adjusted maybe-local)))]
+        instance (binding [mi/*deserializing?* true]
+                   (if (nil? maybe-local)
+                     (load-insert! model-name adjusted)
+                     (load-update! model-name adjusted maybe-local)))]
     (spec-nested! model-name ingested instance)
     instance))
 
@@ -844,20 +841,9 @@
       (cond
         (nil? entity)      (throw (ex-info "FK target not found" {:model model
                                                                   :id    id
-                                                                  :skip  true
-                                                                  ::type :target-not-found}))
+                                                                  :skip  true}))
         (= (count path) 1) (first path)
         :else              path))))
-
-(defmacro ^:private fk-elide
-  "If a call to `*export-fk*` inside of this fails, do not export the whole data structure"
-  [& body]
-  `(try
-     ~@body
-     (catch clojure.lang.ExceptionInfo e#
-       (when-not (= (::type (ex-data e#)) :target-not-found)
-         (throw e#))
-       nil)))
 
 (defn ^:dynamic ^::cache *import-fk*
   "Given an identifier, and the model it represents (symbol, name or IModel), looks up the corresponding
@@ -954,12 +940,7 @@
                   (when schema {:model "Schema" :id schema})
                   {:model "Table" :id table-name}]))
 
-(def ^:private STORAGE-DIRS {"Database" "databases"
-                             "Schema"   "schemas"
-                             "Table"    "tables"
-                             "Field"    "fields"})
-
-(defn storage-path-prefixes
+(defn storage-table-path-prefix
   "The [[serdes/storage-path]] for Table is a bit tricky, and shared with Fields and FieldValues, so it's
   factored out here.
   Takes the :serdes/meta value for a `Table`!
@@ -968,57 +949,32 @@
   With a schema: `[\"databases\" \"db_name\" \"schemas\" \"public\" \"tables\" \"customers\"]`
   No schema:     `[\"databases\" \"db_name\" \"tables\" \"customers\"]`"
   [path]
-  (into [] cat
-        (for [entry path]
-          [(or (get STORAGE-DIRS (:model entry))
-               (throw (ex-info "Could not find dir name" {:entry entry})))
-           (:id entry)])))
+  (let [db-name    (-> path first :id)
+        schema     (when (= (count path) 3)
+                     (-> path second :id))
+        table-name (-> path last :id)]
+    (concat ["databases" db-name]
+            (when schema ["schemas" schema])
+            ["tables" table-name])))
 
 ;;; ## Fields
-
-(defn- field-hierarchy [id]
-  (reverse
-   (t2/select :model/Field
-              {:with-recursive [[[:parents {:columns [:id :name :parent_id :table_id]}]
-                                 {:union-all [{:from   [[:metabase_field :mf]]
-                                               :select [:mf.id :mf.name :mf.parent_id :mf.table_id]
-                                               :where  [:= :id id]}
-                                              {:from   [[:metabase_field :pf]]
-                                               :select [:pf.id :pf.name :pf.parent_id :pf.table_id]
-                                               :join   [[:parents :p] [:= :p.parent_id :pf.id]]}]}]]
-               :from           [:parents]
-               :select         [:name :table_id]})))
-
-(defn recursively-find-field-q
-  "Build a query to find a field among parents (should start with bottom-most field first), i.e.:
-
-  `(recursively-find-field-q 1 [\"inner\" \"outer\"])`"
-  [table-id [field & rest]]
-  (when field
-    {:from   [:metabase_field]
-     :select [:id]
-     :where  [:and
-              [:= :table_id table-id]
-              [:= :name field]
-              [:= :parent_id (recursively-find-field-q table-id rest)]]}))
 
 (defn ^:dynamic ^::cache *export-field-fk*
   "Given a numeric `field_id`, return a portable field reference.
   That has the form `[db-name schema table-name field-name]`, where the `schema` might be nil.
-  [[*import-field-fk*]] is the inverse."
+  [[import-field-fk]] is the inverse."
   [field-id]
   (when field-id
-    (let [fields                      (field-hierarchy field-id)
-          [db-name schema field-name] (*export-table-fk* (:table_id (first fields)))]
-      (into [db-name schema field-name] (map :name fields)))))
+    (let [{:keys [name table_id]}     (t2/select-one 'Field :id field-id)
+          [db-name schema field-name] (*export-table-fk* table_id)]
+      [db-name schema field-name name])))
 
 (defn ^:dynamic ^::cache *import-field-fk*
-  "Given a `field_id` as exported by [[*export-field-fk*]], resolve it back into a numeric `field_id`."
-  [[db-name schema table-name & fields :as field-id]]
+  "Given a `field_id` as exported by [[export-field-fk]], resolve it back into a numeric `field_id`."
+  [[db-name schema table-name field-name :as field-id]]
   (when field-id
-    (let [table-id (*import-table-fk* [db-name schema table-name])
-          field-q  (recursively-find-field-q table-id (reverse fields))]
-      (t2/select-one-pk :model/Field field-q))))
+    (let [table_id (*import-table-fk* [db-name schema table-name])]
+      (t2/select-one-pk 'Field :table_id table_id :name field-name))))
 
 (defn field->path
   "Given a `field_id` as exported by [[export-field-fk]], turn it into a `[{:model ...}]` path for the Field.
@@ -1142,7 +1098,7 @@
     [(:or :field "field") (fully-qualified-name :guard vector?)]
     [:field (*import-field-fk* fully-qualified-name)]
 
-    ;; source-field is also used within parameter mapping dimensions
+;; source-field is also used within parameter mapping dimensions
     ;; example relevant clause - [:field 2 {:source-field 1}]
     {:source-field (fully-qualified-name :guard vector?)}
     (assoc &match :source-field (*import-field-fk* fully-qualified-name))
@@ -1159,8 +1115,8 @@
         (assoc :card-id (*import-fk* entity-id 'Card))
         mbql-fully-qualified-names->ids*) ; Process other keys
 
-    [(:or :metric "metric") (entity-id :guard portable-id?)]
-    [:metric (*import-fk* entity-id 'Card)]
+    [(:or :metric "metric") (fully-qualified-name :guard portable-id?)]
+    [:metric (*import-fk* fully-qualified-name 'LegacyMetric)]
 
     [(:or :segment "segment") (fully-qualified-name :guard portable-id?)]
     [:segment (*import-fk* fully-qualified-name 'Segment)]
@@ -1211,8 +1167,8 @@
     ["field"    (field :guard vector?) tail] (into #{(field->path field)} (mbql-deps-map tail))
     [:field-id  (field :guard vector?) tail] (into #{(field->path field)} (mbql-deps-map tail))
     ["field-id" (field :guard vector?) tail] (into #{(field->path field)} (mbql-deps-map tail))
-    [:metric    (field :guard portable-id?)] #{[{:model "Card" :id field}]}
-    ["metric"   (field :guard portable-id?)] #{[{:model "Card" :id field}]}
+    [:metric    (field :guard portable-id?)] #{[{:model "LegacyMetric" :id field}]}
+    ["metric"   (field :guard portable-id?)] #{[{:model "LegacyMetric" :id field}]}
     [:segment   (field :guard portable-id?)] #{[{:model "Segment" :id field}]}
     ["segment"  (field :guard portable-id?)] #{[{:model "Segment" :id field}]}
     :else (reduce #(cond
@@ -1326,31 +1282,28 @@
   Returns a new JSON string with the IDs converted inside."
   [json-str]
   (-> json-str
-      json/decode+kw
+      (json/parse-string true)
       ids->fully-qualified-names
-      json/encode))
+      json/generate-string))
 
 (defn- json-mbql-fully-qualified-names->ids
   "Converts fully qualified names to IDs in MBQL embedded inside a JSON string.
   Returns a new JSON string with teh IDs converted inside."
   [json-str]
   (-> json-str
-      json/decode+kw
+      (json/parse-string true)
       mbql-fully-qualified-names->ids
-      json/encode))
+      json/generate-string))
 
 (defn- export-viz-click-behavior-link
   [{:keys [linkType type] :as click-behavior}]
-  (fk-elide
-   (cond-> click-behavior
-     (= type "link") (-> (update :targetId *export-fk* (link-card-model->toucan-model linkType))
-                         (u/update-some :tabId *export-fk* :model/DashboardTab)))))
+  (cond-> click-behavior
+    (= type "link") (update :targetId *export-fk* (link-card-model->toucan-model linkType))))
 
 (defn- import-viz-click-behavior-link
   [{:keys [linkType type] :as click-behavior}]
   (cond-> click-behavior
-    (= type "link") (-> (update :targetId *import-fk* (link-card-model->toucan-model linkType))
-                        (u/update-some :tabId *import-fk* :model/DashboardTab))))
+    (= type "link") (update :targetId *import-fk* (link-card-model->toucan-model linkType))))
 
 (defn- export-viz-click-behavior-mapping [mapping]
   (-> mapping
@@ -1392,7 +1345,7 @@
 
 (defn- export-viz-click-behavior [settings]
   (some-> settings
-          (u/update-some :click_behavior export-viz-click-behavior-link)
+          (m/update-existing    :click_behavior export-viz-click-behavior-link)
           (m/update-existing-in [:click_behavior :parameterMapping] export-viz-click-behavior-mappings)))
 
 (defn- import-viz-click-behavior [settings]
@@ -1413,14 +1366,25 @@
 (defn- export-visualizations [entity]
   (lib.util.match/replace
     entity
-    ["field-id" (id :guard number?)]      ["field-id" (*export-field-fk* id)]
-    [:field-id  (id :guard number?)]      [:field-id  (*export-field-fk* id)]
-    ["field-id" (id :guard number?) tail] ["field-id" (*export-field-fk* id) (export-visualizations tail)]
-    [:field-id  (id :guard number?) tail] [:field-id  (*export-field-fk* id) (export-visualizations tail)]
-    ["field"    (id :guard number?)]      ["field"    (*export-field-fk* id)]
-    [:field     (id :guard number?)]      [:field     (*export-field-fk* id)]
-    ["field"    (id :guard number?) tail] ["field"    (*export-field-fk* id) (export-visualizations tail)]
-    [:field     (id :guard number?) tail] [:field     (*export-field-fk* id) (export-visualizations tail)]
+    ["field-id" (id :guard number?)]
+    ["field-id" (*export-field-fk* id)]
+    [:field-id (id :guard number?)]
+    [:field-id (*export-field-fk* id)]
+
+    ["field-id" (id :guard number?) tail]
+    ["field-id" (*export-field-fk* id) (export-visualizations tail)]
+    [:field-id (id :guard number?) tail]
+    [:field-id (*export-field-fk* id) (export-visualizations tail)]
+
+    ["field" (id :guard number?)]
+    ["field" (*export-field-fk* id)]
+    [:field (id :guard number?)]
+    [:field (*export-field-fk* id)]
+
+    ["field" (id :guard number?) tail]
+    ["field" (*export-field-fk* id) (export-visualizations tail)]
+    [:field (id :guard number?) tail]
+    [:field (*export-field-fk* id) (export-visualizations tail)]
 
     (_ :guard map?)
     (m/map-vals export-visualizations &match)
@@ -1434,7 +1398,7 @@
   [settings]
   (when settings
     (-> settings
-        (update-keys #(-> % json/decode export-visualizations json/encode))
+        (update-keys #(-> % json/parse-string export-visualizations json/generate-string))
         (update-vals export-viz-click-behavior))))
 
 (defn export-visualization-settings
@@ -1482,7 +1446,7 @@
 (defn- import-column-settings [settings]
   (when settings
     (-> settings
-        (update-keys #(-> % name json/decode import-visualizations json/encode))
+        (update-keys #(-> % name json/parse-string import-visualizations json/generate-string))
         (update-vals import-viz-click-behavior))))
 
 (defn import-visualization-settings
@@ -1507,11 +1471,10 @@
 
 (defn- viz-click-behavior-deps
   [settings]
-  (let [{:keys [linkType targetId type]} (:click_behavior settings)
-        model (when linkType (link-card-model->toucan-model linkType))]
+  (when-let [{:keys [linkType targetId type]} (:click_behavior settings)]
     (case type
-      "link" (when model
-               #{[{:model (name model)
+      "link" (when-let [model (some-> linkType link-card-model->toucan-model name)]
+               #{[{:model model
                    :id    targetId}]})
       ;; TODO: We might need to handle the click behavior that updates dashboard filters? I can't figure out how get
       ;; that to actually attach to a filter to check what it looks like.
@@ -1524,7 +1487,7 @@
   (let [column-settings-keys-deps (some->> viz
                                            :column_settings
                                            keys
-                                           (map (comp mbql-deps json/decode name)))
+                                           (map (comp mbql-deps json/parse-string name)))
         column-settings-vals-deps (some->> viz
                                            :column_settings
                                            vals
@@ -1537,29 +1500,27 @@
          (filter some?)
          (reduce set/union #{}))))
 
-(defn- viz-click-behavior-descendants [{:keys [click_behavior]} src]
-  (let [{:keys [linkType targetId type]} click_behavior
-        model (when linkType (link-card-model->toucan-model linkType))]
+(defn- viz-click-behavior-descendants [{:keys [click_behavior]}]
+  (when-let [{:keys [linkType targetId type]} click_behavior]
     (case type
-      "link" (when (and model
-                        (fk-elide (*export-fk* targetId model)))
-               {[(name model) targetId] src})
+      "link" (when-let [model (link-card-model->toucan-model linkType)]
+               #{[(name model) targetId]})
       ;; TODO: We might need to handle the click behavior that updates dashboard filters? I can't figure out how get
       ;; that to actually attach to a filter to check what it looks like.
       nil)))
 
-(defn- viz-column-settings-descendants [{:keys [column_settings]} src]
+(defn- viz-column-settings-descendants [{:keys [column_settings]}]
   (when column_settings
     (->> (vals column_settings)
-         (mapcat #(viz-click-behavior-descendants % src))
+         (mapcat viz-click-behavior-descendants)
          set)))
 
 (defn visualization-settings-descendants
   "Given the :visualization_settings (possibly nil) for an entity, return anything that should be considered a
   descendant. Always returns an empty set even if the input is nil."
-  [viz src]
-  (set/union (viz-click-behavior-descendants  viz src)
-             (viz-column-settings-descendants viz src)))
+  [viz]
+  (set/union (viz-click-behavior-descendants  viz)
+             (viz-column-settings-descendants viz)))
 
 ;;; Common transformers
 
@@ -1591,7 +1552,7 @@
                               (->> (sort-by sorter data)
                                    (mapv #(extract-one model-name opts %)))
                               (catch Exception e
-                                (throw (ex-info (format "Error extracting nested %s" model)
+                                (throw (ex-info (format "Error exporting nested %s" model)
                                                 {:model     model
                                                  :parent-id (:id current)}
                                                 e)))))

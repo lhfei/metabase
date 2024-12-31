@@ -1,5 +1,14 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  editDashboard,
+  filterWidget,
+  popover,
+  restore,
+  saveDashboard,
+  setFilter,
+  visitDashboard,
+  visitQuestion,
+} from "e2e/support/helpers";
 
 import { addWidgetStringFilter } from "../native-filters/helpers/e2e-field-filter-helpers";
 
@@ -7,7 +16,7 @@ const { ORDERS } = SAMPLE_DATABASE;
 
 describe("scenarios > dashboard > filters > SQL > ID", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -17,9 +26,9 @@ describe("scenarios > dashboard > filters > SQL > ID", () => {
     });
 
     it("when set through the filter widget", () => {
-      H.saveDashboard();
+      saveDashboard();
 
-      H.filterWidget().click();
+      filterWidget().click();
       addWidgetStringFilter("15");
 
       cy.findByTestId("dashcard").within(() => {
@@ -32,7 +41,7 @@ describe("scenarios > dashboard > filters > SQL > ID", () => {
       cy.findByText("Default value").next().click();
       addWidgetStringFilter("15");
 
-      H.saveDashboard();
+      saveDashboard();
 
       cy.findByTestId("dashcard").within(() => {
         cy.findByText("114.42");
@@ -46,9 +55,9 @@ describe("scenarios > dashboard > filters > SQL > ID", () => {
     });
 
     it("when set through the filter widget", () => {
-      H.saveDashboard();
+      saveDashboard();
 
-      H.filterWidget().click();
+      filterWidget().click();
       addWidgetStringFilter("4");
 
       cy.findByTestId("dashcard").within(() => {
@@ -61,7 +70,7 @@ describe("scenarios > dashboard > filters > SQL > ID", () => {
       cy.findByText("Default value").next().click();
       addWidgetStringFilter("4");
 
-      H.saveDashboard();
+      saveDashboard();
 
       cy.findByTestId("dashcard").within(() => {
         cy.findByText("47.68");
@@ -91,15 +100,15 @@ function prepareDashboardWithFilterConnectedTo(rowId) {
 
   cy.createNativeQuestionAndDashboard({ questionDetails }).then(
     ({ body: { card_id, dashboard_id } }) => {
-      H.visitQuestion(card_id);
+      visitQuestion(card_id);
 
-      H.visitDashboard(dashboard_id);
+      visitDashboard(dashboard_id);
     },
   );
 
-  H.editDashboard();
-  H.setFilter("ID");
+  editDashboard();
+  setFilter("ID");
 
   cy.findByText("Select…").click();
-  H.popover().contains("Filter").click();
+  popover().contains("Filter").click();
 }

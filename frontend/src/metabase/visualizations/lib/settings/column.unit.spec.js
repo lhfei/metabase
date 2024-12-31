@@ -36,7 +36,6 @@ describe("column settings", () => {
     const computed = getComputedSettings(defs, series, stored);
     expect(computed.column(series[0].data.cols[0]).currency).toEqual("BTC");
   });
-
   it("should find by column 'field' ID ref", () => {
     const series = seriesWithColumn({
       id: 42,
@@ -53,7 +52,6 @@ describe("column settings", () => {
     const computed = getComputedSettings(defs, series, stored);
     expect(computed.column(series[0].data.cols[0]).currency).toEqual("BTC");
   });
-
   it("should find by column name if it also has a 'field-literal' ref", () => {
     const series = seriesWithColumn({
       field_ref: ["field", "foo", { "base-type": "type/Float" }],
@@ -69,7 +67,6 @@ describe("column settings", () => {
     const computed = getComputedSettings(defs, series, stored);
     expect(computed.column(series[0].data.cols[0]).currency).toEqual("BTC");
   });
-
   it("should find by column name if it also has a 'aggregation' ref", () => {
     const series = seriesWithColumn({
       field_ref: ["aggregation", 0],
@@ -85,7 +82,6 @@ describe("column settings", () => {
     const computed = getComputedSettings(defs, series, stored);
     expect(computed.column(series[0].data.cols[0]).currency).toEqual("BTC");
   });
-
   it("should set a time style but no date style for hour-of-day", () => {
     const series = seriesWithColumn({
       unit: "hour-of-day",
@@ -101,7 +97,6 @@ describe("column settings", () => {
     expect(time_style).toEqual("h:mm A");
     expect(date_style).toEqual("");
   });
-
   it("should set a percentage style to a column with percentage type in its metadata", () => {
     const series = seriesWithColumn({
       semantic_type: "type/Percentage",

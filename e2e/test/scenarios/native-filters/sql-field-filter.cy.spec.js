@@ -1,5 +1,13 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  clearFilterWidget,
+  filterWidget,
+  multiAutocompleteInput,
+  openNativeEditor,
+  popover,
+  removeMultiAutocompleteValue,
+  restore,
+} from "e2e/support/helpers";
 
 import * as FieldFilter from "./helpers/e2e-field-filter-helpers";
 import * as SQLFilter from "./helpers/e2e-sql-filter-helpers";
@@ -8,7 +16,7 @@ const { PRODUCTS } = SAMPLE_DATABASE;
 
 describe("scenarios > filters > sql filters > field filter", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.intercept("POST", "api/dataset").as("dataset");
 
     cy.signInAsAdmin();
@@ -16,7 +24,7 @@ describe("scenarios > filters > sql filters > field filter", () => {
 
   describe("required tag", () => {
     beforeEach(() => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery(
         "SELECT * FROM products WHERE {{filter}}",
       );
@@ -38,7 +46,7 @@ describe("scenarios > filters > sql filters > field filter", () => {
       cy.findByTestId("sidebar-content")
         .findByText("Enter a default value…")
         .click();
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByPlaceholderText("Enter a default value…").type(value);
         cy.button("Add filter").click();
       });
@@ -52,23 +60,21 @@ describe("scenarios > filters > sql filters > field filter", () => {
 
     it("when there's a default value, enabling required sets it as a parameter value", () => {
       setDefaultFieldValue(5);
-      H.filterWidget().click();
-      H.clearFilterWidget();
+      filterWidget().click();
+      clearFilterWidget();
       SQLFilter.toggleRequired();
-      H.filterWidget()
-        .findByTestId("field-set-content")
-        .should("have.text", "5");
+      filterWidget().findByTestId("field-set-content").should("have.text", "5");
     });
 
     it("when there's a default value and value is unset, updating filter sets the default back", () => {
       setDefaultFieldValue(10);
       SQLFilter.toggleRequired();
-      H.filterWidget().click();
-      H.popover().within(() => {
-        H.removeFieldValuesValue(0);
+      filterWidget().click();
+      popover().within(() => {
+        removeMultiAutocompleteValue(0);
         cy.findByText("Set to default").click();
       });
-      H.filterWidget()
+      filterWidget()
         .findByTestId("field-set-content")
         .should("have.text", "10");
     });
@@ -76,21 +82,19 @@ describe("scenarios > filters > sql filters > field filter", () => {
     it("when there's a default value and template tag is required, can reset it back", () => {
       setDefaultFieldValue(8);
       SQLFilter.toggleRequired();
-      H.filterWidget().click();
-      H.popover().within(() => {
-        H.fieldValuesInput().type("10,");
+      filterWidget().click();
+      popover().within(() => {
+        multiAutocompleteInput().type("10,");
         cy.findByText("Update filter").click();
       });
-      H.filterWidget().icon("revert").click();
-      H.filterWidget()
-        .findByTestId("field-set-content")
-        .should("have.text", "8");
+      filterWidget().icon("revert").click();
+      filterWidget().findByTestId("field-set-content").should("have.text", "8");
     });
   });
 
   context("ID filter", () => {
     beforeEach(() => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery(
         "SELECT * FROM products WHERE {{filter}}",
       );
@@ -110,14 +114,14 @@ describe("scenarios > filters > sql filters > field filter", () => {
 
     it("should work when set initially as default value and then through the filter widget", () => {
       cy.log("the default value should apply");
-      FieldFilter.addDefaultStringFilter("2", "Add filter");
+      FieldFilter.addDefaultStringFilter("2");
       SQLFilter.runQuery();
       cy.findByTestId("query-visualization-root").within(() => {
         cy.findByText("Small Marble Shoes");
       });
 
       cy.log("the default value should not apply when the value is cleared");
-      H.clearFilterWidget();
+      clearFilterWidget();
       SQLFilter.runQuery();
       cy.findByTestId("query-visualization-root").within(() => {
         cy.findByText("Small Marble Shoes");
@@ -128,7 +132,7 @@ describe("scenarios > filters > sql filters > field filter", () => {
 
   context("None", () => {
     beforeEach(() => {
-      H.openNativeEditor();
+      openNativeEditor();
       SQLFilter.enterParameterizedQuery(
         "SELECT * FROM people WHERE {{filter}}",
       );
@@ -145,7 +149,7 @@ describe("scenarios > filters > sql filters > field filter", () => {
         .should("have.value", "None")
         .should("be.disabled");
 
-      H.filterWidget().should("not.exist");
+      filterWidget().should("not.exist");
     });
 
     it("should be runnable with the None filter being ignored (metabase#20643)", () => {
@@ -203,10 +207,10 @@ describe("scenarios > filters > sql filters > field filter", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Showing 42 rows");
 
-      H.clearFilterWidget();
-      H.filterWidget().click();
+      clearFilterWidget();
+      filterWidget().click();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Gizmo").click();
         cy.button("Update filter").click();
       });
@@ -225,7 +229,7 @@ describe("scenarios > filters > sql filters > field filter", () => {
         .findByTestId("filter-widget-type-select")
         .click();
 
-      H.popover().contains("String");
+      popover().contains("String");
     });
   });
 });

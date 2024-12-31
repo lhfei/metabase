@@ -1,5 +1,5 @@
-import { H } from "e2e/support";
 import { USERS } from "e2e/support/cypress_data";
+import { restore, visitDashboard } from "e2e/support/helpers";
 
 import { setup } from "./visit-dashboard";
 
@@ -7,7 +7,7 @@ describe("visitDashboard e2e helper", () => {
   Object.keys(Cypress._.omit(USERS, "sandboxed")).forEach(user => {
     context(`${user.toUpperCase()}`, () => {
       beforeEach(() => {
-        H.restore();
+        restore();
         cy.signInAsAdmin();
 
         setup();
@@ -18,27 +18,27 @@ describe("visitDashboard e2e helper", () => {
       });
 
       it("should work on an empty dashboard", () => {
-        H.visitDashboard("@emptyDashboard");
+        visitDashboard("@emptyDashboard");
       });
 
       it("should work on a dashboard with markdown card", () => {
-        H.visitDashboard("@markdownOnly");
+        visitDashboard("@markdownOnly");
       });
 
       it("should work on a dashboard with a model", () => {
-        H.visitDashboard("@modelDashboard");
+        visitDashboard("@modelDashboard");
       });
 
       it("should work on a dashboard with a GUI question", () => {
-        H.visitDashboard("@guiDashboard");
+        visitDashboard("@guiDashboard");
       });
 
       it("should work on a dashboard with a native question", () => {
-        H.visitDashboard("@nativeDashboard");
+        visitDashboard("@nativeDashboard");
       });
 
       it("should work on a dashboard with multiple cards (including markdown, models, pivot tables, GUI and native)", () => {
-        H.visitDashboard("@multiDashboard");
+        visitDashboard("@multiDashboard");
       });
     });
   });

@@ -1,64 +1,50 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import { ORDERS_MODEL_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  browseDatabases,
+  describeWithSnowplow,
+  describeWithSnowplowEE,
+  enableTracking,
+  expectGoodSnowplowEvent,
+  expectNoBadSnowplowEvents,
+  navigationSidebar,
+  resetSnowplow,
+  restore,
+  setTokenFeatures,
+} from "e2e/support/helpers";
 
 const { PRODUCTS_ID } = SAMPLE_DATABASE;
 
-const filterButton = () =>
-  cy
-    .findByTestId("browse-models-header")
-    .findByRole("button", { name: /Filters/i });
-
-H.describeWithSnowplow("scenarios > browse", () => {
+describeWithSnowplow("scenarios > browse", () => {
   beforeEach(() => {
-    H.resetSnowplow();
-    H.restore();
+    resetSnowplow();
+    restore();
     cy.signInAsAdmin();
-    H.enableTracking();
+    enableTracking();
   });
 
   it("can browse to a model", () => {
     cy.visit("/");
-    H.navigationSidebar().findByLabelText("Browse models").click();
+    navigationSidebar().findByLabelText("Browse models").click();
     cy.location("pathname").should("eq", "/browse/models");
     cy.findByRole("heading", { name: "Orders Model" }).click();
     cy.url().should("include", `/model/${ORDERS_MODEL_ID}-`);
-    H.expectNoBadSnowplowEvents();
-    H.expectGoodSnowplowEvent({
+    expectNoBadSnowplowEvents();
+    expectGoodSnowplowEvent({
       event: "browse_data_model_clicked",
       model_id: ORDERS_MODEL_ID,
     });
   });
 
-  it("can browse to a model in a new tab by meta-clicking", () => {
-    cy.on("window:before:load", win => {
-      // prevent Cypress opening in a new window/tab and spy on this method
-      cy.stub(win, "open").as("open");
-    });
-    cy.visit("/browse/models");
-    const macOSX = Cypress.platform === "darwin";
-    cy.findByRole("heading", { name: "Orders Model" }).click({
-      metaKey: macOSX,
-      ctrlKey: !macOSX,
-    });
-
-    cy.get("@open").should("have.been.calledOnce");
-    cy.get("@open").should(
-      "have.been.calledOnceWithExactly",
-      `/question/${ORDERS_MODEL_ID}-orders-model`,
-      "_blank",
-    );
-  });
-
   it("can browse to a table in a database", () => {
     cy.visit("/");
-    H.browseDatabases().click();
+    browseDatabases().click();
     cy.findByRole("heading", { name: "Sample Database" }).click();
     cy.findByRole("heading", { name: "Products" }).click();
     cy.findByRole("button", { name: "Summarize" });
     cy.findByRole("link", { name: /Sample Database/ }).click();
-    H.expectNoBadSnowplowEvents();
-    H.expectGoodSnowplowEvent({
+    expectNoBadSnowplowEvents();
+    expectGoodSnowplowEvent({
       event: "browse_data_table_clicked",
       table_id: PRODUCTS_ID,
     });
@@ -74,7 +60,7 @@ H.describeWithSnowplow("scenarios > browse", () => {
       cy.spy().as("schemasForOtherDatabases"),
     );
     cy.visit("/");
-    H.browseDatabases().click();
+    browseDatabases().click();
     cy.findByRole("link", { name: /Sample Database/ }).click();
     cy.wait("@schemasForSampleDatabase");
     cy.get("@schemasForOtherDatabases").should("not.have.been.called");
@@ -82,7 +68,7 @@ H.describeWithSnowplow("scenarios > browse", () => {
 
   it("can visit 'Learn about our data' page", () => {
     cy.visit("/");
-    H.browseDatabases().click();
+    browseDatabases().click();
     cy.findByRole("link", { name: /Learn about our data/ }).click();
     cy.location("pathname").should("eq", "/reference/databases");
     cy.go("back");
@@ -93,50 +79,28 @@ H.describeWithSnowplow("scenarios > browse", () => {
 
   it("on an open-source instance, the Browse models page has no controls for setting filters", () => {
     cy.visit("/");
-    H.navigationSidebar().findByLabelText("Browse models").click();
-    filterButton().should("not.exist");
+    navigationSidebar().findByLabelText("Browse models").click();
+    cy.findByRole("button", { name: /filter icon/i }).should("not.exist");
     cy.findByRole("switch", { name: /Show verified models only/ }).should(
       "not.exist",
     );
   });
-
-  it("The Browse models page shows an error message if the search endpoint throws an error", () => {
-    cy.visit("/");
-    cy.intercept("GET", "/api/search*", req => {
-      req.reply({ statusCode: 400 });
-    });
-    H.navigationSidebar().findByLabelText("Browse models").click();
-    cy.findByLabelText("Models")
-      .findAllByText("An error occurred")
-      .should("have.length", 2);
-  });
-
-  it("The Browse metrics page shows an error message if the search endpoint throws an error", () => {
-    cy.visit("/");
-    cy.intercept("GET", "/api/search*", req => {
-      req.reply({ statusCode: 400 });
-    });
-    H.navigationSidebar().findByLabelText("Browse metrics").click();
-    cy.findByLabelText("Metrics")
-      .findByText("An error occurred")
-      .should("be.visible");
-  });
 });
 
-H.describeWithSnowplowEE("scenarios > browse (EE)", () => {
+describeWithSnowplowEE("scenarios > browse (EE)", () => {
   beforeEach(() => {
-    H.resetSnowplow();
-    H.restore();
+    resetSnowplow();
+    restore();
     cy.signInAsAdmin();
-    H.enableTracking();
-    H.setTokenFeatures("all");
+    enableTracking();
+    setTokenFeatures("all");
     cy.intercept("PUT", "/api/setting/browse-filter-only-verified-models").as(
       "updateFilter",
     );
     cy.intercept("POST", "/api/moderation-review").as("updateVerification");
   });
-
-  const openFilterPopover = () => filterButton().click();
+  const openFilterPopover = () =>
+    cy.findByRole("button", { name: /filter icon/i }).click();
   const toggle = () =>
     cy.findByRole("switch", { name: /Show verified models only/ });
 
@@ -148,10 +112,18 @@ H.describeWithSnowplowEE("scenarios > browse (EE)", () => {
   const recentModel2 = () => recentsGrid().findByText("Model 2");
   const model1Row = () => modelsTable().findByRole("row", { name: /Model 1/i });
   const model2Row = () => modelsTable().findByRole("row", { name: /Model 2/i });
+  const filterButton = () =>
+    cy
+      .findByTestId("browse-models-header")
+      .findByRole("button", { name: /filter icon/i });
 
   const setVerification = (linkSelector: RegExp | string) => {
-    cy.findByLabelText("Move, trash, and more…").click();
-    cy.findByRole("menu").findByText(linkSelector).click();
+    cy.findByLabelText("Move, trash, and more...").click();
+    cy.findByRole("dialog", {
+      name: /ellipsis icon/i,
+    })
+      .findByText(linkSelector)
+      .click();
   };
   const verifyModel = () => {
     setVerification(/Verify this model/);
@@ -171,7 +143,7 @@ H.describeWithSnowplowEE("scenarios > browse (EE)", () => {
   const browseModels = () => {
     cy.visit("/");
 
-    H.navigationSidebar()
+    navigationSidebar()
       .findByRole("listitem", { name: "Browse models" })
       .click();
   };

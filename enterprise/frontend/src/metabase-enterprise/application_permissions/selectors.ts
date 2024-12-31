@@ -37,11 +37,6 @@ export const canManageSubscriptions = createSelector(
   user => user?.permissions?.can_access_subscription ?? false,
 );
 
-export const canAccessSettings = createSelector(
-  (state: ApplicationPermissionsState) => state.currentUser,
-  user => user?.permissions?.can_access_setting ?? false,
-);
-
 const getApplicationPermission = (
   permissions: ApplicationPermissions,
   groupId: number,

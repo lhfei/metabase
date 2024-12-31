@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { Story } from "@storybook/react";
 
 import { SdkVisualizationWrapper } from "__support__/storybook";
 import type { MetabaseTheme } from "embedding-sdk";
@@ -17,7 +17,7 @@ export default {
 // @ts-expect-error: incompatible prop types with registerVisualization
 registerVisualization(PieChart);
 
-const Template: StoryFn = args => {
+const Template: Story = args => {
   const { backgroundColor, ...props } = args;
 
   const theme: MetabaseTheme = {
@@ -54,28 +54,24 @@ const Template: StoryFn = args => {
   );
 };
 
-export const EmbeddedQuestion = {
-  render: Template,
-
-  args: {
-    isDashboard: false,
-    backgroundColor: "#ebe6e2",
-  },
-
+export const EmbeddedQuestion = Template.bind({});
+EmbeddedQuestion.args = {
+  isDashboard: false,
+  backgroundColor: "#ebe6e2",
+};
+// TODO unskip this and the next story once rendering delay is completely gone.
+EmbeddedQuestion.story = {
   parameters: {
-    // TODO unskip this and the next story once rendering delay is completely gone.
     loki: { skip: true },
   },
 };
 
-export const EmbeddedDashcard = {
-  render: Template,
-
-  args: {
-    isDashboard: true,
-    backgroundColor: "#dee9e9",
-  },
-
+export const EmbeddedDashcard = Template.bind({});
+EmbeddedDashcard.args = {
+  isDashboard: true,
+  backgroundColor: "#dee9e9",
+};
+EmbeddedDashcard.story = {
   parameters: {
     loki: { skip: true },
   },

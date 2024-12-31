@@ -56,8 +56,6 @@ export const CHART_STYLE = {
   opacity: {
     blur: 0.3,
     area: 0.3,
-    areaFocused: 0.6,
-    areaBlurred: 0.2,
     scatter: 0.8,
   },
 };

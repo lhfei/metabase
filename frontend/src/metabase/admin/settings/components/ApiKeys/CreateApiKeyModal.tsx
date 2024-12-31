@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { t } from "ttag";
 
 import { useCreateApiKeyMutation } from "metabase/api";
@@ -17,23 +17,25 @@ import { SecretKeyModal } from "./SecretKeyModal";
 import { API_KEY_VALIDATION_SCHEMA } from "./utils";
 
 export const CreateApiKeyModal = ({ onClose }: { onClose: () => void }) => {
+  const [modal, setModal] = useState<"create" | "secretKey">("create");
   const [createApiKey, response] = useCreateApiKeyMutation();
   const secretKey = response?.data?.unmasked_key || "";
 
   const handleSubmit = useCallback(
     async (vals: { group_id: number | null; name: string }) => {
       if (vals.group_id !== null) {
-        await createApiKey(vals as CreateApiKeyRequest).unwrap();
+        await createApiKey(vals as CreateApiKeyRequest);
+        setModal("secretKey");
       }
     },
     [createApiKey],
   );
 
-  if (response.isSuccess) {
+  if (modal === "secretKey") {
     return <SecretKeyModal secretKey={secretKey} onClose={onClose} />;
   }
 
-  if (response.isUninitialized || response.isLoading || response.isError) {
+  if (modal === "create") {
     return (
       <Modal
         size="30rem"

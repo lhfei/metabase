@@ -1,10 +1,6 @@
 import { action } from "@storybook/addon-actions";
-import type { StoryFn } from "@storybook/react";
-import {
-  type ComponentProps,
-  type JSXElementConstructor,
-  useState,
-} from "react";
+import type { ComponentStory } from "@storybook/react";
+import { type JSXElementConstructor, useState } from "react";
 
 import { EditableDashboard } from "embedding-sdk/components/public";
 import { CommonSdkStoryWrapper } from "embedding-sdk/test/CommonSdkStoryWrapper";
@@ -17,29 +13,23 @@ import {
   useCreateDashboardApi,
 } from "./use-create-dashboard-api";
 
+// eslint-disable-next-line import/no-default-export
 export default {
   title: "EmbeddingSDK/CreateDashboardModal",
   component: CreateDashboardModal,
   decorators: [CommonSdkStoryWrapper],
 };
 
-const Template: StoryFn<ComponentProps<typeof CreateDashboardModal>> = args => (
+const Template: ComponentStory<typeof CreateDashboardModal> = () => (
   <CreateDashboardModal
     onClose={action("onClose")}
     onCreate={action("onCreate")}
-    {...args}
   />
 );
 
-export const Default = {
-  render: Template,
+export const Default = Template.bind({});
 
-  args: {
-    isOpen: true,
-  },
-};
-
-const HookTemplate: StoryFn<
+const HookTemplate: ComponentStory<
   JSXElementConstructor<Record<string, never>>
 > = () => {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -68,11 +58,9 @@ const HookTemplate: StoryFn<
   );
 };
 
-export const UseCreateDashboardApiHook = {
-  render: HookTemplate,
-};
+export const useCreateDashboardApiHook = HookTemplate.bind({});
 
-const FullWorkflowExampleTemplate: StoryFn<
+const FullWorkflowExampleTemplate: ComponentStory<
   JSXElementConstructor<Record<string, never>>
 > = () => {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -86,6 +74,4 @@ const FullWorkflowExampleTemplate: StoryFn<
   );
 };
 
-export const FullWorkflowExample = {
-  render: FullWorkflowExampleTemplate,
-};
+export const FullWorkflowExample = FullWorkflowExampleTemplate.bind({});

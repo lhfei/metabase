@@ -5,6 +5,7 @@ export * from "./navigation";
 export * from "./object-detail";
 export * from "./query-updates";
 export * from "./querying";
+export * from "./sharing";
 export * from "./timelines";
 export * from "./ui";
 export * from "./visualization-settings";

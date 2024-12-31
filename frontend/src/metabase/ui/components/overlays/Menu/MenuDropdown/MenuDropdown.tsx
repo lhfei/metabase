@@ -4,17 +4,14 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 
 import useSequencedContentCloseHandler from "metabase/hooks/use-sequenced-content-close-handler";
-import { PreventEagerPortal } from "metabase/ui";
 
 // hack to prevent parent TippyPopover from closing when selecting a Menu.Item
 // remove when TippyPopover is no longer used
 export function MenuDropdown({ children, ...props }: MenuDropdownProps) {
   return (
-    <PreventEagerPortal {...props}>
-      <Menu.Dropdown {...props} data-element-id="mantine-popover">
-        <MenuDropdownContent>{children}</MenuDropdownContent>
-      </Menu.Dropdown>
-    </PreventEagerPortal>
+    <Menu.Dropdown {...props}>
+      <MenuDropdownContent>{children}</MenuDropdownContent>
+    </Menu.Dropdown>
   );
 }
 

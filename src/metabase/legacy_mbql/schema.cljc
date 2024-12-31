@@ -17,7 +17,7 @@
    [metabase.lib.schema.info :as lib.schema.info]
    [metabase.lib.schema.literal :as lib.schema.literal]
    [metabase.lib.schema.template-tag :as lib.schema.template-tag]
-   [metabase.util.i18n :as i18n]
+   [metabase.shared.util.i18n :as i18n]
    [metabase.util.malli.registry :as mr]))
 
 ;; A NOTE ABOUT METADATA:
@@ -39,7 +39,7 @@
 
 (def ^:private PositiveInt
   [:schema
-   {:description "Must be a positive integer."}
+   {:doc/message "Must be a positive integer."}
    pos-int?])
 
 ;; `:day-of-week` depends on the [[metabase.public-settings/start-of-week]] Setting, by default Sunday.
@@ -89,7 +89,6 @@
    :week-of-year-instance
    :day-of-month
    :day-of-week
-   :day-of-week-iso
    :hour-of-day
    :minute-of-hour
    :second-of-minute])
@@ -190,7 +189,7 @@
 
 (mr/def ::ValueTypeInfo
   [:map
-   {:description (str "Type info about a value in a `:value` clause. Added automatically by `wrap-value-literals`"
+   {:doc/message (str "Type info about a value in a `:value` clause. Added automatically by `wrap-value-literals`"
                       " middleware to values in filter clauses based on the Field in the clause.")}
    [:database_type {:optional true} [:maybe ::lib.schema.common/non-blank-string]]
    [:base_type     {:optional true} [:maybe ::lib.schema.common/base-type]]
@@ -253,13 +252,9 @@
     {:error/message "field options"}
     [:base-type {:optional true} [:maybe ::lib.schema.common/base-type]]
 
-    ;; Following option conveys temporal unit that was set on a ref in previous stages. For details refer to
-    ;; [:metabase.lib.schema.ref/field.options] schema.
-    [:inherited-temporal-unit {:optional true} [:maybe ::DateTimeUnit]]
-
     [:source-field
      {:optional true
-      :description
+      :doc/message
       "Replaces `fk->`.
 
   `:source-field` is used to refer to a FieldOrExpression from a different Table you would like IMPLICITLY JOINED to
@@ -270,7 +265,7 @@
 
     [:temporal-unit
      {:optional true
-      :description
+      :doc/message
       "`:temporal-unit` is used to specify DATE BUCKETING for a FieldOrExpression that represents a moment in time of
   some sort.
 
@@ -284,7 +279,7 @@
 
     [:join-alias
      {:optional true
-      :description
+      :doc/message
       "Replaces `joined-field`.
 
   `:join-alias` is used to refer to a FieldOrExpression from a different Table/nested query that you are EXPLICITLY
@@ -293,7 +288,7 @@
 
     [:binning
      {:optional true
-      :description
+      :doc/message
       "Replaces `binning-strategy`.
 
   Using binning requires the driver to support the `:binning` feature."}
@@ -301,12 +296,12 @@
 
    ;; additional validation
    [:ref
-    {:description "If `:base-type` is specified, the `:temporal-unit` must make sense, e.g. no bucketing by `:year`for
+    {:doc/message "If `:base-type` is specified, the `:temporal-unit` must make sense, e.g. no bucketing by `:year`for
   a `:type/Time` column."}
     ::validate-temporal-unit]
 
    [:ref
-    {:description "You cannot use `:binning` keys like `:strategy` in the top level."}
+    {:doc/message "You cannot use `:binning` keys like `:strategy` in the top level."}
     ::no-binning-options-at-top-level]])
 
 (mr/def ::require-base-type-for-field-name
@@ -325,7 +320,7 @@
     "id-or-name" [:or ::lib.schema.id/field ::lib.schema.common/non-blank-string]
     "options"    [:maybe [:ref ::FieldOptions]])
    [:ref
-    {:description "Fields using names rather than integer IDs are required to specify `:base-type`."}
+    {:doc/message "Fields using names rather than integer IDs are required to specify `:base-type`."}
     ::require-base-type-for-field-name]])
 
 (def ^{:clause-name :field, :added "0.39.0"} field
@@ -379,7 +374,7 @@
 
 (defclause ^{:added "0.50.0"} offset
   opts [:ref ::lib.schema.common/options]
-  expr [:or [:ref ::FieldOrExpressionDef] [:ref ::Aggregation]]
+  expr [:or [:ref ::FieldOrExpressionDef] [:ref ::UnnamedAggregation]]
   n    ::lib.schema.expression.window/offset.n)
 
 ;;; -------------------------------------------------- Expressions ---------------------------------------------------
@@ -388,7 +383,7 @@
 
 (def string-functions
   "Functions that return string values. Should match [[StringExpression]]."
-  #{:substring :trim :rtrim :ltrim :upper :lower :replace :concat :regex-match-first :coalesce :case :if
+  #{:substring :trim :rtrim :ltrim :upper :lower :replace :concat :regex-match-first :coalesce :case
     :host :domain :subdomain :month-name :quarter-name :day-name})
 
 (def ^:private StringExpression
@@ -413,16 +408,15 @@
 
 (def numeric-functions
   "Functions that return numeric values. Should match [[NumericExpression]]."
-  #{:+ :- :/ :* :coalesce :length :round :ceil :floor :abs :power :sqrt :log :exp :case :if :datetime-diff
+  #{:+ :- :/ :* :coalesce :length :round :ceil :floor :abs :power :sqrt :log :exp :case :datetime-diff
     ;; extraction functions (get some component of a given temporal value/column)
     :temporal-extract
     ;; SUGAR drivers do not need to implement
     :get-year :get-quarter :get-month :get-week :get-day :get-day-of-week :get-hour :get-minute :get-second})
 
-(def boolean-functions
+(def ^:private boolean-functions
   "Functions that return boolean values. Should match [[BooleanExpression]]."
-  #{:and :or :not :< :<= :> :>= := :!= :in :not-in :between :starts-with :ends-with :contains
-    :does-not-contain :inside :is-empty :not-empty :is-null :not-null :relative-time-interval :time-interval :during})
+  #{:and :or :not :< :<= :> :>= := :!=})
 
 (def ^:private aggregations
   #{:sum :avg :stddev :var :median :percentile :min :max :cum-count :cum-sum :count-where :sum-where :share :distinct
@@ -561,10 +555,8 @@
 (defclause ^{:requires-features #{:expressions}} replace
   s StringExpressionArg, match :string, replacement :string)
 
-;; Relax the arg types to ExpressionArg for concat since many DBs allow to concatenate non-string types. This also
-;; aligns with the corresponding MLv2 schema and with the reference docs we publish.
 (defclause ^{:requires-features #{:expressions}} concat
-  a ExpressionArg, b ExpressionArg, more (rest ExpressionArg))
+  a StringExpressionArg, b StringExpressionArg, more (rest StringExpressionArg))
 
 (defclause ^{:requires-features #{:expressions :regex}} regex-match-first
   s StringExpressionArg, pattern :string)
@@ -639,7 +631,7 @@
 (defclause ^{:requires-features #{:temporal-extract}} temporal-extract
   datetime DateTimeExpressionArg
   unit     [:ref ::TemporalExtractUnit]
-  mode     (optional [:ref ::ExtractWeekMode])) ;; only for get-week and get-day-of-week
+  mode     (optional [:ref ::ExtractWeekMode])) ;; only for get-week
 
 ;; SUGAR CLAUSE: get-year, get-month... clauses are all sugars clause that will be rewritten as [:temporal-extract column :year]
 (defclause ^{:requires-features #{:temporal-extract}} ^:sugar get-year
@@ -659,8 +651,7 @@
   date DateTimeExpressionArg)
 
 (defclause ^{:requires-features #{:temporal-extract}} ^:sugar get-day-of-week
-  date DateTimeExpressionArg
-  mode (optional [:ref ::ExtractWeekMode]))
+  date DateTimeExpressionArg)
 
 (defclause ^{:requires-features #{:temporal-extract}} ^:sugar get-hour
   datetime DateTimeExpressionArg)
@@ -774,10 +765,6 @@
 (defclause =,  field EqualityComparable, value-or-field EqualityComparable, more-values-or-fields (rest EqualityComparable))
 (defclause !=, field EqualityComparable, value-or-field EqualityComparable, more-values-or-fields (rest EqualityComparable))
 
-;; aliases for `:=` and `:!=`
-(defclause ^:sugar in,  field EqualityComparable, value-or-field EqualityComparable, more-values-or-fields (rest EqualityComparable))
-(defclause ^:sugar not-in,  field EqualityComparable, value-or-field EqualityComparable, more-values-or-fields (rest EqualityComparable))
-
 (defclause <,  field OrderComparable, value-or-field OrderComparable)
 (defclause >,  field OrderComparable, value-or-field OrderComparable)
 (defclause <=, field OrderComparable, value-or-field OrderComparable)
@@ -869,11 +856,6 @@
   unit    [:ref ::RelativeDatetimeUnit]
   options (optional TimeIntervalOptions))
 
-(defclause ^:sugar during
-  field   Field
-  value   [:or ::lib.schema.literal/date ::lib.schema.literal/datetime]
-  unit    ::DateTimeUnit)
-
 (defclause ^:sugar relative-time-interval
   col           Field
   value         :int
@@ -893,11 +875,7 @@
   segment-id [:or SegmentID ::lib.schema.common/non-blank-string])
 
 (mr/def ::BooleanExpression
-  (one-of
-   ;; filters drivers must implement
-   and or not = != < > <= >= between starts-with ends-with contains
-    ;; SUGAR filters drivers do not need to implement
-   in not-in does-not-contain inside is-empty not-empty is-null not-null relative-time-interval time-interval during))
+  (one-of and or not < <= > >= = !=))
 
 (mr/def ::Filter
   [:multi
@@ -913,7 +891,11 @@
    [:numeric  NumericExpression]
    [:string   StringExpression]
    [:boolean  BooleanExpression]
-   [:else     (one-of segment)]])
+   [:else    (one-of
+              ;; filters drivers must implement
+              and or not = != < > <= >= between starts-with ends-with contains
+              ;; SUGAR filters drivers do not need to implement
+              does-not-contain inside is-empty not-empty is-null not-null relative-time-interval time-interval segment)]])
 
 (def ^:private CaseClause
   [:tuple {:error/message ":case subclause"} Filter ExpressionArg])
@@ -929,17 +911,14 @@
 (defclause ^{:requires-features #{:basic-aggregations}} case
   clauses CaseClauses, options (optional CaseOptions))
 
-(defclause ^:sugar ^{:requires-features #{:basic-aggregations}} [case:if if]
-  clauses CaseClauses, options (optional CaseOptions))
-
 (mr/def ::NumericExpression
-  (one-of + - / * coalesce length floor ceil round abs power sqrt exp log case case:if datetime-diff
+  (one-of + - / * coalesce length floor ceil round abs power sqrt exp log case datetime-diff
           temporal-extract get-year get-quarter get-month get-week get-day get-day-of-week
           get-hour get-minute get-second))
 
 (mr/def ::StringExpression
-  (one-of substring trim ltrim rtrim replace lower upper concat regex-match-first coalesce case case:if host domain
-          subdomain month-name quarter-name day-name))
+  (one-of substring trim ltrim rtrim replace lower upper concat regex-match-first coalesce case host domain subdomain
+          month-name quarter-name day-name))
 
 (mr/def ::FieldOrExpressionDef
   "Schema for anything that is accepted as a top-level expression definition, either an arithmetic expression such as a
@@ -954,7 +933,6 @@
                        (is-clause? boolean-functions x)  :boolean
                        (is-clause? datetime-functions x) :datetime
                        (is-clause? :case x)              :case
-                       (is-clause? :if   x)              :if
                        (is-clause? :offset x)            :offset
                        :else                             :else))}
    [:numeric  NumericExpression]
@@ -962,7 +940,6 @@
    [:boolean  BooleanExpression]
    [:datetime DatetimeExpression]
    [:case     case]
-   [:if       case:if]
    [:offset   offset]
    [:else     Field]])
 
@@ -1029,7 +1006,7 @@
                        :else))}
    [:numeric-expression NumericExpression]
    [:else (one-of avg cum-sum distinct stddev sum min max metric share count-where
-                  sum-where case case:if median percentile ag:var cum-count count offset)]])
+                  sum-where case median percentile ag:var cum-count count offset)]])
 
 (def ^:private UnnamedAggregation
   ::UnnamedAggregation)
@@ -1154,14 +1131,14 @@
 
     [:widget-type
      [:ref
-      {:description
+      {:doc/message
        "which type of widget the frontend should show for this Field Filter; this also affects which parameter types
   are allowed to be specified for it."}
       ::WidgetType]]
 
     [:options
      {:optional    true
-      :description "optional map to be appended to filter clause"}
+      :doc/message "optional map to be appended to filter clause"}
      [:maybe [:map-of :keyword :any]]]]])
 
 ;; Example:
@@ -1179,7 +1156,7 @@
    [:map
     [:type
      [:ref
-      {:description
+      {:doc/message
        "`:type` is used be the FE to determine which type of widget to display for the template tag, and to determine
   which types of parameters are allowed to be passed in for this template tag."}]
      ::lib.schema.template-tag/raw-value.type]]])
@@ -1311,7 +1288,7 @@
    ::lib.schema.id/table
    [:re
     {:error/message "'card__<id>' string Table ID"
-     :description   "`card__<id>` string Table ID"}
+     :doc/message   "`card__<id>` string Table ID"}
     source-table-card-id-regex]])
 
 (def join-strategies
@@ -1351,14 +1328,14 @@
    [:map
     [:source-table
      {:optional true
-      :description "*What* to JOIN. Self-joins can be done by using the same `:source-table` as in the query where
+      :doc/message "*What* to JOIN. Self-joins can be done by using the same `:source-table` as in the query where
   this is specified. YOU MUST SUPPLY EITHER `:source-table` OR `:source-query`, BUT NOT BOTH!"}
      SourceTable]
 
     [:source-query {:optional true} SourceQuery]
 
     [:condition
-     {:description
+     {:doc/message
       "The condition on which to JOIN. Can be anything that is a valid `:filter` clause. For automatically-generated
   JOINs this is usually something like
 
@@ -1367,14 +1344,14 @@
 
     [:strategy
      {:optional true
-      :description "Defaults to `:left-join`; used for all automatically-generated JOINs
+      :doc/message "Defaults to `:left-join`; used for all automatically-generated JOINs
 
   Driver implementations: this is guaranteed to be present after pre-processing."}
      JoinStrategy]
 
     [:fields
      {:optional true
-      :description
+      :doc/message
       "The Fields from this join to include in parent-level results. This can be either `:none`, `:all`, or a sequence
   of `:field` clauses.
 
@@ -1393,7 +1370,7 @@
 
     [:alias
      {:optional true
-      :description
+      :doc/message
       "The name used to alias the joined table or query. This is usually generated automatically and generally looks
   like `table__via__field`. You can specify this yourself if you need to reference a joined field with a `:join-alias`
   in the options.
@@ -1401,16 +1378,9 @@
   Driver implementations: This is guaranteed to be present after pre-processing."}
      ::lib.schema.common/non-blank-string]
 
-    [:ident
-     {:optional true
-      :description
-      "An opaque string used as a unique identifier for this join clause, even if it evolves. This string is randomly
-      generated when a join clause is created, so it can never be confused with another join of the same table."}
-     ::Ident]
-
     [:fk-field-id
      {:optional true
-      :description "Mostly used only internally. When a join is implicitly generated via a `:field` clause with
+      :doc/message "Mostly used only internally. When a join is implicitly generated via a `:field` clause with
   `:source-field`, the ID of the foreign key field in the source Table will be recorded here. This information is used
   to add `fk_field_id` information to the `:cols` in the query results, and also for drill-thru. When generating
   explicit joins by hand you can usually omit this information, altho it doesn't hurt to include it if you know it.
@@ -1420,7 +1390,7 @@
 
     [:source-metadata
      {:optional true
-      :description "Metadata about the source query being used, if pulled in from a Card via the
+      :doc/message "Metadata about the source query being used, if pulled in from a Card via the
   `:source-table \"card__id\"` syntax. added automatically by the `resolve-card-id-source-tables` middleware."}
      [:maybe [:sequential SourceQueryMetadata]]]]
    ;; additional constraints
@@ -1457,52 +1427,24 @@
    [:page  PositiveInt]
    [:items PositiveInt]])
 
-(mr/def ::Ident
-  "Unique identifier string for new `:column` refs. The new refs aren't used in legacy MBQL (currently) but the
-  idents for column-introducing new clauses (joins, aggregations, breakouts, expressions) are randomly generated when
-  the clauses are created, so the idents must be preserved in legacy MBQL.
-
-  These are opaque strings under the initial design; I've made them a separate schema for documentation and
-  future-proofing."
-  [:or ::lib.schema.common/non-blank-string :keyword])
-
-(mr/def ::IndexedIdents
-  "Aggregations and breakouts get their `:ident` in legacy MBQL from a separate map, which maps the index of the
-  aggregation or breakout to its ident.
-
-  (That's super unstable, but legacy MBQL is never manipulated anymore. We just need a clean round trip through
-  legacy, so indexes work fine. Idents are stored directly on the clauses in pMBQL.)"
-  ;; TODO: Make the ::Ident values strict once idents are always-populated? That only works for post-normalization
-  ;; queries, but I think we don't apply this schema until normalization.
-  [:map-of ::lib.schema.common/int-greater-than-or-equal-to-zero [:maybe ::Ident]])
-
-(mr/def ::ExpressionIdents
-  "Expressions get their `:ident` in legacy MBQL from a separate map, which maps expression names to idents."
-  ;; TODO: Make the ::Ident values strict once idents are always-populated? That only works for post-normalization
-  ;; queries, but I think we don't apply this schema until normalization.
-  [:map-of ::lib.schema.common/non-blank-string [:maybe ::Ident]])
-
 (mr/def ::MBQLQuery
   [:and
    [:map
-    [:source-query       {:optional true} SourceQuery]
-    [:source-table       {:optional true} SourceTable]
-    [:aggregation        {:optional true} [:sequential {:min 1} Aggregation]]
-    [:aggregation-idents {:optional true} [:ref ::IndexedIdents]]
-    [:breakout           {:optional true} [:sequential {:min 1} Field]]
-    [:breakout-idents    {:optional true} [:ref ::IndexedIdents]]
-    [:expressions        {:optional true} [:map-of ::lib.schema.common/non-blank-string [:ref ::FieldOrExpressionDef]]]
-    [:expression-idents  {:optional true} [:ref ::ExpressionIdents]]
-    [:fields             {:optional true} Fields]
-    [:filter             {:optional true} Filter]
-    [:limit              {:optional true} ::lib.schema.common/int-greater-than-or-equal-to-zero]
-    [:order-by           {:optional true} (helpers/distinct [:sequential {:min 1} [:ref ::OrderBy]])]
-    [:page               {:optional true} [:ref ::Page]]
-    [:joins              {:optional true} [:ref ::Joins]]
+    [:source-query    {:optional true} SourceQuery]
+    [:source-table    {:optional true} SourceTable]
+    [:aggregation     {:optional true} [:sequential {:min 1} Aggregation]]
+    [:breakout        {:optional true} [:sequential {:min 1} Field]]
+    [:expressions     {:optional true} [:map-of ::lib.schema.common/non-blank-string [:ref ::FieldOrExpressionDef]]]
+    [:fields          {:optional true} Fields]
+    [:filter          {:optional true} Filter]
+    [:limit           {:optional true} ::lib.schema.common/int-greater-than-or-equal-to-zero]
+    [:order-by        {:optional true} (helpers/distinct [:sequential {:min 1} [:ref ::OrderBy]])]
+    [:page            {:optional true} [:ref ::Page]]
+    [:joins           {:optional true} [:ref ::Joins]]
 
     [:source-metadata
      {:optional true
-      :description "Info about the columns of the source query. Added in automatically by middleware. This metadata is
+      :doc/message "Info about the columns of the source query. Added in automatically by middleware. This metadata is
   primarily used to let power things like binning when used with Field Literals instead of normal Fields."}
      [:maybe [:sequential SourceQueryMetadata]]]]
    ;;
@@ -1515,16 +1457,7 @@
    [:fn
     {:error/message "Fields specified in `:breakout` should not be specified in `:fields`; this is implied."}
     (fn [{:keys [breakout fields]}]
-      (empty? (set/intersection (set breakout) (set fields))))]
-   ;; TODO: Re-enable this - it's a useful check but it currently breaks a pile of too-literal legacy tests.
-   #_[:fn
-      {:error/message ":expressions must have the same keys as :expression-idents"}
-      (fn [{:keys [expressions expression-idents]}]
-        (core/or (core/= nil expressions expression-idents)
-                 (core/and (map? expressions)
-                           (map? expression-idents)
-                           (core/= (set (keys expressions))
-                                   (set (keys expression-idents))))))]])
+      (empty? (set/intersection (set breakout) (set fields))))]])
 
 ;;; ----------------------------------------------------- Params -----------------------------------------------------
 
@@ -1590,7 +1523,7 @@
   [:map
    [:report-timezone
     {:optional    true
-     :description "The timezone the query should be ran in, overriding the default report timezone for the instance."}
+     :doc/message "The timezone the query should be ran in, overriding the default report timezone for the instance."}
     TimezoneId]])
 
 (mr/def ::Constraints
@@ -1601,14 +1534,14 @@
    [:map
     [:max-results
      {:optional true
-      :description
+      :doc/message
       "Maximum number of results to allow for a query with aggregations. If `max-results-bare-rows` is unset, this
   applies to all queries"}
      ::lib.schema.common/int-greater-than-or-equal-to-zero]
 
     [:max-results-bare-rows
      {:optional true
-      :description
+      :doc/message
       "Maximum number of results to allow for a query with no aggregations. If set, this should be LOWER than
   `:max-results`."}
      ::lib.schema.common/int-greater-than-or-equal-to-zero]]
@@ -1625,7 +1558,7 @@
   [:map
    [:skip-results-metadata?
     {:optional true
-     :description
+     :doc/message
      "Should we skip adding `results_metadata` to query results after running the query? Used by
      `metabase.query-processor.middleware.results-metadata`; default `false`. (Note: we may change the name of this
      column in the near future, to `result_metadata`, to fix inconsistencies in how we name things.)"}
@@ -1633,14 +1566,14 @@
 
    [:format-rows?
     {:optional true
-     :description
+     :doc/message
      "Should we skip converting datetime types to ISO-8601 strings with appropriate timezone when post-processing
      results? Used by `metabase.query-processor.middleware.format-rows`default `false`."}
     :boolean]
 
    [:disable-mbql->native?
     {:optional true
-     :description
+     :doc/message
      "Disable the MBQL->native middleware. If you do this, the query will not work at all, so there are no cases where
   you should set this yourself. This is only used by the `metabase.query-processor.preprocess/preprocess` function to
   get the fully pre-processed query without attempting to convert it to native."}
@@ -1648,14 +1581,14 @@
 
    [:disable-max-results?
     {:optional true
-     :description
+     :doc/message
      "Disable applying a default limit on the query results. Handled in the `add-default-limit` middleware. If true,
   this will override the `:max-results` and `:max-results-bare-rows` values in `Constraints`."}
     :boolean]
 
    [:userland-query?
     {:optional true
-     :description
+     :doc/message
      "Userland queries are ones ran as a result of an API call, Pulse, or the like. Special handling is done in
   certain userland-only middleware for such queries -- results are returned in a slightly different format, and
   QueryExecution entries are normally saved, unless you pass `:no-save` as the option."}
@@ -1663,7 +1596,7 @@
 
    [:add-default-userland-constraints?
     {:optional true
-     :description
+     :doc/message
      "Whether to add some default `max-results` and `max-results-bare-rows` constraints. By default, none are added,
   although the functions that ultimately power most API endpoints tend to set this to `true`. See
   `add-constraints` middleware for more details."}
@@ -1671,7 +1604,7 @@
 
    [:process-viz-settings?
     {:optional true
-     :description
+     :doc/message
      "Whether to process a question's visualization settings and include them in the result metadata so that they can
   incorporated into an export. Used by `metabase.query-processor.middleware.visualization-settings`; default
   `false`."}
@@ -1698,15 +1631,16 @@
 (mr/def ::check-keys-for-query-type
   [:and
    [:fn
-    {:error/message "Query must specify at most one of `:native` or `:query`, but not both."}
-    (complement (every-pred :native :query))]
+    {:error/message "Query must specify either `:native` or `:query`, but not both."}
+    (every-pred
+     (some-fn :native :query)
+     (complement (every-pred :native :query)))]
    [:fn
-    {:error/message "Native queries must not specify `:query`; MBQL queries must not specify `:native`."}
+    {:error/message "Native queries must specify `:native`; MBQL queries must specify `:query`."}
     (fn [{native :native, mbql :query, query-type :type}]
       (core/case query-type
-        :native (core/not mbql)
-        :query  (core/not native)
-        false))]])
+        :native native
+        :query  mbql))]])
 
 (mr/def ::check-query-does-not-have-source-metadata
   "`:source-metadata` is added to queries when `card__id` source queries are resolved. It contains info about the
@@ -1729,11 +1663,11 @@
 (mr/def ::Query
   [:and
    [:map
-    [:database   {:optional true} ::DatabaseID]
+    [:database ::DatabaseID]
 
     [:type
      [:enum
-      {:description "Type of query. `:query` = MBQL; `:native` = native."}
+      {:doc/message "Type of query. `:query` = MBQL; `:native` = native."}
       :query :native]]
 
     [:native     {:optional true} NativeQuery]
@@ -1752,7 +1686,7 @@
     ;;
     [:info
      {:optional true
-      :description "Used when recording info about this run in the QueryExecution log; things like context query was
+      :doc/message "Used when recording info about this run in the QueryExecution log; things like context query was
   ran in and User who ran it."}
      [:maybe [:ref ::lib.schema.info/info]]]
     ;;
@@ -1770,14 +1704,15 @@
   "Is this a valid outer query? (Pre-compling a validator is more efficient.)"
   (mr/validator Query))
 
-(defn validate-query
+(def ^{:arglists '([query])} validate-query
   "Validator for an outer query; throw an Exception explaining why the query is invalid if it is. Returns query if
   valid."
-  [query]
-  (if (valid-query? query)
-    query
-    (let [error     (mr/explain Query query)
-          humanized (me/humanize error)]
-      (throw (ex-info (i18n/tru "Invalid query: {0}" (pr-str humanized))
-                      {:error    humanized
-                       :original error})))))
+  (let [explainer (mr/explainer Query)]
+    (fn [query]
+      (if (valid-query? query)
+        query
+        (let [error     (explainer query)
+              humanized (me/humanize error)]
+          (throw (ex-info (i18n/tru "Invalid query: {0}" (pr-str humanized))
+                          {:error    humanized
+                           :original error})))))))

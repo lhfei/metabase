@@ -49,8 +49,10 @@ export function useBooleanOperatorFilter({
     valueCount,
     isExpanded,
     getDefaultValues,
-    getFilterClause: (operator: Lib.BooleanFilterOperator, values: boolean[]) =>
-      getFilterClause(operator, column, values),
+    getFilterClause: (
+      operator: Lib.BooleanFilterOperatorName,
+      values: boolean[],
+    ) => getFilterClause(operator, column, values),
     setOperator,
     setValues,
   };

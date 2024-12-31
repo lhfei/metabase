@@ -7,7 +7,6 @@ import {
 import { hasPremiumFeature } from "metabase-enterprise/settings";
 import type { Collection } from "metabase-types/api";
 
-import { CollectionAuthorityLevelDisplay } from "./components/CollectionAuthorityLevelDisplay";
 import { CollectionAuthorityLevelIcon } from "./components/CollectionAuthorityLevelIcon";
 import { CollectionInstanceAnalyticsIcon } from "./components/CollectionInstanceAnalyticsIcon";
 import { FormCollectionAuthorityLevel } from "./components/FormCollectionAuthorityLevel";
@@ -71,9 +70,6 @@ if (hasPremiumFeature("official_collections")) {
 
   PLUGIN_COLLECTION_COMPONENTS.CollectionAuthorityLevelIcon =
     CollectionAuthorityLevelIcon;
-
-  PLUGIN_COLLECTION_COMPONENTS.CollectionAuthorityLevelDisplay =
-    CollectionAuthorityLevelDisplay;
 }
 
 if (hasPremiumFeature("audit_app")) {

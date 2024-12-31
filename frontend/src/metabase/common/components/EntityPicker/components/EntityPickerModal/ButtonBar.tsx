@@ -63,7 +63,6 @@ export const ButtonBar = ({
             }
           }}
           disabled={!canConfirm}
-          data-testid="entity-picker-select-button"
         >
           {confirmButtonText ?? t`Select`}
         </Button>

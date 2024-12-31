@@ -1,6 +1,7 @@
 (ns metabase.api.public
   "Metabase API endpoints for viewing publicly-accessible Cards and Dashboards."
   (:require
+   [cheshire.core :as json]
    [compojure.core :refer [GET]]
    [medley.core :as m]
    [metabase.actions.core :as actions]
@@ -31,11 +32,10 @@
    [metabase.query-processor.pipeline :as qp.pipeline]
    [metabase.query-processor.pivot :as qp.pivot]
    [metabase.query-processor.streaming :as qp.streaming]
-   [metabase.request.core :as request]
+   [metabase.server.middleware.session :as mw.session]
    [metabase.util :as u]
    [metabase.util.embed :as embed]
    [metabase.util.i18n :refer [tru]]
-   [metabase.util.json :as json]
    [metabase.util.malli :as mu]
    [metabase.util.malli.schema :as ms]
    [throttle.core :as throttle]
@@ -74,7 +74,7 @@
 (defn- remove-card-non-public-columns
   "Remove everyting from public `card` that shouldn't be visible to the general public."
   [card]
-  ;; We need to check this to resolve params - we set `request/as-admin` there
+  ;; We need to check this to resolve params - we set `mw.session/as-admin` there
   (if qp.perms/*param-values-query*
     card
     (mi/instance
@@ -136,7 +136,7 @@
   (fn run [query info]
     (qp.streaming/streaming-response [rff export-format (u/slugify (:card-name info))]
       (binding [qp.pipeline/*result* (comp qp.pipeline/*result* transform-qp-result)]
-        (request/as-admin
+        (mw.session/as-admin
           (qp (update query :info merge info) rff))))))
 
 (mu/defn- export-format->context :- ::lib.schema.info/context
@@ -161,7 +161,7 @@
   ;; we actually need to bind the current user perms here twice, once so `card-api` will have the full perms when it
   ;; tries to do the `read-check`, and a second time for when the query is ran (async) so the QP middleware will have
   ;; the correct perms
-  (request/as-admin
+  (mw.session/as-admin
     (m/mapply qp.card/process-query-for-card card-id export-format
               :parameters parameters
               :context    (export-format->context export-format)
@@ -183,26 +183,24 @@
   [uuid parameters]
   {uuid       ms/UUIDString
    parameters [:maybe ms/JSONString]}
-  (process-query-for-card-with-public-uuid uuid :api (json/decode+kw parameters)))
+  (process-query-for-card-with-public-uuid uuid :api (json/parse-string parameters keyword)))
 
 (api/defendpoint GET "/card/:uuid/query/:export-format"
   "Fetch a publicly-accessible Card and return query results in the specified format. Does not require auth
   credentials. Public sharing must be enabled."
-  [uuid export-format :as {{:keys [parameters format_rows pivot_results]} :params}]
+  [uuid export-format :as {{:keys [parameters format_rows]} :params}]
   {uuid          ms/UUIDString
    export-format api.dataset/ExportFormat
    format_rows   [:maybe :boolean]
-   pivot_results [:maybe :boolean]
    parameters    [:maybe ms/JSONString]}
   (process-query-for-card-with-public-uuid
    uuid
    export-format
-   (json/decode+kw parameters)
+   (json/parse-string parameters keyword)
    :constraints nil
    :middleware {:process-viz-settings? true
                 :js-int-to-string?     false
-                :format-rows?          (or format_rows false)
-                :pivot?                (or pivot_results false)}))
+                :format-rows?          format_rows}))
 
 ;;; ----------------------------------------------- Public Dashboards ------------------------------------------------
 
@@ -235,8 +233,7 @@
   general public. Throws a 404 if the Dashboard doesn't exist."
   [& conditions]
   {:pre [(even? (count conditions))]}
-  (binding [params/*ignore-current-user-perms-and-return-all-field-values* true
-            params/*field-id-context* (atom params/empty-field-id-context)]
+  (binding [params/*ignore-current-user-perms-and-return-all-field-values* true]
     (-> (api/check-404 (apply t2/select-one [Dashboard :name :description :id :parameters :auto_apply_filters :width], :archived false, conditions))
         (t2/hydrate [:dashcards :card :series :dashcard/action] :tabs :param_values :param_fields)
         api.dashboard/add-query-average-durations
@@ -279,14 +276,14 @@
                   :constraints (qp.constraints/default-query-constraints)}
                  options
                  {:parameters    (cond-> parameters
-                                   (string? parameters) json/decode+kw)
+                                   (string? parameters) (json/parse-string keyword))
                   :export-format export-format
                   :qp            qp
                   :make-run      process-query-for-card-with-id-run-fn})]
     ;; Run this query with full superuser perms. We don't want the various perms checks failing because there are no
     ;; current user perms; if this Dashcard is public you're by definition allowed to run it without a perms check
     ;; anyway
-    (request/as-admin
+    (mw.session/as-admin
       (m/mapply qp.dashboard/process-query-for-dashcard options))))
 
 (api/defendpoint GET "/dashboard/:uuid/dashcard/:dashcard-id/card/:card-id"
@@ -311,13 +308,11 @@
 (api/defendpoint POST ["/dashboard/:uuid/dashcard/:dashcard-id/card/:card-id/:export-format"
                        :export-format api.dataset/export-format-regex]
   "Fetch the results of running a publicly-accessible Card belonging to a Dashboard and return the data in one of the export formats. Does not require auth credentials. Public sharing must be enabled."
-  [uuid card-id dashcard-id parameters export-format :as {{:keys [format_rows pivot_results]} :params}]
+  [uuid card-id dashcard-id parameters export-format]
   {uuid          ms/UUIDString
    dashcard-id   ms/PositiveInt
    card-id       ms/PositiveInt
    parameters    [:maybe ms/JSONString]
-   format_rows   [:maybe ms/BooleanValue]
-   pivot_results [:maybe ms/BooleanValue]
    export-format (into [:enum] api.dataset/export-formats)}
   (validation/check-public-sharing-enabled)
   (api/check-404 (t2/select-one-pk :model/Card :id card-id :archived false))
@@ -327,11 +322,7 @@
               :card-id       card-id
               :dashcard-id   dashcard-id
               :export-format export-format
-              :parameters    parameters
-              :constraints   nil
-              :middleware    {:process-viz-settings? true
-                              :format-rows?          (or format_rows false)
-                              :pivot?                (or pivot_results false)}))))
+              :parameters    parameters))))
 
 (api/defendpoint GET "/dashboard/:uuid/dashcard/:dashcard-id/execute"
   "Fetches the values for filling in execution parameters. Pass PK parameters and values to select."
@@ -343,7 +334,7 @@
   (api/check-404 (t2/select-one-pk Dashboard :public_uuid uuid :archived false))
   (actions/fetch-values
    (api/check-404 (action/dashcard->action dashcard-id))
-   (json/decode parameters)))
+   (json/parse-string parameters)))
 
 (def ^:private dashcard-execution-throttle (throttle/make-throttler :dashcard-id :attempts-threshold 5000))
 
@@ -372,7 +363,7 @@
           ;; Run this query with full superuser perms. We don't want the various perms checks
           ;; failing because there are no current user perms; if this Dashcard is public
           ;; you're by definition allowed to run it without a perms check anyway
-          (request/as-admin
+          (binding [api/*current-user-permissions-set* (delay #{"/"})]
             ;; Undo middleware string->keyword coercion
             (actions/execute-dashcard! dashboard-id dashcard-id (update-keys parameters name))))))))
 
@@ -588,7 +579,7 @@
    param-key ms/NonBlankString}
   (validation/check-public-sharing-enabled)
   (let [card (t2/select-one Card :public_uuid uuid, :archived false)]
-    (request/as-admin
+    (mw.session/as-admin
       (api.card/param-values card param-key))))
 
 (api/defendpoint GET "/card/:uuid/params/:param-key/search/:query"
@@ -599,7 +590,7 @@
    query     ms/NonBlankString}
   (validation/check-public-sharing-enabled)
   (let [card (t2/select-one Card :public_uuid uuid, :archived false)]
-    (request/as-admin
+    (mw.session/as-admin
       (api.card/param-values card param-key query))))
 
 (api/defendpoint GET "/dashboard/:uuid/params/:param-key/values"
@@ -608,7 +599,7 @@
   {uuid      ms/UUIDString
    param-key ms/NonBlankString}
   (let [dashboard (dashboard-with-uuid uuid)]
-    (request/as-admin
+    (mw.session/as-admin
       (binding [qp.perms/*param-values-query* true]
         (api.dashboard/param-values dashboard param-key constraint-param-key->value)))))
 
@@ -619,7 +610,7 @@
    param-key ms/NonBlankString
    query     ms/NonBlankString}
   (let [dashboard (dashboard-with-uuid uuid)]
-    (request/as-admin
+    (mw.session/as-admin
       (binding [qp.perms/*param-values-query* true]
         (api.dashboard/param-values dashboard param-key constraint-param-key->value query)))))
 
@@ -632,7 +623,7 @@
   [uuid parameters]
   {uuid       ms/UUIDString
    parameters [:maybe ms/JSONString]}
-  (process-query-for-card-with-public-uuid uuid :api (json/decode+kw parameters)
+  (process-query-for-card-with-public-uuid uuid :api (json/parse-string parameters keyword)
                                            :qp qp.pivot/run-pivot-query))
 
 (api/defendpoint GET "/pivot/dashboard/:uuid/dashcard/:dashcard-id/card/:card-id"
@@ -688,13 +679,11 @@
         ;; Run this query with full superuser perms. We don't want the various perms checks
         ;; failing because there are no current user perms; if this Dashcard is public
         ;; you're by definition allowed to run it without a perms check anyway
-        (request/as-admin
+        (binding [api/*current-user-permissions-set* (delay #{"/"})]
           (let [action (api/check-404 (action/select-action :public_uuid uuid :archived false))]
-            (snowplow/track-event! ::snowplow/action
-                                   {:event     :action-executed
-                                    :source    :public_form
-                                    :type      (:type action)
-                                    :action_id (:id action)})
+            (snowplow/track-event! ::snowplow/action-executed api/*current-user-id* {:source    :public_form
+                                                                                     :type      (:type action)
+                                                                                     :action_id (:id action)})
             ;; Undo middleware string->keyword coercion
             (actions/execute-action! action (update-keys parameters name))))))))
 

@@ -4,6 +4,7 @@ import { NULL_DISPLAY_VALUE } from "metabase/lib/constants";
 import { formatValue } from "metabase/lib/formatting";
 import { isEmpty } from "metabase/lib/validate";
 import { getComputedSettingsForSeries } from "metabase/visualizations/lib/settings/visualization";
+import { getFriendlyName } from "metabase/visualizations/lib/utils";
 
 // TODO: this series transformation is used only for the visualization settings computation which is excessive.
 // Replace this with defining settings models per visualization type which will contain all necessary info
@@ -76,7 +77,6 @@ function transformSingleSeries(s, series, seriesIndex) {
     }
 
     return breakoutValues.map(breakoutValue => ({
-      ...s,
       card: {
         ...card,
         // if multiseries include the card title as well as the breakout value
@@ -126,13 +126,13 @@ function transformSingleSeries(s, series, seriesIndex) {
         series.length > 1 && card.name,
         // show column name if there are multiple metrics or sigle series
         (metricColumnIndexes.length > 1 || series.length === 1) &&
-          col?.display_name,
+          col &&
+          getFriendlyName(col),
       ]
         .filter(n => n)
         .join(": ");
 
       return {
-        ...s,
         card: {
           ...card,
           name: name,

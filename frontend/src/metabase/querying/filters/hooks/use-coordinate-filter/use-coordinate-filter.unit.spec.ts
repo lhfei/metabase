@@ -8,26 +8,26 @@ import { PEOPLE_ID } from "metabase-types/api/mocks/presets";
 import { useCoordinateFilter } from "./use-coordinate-filter";
 
 interface CreateFilterCase {
-  operator: Lib.CoordinateFilterOperator;
+  operator: Lib.CoordinateFilterOperatorName;
   values: number[];
   expectedDisplayName: string;
 }
 
 interface UpdateFilterCase {
-  operator: Lib.CoordinateFilterOperator;
+  operator: Lib.CoordinateFilterOperatorName;
   expression: Lib.ExpressionClause;
   values: number[];
   expectedDisplayName: string;
 }
 
 interface CoerceFilterCase {
-  operator: Lib.CoordinateFilterOperator;
+  operator: Lib.CoordinateFilterOperatorName;
   values: (number | "")[];
   expectedDisplayName: string;
 }
 
 interface ValidateFilterCase {
-  operator: Lib.CoordinateFilterOperator;
+  operator: Lib.CoordinateFilterOperatorName;
   values: (number | "")[];
 }
 

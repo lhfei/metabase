@@ -140,8 +140,6 @@ Like `GET /api/embed/card/query`, but returns the results as a file in the speci
 
 -  **`format_rows`** nullable boolean.
 
--  **`pivot_results`** nullable boolean.
-
 -  **`query-params`**
 
 ## `GET /api/embed/dashboard/:token`
@@ -189,8 +187,6 @@ Fetch the results of running a Card belonging to a Dashboard using a JSON Web To
 -  **`card-id`** value must be an integer greater than zero.
 
 -  **`format_rows`** nullable boolean.
-
--  **`pivot_results`** nullable boolean.
 
 -  **`query-params`**
 

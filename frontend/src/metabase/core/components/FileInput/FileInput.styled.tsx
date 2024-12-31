@@ -4,7 +4,7 @@ export const InputRoot = styled.label`
   display: flex;
 `;
 
-interface InputFieldProps {
+export interface InputFieldProps {
   hasValue: boolean;
 }
 

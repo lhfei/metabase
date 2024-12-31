@@ -26,3 +26,7 @@ export const OptionsList = styled.ul<OptionListProps>`
 export const OptionContainer = styled.li`
   padding: 0.5rem 0.125rem;
 `;
+
+export const LabelWrapper = styled.div`
+  padding-left: 0.5rem;
+`;

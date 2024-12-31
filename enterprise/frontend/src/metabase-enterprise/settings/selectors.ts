@@ -24,10 +24,7 @@ export const getLogoUrl = (state: EnterpriseState) =>
   getCustomLogoUrl(getSettings(state));
 
 export const getLoadingMessage = (state: EnterpriseState) => {
-  const setting = getSetting(state, "loading-message");
-  // default to empty string to account for a historical bug where the
-  // setting could be set via MB_LOADING_MESSAGE to a value not in our enum
-  return LOADING_MESSAGE_BY_SETTING[setting]?.value ?? (() => "");
+  return LOADING_MESSAGE_BY_SETTING[getSetting(state, "loading-message")].value;
 };
 
 // eslint-disable-next-line no-literal-metabase-strings -- This is a Metabase string we want to keep. It's used for comparison.

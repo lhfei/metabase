@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.query-processor-test.nested-field-test
+(ns metabase.query-processor-test.nested-field-test
   "Tests for nested field access."
   (:require
    [clojure.test :refer :all]

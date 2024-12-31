@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
-import { Component } from "react";
+import { Component, forwardRef } from "react";
 import _ from "underscore";
 
 import ExplicitSize from "metabase/components/ExplicitSize";
@@ -14,7 +14,7 @@ const DEBOUNCE_PERIOD = 300;
  * We also fade the component out and block mouse events while it's transitioning
  */
 
-class DebouncedFrame extends Component {
+class DebouncedFrameComponent extends Component {
   // NOTE: don't keep `_transition` in component state because we don't want to trigger a rerender when we update it
   // Instead manually modify the style in _updateTransitionStyle
   // There's probably a better way to block renders of children though
@@ -81,7 +81,13 @@ class DebouncedFrame extends Component {
   };
 
   render() {
-    const { children, className, style = {}, enabled } = this.props;
+    const {
+      children,
+      className,
+      style = {},
+      enabled,
+      forwardedRef,
+    } = this.props;
     // if disabled use width and height from props directly
     const { width, height } =
       enabled && this.state.width != null && this.state.height != null
@@ -89,11 +95,22 @@ class DebouncedFrame extends Component {
         : this.props;
     return (
       <div
-        ref={r => (this._container = r)}
+        // ref={r => (this._container = r)}
+        ref={r => {
+          this._container = r;
+          if (typeof forwardedRef === "function") {
+            forwardedRef(r);
+          } else if (forwardedRef) {
+            forwardedRef.current = r;
+          }
+        }}
         className={cx(className, CS.relative)}
         style={{
           overflow: "hidden",
-          transition: "opacity 0.25s",
+          // transition: "opacity 0.25s",
+          // modified by lsh
+          transition: "opacity 0.25s scroll-behavior 0.5s ease-out",
+          scrollBehavior: "smooth",
           ...style,
         }}
       >
@@ -107,4 +124,8 @@ class DebouncedFrame extends Component {
   }
 }
 
+const DebouncedFrame = forwardRef((props, ref) => {
+  return <DebouncedFrameComponent {...props} forwardedRef={ref} />;
+});
+DebouncedFrame.displayName = "DebouncedFrame";
 export default ExplicitSize()(DebouncedFrame);

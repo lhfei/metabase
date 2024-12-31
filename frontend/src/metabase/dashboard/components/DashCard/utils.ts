@@ -22,7 +22,7 @@ import type {
   QuestionDashboardCard,
 } from "metabase-types/api";
 
-const VIZ_WITH_CUSTOM_MAPPING_UI = ["placeholder"];
+const VIZ_WITH_CUSTOM_MAPPING_UI = ["placeholder", "link"];
 
 export function shouldShowParameterMapper({
   dashcard,
@@ -73,7 +73,7 @@ export function getMappingOptionByTarget<T extends DashboardCard>(
     return matchedMappingOptions[0];
   }
   if (!question) {
-    return undefined;
+    return;
   }
 
   // a parameter mapping could have been created for a SQL query which got
@@ -82,39 +82,36 @@ export function getMappingOptionByTarget<T extends DashboardCard>(
   // need to ignore such references here
   const fieldRef = normalizedTarget[1];
   if (isTemplateTagReference(fieldRef)) {
-    return undefined;
+    return;
   }
 
-  const { query, columns } = getParameterColumns(question, parameter);
-  const stageIndexes = _.uniq(columns.map(({ stageIndex }) => stageIndex));
+  const { query, stageIndex, columns } = getParameterColumns(
+    question,
+    parameter,
+  );
 
-  for (const stageIndex of stageIndexes) {
-    const stageColumns = columns
-      .filter(column => column.stageIndex === stageIndex)
-      .map(({ column }) => column);
+  const [columnByTargetIndex] = Lib.findColumnIndexesFromLegacyRefs(
+    query,
+    stageIndex,
+    columns,
+    [fieldRef],
+  );
 
-    const [columnByTargetIndex] = Lib.findColumnIndexesFromLegacyRefs(
-      query,
-      stageIndex,
-      stageColumns,
-      [fieldRef],
-    );
-
-    if (columnByTargetIndex !== -1) {
-      const mappingColumnIndexes = Lib.findColumnIndexesFromLegacyRefs(
-        query,
-        stageIndex,
-        stageColumns,
-        mappingOptions.map(({ target }) => target[1] as DimensionReference),
-      );
-
-      const mappingIndex = mappingColumnIndexes.indexOf(columnByTargetIndex);
-
-      if (mappingIndex >= 0) {
-        return mappingOptions[mappingIndex];
-      }
-    }
+  // target not found - no need to look further
+  if (columnByTargetIndex === -1) {
+    return;
   }
 
-  return undefined;
+  const mappingColumnIndexes = Lib.findColumnIndexesFromLegacyRefs(
+    query,
+    stageIndex,
+    columns,
+    mappingOptions.map(({ target }) => target[1] as DimensionReference),
+  );
+
+  const mappingIndex = mappingColumnIndexes.indexOf(columnByTargetIndex);
+
+  if (mappingIndex >= 0) {
+    return mappingOptions[mappingIndex];
+  }
 }

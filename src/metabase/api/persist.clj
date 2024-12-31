@@ -9,9 +9,11 @@
    [metabase.driver.ddl.interface :as ddl.i]
    [metabase.models.database :refer [Database]]
    [metabase.models.interface :as mi]
-   [metabase.models.persisted-info :refer [PersistedInfo]]
+   [metabase.models.persisted-info
+    :as persisted-info
+    :refer [PersistedInfo]]
    [metabase.public-settings :as public-settings]
-   [metabase.request.core :as request]
+   [metabase.server.middleware.offset-paging :as mw.offset-paging]
    [metabase.task.persist-refresh :as task.persist-refresh]
    [metabase.util :as u]
    [metabase.util.i18n :refer [deferred-tru tru]]
@@ -68,7 +70,7 @@
                                (filter mi/can-write?)
                                (map :id)
                                set))
-        persisted-infos (fetch-persisted-info {:db-ids writable-db-ids} (request/limit) (request/offset))]
+        persisted-infos (fetch-persisted-info {:db-ids writable-db-ids} mw.offset-paging/*limit* mw.offset-paging/*offset*)]
     {:data   persisted-infos
      :total  (if (seq writable-db-ids)
                (t2/count PersistedInfo {:from [[:persisted_info :p]]
@@ -78,8 +80,8 @@
                                                 [:= :c.type "model"]
                                                 [:not :c.archived]]})
                0)
-     :limit  (request/limit)
-     :offset (request/offset)}))
+     :limit  mw.offset-paging/*limit*
+     :offset mw.offset-paging/*offset*}))
 
 (api/defendpoint GET "/:persisted-info-id"
   "Fetch a particular [[PersistedInfo]] by id."
@@ -94,7 +96,7 @@
   [card-id]
   {card-id [:maybe ms/PositiveInt]}
   (api/let-404 [persisted-info (first (fetch-persisted-info {:card-id card-id} nil nil))]
-    (api/read-check (t2/select-one Database :id (:database_id persisted-info)))
+    (api/write-check (t2/select-one Database :id (:database_id persisted-info)))
     persisted-info))
 
 (def ^:private CronSchedule

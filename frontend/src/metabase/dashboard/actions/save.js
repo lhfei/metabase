@@ -14,11 +14,7 @@ import { trackDashboardSaved } from "../analytics";
 import { getDashboardBeforeEditing } from "../selectors";
 
 import { setEditingDashboard } from "./core";
-import {
-  hasDashboardChanged,
-  haveDashboardCardsChanged,
-  trackAddedIFrameDashcards,
-} from "./utils";
+import { hasDashboardChanged, haveDashboardCardsChanged } from "./utils";
 
 export const UPDATE_DASHBOARD_AND_CARDS =
   "metabase/dashboard/UPDATE_DASHBOARD_AND_CARDS";
@@ -100,8 +96,6 @@ export const updateDashboardAndCards = createThunkAction(
           .map(async dc => CardApi.update(dc.card)),
       );
 
-      trackAddedIFrameDashcards(dashboard);
-
       const dashcardsToUpdate = dashboard.dashcards
         .filter(dc => !dc.isRemoved)
         .map(dc => ({
@@ -141,14 +135,6 @@ export const updateDashboardAndCards = createThunkAction(
       dispatch(setEditingDashboard(null));
 
       // make sure that we've fully cleared out any dirty state from editing (this is overkill, but simple)
-      //
-      // UPD 16.09.2024
-      // This code is a source of race condition on slow network.
-      // it fetches a dashboard without parameters and if `fetchDashboardCardData` from the lines below is slow
-      // the dashboard itself is re-rendered and re-fetches data again without parameters, so later on
-      // dashboard component re-fetches data and cancels correct query with parameters
-      // e.g. `should pass a temporal unit with 'update dashboard filter' click behavior` from temporal-unit-parameters.cy.spec.js
-      // with 3g simulation is an example of such race condition
       await dispatch(
         fetchDashboard({
           dashId: dashboard.id,

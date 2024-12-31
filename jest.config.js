@@ -1,25 +1,4 @@
 // @ts-check
-
-const esmPackages = [
-  "character-entities-html4",
-  "comma-separated-tokens",
-  "d3-*",
-  "d3",
-  "devlop",
-  "echarts",
-  "hast.*",
-  "html-void-elements",
-  "is-absolute-url",
-  "property-information",
-  "rehype-external-links",
-  "screenfull",
-  "space-separated-tokens",
-  "stringify-entities",
-  "vfile-message",
-  "vfile",
-  "zrender",
-];
-
 /** @type {import('jest').Config} */
 const config = {
   moduleNameMapper: {
@@ -40,7 +19,7 @@ const config = {
       "<rootDir>/node_modules/csv-stringify/dist/cjs/sync",
   },
   transformIgnorePatterns: [
-    `<rootDir>/node_modules/(?!(${esmPackages.join("|")})/)`,
+    "<rootDir>/node_modules/(?!(screenfull|echarts|zrender|rehype-external-links|hast.*|devlop|property-information|comma-separated-tokens|space-separated-tokens|vfile|vfile-message|html-void-elements|stringify-entities|character-entities-html4|d3|d3-*)/)",
   ],
   testPathIgnorePatterns: [
     "<rootDir>/frontend/.*/.*.tz.unit.spec.{js,jsx,ts,tsx}",

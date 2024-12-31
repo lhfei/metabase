@@ -1,7 +1,7 @@
 import {
   getAvailableOperatorOptions,
   getDefaultAvailableOperator,
-} from "metabase/querying/filters/utils";
+} from "metabase/querying/filters/utils/operators";
 import * as Lib from "metabase-lib";
 
 import { OPERATOR_OPTIONS } from "./constants";
@@ -24,28 +24,25 @@ export function getAvailableOptions(
   );
 }
 
-export function getOptionByOperator(operator: Lib.NumberFilterOperator) {
+export function getOptionByOperator(operator: Lib.NumberFilterOperatorName) {
   return OPERATOR_OPTIONS[operator];
 }
 
 export function getDefaultOperator(
-  query: Lib.Query,
   column: Lib.ColumnMetadata,
   availableOptions: OperatorOption[],
-): Lib.NumberFilterOperator {
-  const fieldValuesInfo = Lib.fieldValuesSearchInfo(query, column);
-
+): Lib.NumberFilterOperatorName {
   const desiredOperator =
     Lib.isPrimaryKey(column) ||
     Lib.isForeignKey(column) ||
-    fieldValuesInfo.hasFieldValues !== "none"
+    Lib.isCategory(column)
       ? "="
       : "between";
   return getDefaultAvailableOperator(availableOptions, desiredOperator);
 }
 
 export function getDefaultValues(
-  operator: Lib.NumberFilterOperator,
+  operator: Lib.NumberFilterOperatorName,
   values: NumberValue[],
 ): NumberValue[] {
   const { valueCount, hasMultipleValues } = OPERATOR_OPTIONS[operator];
@@ -59,7 +56,7 @@ export function getDefaultValues(
 }
 
 export function isValidFilter(
-  operator: Lib.NumberFilterOperator,
+  operator: Lib.NumberFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ) {
@@ -67,7 +64,7 @@ export function isValidFilter(
 }
 
 export function getFilterClause(
-  operator: Lib.NumberFilterOperator,
+  operator: Lib.NumberFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ) {
@@ -76,7 +73,7 @@ export function getFilterClause(
 }
 
 function getFilterParts(
-  operator: Lib.NumberFilterOperator,
+  operator: Lib.NumberFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ): Lib.NumberFilterParts | undefined {
@@ -89,7 +86,7 @@ function getFilterParts(
 }
 
 function getSimpleFilterParts(
-  operator: Lib.NumberFilterOperator,
+  operator: Lib.NumberFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ): Lib.NumberFilterParts | undefined {
@@ -109,7 +106,7 @@ function getSimpleFilterParts(
 }
 
 function getBetweenFilterParts(
-  operator: Lib.NumberFilterOperator,
+  operator: Lib.NumberFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ): Lib.NumberFilterParts | undefined {

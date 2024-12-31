@@ -7,8 +7,6 @@
   "
   (:require
    [clojure.string :as str]
-   [metabase.legacy-mbql.util :as mbql.u]
-   [metabase.lib.ident :as lib.ident]
    [metabase.models.card :refer [Card]]
    [metabase.models.interface :as mi]
    [metabase.query-processor :as qp]
@@ -57,43 +55,34 @@
   1000)
 
 (defn- values-from-card-query
-  [card value-field-ref opts]
-  (let [query-string (:query-string opts)
-        value-base-type (:base_type (qp.util/field->field-info value-field-ref (:result_metadata card)))
+  [card value-field-ref query]
+  (let [value-base-type (:base_type (qp.util/field->field-info value-field-ref (:result_metadata card)))
         new-filter      [:and
                          [(if (isa? value-base-type :type/Text)
                             :not-empty
                             :not-null)
                           value-field-ref]
-                         (when query-string
+                         (when query
                            (if-not (isa? value-base-type :type/Text)
-                             [:= value-field-ref query-string]
-                             [:contains [:lower value-field-ref] (u/lower-case-en query-string)]))]]
+                             [:= value-field-ref query]
+                             [:contains [:lower value-field-ref] (u/lower-case-en query)]))]]
     {:database (:database_id card)
      :type     :query
      :query    (if-let [inner-mbql (and (not= (:type card) :model)
                                         (-> card :dataset_query :query))]
                  ;; MBQL query - hijack the final stage, drop its aggregation and breakout (if any).
-                 (let [target-stage (:stage-number opts)
-                       last-stage   (mbql.u/legacy-last-stage-number inner-mbql)
-                       inner-mbql   (if (and target-stage last-stage
-                                             (= (inc last-stage) target-stage))
-                                      {:source-query inner-mbql}
-                                      inner-mbql)]
-                   (-> inner-mbql
-                       (dissoc :aggregation :order-by)
-                       (assoc :breakout        [value-field-ref]
-                              :breakout-idents (lib.ident/indexed-idents 1))
-                       (update :limit (fnil min *max-rows*) *max-rows*)
-                       (update :filter (fn [old]
-                                         (cond->> new-filter
-                                           old (conj [:and old]))))))
+                 (-> inner-mbql
+                     (dissoc :aggregation :order-by)
+                     (assoc :breakout [value-field-ref])
+                     (update :limit (fnil min *max-rows*) *max-rows*)
+                     (update :filter (fn [old]
+                                       (cond->> new-filter
+                                         old (conj [:and old])))))
                  ;; Model or Native query - wrap it with a new MBQL stage.
-                 {:source-table    (format "card__%d" (:id card))
-                  :breakout        [value-field-ref]
-                  :breakout-idents (lib.ident/indexed-idents 1)
-                  :limit           *max-rows*
-                  :filter          new-filter})
+                 {:source-table (format "card__%d" (:id card))
+                  :breakout     [value-field-ref]
+                  :limit        *max-rows*
+                  :filter       new-filter})
      :middleware {:disable-remaps? true}}))
 
 (mu/defn values-from-card
@@ -115,8 +104,8 @@
 
   ([card            :- (ms/InstanceOf Card)
     value-field-ref :- ms/LegacyFieldOrExpressionReference
-    opts            :- [:maybe :map]]
-   (let [mbql-query   (values-from-card-query card value-field-ref opts)
+    query           :- [:any]]
+   (let [mbql-query   (values-from-card-query card value-field-ref query)
          result       (qp/process-query mbql-query)
          values       (get-in result [:data :rows])]
      {:values         values
@@ -129,7 +118,7 @@
   [{config :values_source_config :as _param} query]
   (let [card-id (:card_id config)
         card    (t2/select-one Card :id card-id)]
-    (values-from-card card (:value_field config) {:query-string query})))
+    (values-from-card card (:value_field config) query)))
 
 (defn- can-get-card-values?
   [card value-field]

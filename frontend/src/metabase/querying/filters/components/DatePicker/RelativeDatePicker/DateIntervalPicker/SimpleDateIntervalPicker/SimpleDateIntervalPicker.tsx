@@ -1,6 +1,5 @@
 import { t } from "ttag";
 
-import type { DatePickerUnit } from "metabase/querying/filters/types";
 import { Group, NumberInput, Select } from "metabase/ui";
 
 import { IncludeCurrentSwitch } from "../../IncludeCurrentSwitch";
@@ -10,17 +9,15 @@ import { setUnit } from "../utils";
 
 interface SimpleDateIntervalPickerProps {
   value: DateIntervalValue;
-  availableUnits: DatePickerUnit[];
   onChange: (value: DateIntervalValue) => void;
 }
 
 export function SimpleDateIntervalPicker({
   value,
-  availableUnits,
   onChange,
 }: SimpleDateIntervalPickerProps) {
   const interval = getInterval(value);
-  const unitOptions = getUnitOptions(value, availableUnits);
+  const unitOptions = getUnitOptions(value);
 
   const handleIntervalChange = (inputValue: number | "") => {
     if (inputValue !== "") {

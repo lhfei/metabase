@@ -1,9 +1,9 @@
 import type { Query } from "history";
 import type { ComponentType, FC } from "react";
-import type { ConnectedProps } from "react-redux";
+import { type ConnectedProps, connect } from "react-redux";
 import _ from "underscore";
 
-import type { MetabasePluginsConfig } from "embedding-sdk";
+import type { SdkPluginsConfig } from "embedding-sdk";
 import {
   SdkError,
   SdkLoader,
@@ -35,11 +35,9 @@ import {
 } from "metabase/dashboard/selectors";
 import type {
   DashboardFullscreenControls,
-  DashboardLoaderWrapperProps,
   DashboardRefreshPeriodControls,
 } from "metabase/dashboard/types";
 import { useValidatedEntityId } from "metabase/lib/entity-id/hooks/use-validated-entity-id";
-import { connect } from "metabase/lib/redux";
 import type { PublicOrEmbeddedDashboardEventHandlersProps } from "metabase/public/containers/PublicOrEmbeddedDashboard/types";
 import { useDashboardLoadHandlers } from "metabase/public/containers/PublicOrEmbeddedDashboard/use-dashboard-load-handlers";
 import { closeNavbar, setErrorPage } from "metabase/redux/app";
@@ -97,11 +95,11 @@ type ConnectedDashboardProps = {
     opts: NavigateToNewCardFromDashboardOpts,
   ) => void;
 
-  plugins?: MetabasePluginsConfig;
+  questionHeight?: number;
+  plugins?: SdkPluginsConfig;
   className?: string;
 } & DashboardFullscreenControls &
   DashboardRefreshPeriodControls &
-  DashboardLoaderWrapperProps &
   PublicOrEmbeddedDashboardEventHandlersProps;
 
 const ConnectedDashboardInner = ({

@@ -1,9 +1,14 @@
-import SelectList from "metabase/components/SelectList";
-import { Box, Flex, Icon } from "metabase/ui";
-
 import type { DataTypeInfoItem } from "../types";
 
-import DataSelectorDataBucketPickerS from "./DataSelectorDataBucketPicker.module.css";
+import {
+  DataBucketListItemContainer as ItemContainer,
+  DataBucketListItemDescription as ItemDescription,
+  DataBucketListItemDescriptionContainer as ItemDescriptionContainer,
+  DataBucketListItemIcon as ItemIcon,
+  DataBucketListItemTitle as ItemTitle,
+  DataBucketList as List,
+  DataBucketTitleContainer as TitleContainer,
+} from "./DataSelectorDataBucketPicker.styled";
 
 type DataSelectorDataBucketPickerProps = {
   dataTypes: DataTypeInfoItem[];
@@ -14,7 +19,7 @@ const DataSelectorDataBucketPicker = ({
   dataTypes,
   onChangeDataBucket,
 }: DataSelectorDataBucketPickerProps) => (
-  <SelectList className={DataSelectorDataBucketPickerS.DataBucketList}>
+  <List>
     {dataTypes.map(({ id, icon, name, description }) => (
       <DataBucketListItem
         description={description}
@@ -25,7 +30,7 @@ const DataSelectorDataBucketPicker = ({
         onSelect={() => onChangeDataBucket(id)}
       />
     ))}
-  </SelectList>
+  </List>
 );
 
 type DataBucketListItemProps = DataTypeInfoItem & {
@@ -39,35 +44,20 @@ const DataBucketListItem = ({
   name,
   onSelect,
 }: DataBucketListItemProps) => (
-  <SelectList.BaseItem
-    className={DataSelectorDataBucketPickerS.DataBucketListItemContainer}
+  <ItemContainer
     data-testid="data-bucket-list-item"
     id={id}
     name={name}
     onSelect={onSelect}
   >
-    <Flex align="center">
-      <Icon
-        className={DataSelectorDataBucketPickerS.DataBucketListItemIcon}
-        name={icon}
-        size={18}
-      />
-      <Box
-        component="span"
-        className={DataSelectorDataBucketPickerS.DataBucketListItemTitle}
-      >
-        {name}
-      </Box>
-    </Flex>
-    <Box mt="xs">
-      <Box
-        component="span"
-        className={DataSelectorDataBucketPickerS.DataBucketListItemDescription}
-      >
-        {description}
-      </Box>
-    </Box>
-  </SelectList.BaseItem>
+    <TitleContainer>
+      <ItemIcon name={icon} size={18} />
+      <ItemTitle>{name}</ItemTitle>
+    </TitleContainer>
+    <ItemDescriptionContainer>
+      <ItemDescription>{description}</ItemDescription>
+    </ItemDescriptionContainer>
+  </ItemContainer>
 );
 
 // eslint-disable-next-line import/no-default-export -- deprecated usage

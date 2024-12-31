@@ -26,7 +26,7 @@ export const BaseItemsTableBody = ({
   onMove,
   onToggleSelected,
   onClick,
-  visibleColumnsMap,
+  showActionMenu,
 }: Pick<
   BaseItemsTableProps,
   | "onClick"
@@ -44,7 +44,7 @@ export const BaseItemsTableBody = ({
   | "onCopy"
   | "onMove"
   | "onToggleSelected"
-  | "visibleColumnsMap"
+  | "showActionMenu"
 >) => {
   const isDndAvailable = useSelector(getIsDndAvailable);
 
@@ -77,7 +77,7 @@ export const BaseItemsTableBody = ({
             onToggleSelected={onToggleSelected}
             items={items}
             onClick={onClick}
-            visibleColumnsMap={visibleColumnsMap}
+            showActionMenu={showActionMenu}
           />
         );
       })}

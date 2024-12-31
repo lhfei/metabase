@@ -1,8 +1,18 @@
-import { H } from "e2e/support";
+import {
+  editDashboard,
+  filterWidget,
+  getDashboardCard,
+  popover,
+  restore,
+  saveDashboard,
+  setFilter,
+  sidebar,
+  visitDashboard,
+} from "e2e/support/helpers";
 
 describe("scenarios > dashboard > filters > SQL > management", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -27,43 +37,43 @@ describe("scenarios > dashboard > filters > SQL > management", () => {
     beforeEach(() => {
       cy.createNativeQuestionAndDashboard({ questionDetails }).then(
         ({ body: { dashboard_id } }) => {
-          H.visitDashboard(dashboard_id);
+          visitDashboard(dashboard_id);
         },
       );
-      H.editDashboard();
+      editDashboard();
     });
 
     it("should reset mappings when current operator is '=' and new operator is not '='", () => {
-      H.setFilter("Number", "Equal to");
+      setFilter("Number", "Equal to");
 
-      H.getDashboardCard().findByRole("button").click();
-      H.popover().findByText("Tax GTE").click();
+      getDashboardCard().findByRole("button").click();
+      popover().findByText("Tax GTE").click();
 
-      H.saveDashboard();
+      saveDashboard();
 
-      H.filterWidget().type("10{enter}");
+      filterWidget().type("10{enter}");
 
-      H.getDashboardCard().should("contain", "1,062");
+      getDashboardCard().should("contain", "1,062");
 
-      H.editDashboard();
+      editDashboard();
 
       cy.findByTestId("edit-dashboard-parameters-widget-container")
         .contains("Equal to")
         .click();
 
-      H.sidebar().findByText("Filter operator").next().click();
-      H.popover().findByText("Between").click();
+      sidebar().findByText("Filter operator").next().click();
+      popover().findByText("Between").click();
 
-      H.getDashboardCard().should("not.contain", "Column to filter on");
+      getDashboardCard().should("not.contain", "Column to filter on");
 
-      H.sidebar().findByText("Filter operator").next().click();
-      H.popover().findByText("Equal to").click();
+      sidebar().findByText("Filter operator").next().click();
+      popover().findByText("Equal to").click();
 
-      H.getDashboardCard().should("not.contain", "Tax GTE");
+      getDashboardCard().should("not.contain", "Tax GTE");
 
-      H.saveDashboard();
+      saveDashboard();
 
-      H.filterWidget().should("not.exist");
+      filterWidget().should("not.exist");
     });
   });
 });

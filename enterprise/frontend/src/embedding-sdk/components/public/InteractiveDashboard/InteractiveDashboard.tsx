@@ -1,14 +1,12 @@
-import type { CSSProperties, ReactNode } from "react";
 import _ from "underscore";
 
-import type { MetabasePluginsConfig } from "embedding-sdk";
+import type { SdkPluginsConfig } from "embedding-sdk";
 import { InteractiveAdHocQuestion } from "embedding-sdk/components/private/InteractiveAdHocQuestion";
 import {
   SdkError,
   SdkLoader,
+  withPublicComponentWrapper,
 } from "embedding-sdk/components/private/PublicComponentWrapper";
-import { renderOnlyInSdkProvider } from "embedding-sdk/components/private/SdkContext";
-import { StyledPublicComponentWrapper } from "embedding-sdk/components/public/InteractiveDashboard/InteractiveDashboard.styled";
 import { useCommonDashboardParams } from "embedding-sdk/components/public/InteractiveDashboard/use-common-dashboard-params";
 import {
   type SdkDashboardDisplayProps,
@@ -20,40 +18,29 @@ import { useEmbedFont } from "metabase/dashboard/hooks/use-embed-font";
 import { useValidatedEntityId } from "metabase/lib/entity-id/hooks/use-validated-entity-id";
 import { PublicOrEmbeddedDashboard } from "metabase/public/containers/PublicOrEmbeddedDashboard/PublicOrEmbeddedDashboard";
 import type { PublicOrEmbeddedDashboardEventHandlersProps } from "metabase/public/containers/PublicOrEmbeddedDashboard/types";
+import { Box } from "metabase/ui";
 
 import { InteractiveDashboardProvider } from "./context";
 
 export type InteractiveDashboardProps = {
+  questionHeight?: number;
+  plugins?: SdkPluginsConfig;
   className?: string;
-  style?: CSSProperties;
-  plugins?: MetabasePluginsConfig;
-
-  /**
-   * A custom React component to render the question layout.
-   * Use namespaced InteractiveQuestion components to build the layout.
-   *
-   * @todo pass the question context to the question view component,
-   *       once we have a public-facing question context.
-   */
-  renderDrillThroughQuestion?: () => ReactNode;
-  drillThroughQuestionHeight?: number;
 } & SdkDashboardDisplayProps &
   PublicOrEmbeddedDashboardEventHandlersProps;
 
 const InteractiveDashboardInner = ({
   dashboardId,
-  initialParameters = {},
+  initialParameterValues = {},
   withTitle = true,
   withCardTitle = true,
-  withDownloads = false,
+  withDownloads = true,
   hiddenParameters = [],
-  drillThroughQuestionHeight,
+  questionHeight,
   plugins,
   onLoad,
   onLoadWithoutCards,
   className,
-  style,
-  renderDrillThroughQuestion: AdHocQuestionView,
 }: InteractiveDashboardProps) => {
   const {
     displayOptions,
@@ -68,7 +55,7 @@ const InteractiveDashboardInner = ({
     withDownloads,
     withTitle,
     hiddenParameters,
-    initialParameters,
+    initialParameterValues,
   });
 
   const {
@@ -84,17 +71,15 @@ const InteractiveDashboardInner = ({
   const { font } = useEmbedFont();
 
   return (
-    <StyledPublicComponentWrapper className={className} style={style} ref={ref}>
+    <Box w="100%" h="100%" ref={ref} className={className}>
       {adhocQuestionUrl ? (
         <InteractiveAdHocQuestion
           questionPath={adhocQuestionUrl}
-          title={withTitle}
-          height={drillThroughQuestionHeight}
+          withTitle={withTitle}
+          height={questionHeight}
           plugins={plugins}
           onNavigateBack={onNavigateBackToDashboard}
-        >
-          {AdHocQuestionView && <AdHocQuestionView />}
-        </InteractiveAdHocQuestion>
+        />
       ) : (
         <InteractiveDashboardProvider
           plugins={plugins}
@@ -103,7 +88,7 @@ const InteractiveDashboardInner = ({
         >
           <PublicOrEmbeddedDashboard
             dashboardId={dashboardId}
-            parameterQueryParams={initialParameters}
+            parameterQueryParams={initialParameterValues}
             hideParameters={displayOptions.hideParameters}
             background={displayOptions.background}
             titled={displayOptions.titled}
@@ -126,25 +111,26 @@ const InteractiveDashboardInner = ({
           />
         </InteractiveDashboardProvider>
       )}
-    </StyledPublicComponentWrapper>
+    </Box>
   );
 };
 
-export const InteractiveDashboard = renderOnlyInSdkProvider(
-  ({ dashboardId, ...rest }: InteractiveDashboardProps) => {
-    const { id, isLoading } = useValidatedEntityId({
-      type: "dashboard",
-      id: dashboardId,
-    });
+export const InteractiveDashboard =
+  withPublicComponentWrapper<InteractiveDashboardProps>(
+    ({ dashboardId, ...rest }) => {
+      const { id, isLoading } = useValidatedEntityId({
+        type: "dashboard",
+        id: dashboardId,
+      });
 
-    if (isLoading) {
-      return <SdkLoader />;
-    }
+      if (isLoading) {
+        return <SdkLoader />;
+      }
 
-    if (!id) {
-      return <SdkError message="ID not found" />;
-    }
+      if (!id) {
+        return <SdkError message="ID not found" />;
+      }
 
-    return <InteractiveDashboardInner dashboardId={id} {...rest} />;
-  },
-);
+      return <InteractiveDashboardInner dashboardId={id} {...rest} />;
+    },
+  );

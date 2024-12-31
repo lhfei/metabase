@@ -20,11 +20,12 @@ export const PolicyToken = styled(Button)<
   border-style: solid;
   justify-content: center;
 
-  ${({ variant }) => css`
-    border-color: ${["filled", "outline"].includes(variant || "")
-      ? "var(--mb-color-brand)"
-      : "var(--mb-color-border)"} !important;
-  `};
+  ${({ variant }) =>
+    css`
+      border-color: ${["filled", "outline"].includes(variant || "")
+        ? "var(--mb-color-brand)"
+        : "var(--mb-color-border)"} !important;
+    `};
   span {
     gap: 0.5rem;
   }
@@ -54,11 +55,12 @@ export const StyledLauncher = styled(
   border-style: solid;
   justify-content: center;
   width: 100%;
-  ${({ variant }) => css`
-    border-color: ${["filled", "outline"].includes(variant || "")
-      ? "var(--mb-color-brand)"
-      : "var(--mb-color-border)"} !important;
-  `};
+  ${({ variant }) =>
+    css`
+      border-color: ${["filled", "outline"].includes(variant || "")
+        ? "var(--mb-color-brand)"
+        : "var(--mb-color-border)"} !important;
+    `};
   font-weight: ${({ forRoot, inheritsRootStrategy }) =>
     forRoot || inheritsRootStrategy ? "normal" : "bold"};
   background-color: ${({ forRoot }) =>

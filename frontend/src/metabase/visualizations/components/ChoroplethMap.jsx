@@ -3,6 +3,7 @@ import cx from "classnames";
 import Color from "color";
 import * as d3 from "d3";
 import { Component } from "react";
+import { connect } from "react-redux";
 import ss from "simple-statistics";
 import { t } from "ttag";
 import _ from "underscore";
@@ -11,7 +12,6 @@ import { getMetabaseInstanceUrl } from "embedding-sdk/store/selectors";
 import LoadingSpinner from "metabase/components/LoadingSpinner";
 import CS from "metabase/css/core/index.css";
 import { formatValue } from "metabase/lib/formatting";
-import { connect } from "metabase/lib/redux";
 import MetabaseSettings from "metabase/lib/settings";
 import { getIsEmbeddingSdk } from "metabase/selectors/embed";
 import { MinColumnsError } from "metabase/visualizations/lib/errors";
@@ -84,8 +84,8 @@ export function getLegendTitles(groups, columnSettings) {
     return index === groups.length - 1
       ? `${min} +` // the last value in the list
       : min !== max
-        ? `${min} - ${max}` // typical case
-        : min; // special case to avoid zero-width ranges e.g. $88-$88
+      ? `${min} - ${max}` // typical case
+      : min; // special case to avoid zero-width ranges e.g. $88-$88
   });
 }
 
@@ -110,19 +110,10 @@ const mapStateToProps = state => ({
 
 const connector = connect(mapStateToProps, null);
 
-const ensureTrailingSlash = url => (url.endsWith("/") ? url : url + "/");
-
-export function getMapUrl(details, props) {
+function getMapUrl(details, props) {
   if (details.builtin) {
     if (props?.isSdk && props?.sdkMetabaseInstanceUrl) {
-      const baseUrl = new URL(
-        props.sdkMetabaseInstanceUrl,
-        window.location.origin,
-      ).href;
-
-      // if the second parameter ends with a slash, it will join them together
-      // new URL("/sub-path", "http://example.org/proxy/") => "http://example.org/proxy/sub-path"
-      return new URL(details.url, ensureTrailingSlash(baseUrl)).href;
+      return new URL(details.url, props.sdkMetabaseInstanceUrl).href;
     }
     return details.url;
   }

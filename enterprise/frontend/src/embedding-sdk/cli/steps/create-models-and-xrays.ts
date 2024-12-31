@@ -1,7 +1,5 @@
 import ora from "ora";
 
-import { createCollection } from "embedding-sdk/cli/utils/create-collection";
-
 import type { CliStepMethod } from "../types/cli";
 import type { DashboardInfo } from "../types/dashboard";
 import { createModelFromTable } from "../utils/create-model-from-table";
@@ -24,20 +22,11 @@ export const createModelsAndXrays: CliStepMethod = async state => {
   try {
     const models = [];
 
-    // Create the "Our models" collection to store the models.
-    // This helps us to allow access to models when sandboxing.
-    const modelCollectionId = await createCollection({
-      name: "Our models",
-      instanceUrl,
-      cookie,
-    });
-
     // Create a model for each table
     for (const table of chosenTables) {
       const model = await createModelFromTable({
         table,
         databaseId,
-        collectionId: modelCollectionId,
         cookie,
         instanceUrl,
       });
@@ -63,7 +52,7 @@ export const createModelsAndXrays: CliStepMethod = async state => {
 
     spinner.succeed();
 
-    return [{ type: "done" }, { ...state, dashboards, modelCollectionId }];
+    return [{ type: "done" }, { ...state, dashboards }];
   } catch (error) {
     spinner.fail();
 

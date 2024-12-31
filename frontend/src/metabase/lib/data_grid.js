@@ -2,9 +2,8 @@ import { getIn } from "icepick";
 import { t } from "ttag";
 import _ from "underscore";
 
-import { displayNameForColumn, formatValue } from "metabase/lib/formatting";
+import { formatColumn, formatValue } from "metabase/lib/formatting";
 import { makeCellBackgroundGetter } from "metabase/visualizations/lib/table_format";
-import { migratePivotColumnSplitSetting } from "metabase-lib/v1/queries/utils/pivot";
 
 export function isPivotGroupColumn(col) {
   return col.name === "pivot-grouping";
@@ -19,13 +18,10 @@ export const COLUMN_SORT_ORDER_ASC = "ascending";
 export const COLUMN_SORT_ORDER_DESC = "descending";
 
 export function multiLevelPivot(data, settings) {
-  if (!settings[COLUMN_SPLIT_SETTING]) {
+  const columnSplit = settings[COLUMN_SPLIT_SETTING];
+  if (columnSplit == null) {
     return null;
   }
-  const columnSplit = migratePivotColumnSplitSetting(
-    settings[COLUMN_SPLIT_SETTING] ?? { rows: [], columns: [], values: [] },
-    data.cols,
-  );
   const columnsWithoutPivotGroup = data.cols.filter(
     col => !isPivotGroupColumn(col),
   );
@@ -34,10 +30,12 @@ export function multiLevelPivot(data, settings) {
     columns: columnColumnIndexes,
     rows: rowColumnIndexes,
     values: valueColumnIndexes,
-  } = _.mapObject(columnSplit, columnNames =>
-    columnNames
-      .map(columnName =>
-        columnsWithoutPivotGroup.findIndex(col => col.name === columnName),
+  } = _.mapObject(columnSplit, columnFieldRefs =>
+    columnFieldRefs
+      .map(field_ref =>
+        columnsWithoutPivotGroup.findIndex(col =>
+          _.isEqual(col.field_ref, field_ref),
+        ),
       )
       .filter(index => index !== -1),
   );
@@ -368,7 +366,7 @@ function formatValuesInTree(
 function addValueColumnNodes(nodes, valueColumns) {
   const leafNodes = valueColumns.map(([column, columnSettings]) => {
     return {
-      value: columnSettings.column_title || displayNameForColumn(column),
+      value: columnSettings.column_title || formatColumn(column),
       children: [],
       isValueColumn: true,
     };

@@ -1,5 +1,12 @@
-import { H } from "e2e/support";
 import { ORDERS_QUESTION_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  modal,
+  openQuestionActions,
+  popover,
+  restore,
+  runNativeQuery,
+  summarize,
+} from "e2e/support/helpers";
 
 import { selectFromDropdown } from "./helpers/e2e-models-helpers";
 
@@ -9,7 +16,7 @@ describe("scenarios > models query editor", () => {
     cy.intercept("POST", "/api/dataset").as("dataset");
     cy.intercept("POST", "/api/card/*/query").as("cardQuery");
 
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -29,9 +36,9 @@ describe("scenarios > models query editor", () => {
         .should("contain", "37.65")
         .and("contain", "109.22");
 
-      H.openQuestionActions();
+      openQuestionActions();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Edit query definition").click();
       });
 
@@ -70,9 +77,9 @@ describe("scenarios > models query editor", () => {
         .should("contain", "37.65")
         .and("contain", "109.22");
 
-      H.openQuestionActions();
+      openQuestionActions();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Edit query definition").click();
       });
 
@@ -88,7 +95,7 @@ describe("scenarios > models query editor", () => {
         .and("not.contain", "109.22");
 
       cy.button("Cancel").click();
-      H.modal().button("Discard changes").click();
+      modal().button("Discard changes").click();
       cy.wait("@cardQuery");
 
       cy.url()
@@ -104,7 +111,7 @@ describe("scenarios > models query editor", () => {
     it("locks display to table", () => {
       cy.visit(`/model/${ORDERS_QUESTION_ID}/query`);
 
-      H.summarize({ mode: "notebook" });
+      summarize({ mode: "notebook" });
 
       selectFromDropdown("Count of rows");
 
@@ -135,18 +142,18 @@ describe("scenarios > models query editor", () => {
         .should("contain", "37.65")
         .and("contain", "109.22");
 
-      H.openQuestionActions();
+      openQuestionActions();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Edit query definition").click();
       });
 
       cy.url().should("include", "/query");
       cy.button("Save changes").should("be.disabled");
 
-      H.focusNativeEditor().type("{backspace}2");
+      cy.get(".ace_content").type("{backspace}2");
 
-      H.runNativeQuery();
+      runNativeQuery();
 
       cy.get("[data-testid=cell-data]")
         .should("contain", "37.65")
@@ -176,25 +183,25 @@ describe("scenarios > models query editor", () => {
         .should("contain", "37.65")
         .and("contain", "109.22");
 
-      H.openQuestionActions();
+      openQuestionActions();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Edit query definition").click();
       });
 
       cy.url().should("include", "/query");
       cy.button("Save changes").should("be.disabled");
 
-      H.focusNativeEditor().type("{backspace}2");
+      cy.get(".ace_content").type("{backspace}2");
 
-      H.runNativeQuery();
+      runNativeQuery();
 
       cy.get("[data-testid=cell-data]")
         .should("contain", "37.65")
         .and("not.contain", "109.22");
 
       cy.button("Cancel").click();
-      H.modal().button("Discard changes").click();
+      modal().button("Discard changes").click();
       cy.wait("@cardQuery");
 
       cy.get("[data-testid=cell-data]")
@@ -215,9 +222,9 @@ describe("scenarios > models query editor", () => {
         { visitQuestion: true },
       );
 
-      H.openQuestionActions();
+      openQuestionActions();
 
-      H.popover().within(() => {
+      popover().within(() => {
         cy.findByText("Edit metadata").click();
       });
 
@@ -230,8 +237,8 @@ describe("scenarios > models query editor", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText(/Syntax error in SQL/).should("be.visible");
 
-      H.focusNativeEditor().type("{backspace}".repeat(" FROM".length));
-      H.runNativeQuery();
+      cy.get(".ace_content").type("{backspace}".repeat(" FROM".length));
+      runNativeQuery();
 
       cy.get("[data-testid=cell-data]").contains(1);
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage

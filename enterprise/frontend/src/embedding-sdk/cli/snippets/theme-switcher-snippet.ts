@@ -23,7 +23,7 @@ const ICONS = {
     <svg viewBox="0 0 24 24">
       <path
         fill="none"
-        stroke="#2D353A"
+        stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="2"
@@ -35,7 +35,7 @@ const ICONS = {
     <svg viewBox="0 0 24 24">
       <path
         fill="none"
-        stroke="#FFF"
+        stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="2"

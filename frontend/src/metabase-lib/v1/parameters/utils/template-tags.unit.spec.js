@@ -72,7 +72,6 @@ describe("parameters/utils/cards", () => {
 
   describe("getTemplateTagParameters", () => {
     let tags;
-
     beforeEach(() => {
       tags = [
         {

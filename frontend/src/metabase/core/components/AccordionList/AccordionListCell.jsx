@@ -9,12 +9,13 @@ import LoadingSpinner from "metabase/components/LoadingSpinner";
 import ListS from "metabase/css/components/list.module.css";
 import CS from "metabase/css/core/index.css";
 import { color } from "metabase/lib/colors";
-import { Box, Icon, Text } from "metabase/ui";
+import { Box, Icon } from "metabase/ui";
 
 import styles from "./AccordionListCell.module.css";
 import {
   Content,
   EmptyStateContainer,
+  FilterContainer,
   IconWrapper,
   ListCellItem,
 } from "./AccordionListCell.styled";
@@ -122,16 +123,12 @@ export const AccordionListCell = ({
             </span>
           )}
           {name && (
-            <Text
-              role="heading"
+            <h3
               data-element-id="list-section-title"
               className={cx(ListS.ListSectionTitle, CS.textWrap)}
-              fz="lg"
-              lh="normal"
-              fw="bold"
             >
               {name}
-            </Text>
+            </h3>
           )}
           {showSpinner(section) && (
             <Box ml="0.5rem">
@@ -191,15 +188,12 @@ export const AccordionListCell = ({
           </span>
         )}
         {name && (
-          <Text
+          <h3
             data-element-id="list-section-title"
             className={cx(ListS.ListSectionTitle, CS.textWrap)}
-            fz="lg"
-            lh="normal"
-            fw="bold"
           >
             {name}
-          </Text>
+          </h3>
         )}
         {showSpinner(section) && (
           <Box ml="0.5rem">
@@ -228,16 +222,17 @@ export const AccordionListCell = ({
   } else if (type === "search") {
     borderBottom = true;
     content = (
-      <ListSearchField
-        fullWidth
-        autoFocus
-        onChange={e => onChangeSearchText(e.target.value)}
-        onResetClick={() => onChangeSearchText("")}
-        value={searchText}
-        placeholder={searchPlaceholder}
-        p="sm"
-        {...searchInputProps}
-      />
+      <FilterContainer>
+        <ListSearchField
+          fullWidth
+          autoFocus
+          onChange={e => onChangeSearchText(e.target.value)}
+          onResetClick={() => onChangeSearchText("")}
+          value={searchText}
+          placeholder={searchPlaceholder}
+          {...searchInputProps}
+        />
+      </FilterContainer>
     );
   } else if (type === "item") {
     const isSelected = itemIsSelected(item, itemIndex);
@@ -289,15 +284,12 @@ export const AccordionListCell = ({
           )}
           <div>
             {name && (
-              <Text
-                role="heading"
-                lh="normal"
-                fw="bold"
+              <h4
                 data-element-id="list-item-title"
                 className={cx(ListS.ListItemTitle, CS.ml1, CS.textWrap)}
               >
                 {name}
-              </Text>
+              </h4>
             )}
             {description && (
               <p className={cx(ListS.ListItemDescription, CS.ml1, CS.textWrap)}>

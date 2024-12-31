@@ -18,19 +18,6 @@ export function channelIsValid(channel) {
   }
 }
 
-export function channelIsEnabled(channel) {
-  return channel.enabled;
-}
-
-export function alertIsValid(alert, channelSpec) {
-  const enabledChannels = alert.channels.filter(channelIsEnabled);
-
-  return (
-    channelSpec.channels &&
-    enabledChannels.length > 0 &&
-    enabledChannels.every(channel => channelIsValid(channel)) &&
-    enabledChannels
-      .filter(c => c.enabled)
-      .every(c => channelSpec.channels[c.channel_type]?.configured)
-  );
+export function alertIsValid(alert) {
+  return alert.channels.length > 0 && alert.channels.every(channelIsValid);
 }

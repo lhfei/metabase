@@ -179,8 +179,9 @@ describe("DatabaseEditApp", () => {
 
       const displayNameInput = await screen.findByLabelText("Display name");
       await userEvent.type(displayNameInput, "Test database");
-      const connectionStringInput =
-        await screen.findByLabelText("Connection String");
+      const connectionStringInput = await screen.findByLabelText(
+        "Connection String",
+      );
       await userEvent.type(
         connectionStringInput,
         "file:/sample-database.db;USER=GUEST;PASSWORD=guest",

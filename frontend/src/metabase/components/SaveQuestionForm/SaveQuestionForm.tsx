@@ -1,72 +1,36 @@
 import { t } from "ttag";
 
-import { FormCollectionAndDashboardPicker } from "metabase/collections/containers/FormCollectionAndDashboardPicker";
-import type { CollectionPickerModel } from "metabase/common/components/CollectionPicker";
+import FormCollectionPicker from "metabase/collections/containers/FormCollectionPicker";
 import { getPlaceholder } from "metabase/components/SaveQuestionForm/util";
 import Button from "metabase/core/components/Button";
 import FormErrorMessage from "metabase/core/components/FormErrorMessage";
 import FormFooter from "metabase/core/components/FormFooter";
 import FormInput from "metabase/core/components/FormInput";
 import FormRadio from "metabase/core/components/FormRadio";
-import FormSelect from "metabase/core/components/FormSelect";
+import FormSubmitButton from "metabase/core/components/FormSubmitButton";
 import FormTextArea from "metabase/core/components/FormTextArea";
-import CoreStyles from "metabase/css/core/index.css";
-import { Form, FormSubmitButton } from "metabase/forms";
-import { isNullOrUndefined } from "metabase/lib/types";
-import type { Dashboard } from "metabase-types/api";
+import CS from "metabase/css/core/index.css";
+import { Form } from "metabase/forms";
+import { DEFAULT_MODAL_Z_INDEX } from "metabase/ui";
 
-import CS from "./SaveQuestionForm.module.css";
 import { useSaveQuestionContext } from "./context";
+import type { SaveQuestionFormProps } from "./types";
 
-export const SaveQuestionForm = ({
-  onCancel,
-  onSaveSuccess,
-  saveToDashboard,
-}: {
-  onCancel?: () => void;
-  onSaveSuccess?: () => void;
-  saveToDashboard?: Dashboard | null | undefined;
-}) => {
-  const {
-    question,
-    originalQuestion,
-    showSaveType,
-    values,
-    saveToCollectionId,
-  } = useSaveQuestionContext();
+export const SaveQuestionForm = ({ onCancel }: SaveQuestionFormProps) => {
+  const { question, originalQuestion, showSaveType, values } =
+    useSaveQuestionContext();
 
   const nameInputPlaceholder = getPlaceholder(question.type());
-  const isDashboardQuestion = !!question.dashboardId();
-
-  const title = isDashboardQuestion
-    ? t`Save changes or save as new?`
-    : t`Replace or save as new?`;
-  const overwriteOptionName = isDashboardQuestion
-    ? t`Save changes`
-    : t`Replace original question, "${originalQuestion?.displayName()}"`;
-
-  const isCollectionPickerEnabled = isNullOrUndefined(saveToCollectionId);
-  const models: CollectionPickerModel[] =
-    question.type() === "question"
-      ? ["collection", "dashboard"]
-      : ["collection"];
-
-  const showPickerInput = values.saveType === "create" && !saveToDashboard;
-  const showTabSelect =
-    values.saveType === "overwrite" &&
-    saveToDashboard &&
-    saveToDashboard.tabs &&
-    saveToDashboard.tabs.length > 1;
 
   return (
     <Form>
       {showSaveType && (
         <FormRadio
           name="saveType"
-          title={title}
+          title={t`Replace or save as new?`}
           options={[
             {
-              name: overwriteOptionName,
+              name: t`Replace original question, "${originalQuestion?.displayName()}"`,
               value: "overwrite",
             },
             { name: t`Save as new question`, value: "create" },
@@ -75,7 +39,7 @@ export const SaveQuestionForm = ({
         />
       )}
       {values.saveType === "create" && (
-        <div className={CoreStyles.overflowHidden}>
+        <div className={CS.overflowHidden}>
           <FormInput
             name="name"
             title={t`Name`}
@@ -86,35 +50,20 @@ export const SaveQuestionForm = ({
             title={t`Description`}
             placeholder={t`It's optional but oh, so helpful`}
           />
-          {isCollectionPickerEnabled && showPickerInput && (
-            <FormCollectionAndDashboardPicker
-              collectionIdFieldName="collection_id"
-              dashboardIdFieldName="dashboard_id"
-              title={t`Where do you want to save this?`}
-              collectionPickerModalProps={{ models }}
-            />
-          )}
-          {showTabSelect && (
-            <FormSelect
-              name="tab_id"
-              title="Which tab should this go on?"
-              containerClassName={CS.dashboardTabSelectContainer}
-              options={saveToDashboard.tabs?.map(tab => ({
-                name: tab.name,
-                value: tab.id,
-              }))}
-            />
-          )}
+          <FormCollectionPicker
+            name="collection_id"
+            title={t`Which collection should this go in?`}
+            zIndex={DEFAULT_MODAL_Z_INDEX + 1}
+          />
         </div>
       )}
       <FormFooter>
         <FormErrorMessage inline />
         <Button type="button" onClick={onCancel}>{t`Cancel`}</Button>
         <FormSubmitButton
-          label={t`Save`}
+          title={t`Save`}
           data-testid="save-question-button"
-          variant="filled"
-          onSuccess={onSaveSuccess}
+          primary
         />
       </FormFooter>
     </Form>

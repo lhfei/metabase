@@ -1,14 +1,11 @@
 import { match } from "ts-pattern";
 
-import { hiddenLabels, nonUserFacingLabels } from "./constants";
-import { getMilestoneIssues, hasBeenReleased } from "./github";
+import { nonUserFacingLabels, hiddenLabels } from "./constants";
+import { getMilestoneIssues, isLatestRelease, hasBeenReleased } from "./github";
 import type { Issue, ReleaseProps } from "./types";
 import {
-  getEnterpriseVersion,
-  getGenericVersion,
-  getOSSVersion,
   isEnterpriseVersion,
-  isPreReleaseVersion,
+  isRCVersion,
   isValidVersionString,
 } from "./version-helpers";
 
@@ -18,19 +15,19 @@ const releaseTemplate = `## Upgrading
 
 Check out our [upgrading instructions](https://metabase.com/docs/latest/operations-guide/upgrading-metabase).
 
-[Get the most out of Metabase](https://www.metabase.com/pricing?utm_source=github&utm_medium=release-notes&utm_campaign=plan-comparison). Learn more about advanced features, managed cloud, and first-class support.
+Docker image: {{docker-tag}}
+Download the JAR here: {{download-url}}
 
-## Metabase Open Source
+## Notes
 
-Docker image: {{oss-docker-tag}}
-JAR download: {{oss-download-url}}
+SHA-256 checksum for the {{version}} JAR:
 
-## Metabase Enterprise
+\`\`\`
+{{checksum}}
+\`\`\`
 
-Docker image: {{ee-docker-tag}}
-JAR download: {{ee-download-url}}
-
-## Changelog
+<details>
+<summary><h2>Changelog</h2></summary>
 
 ### Enhancements
 
@@ -49,6 +46,8 @@ Issues confirmed to have been fixed in a previous release.
 ### Under the Hood
 
 {{under-the-hood}}
+
+</details>
 
 `;
 
@@ -93,7 +92,11 @@ export const getDownloadUrl = (version: string) => {
 };
 
 export const getReleaseTitle = (version: string) => {
-  return `Metabase ${getGenericVersion(version)}`;
+  if (isEnterpriseVersion(version)) {
+    return `Metabase® Enterprise Edition™ ${version}`;
+  }
+
+  return `Metabase ${version}`;
 };
 
 enum IssueType {
@@ -212,15 +215,14 @@ export const categorizeIssues = (issues: Issue[]) => {
 
 export const generateReleaseNotes = ({
   version,
+  checksum,
   issues,
 }: {
   version: string;
+  checksum: string;
   issues: Issue[];
 }) => {
   const issuesByType = categorizeIssues(issues);
-
-  const ossVersion = getOSSVersion(version);
-  const eeVersion = getEnterpriseVersion(version);
 
   return releaseTemplate
     .replace(
@@ -239,32 +241,40 @@ export const generateReleaseNotes = ({
       "{{under-the-hood}}",
       formatIssues(issuesByType.underTheHoodIssues),
     )
-    .replace("{{ee-docker-tag}}", getDockerTag(eeVersion))
-    .replace("{{ee-download-url}}", getDownloadUrl(eeVersion))
-    .replace("{{oss-docker-tag}}", getDockerTag(ossVersion))
-    .replace("{{oss-download-url}}", getDownloadUrl(ossVersion));
+    .replace("{{docker-tag}}", getDockerTag(version))
+    .replace("{{download-url}}", getDownloadUrl(version))
+    .replace("{{version}}", version)
+    .replace("{{checksum}}", checksum.split(" ")[0]);
 };
 
 export async function publishRelease({
   version,
+  checksum,
   owner,
   repo,
   github,
-}: ReleaseProps & { oss_checksum: string, ee_checksum: string }) {
+}: ReleaseProps & { checksum: string }) {
   if (!isValidVersionString(version)) {
     throw new Error(`Invalid version string: ${version}`);
   }
 
   const issues = await getMilestoneIssues({ version, github, owner, repo });
 
+  const isLatest: "true" | "false" =
+    !isEnterpriseVersion(version) &&
+    (await isLatestRelease({ version, github, owner, repo }))
+      ? "true"
+      : "false";
+
   const payload = {
     owner,
     repo,
-    tag_name: getOSSVersion(version),
+    tag_name: version,
     name: getReleaseTitle(version),
-    body: generateReleaseNotes({ version, issues }),
+    body: generateReleaseNotes({ version, checksum, issues }),
     draft: true,
-    prerelease: isPreReleaseVersion(version), // this api arg has never worked, but maybe it will someday! 🤞
+    prerelease: isRCVersion(version),
+    make_latest: isLatest,
   };
 
   return github.rest.repos.createRelease(payload);
@@ -296,6 +306,7 @@ export async function getChangelog({
 
   return generateReleaseNotes({
     version,
+    checksum: "checksum-placeholder",
     issues,
   });
 }

@@ -6,7 +6,10 @@ import { alpha, color, darken } from "metabase/lib/colors";
 import type { IconProps } from "metabase/ui";
 import { Icon } from "metabase/ui";
 
-type SegmentedControlVariant = "fill-text" | "fill-background" | "fill-all";
+export type SegmentedControlVariant =
+  | "fill-text"
+  | "fill-background"
+  | "fill-all";
 
 type ColorProps = {
   isSelected: boolean;

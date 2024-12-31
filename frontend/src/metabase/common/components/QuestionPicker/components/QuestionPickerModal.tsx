@@ -1,9 +1,8 @@
 import { useCallback, useState } from "react";
 import { t } from "ttag";
 
-import type { RecentItem } from "metabase-types/api";
-
-import type { EntityPickerTab } from "../../EntityPicker";
+import type { CollectionPickerModel } from "../../CollectionPicker";
+import type { EntityTab } from "../../EntityPicker";
 import {
   EntityPickerModal,
   defaultOptions as defaultEntityPickerOptions,
@@ -13,7 +12,6 @@ import type {
   QuestionPickerItem,
   QuestionPickerModel,
   QuestionPickerOptions,
-  QuestionPickerStatePath,
   QuestionPickerValue,
   QuestionPickerValueItem,
 } from "../types";
@@ -30,7 +28,6 @@ interface QuestionPickerModalProps {
   options?: QuestionPickerOptions;
   value?: QuestionPickerValue;
   models?: QuestionPickerModel[];
-  recentFilter?: (items: RecentItem[]) => RecentItem[];
 }
 
 const canSelectItem = (
@@ -38,6 +35,7 @@ const canSelectItem = (
 ): item is QuestionPickerValueItem => {
   return (
     item != null &&
+    item.can_write !== false &&
     (item.model === "card" ||
       item.model === "dataset" ||
       item.model === "metric")
@@ -56,7 +54,6 @@ export const QuestionPickerModal = ({
   value = { model: "collection", id: "root" },
   options = defaultOptions,
   models = ["card", "dataset"],
-  recentFilter,
 }: QuestionPickerModalProps) => {
   options = { ...defaultOptions, ...options };
   const [selectedItem, setSelectedItem] = useState<QuestionPickerItem | null>(
@@ -89,73 +86,50 @@ export const QuestionPickerModal = ({
     }
   };
 
-  const [modelsPath, setModelsPath] = useState<QuestionPickerStatePath>();
-  const [metricsPath, setMetricsPath] = useState<QuestionPickerStatePath>();
-  const [questionsPath, setQuestionsPath] = useState<QuestionPickerStatePath>();
-
-  const tabs: EntityPickerTab<
-    QuestionPickerItem["id"],
-    QuestionPickerItem["model"],
-    QuestionPickerItem
-  >[] = [
+  const tabs: EntityTab<CollectionPickerModel>[] = [
     {
-      id: "questions-tab",
       displayName: t`Questions`,
-      models: ["card" as const],
-      folderModels: ["collection" as const],
+      model: "card",
       icon: "table",
-      render: ({ onItemSelect }) => (
+      element: (
         <QuestionPicker
+          onItemSelect={handleItemSelect}
           initialValue={value}
-          models={["card", "dashboard"]}
           options={options}
-          path={questionsPath}
-          onInit={onItemSelect}
-          onItemSelect={onItemSelect}
-          onPathChange={setQuestionsPath}
+          models={["card"]}
         />
       ),
     },
     {
-      id: "models-tab",
       displayName: t`Models`,
-      models: ["dataset" as const],
-      folderModels: ["collection" as const],
+      model: "dataset",
       icon: "model",
-      render: ({ onItemSelect }) => (
+      element: (
         <QuestionPicker
+          onItemSelect={handleItemSelect}
           initialValue={value}
-          models={["dataset"]}
           options={options}
-          path={modelsPath}
-          onInit={onItemSelect}
-          onItemSelect={onItemSelect}
-          onPathChange={setModelsPath}
+          models={["dataset"]}
         />
       ),
     },
     {
-      id: "metrics-tab",
       displayName: t`Metrics`,
-      models: ["metric" as const],
-      folderModels: ["collection" as const],
+      model: "metric",
       icon: "metric",
-      render: ({ onItemSelect }) => (
+      element: (
         <QuestionPicker
+          onItemSelect={handleItemSelect}
           initialValue={value}
-          models={["metric"]}
           options={options}
-          path={metricsPath}
-          onInit={onItemSelect}
-          onItemSelect={onItemSelect}
-          onPathChange={setMetricsPath}
+          models={["metric"]}
         />
       ),
     },
   ];
 
   const filteredTabs = tabs.filter(tab =>
-    tab.models.every(m => models.includes(m as QuestionPickerModel)),
+    models.includes(tab.model as QuestionPickerModel),
   );
 
   return (
@@ -173,12 +147,11 @@ export const QuestionPickerModal = ({
         options.showRootCollection === false
           ? { filter_items_in_personal_collection: "only" }
           : options.showPersonalCollections === false
-            ? { filter_items_in_personal_collection: "exclude" }
-            : undefined
+          ? { filter_items_in_personal_collection: "exclude" }
+          : undefined
       }
       searchResultFilter={results => results}
       actionButtons={[]}
-      recentFilter={recentFilter}
     />
   );
 };

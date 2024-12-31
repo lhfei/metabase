@@ -2,6 +2,7 @@ import cx from "classnames";
 import type * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { findDOMNode } from "react-dom";
+import { connect } from "react-redux";
 import { useMount, usePrevious } from "react-use";
 import type { OnScrollParams } from "react-virtualized";
 import { AutoSizer, Collection, Grid, ScrollSync } from "react-virtualized";
@@ -17,7 +18,6 @@ import {
   multiLevelPivot,
 } from "metabase/lib/data_grid";
 import { getScrollBarSize } from "metabase/lib/dom";
-import { connect } from "metabase/lib/redux";
 import { getSetting } from "metabase/selectors/settings";
 import { useMantineTheme } from "metabase/ui";
 import {
@@ -281,18 +281,14 @@ function _PivotTable({
   };
 
   const leftHeaderWidth =
-    (pivoted?.rowIndexes?.length ?? 0) > 0
+    pivoted?.rowIndexes.length > 0
       ? LEFT_HEADER_LEFT_SPACING + (totalLeftHeaderWidths ?? 0)
       : 0;
 
   useEffect(() => {
     const availableBodyWidth = width - leftHeaderWidth;
     const fullBodyWidth = sumArray(
-      getCellWidthsForSection(
-        valueHeaderWidths,
-        pivoted?.valueIndexes ?? [],
-        0,
-      ),
+      getCellWidthsForSection(valueHeaderWidths, pivoted?.valueIndexes, 0),
     );
 
     const minUsableBodyWidth = Math.min(MIN_USABLE_BODY_WIDTH, fullBodyWidth);
@@ -350,7 +346,7 @@ function _PivotTable({
   return (
     <PivotTableRoot
       shouldOverflow={shouldOverflow}
-      shouldHideScrollbars={isEditing && isDashboard}
+      isEditing={isEditing}
       isDashboard={isDashboard}
       isNightMode={isNightMode}
       data-testid="pivot-table"

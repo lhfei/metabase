@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
 import Calendar from "./Calendar";
 
@@ -7,11 +7,9 @@ export default {
   component: Calendar,
 };
 
-const Template: StoryFn<typeof Calendar> = args => {
+const Template: ComponentStory<typeof Calendar> = args => {
   return <Calendar {...args} />;
 };
 
-export const Default = {
-  render: Template,
-  args: {},
-};
+export const Default = Template.bind({});
+Default.args = {};

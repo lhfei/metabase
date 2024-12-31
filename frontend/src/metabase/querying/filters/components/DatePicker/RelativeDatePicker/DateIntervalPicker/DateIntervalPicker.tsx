@@ -1,7 +1,6 @@
 import type { FormEvent } from "react";
 import { t } from "ttag";
 
-import type { DatePickerUnit } from "metabase/querying/filters/types";
 import {
   Button,
   Divider,
@@ -27,21 +26,21 @@ import { setDefaultOffset, setUnit } from "./utils";
 
 interface DateIntervalPickerProps {
   value: DateIntervalValue;
-  availableUnits: DatePickerUnit[];
-  submitButtonLabel: string;
+  isNew: boolean;
+  canUseRelativeOffsets: boolean;
   onChange: (value: DateIntervalValue) => void;
   onSubmit: () => void;
 }
 
 export function DateIntervalPicker({
   value,
-  availableUnits,
-  submitButtonLabel,
+  isNew,
+  canUseRelativeOffsets,
   onChange,
   onSubmit,
 }: DateIntervalPickerProps) {
   const interval = getInterval(value);
-  const unitOptions = getUnitOptions(value, availableUnits);
+  const unitOptions = getUnitOptions(value);
   const dateRangeText = formatDateRange(value);
 
   const handleIntervalChange = (inputValue: number | "") => {
@@ -82,15 +81,17 @@ export function DateIntervalPicker({
           ml="md"
           onChange={handleUnitChange}
         />
-        <Tooltip label={t`Starting from…`} position="bottom">
-          <Button
-            aria-label={t`Starting from…`}
-            c="text-medium"
-            variant="subtle"
-            leftIcon={<Icon name="arrow_left_to_line" />}
-            onClick={handleStartingFromClick}
-          />
-        </Tooltip>
+        {canUseRelativeOffsets && (
+          <Tooltip label={t`Starting from…`} position="bottom">
+            <Button
+              aria-label={t`Starting from…`}
+              c="text-medium"
+              variant="subtle"
+              leftIcon={<Icon name="arrow_left_to_line" />}
+              onClick={handleStartingFromClick}
+            />
+          </Tooltip>
+        )}
       </Flex>
       <Flex p="md" pt={0}>
         <IncludeCurrentSwitch value={value} onChange={onChange} />
@@ -102,7 +103,7 @@ export function DateIntervalPicker({
           <Text c="inherit">{dateRangeText}</Text>
         </Group>
         <Button variant="filled" type="submit">
-          {submitButtonLabel}
+          {isNew ? t`Add filter` : t`Update filter`}
         </Button>
       </Group>
     </form>

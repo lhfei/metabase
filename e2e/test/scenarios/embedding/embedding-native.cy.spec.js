@@ -1,16 +1,25 @@
-import { H } from "e2e/support";
+import {
+  assertEmbeddingParameter,
+  clearFilterWidget,
+  closeStaticEmbeddingModal,
+  filterWidget,
+  openStaticEmbeddingModal,
+  popover,
+  publishChanges,
+  restore,
+  setEmbeddingParameter,
+  visitEmbeddedPage,
+  visitIframe,
+} from "e2e/support/helpers";
 
 import * as SQLFilter from "../native-filters/helpers/e2e-sql-filter-helpers";
 
-import {
-  questionDetails as questionDetails2,
-  questionDetailsWithDefaults,
-} from "./shared/embedding-dashboard";
+import { questionDetailsWithDefaults } from "./shared/embedding-dashboard";
 import { questionDetails } from "./shared/embedding-native";
 
 describe("scenarios > embedding > native questions", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -28,17 +37,17 @@ describe("scenarios > embedding > native questions", () => {
         visitQuestion: true,
       });
 
-      H.openStaticEmbeddingModal({ activeTab: "parameters" });
+      openStaticEmbeddingModal({ activeTab: "parameters" });
     }
 
     it("should not display disabled parameters", () => {
       createAndVisitQuestion();
 
-      H.publishChanges("card", ({ request }) => {
+      publishChanges("card", ({ request }) => {
         assert.deepEqual(request.body.embedding_params, {});
       });
 
-      H.visitIframe();
+      visitIframe();
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.contains("Lora Cronin");
@@ -47,19 +56,19 @@ describe("scenarios > embedding > native questions", () => {
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.contains("39.58");
 
-      H.filterWidget().should("not.exist");
+      filterWidget().should("not.exist");
     });
 
     it("should display and work with enabled parameters while hiding the locked one", () => {
       createAndVisitQuestion();
 
-      H.setEmbeddingParameter("Order ID", "Editable");
-      H.setEmbeddingParameter("Created At", "Editable");
-      H.setEmbeddingParameter("Total", "Locked");
-      H.setEmbeddingParameter("State", "Editable");
-      H.setEmbeddingParameter("Product ID", "Editable");
+      setEmbeddingParameter("Order ID", "Editable");
+      setEmbeddingParameter("Created At", "Editable");
+      setEmbeddingParameter("Total", "Locked");
+      setEmbeddingParameter("State", "Editable");
+      setEmbeddingParameter("Product ID", "Editable");
 
-      H.publishChanges("card", ({ request }) => {
+      publishChanges("card", ({ request }) => {
         const actual = request.body.embedding_params;
 
         const expected = {
@@ -79,7 +88,7 @@ describe("scenarios > embedding > native questions", () => {
           params: { total: [] },
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
       });
 
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -88,14 +97,14 @@ describe("scenarios > embedding > native questions", () => {
       cy.contains("Twitter").should("not.exist");
 
       // Created At: Q2 2023
-      H.filterWidget().contains("Created At").click();
+      filterWidget().contains("Created At").click();
       cy.findByTestId("select-year-picker").click();
-      H.selectDropdown().contains("2023").click();
+      popover().last().contains("2023").click();
       // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
       cy.findByText("Q2").click();
 
       // State: is not KS
-      H.filterWidget().contains("State").click();
+      filterWidget().contains("State").click();
       cy.findByPlaceholderText("Search the list").type("KS{enter}");
       cy.findAllByTestId(/-filter-value$/).should("have.length", 1);
       cy.findByLabelText("KS").should("be.visible").click();
@@ -119,7 +128,7 @@ describe("scenarios > embedding > native questions", () => {
         });
 
       // Order ID is 926 - there should be only one result after this
-      H.filterWidget().contains("Order ID").click();
+      filterWidget().contains("Order ID").click();
       cy.findByPlaceholderText("Enter an ID").type("926");
       cy.button("Add filter").click();
 
@@ -141,9 +150,9 @@ describe("scenarios > embedding > native questions", () => {
     it("should handle required parameters", () => {
       createAndVisitQuestion({ requiredTagName: "total", defaultValue: [100] });
 
-      H.assertEmbeddingParameter("Total", "Editable");
+      assertEmbeddingParameter("Total", "Editable");
 
-      H.publishChanges("card", ({ request }) => {
+      publishChanges("card", ({ request }) => {
         const actual = request.body.embedding_params;
 
         // We only expect total to be "enabled" because the rest
@@ -156,10 +165,10 @@ describe("scenarios > embedding > native questions", () => {
         assert.deepEqual(actual, expected);
       });
 
-      H.visitIframe();
+      visitIframe();
 
       // Filter widget must be visible
-      H.filterWidget().contains("Total");
+      filterWidget().contains("Total");
 
       // And its default value must be in the URL
       cy.location("search").should("eq", "?total=100");
@@ -168,11 +177,11 @@ describe("scenarios > embedding > native questions", () => {
     it("should (dis)allow setting parameters as required for a published embedding", () => {
       createAndVisitQuestion();
       // Make one parameter editable and one locked
-      H.setEmbeddingParameter("Order ID", "Editable");
-      H.setEmbeddingParameter("Total", "Locked");
+      setEmbeddingParameter("Order ID", "Editable");
+      setEmbeddingParameter("Total", "Locked");
 
-      H.publishChanges("card");
-      H.closeStaticEmbeddingModal();
+      publishChanges("card");
+      closeStaticEmbeddingModal();
 
       cy.findByTestId("native-query-editor-container")
         .findByText("Open Editor")
@@ -219,17 +228,15 @@ describe("scenarios > embedding > native questions", () => {
 
         // It should be possible to both set the filter value and hide it at the same time.
         // That's the synonymous to the locked filter.
-        H.visitEmbeddedPage(payload, {
+        visitEmbeddedPage(payload, {
           setFilters: { id: 92 },
-          additionalHashOptions: {
-            hideFilters: ["id", "product_id", "state", "created_at", "total"],
-          },
+          hideFilters: ["id", "product_id", "state", "created_at", "total"],
         });
 
         cy.findByTestId("table-row").should("have.length", 1);
         cy.findByText("92");
 
-        H.filterWidget().should("not.exist");
+        filterWidget().should("not.exist");
       });
     });
 
@@ -250,11 +257,11 @@ describe("scenarios > embedding > native questions", () => {
           params: {},
         };
 
-        H.visitEmbeddedPage(payload, {
+        visitEmbeddedPage(payload, {
           setFilters: { created_at: "Q2-2025", source: "Organic", state: "OR" },
         });
 
-        H.filterWidget()
+        filterWidget()
           .should("have.length", 4)
           .and("contain", "OR")
           .and("contain", "Q2 2025");
@@ -268,7 +275,7 @@ describe("scenarios > embedding > native questions", () => {
         cy.contains("35.7");
 
         // OTOH, we should also be able to override the default filter value by eplixitly setting it
-        H.visitEmbeddedPage(payload, {
+        visitEmbeddedPage(payload, {
           setFilters: { total: 80 },
         });
 
@@ -304,72 +311,20 @@ describe("scenarios > embedding > native questions", () => {
           },
         };
 
-        H.visitEmbeddedPage(payload);
+        visitEmbeddedPage(payload);
 
         cy.findByTestId("table-row").should("have.length", 1);
         cy.findByText("66.8");
 
-        H.filterWidget().should("not.exist");
+        filterWidget().should("not.exist");
       });
-    });
-  });
-
-  describe("locked parameters", () => {
-    beforeEach(() => {
-      const nameParameter = questionDetails2.native["template-tags"]["name"];
-      const sourceParameter =
-        questionDetails2.native["template-tags"]["source"];
-
-      H.createNativeQuestion(questionDetails2, {
-        wrapId: true,
-      });
-
-      cy.get("@questionId").then(questionId => {
-        cy.request("PUT", `/api/card/${questionId}`, {
-          enable_embedding: true,
-          embedding_params: {
-            [nameParameter.name]: "enabled",
-            [sourceParameter.name]: "locked",
-          },
-        });
-      });
-    });
-
-    it("locked parameters require a value to be specified in the JWT", () => {
-      cy.get("@questionId").then(questionId => {
-        const payload = {
-          resource: { question: questionId },
-          params: { source: null },
-        };
-
-        H.visitEmbeddedPage(payload);
-      });
-
-      // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
-      cy.findByText("You must specify a value for :source in the JWT.").should(
-        "be.visible",
-      );
-    });
-
-    it("locked parameters should still render results in the preview by default (metabase#47570)", () => {
-      H.visitQuestion("@questionId");
-      H.openStaticEmbeddingModal({ activeTab: "parameters" });
-      H.visitIframe();
-
-      cy.log("should show card results by default");
-      cy.findByTestId("visualization-root")
-        .findByText("2,500")
-        .should("be.visible");
-      cy.findByTestId("visualization-root")
-        .findByText("test question")
-        .should("be.visible");
     });
   });
 });
 
 describe("scenarios > embedding > native questions with default parameters", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.createNativeQuestion(questionDetailsWithDefaults, {
@@ -377,12 +332,12 @@ describe("scenarios > embedding > native questions with default parameters", () 
       wrapId: true,
     });
 
-    H.openStaticEmbeddingModal({ activeTab: "parameters" });
+    openStaticEmbeddingModal({ activeTab: "parameters" });
 
     // Note: ID is disabled
-    H.setEmbeddingParameter("Source", "Locked");
-    H.setEmbeddingParameter("Name", "Editable");
-    H.publishChanges("card", ({ request }) => {
+    setEmbeddingParameter("Source", "Locked");
+    setEmbeddingParameter("Name", "Editable");
+    publishChanges("card", ({ request }) => {
       assert.deepEqual(request.body.embedding_params, {
         source: "locked",
         name: "enabled",
@@ -397,15 +352,31 @@ describe("scenarios > embedding > native questions with default parameters", () 
         params: { source: [] },
       };
 
-      H.visitEmbeddedPage(payload);
+      visitEmbeddedPage(payload);
     });
     // Remove default filter value
-    H.clearFilterWidget();
+    clearFilterWidget();
     // The ID default (1, 2) should apply, because it is disabled.
     // The Name default ('Lina Heaney') should not apply, because the Name param is editable and empty
     // The Source default ('Facebook') should not apply because the param is locked but the value is unset
     // If either the Name or Source default applied the result would be 0.
     cy.findByTestId("scalar-value").invoke("text").should("eq", "2");
+  });
+
+  it("locked parameters require a value to be specified in the JWT", () => {
+    cy.get("@questionId").then(questionId => {
+      const payload = {
+        resource: { question: questionId },
+        params: { source: null },
+      };
+
+      visitEmbeddedPage(payload);
+    });
+
+    // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
+    cy.findByText("You must specify a value for :source in the JWT.").should(
+      "be.visible",
+    );
   });
 });
 

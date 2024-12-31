@@ -11,7 +11,6 @@
    [java-time.api :as t]
    [medley.core :as m]
    [metabase.config :as config]
-   [metabase.lib.query :as lib.query]
    [metabase.public-settings :as public-settings]
    [metabase.query-processor.middleware.cache-backend.db :as backend.db]
    [metabase.query-processor.middleware.cache-backend.interface :as i]
@@ -58,8 +57,7 @@
   "Add `object` (e.g. a result row or metadata) to the current cache entry."
   [object]
   (when *in-fn*
-    (*in-fn* (cond-> object
-               (map? object) (m/update-existing :json_query lib.query/serializable)))))
+    (*in-fn* object)))
 
 (def ^:private ^:dynamic *result-fn*
   "The `result-fn` provided by [[impl/do-with-serialization]]."
@@ -138,7 +136,7 @@
          (let [normal-format? (and (map? (unreduced result))
                                    (seq (get-in (unreduced result) [:data :cols])))
                result*        (-> (if normal-format?
-                                    (m/deep-merge @final-metadata (unreduced result))
+                                    (merge-with merge @final-metadata (unreduced result))
                                     (unreduced result))
                                   (assoc :cache/details {:hash query-hash :cached true :updated_at last-ran}))]
            (rf (cond-> result*

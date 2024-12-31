@@ -3,11 +3,12 @@
   (:require
    [malli.core :as mc]
    [mb.hawk.parallel]
-   [metabase-enterprise.sandbox.models.group-table-access-policy :refer [GroupTableAccessPolicy]]
+   [metabase-enterprise.sandbox.models.group-table-access-policy
+    :refer [GroupTableAccessPolicy]]
    [metabase.models.card :refer [Card]]
    [metabase.models.data-permissions :as data-perms]
    [metabase.models.user :refer [User]]
-   [metabase.request.core :as request]
+   [metabase.server.middleware.session :as mw.session]
    [metabase.test :as mt]
    [metabase.test.data :as data]
    [metabase.test.data.impl :as data.impl]
@@ -77,7 +78,7 @@
                          (if (keyword? test-user-name-or-user-id)
                            (test.users/with-test-user test-user-name-or-user-id
                              (f group))
-                           (request/with-current-user (u/the-id test-user-name-or-user-id)
+                           (mw.session/with-current-user (u/the-id test-user-name-or-user-id)
                              (f group)))))))))))]
     ;; create a temp copy of the current DB if we haven't already created one. If one is already created, keep using
     ;; that so we can test multiple sandboxed users against the same DB

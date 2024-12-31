@@ -121,8 +121,11 @@ describe("StringFilterEditor", () => {
           }),
         },
       });
-      expect(screen.getByText("is")).toBeInTheDocument();
-      expect(onChange).not.toHaveBeenCalled();
+
+      await userEvent.click(screen.getByText("contains"));
+      await userEvent.click(screen.getByText("Is"));
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(getNextFilterName()).toBeNull();
 
       await userEvent.type(
         screen.getByPlaceholderText("Search by Email"),
@@ -133,7 +136,7 @@ describe("StringFilterEditor", () => {
 
       await userEvent.tab();
       expect(getNextFilterName()).toBe("Email is a@metabase.test");
-      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(onChange).toHaveBeenCalledTimes(2);
     });
 
     it("should handle non-searchable values", async () => {
@@ -339,7 +342,7 @@ describe("StringFilterEditor", () => {
 interface QueryWithFilterOpts {
   tableName: string;
   columnName: string;
-  operator: Lib.StringFilterOperator;
+  operator: Lib.StringFilterOperatorName;
   values: string[];
 }
 

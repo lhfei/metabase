@@ -4,20 +4,26 @@ import { t } from "ttag";
 
 import ErrorDetails from "metabase/components/ErrorDetails/ErrorDetails";
 import { ErrorMessage } from "metabase/components/ErrorMessage";
-import ExternalLink from "metabase/core/components/ExternalLink";
 import CS from "metabase/css/core/index.css";
 import QueryBuilderS from "metabase/css/query_builder.module.css";
 import { getEngineNativeType } from "metabase/lib/engine";
 import { useSelector } from "metabase/lib/redux";
-import { getLearnUrl } from "metabase/selectors/settings";
+import MetabaseSettings from "metabase/lib/settings";
 import { getShowMetabaseLinks } from "metabase/selectors/whitelabel";
-import { Box, Flex, Icon } from "metabase/ui";
 import * as Lib from "metabase-lib";
 import type Question from "metabase-lib/v1/Question";
 
 import { VISUALIZATION_SLOW_TIMEOUT } from "../../constants";
 
-import VisErrorS from "./VisualizationError.module.css";
+import {
+  QueryError,
+  QueryErrorContent,
+  QueryErrorHeader,
+  QueryErrorIcon,
+  QueryErrorLink,
+  QueryErrorMessage,
+  QueryErrorTitle,
+} from "./VisualizationError.styled";
 import { AdminEmail } from "./components";
 import { adjustPositions, stripRemarks } from "./utils";
 
@@ -101,25 +107,22 @@ export function VisualizationError({
     const isSql = database && getEngineNativeType(database.engine) === "sql";
 
     return (
-      <Box className={cx(className, CS.overflowAuto)}>
-        <Flex direction="column" justify="center" align="center" mih="100%">
-          <Flex align="center" mb="md">
-            <Icon className={VisErrorS.QueryErrorIcon} name="warning" />
-            <Box
-              className={VisErrorS.QueryErrorTitle}
-            >{t`An error occurred in your query`}</Box>
-          </Flex>
-          <Box className={VisErrorS.QueryErrorMessage}>{processedError}</Box>
+      <QueryError className={className}>
+        <QueryErrorContent>
+          <QueryErrorHeader>
+            <QueryErrorIcon name="warning" />
+            <QueryErrorTitle>{t`An error occurred in your query`}</QueryErrorTitle>
+          </QueryErrorHeader>
+          <QueryErrorMessage>{processedError}</QueryErrorMessage>
           {isSql && showMetabaseLinks && (
-            <ExternalLink
-              className={VisErrorS.QueryErrorLink}
-              href={getLearnUrl("debugging-sql/sql-syntax")}
+            <QueryErrorLink
+              href={MetabaseSettings.learnUrl("debugging-sql/sql-syntax")}
             >
               {t`Learn how to debug SQL errors`}
-            </ExternalLink>
+            </QueryErrorLink>
           )}
-        </Flex>
-      </Box>
+        </QueryErrorContent>
+      </QueryError>
     );
   } else {
     return (

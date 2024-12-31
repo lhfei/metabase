@@ -69,7 +69,6 @@ describe("ActionCreator > Query Actions", () => {
           screen.getByTestId("collection-picker-button"),
         ).toHaveTextContent("Select a model");
       });
-
       it("should preselect model", async () => {
         const MODEL_NAME = "Awesome Model";
         const model = createMockCard({
@@ -107,9 +106,7 @@ describe("ActionCreator > Query Actions", () => {
       const action = createMockQueryAction();
       await setup({ action });
 
-      await waitFor(() => {
-        expect(screen.getByText(action.name)).toBeInTheDocument();
-      });
+      expect(screen.getByText(action.name)).toBeInTheDocument();
       expect(screen.queryByText(/New action/i)).not.toBeInTheDocument();
       expect(
         screen.getByTestId("mock-native-query-editor"),
@@ -132,9 +129,7 @@ describe("ActionCreator > Query Actions", () => {
         }),
       });
 
-      await waitFor(() => {
-        expect(screen.getAllByText("FooBar")).toHaveLength(2);
-      });
+      expect(screen.getAllByText("FooBar")).toHaveLength(2);
     });
 
     it("blocks editing if the user doesn't have write permissions for the collection", async () => {
@@ -143,9 +138,7 @@ describe("ActionCreator > Query Actions", () => {
       });
       await setup({ action, canWrite: false });
 
-      await waitFor(() => {
-        expect(screen.getByDisplayValue(action.name)).toBeDisabled();
-      });
+      expect(screen.getByDisplayValue(action.name)).toBeDisabled();
       expect(queryIcon("grabber")).not.toBeInTheDocument();
       expect(screen.queryByLabelText("Field settings")).not.toBeInTheDocument();
       expect(
@@ -163,9 +156,7 @@ describe("ActionCreator > Query Actions", () => {
       });
       await setup({ action, hasActionsEnabled: false });
 
-      await waitFor(() => {
-        expect(screen.getByDisplayValue(action.name)).toBeDisabled();
-      });
+      expect(screen.getByDisplayValue(action.name)).toBeDisabled();
       expect(queryIcon("grabber")).not.toBeInTheDocument();
       expect(screen.queryByLabelText("Field settings")).not.toBeInTheDocument();
       expect(

@@ -1,11 +1,11 @@
 (ns metabase.models.card-test
   (:require
+   [cheshire.core :as json]
    [clojure.set :as set]
    [clojure.test :refer :all]
    [java-time.api :as t]
    [metabase.audit :as audit]
    [metabase.config :as config]
-   [metabase.lib.convert :as lib.convert]
    [metabase.lib.core :as lib]
    [metabase.lib.metadata :as lib.metadata]
    [metabase.lib.metadata.jvm :as lib.metadata.jvm]
@@ -19,7 +19,6 @@
    [metabase.test :as mt]
    [metabase.test.util :as tu]
    [metabase.util :as u]
-   [metabase.util.json :as json]
    [toucan2.core :as t2]
    [toucan2.tools.with-temp :as t2.with-temp]))
 
@@ -303,8 +302,8 @@
               ;; also check that normalization of already-normalized refs is idempotent
               original [original expected]
               ;; frontend uses JSON-serialized versions of the MBQL clauses as keys
-              :let     [original (json/encode original)
-                        expected (json/encode expected)]]
+              :let     [original (json/generate-string original)
+                        expected (json/generate-string expected)]]
         (testing (format "Viz settings field ref key %s should get normalized to %s"
                          (pr-str original)
                          (pr-str expected))
@@ -663,7 +662,7 @@
                    :model/Card card2 {:name "derived card"
                                       :dataset_query {:query {:source-table (str "card__" (:id card1))}}}]
       (is (empty? (serdes/descendants "Card" (:id card1))))
-      (is (= {["Card" (:id card1)] {"Card" (:id card2)}}
+      (is (= #{["Card" (:id card1)]}
              (serdes/descendants "Card" (:id card2)))))))
 
 (deftest ^:parallel descendants-test-3
@@ -677,7 +676,7 @@
                                                                :snippet-name "snippet"
                                                                :snippet-id   (:id snippet)}}
                                      :query "select * from products where {{snippet}}"}}}]
-      (is (= {["NativeQuerySnippet" (:id snippet)] {"Card" (:id card)}}
+      (is (= #{["NativeQuerySnippet" (:id snippet)]}
              (serdes/descendants "Card" (:id card)))))))
 
 (deftest ^:parallel descendants-test-4
@@ -688,7 +687,7 @@
                                                     :type                 "id"
                                                     :values_source_type   "card"
                                                     :values_source_config {:card_id (:id card1)}}]}]
-      (is (= {["Card" (:id card1)] {"Card" (:id card2)}}
+      (is (= #{["Card" (:id card1)]}
              (serdes/descendants "Card" (:id card2)))))))
 
 (deftest ^:parallel extract-test
@@ -729,7 +728,7 @@
               :pie.percent_visibility "inside"}
              (-> (t2/select-one (t2/table-name :model/Card) {:where [:= :id card-id]})
                  :visualization_settings
-                 json/decode+kw))))))
+                 (json/parse-string keyword)))))))
 
 ;;; -------------------------------------------- Revision tests  --------------------------------------------
 
@@ -793,7 +792,6 @@
 (deftest record-revision-and-description-completeness-test
   (t2.with-temp/with-temp
     [:model/Database   db   {:name "random db"}
-     :model/Dashboard  dashboard {:name "dashboard"}
      :model/Card       base-card {}
      :model/Card       card {:name                "A Card"
                              :description         "An important card"
@@ -824,7 +822,6 @@
                             (= col :table_id)          (mt/id :venues)
                             (= col :source_card_id)    (:id base-card)
                             (= col :database_id)       (:id db)
-                            (= col :dashboard_id)      (:id dashboard)
                             (= col :query_type)        :native
                             (= col :type)              "model"
                             (= col :dataset_query)     (mt/mbql-query users)
@@ -988,7 +985,7 @@
                   "database" (mt/id)
                   "stages"   [{"lib/type"     "mbql.stage/mbql"
                                "source-table" (mt/id :venues)}]}
-                 (json/decode (t2/select-one-fn :dataset_query (t2/table-name :model/Card) :id (u/the-id card))))))
+                 (json/parse-string (t2/select-one-fn :dataset_query (t2/table-name :model/Card) :id (u/the-id card))))))
         (testing "fetch from app DB"
           (is (=? {:dataset_query {:lib/type     :mbql/query
                                    :database     (mt/id)
@@ -1040,151 +1037,3 @@
           (mt/with-test-user :crowberto
             (is (false? (mi/can-read? card)))
             (is (false? (mi/can-write? card)))))))))
-
-(deftest breakouts-->identifier->action-fn-test
-  (are [b1 b2 expected--identifier->action] (= expected--identifier->action
-                                               (#'card/breakouts-->identifier->action b1 b2))
-    [[:field 10 {:temporal-unit :day}]]
-    nil
-    nil
-
-    [[:expression "x" {:temporal-unit :day}]]
-    nil
-    nil
-
-    [[:expression "x" {:temporal-unit :day}]]
-    [[:expression "x" {:temporal-unit :month}]]
-    {[:expression "x"] [:update [:expression "x" {:temporal-unit :month}]]}
-
-    [[:expression "x" {:temporal-unit :day}]]
-    [[:expression "x" {:temporal-unit :day}]]
-    nil
-
-    [[:field 10 {:temporal-unit :day}] [:expression "x" {:temporal-unit :day}]]
-    [[:expression "x" {:temporal-unit :day}] [:field 10 {:temporal-unit :month}]]
-    {[:field 10] [:update [:field 10 {:temporal-unit :month}]]}
-
-    [[:field 10 {:temporal-unit :year}] [:field 10 {:temporal-unit :day-of-week}]]
-    [[:field 10 {:temporal-unit :year}]]
-    nil))
-
-(deftest update-for-dashcard-fn-test
-  (are [indetifier->action quasi-dashcards expected-quasi-dashcards]
-       (= expected-quasi-dashcards
-          (#'card/updates-for-dashcards indetifier->action quasi-dashcards))
-
-    {[:field 10] [:update [:field 10 {:temporal-unit :month}]]}
-    [{:parameter_mappings []}]
-    nil
-
-    {[:field 10] [:update [:field 10 {:temporal-unit :month}]]}
-    [{:id 1 :parameter_mappings [{:target [:dimension [:field 10 nil]]}]}]
-    [[1 {:parameter_mappings [{:target [:dimension [:field 10 {:temporal-unit :month}]]}]}]]
-
-    {[:field 10] [:noop]}
-    [{:id 1 :parameter_mappings [{:target [:dimension [:field 10 nil]]}]}]
-    nil
-
-    {[:field 10] [:update [:field 10 {:temporal-unit :month}]]}
-    [{:id 1 :parameter_mappings [{:target [:dimension [:field 10 {:temporal-unit :year}]]}
-                                 {:target [:dimension [:field 33 {:temporal-unit :month}]]}
-                                 {:target [:dimension [:field 10 {:temporal-unit :day}]]}]}]
-    [[1 {:parameter_mappings [{:target [:dimension [:field 10 {:temporal-unit :month}]]}
-                              {:target [:dimension [:field 33 {:temporal-unit :month}]]}
-                              {:target [:dimension [:field 10 {:temporal-unit :month}]]}]}]]))
-
-(deftest we-cannot-insert-invalid-dashboard-internal-cards
-  (mt/with-temp [:model/Collection {coll-id :id} {}
-                 :model/Collection {other-coll-id :id} {}
-                 :model/Dashboard {dash-id :id} {:collection_id coll-id}]
-    (mt/with-model-cleanup [:model/Card]
-      (testing "You can't insert a card with a collection_id different than its dashboard's collection_id"
-        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Invalid dashboard-internal card"
-                              (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                                             :dashboard_id dash-id
-                                                             :collection_id other-coll-id))))
-        (testing "including if it's `nil`"
-          (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Invalid dashboard-internal card"
-                                (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                                               :dashboard_id dash-id
-                                                               :collection_id nil)))))
-        (testing "But you can insert a card with the *same* collection_id"
-          (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                         :dashboard_id dash-id
-                                         :collection_id coll-id)))
-        (testing "... or no collection_id"
-          (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                         :dashboard_id dash-id))))
-      (testing "You can't insert a card with a type other than `:question` as a dashboard-internal card"
-        (testing "invalid"
-          (doseq [invalid-type (disj card/card-types :question)]
-            (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Invalid dashboard-internal card"
-                                  (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                                                 :dashboard_id dash-id
-                                                                 :type invalid-type))))))
-        (testing "these are valid"
-          (doseq [valid-type [:question "question"]]
-            (is (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                               :dashboard_id dash-id
-                                               :type valid-type))))))
-      (testing "You can't insert a dashboard-internal card with a collection_position"
-        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Invalid dashboard-internal card"
-                              (t2/insert! :model/Card (assoc (t2.with-temp/with-temp-defaults :model/Card)
-                                                             :dashboard_id dash-id
-                                                             :collection_position 5))))))))
-
-(deftest no-updating-dashboard-internal-cards-with-invalid-data
-  (mt/with-temp [:model/Collection {coll-id :id} {}
-                 :model/Collection {other-coll-id :id} {}
-                 :model/Dashboard {dash-id :id} {:collection_id coll-id}
-                 :model/Card card {:dashboard_id dash-id}]
-    (mt/with-test-user :rasta
-      (testing "Can't update the collection_id"
-        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Cannot manually set `collection_id` on a Dashboard Question"
-                              (card/update-card! {:card-before-update card
-                                                  :card-updates {:collection_id other-coll-id}}))))
-      (testing "CAN 'update' the collection_id"
-        (is (card/update-card! {:card-before-update card
-                                :card-updates {:collection_id coll-id}})))
-      (testing "Can't update the collection_position"
-        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Cannot set `collection_position` on a Dashboard Question"
-                              (card/update-card! {:card-before-update card
-                                                  :card-updates {:collection_position 5}}))))
-      (testing "CAN 'update' the collection_position"
-        (is (card/update-card! {:card-before-update card
-                                :card-updates {:collection_position nil}})))
-      (testing "Can't update the type"
-        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Cannot set `type` on a Dashboard Question"
-                              (card/update-card! {:card-before-update card
-                                                  :card-updates {:type :model}}))))
-      (testing "CAN 'update' the type"
-        (is (card/update-card! {:card-before-update card
-                                :card-updates {:type :question}}))))))
-
-(deftest update-does-not-break
-  ;; There's currently a footgun in Toucan2 - if 1) the result of `before-update` doesn't have an ID, 2) part of your
-  ;; `update` would change a subset of selected rows, and 3) part of your `update` would change *every* selected row
-  ;; (in this case, that's the `updated_at` we automatically set), then it emits an update without a `WHERE` clause.
-  ;;
-  ;;This can be removed after https://github.com/camsaul/toucan2/pull/196 is merged.
-  (mt/with-temp [:model/Card {card-1-id :id} {:name "Flippy"}
-                 :model/Card {card-2-id :id} {:name "Dog Man"}
-                 :model/Card {card-3-id :id} {:name "Petey"}]
-    (testing "only the two cards specified get updated"
-      (t2/update! :model/Card :id [:in [card-1-id card-2-id]]
-                  {:name "Flippy"})
-      (is (= "Petey" (t2/select-one-fn :name :model/Card :id card-3-id))))))
-
-(deftest ^:parallel query-description-in-metric-cards-test
-  (testing "Metric cards contain query_description key (#51303)"
-    (let [mp (lib.metadata.jvm/application-database-metadata-provider (mt/id))]
-      (mt/with-temp
-        [:model/Card
-         {id :id}
-         {:name "My metric"
-          :type :metric
-          :dataset_query (-> (lib/query mp (lib.metadata/table mp (mt/id :orders)))
-                             (lib/aggregate (lib/count))
-                             lib.convert/->legacy-MBQL)}]
-        (is (= "Orders, Count"
-               (:query_description (t2/select-one :model/Card :id id))))))))

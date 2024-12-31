@@ -1,7 +1,5 @@
-import { CHAR_SIZES_FONT_WEIGHT } from "metabase/static-viz/constants/char-sizes";
 import { formatNumber } from "metabase/static-viz/lib/numbers";
-import { measureTextWidth } from "metabase/static-viz/lib/text";
-import { truncateText } from "metabase/visualizations/lib/text";
+import { truncateText } from "metabase/static-viz/lib/text";
 import type { ColorGetter } from "metabase/visualizations/types";
 
 import Gauge from "./Gauge";
@@ -128,13 +126,7 @@ export default function GaugeContainer({
         value: truncateText(
           segment.label,
           MAX_SEGMENT_VALUE_WIDTH,
-          (text, style) =>
-            measureTextWidth(text, Number(style.size), Number(style.weight)),
-          {
-            size: SEGMENT_LABEL_FONT_SIZE,
-            family: "Lato",
-            weight: CHAR_SIZES_FONT_WEIGHT,
-          },
+          SEGMENT_LABEL_FONT_SIZE,
         ),
         color: getColor("text-dark"),
       };

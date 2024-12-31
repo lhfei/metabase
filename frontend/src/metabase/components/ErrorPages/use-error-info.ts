@@ -7,7 +7,7 @@ import { getUserIsAdmin } from "metabase/selectors/user";
 import { MetabaseApi, UtilApi } from "metabase/services";
 
 import type { ErrorPayload, ReportableEntityName } from "./types";
-import { getBrowserInfo, getEntityDetails, hasQueryData } from "./utils";
+import { getEntityDetails, hasQueryData } from "./utils";
 
 const maybeSerializeError = (key: string, value: any) => {
   if (value?.constructor.name === "Error") {
@@ -34,7 +34,7 @@ export const useErrorInfo = (
     }
     // https://regexr.com/7ra8o
     const matches = location.match(
-      /(question|model|dashboard|collection|metric)[[\/\#]([\d\w]+)/,
+      /(question|model|dashboard|collection)[[\/\#]([\d\w]+)/,
     );
 
     const entity = (matches?.[1] ?? undefined) as
@@ -92,8 +92,6 @@ export const useErrorInfo = (
         log?.msg?.includes?.(` userID: ${currentUser.id} `),
     );
 
-    const browserInfo = getBrowserInfo();
-
     const payload: ErrorPayload = {
       url: location,
       entityInfo,
@@ -105,7 +103,6 @@ export const useErrorInfo = (
       backendErrors,
       userLogs,
       bugReportDetails,
-      browserInfo,
     };
 
     return payload;

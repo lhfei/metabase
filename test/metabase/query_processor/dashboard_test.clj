@@ -2,6 +2,7 @@
   "There are more e2e tests in [[metabase.api.dashboard-test]]."
   (:require
    [clojure.test :refer :all]
+   [metabase.api.common :as api]
    [metabase.api.dashboard-test :as api.dashboard-test]
    [metabase.models
     :refer [Card Dashboard DashboardCard DashboardCardSeries]]
@@ -16,7 +17,7 @@
 (defn- run-query-for-dashcard [dashboard-id card-id dashcard-id & options]
   ;; TODO -- we shouldn't do the perms checks if there is no current User context. It seems like API-level perms check
   ;; stuff doesn't belong in the Dashboard QP namespace
-  (mt/as-admin
+  (binding [api/*current-user-permissions-set* (atom #{"/"})]
     (apply qp.dashboard/process-query-for-dashcard
            :dashboard-id dashboard-id
            :card-id      card-id
@@ -192,12 +193,12 @@
                                                               :card_id      card-id
                                                               :target       [:dimension
                                                                              [:field (mt/id :venues :id) {:base-type "type/BigInteger"}]
-                                                                             {:stage-number 0}]}
+                                                                             {:stage-number -2}]}
                                                              {:parameter_id "_COUNT_"
                                                               :card_id      card-id
                                                               :target       [:dimension
                                                                              [:field "count" {:base-type "type/Integer"}]
-                                                                             {:stage-number 1}]}]}]
+                                                                             {:stage-number -1}]}]}]
       (are [count-filter rows] (= rows
                                   (mt/formatted-rows [str int int]
                                                      (run-query-for-dashcard
@@ -205,13 +206,13 @@
                                                       :parameters [{:id    "_VENUE_ID_"
                                                                     :target [:dimension
                                                                              [:field "venue_id" {:base-type "type/BigInteger"}]
-                                                                             {:stage-number 0}]
+                                                                             {:stage-number -2}]
                                                                     :type  "id"
                                                                     :value 2}
                                                                    {:id    "_COUNT_"
                                                                     :target [:dimension
                                                                              [:field "count" {:base-type "type/Integer"}]
-                                                                             {:stage-number 1}]
+                                                                             {:stage-number -1}]
                                                                     :type  "number/>="
                                                                     :value count-filter}])))
         1 [["11" 2 1]]

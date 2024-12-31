@@ -1,45 +1,19 @@
-import { useLocation } from "react-use";
-import _ from "underscore";
-
-import { useGetCollectionQuery } from "metabase/api";
-import { useSelector } from "metabase/lib/redux";
-import { getQuestion } from "metabase/query_builder/selectors";
+import Collections from "metabase/entities/collections";
 import { getCollectionId } from "metabase/selectors/app";
-import type { CollectionId } from "metabase-types/api";
+import type { State } from "metabase-types/store";
 
-import {
-  CollectionBreadcrumbs as Breadcrumbs,
-  type CollectionBreadcrumbsProps as BreadcrumbsProps,
-} from "../../components/CollectionBreadcrumbs/CollectionBreadcrumbs";
+import CollectionBreadcrumbs from "../../components/CollectionBreadcrumbs";
 
-type CollectionBreadcrumbsProps = Omit<
-  BreadcrumbsProps,
-  "collection" | "dashboard" | "baseCollectionId"
-> & {
-  collectionId?: CollectionId;
-  baseCollectionId?: CollectionId | null;
-};
-
-export const CollectionBreadcrumbs = (props: CollectionBreadcrumbsProps) => {
-  const statefulCollectionId = useSelector(getCollectionId);
-  const collectionId = props.collectionId ?? statefulCollectionId ?? "root";
-
-  const { data: collection } = useGetCollectionQuery({ id: collectionId });
-
-  const question = useSelector(getQuestion);
-  const { pathname } = useLocation();
-  const isOnQuestionPage = pathname && /\/question\//.test(pathname);
-  const dashboard = isOnQuestionPage ? question?.dashboard() : undefined;
-
-  return (
-    <Breadcrumbs
-      {...props}
-      collection={collection}
-      dashboard={dashboard}
-      baseCollectionId={props.baseCollectionId ?? null}
-    />
-  );
+const collectionProps = {
+  id: (state: State, props: { collectionId?: string }) => {
+    if (props.collectionId) {
+      return props.collectionId;
+    }
+    return getCollectionId(state) ?? "root";
+  },
+  loadingAndErrorWrapper: false,
+  properties: ["name", "authority_level"],
 };
 
 // eslint-disable-next-line import/no-default-export -- deprecated usage
-export default CollectionBreadcrumbs;
+export default Collections.load(collectionProps)(CollectionBreadcrumbs);

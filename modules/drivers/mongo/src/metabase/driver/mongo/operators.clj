@@ -44,7 +44,6 @@
 (def $set "$set")
 (def $unset "$unset")
 (def $setOnInsert "$setOnInsert")
-(def $setWindowFields "$setWindowFields")
 (def $rename "$rename")
 (def $push "$push")
 (def $position "$position")

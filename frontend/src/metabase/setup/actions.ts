@@ -2,6 +2,7 @@ import { createAction } from "@reduxjs/toolkit";
 import { t } from "ttag";
 
 import { createDatabase } from "metabase/admin/databases/database";
+import { getSettings } from "metabase/admin/settings/selectors";
 import {
   initializeSettings,
   updateSetting,
@@ -226,6 +227,10 @@ export const setEmbeddingHomepageFlags = createAsyncThunk(
   async (_, { getState, dispatch }) => {
     const usageReason = getUsageReason(getState());
     const tokenFeatures = getSetting(getState(), "token-features");
+    const adminSettings = getSettings(getState());
+    const enableEmbeddingSetByEnv = adminSettings.find(
+      (setting: { key: string }) => setting.key === "enable-embedding",
+    )?.is_env_setting;
 
     const interestedInEmbedding =
       usageReason === "embedding" || usageReason === "both";
@@ -235,6 +240,11 @@ export const setEmbeddingHomepageFlags = createAsyncThunk(
 
     if (interestedInEmbedding) {
       settingsToChange["embedding-homepage"] = "visible";
+    }
+
+    if (interestedInEmbedding && !enableEmbeddingSetByEnv) {
+      settingsToChange["enable-embedding"] = true;
+      settingsToChange["setup-embedding-autoenabled"] = true;
     }
 
     settingsToChange["setup-license-active-at-setup"] = isLicenseActive;

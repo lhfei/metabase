@@ -119,12 +119,6 @@ export function isLinkDashCard(
   return getVirtualCardType(dashcard) === "link";
 }
 
-export function isIFrameDashCard(
-  dashcard: BaseDashboardCard,
-): dashcard is VirtualDashboardCard {
-  return getVirtualCardType(dashcard) === "iframe";
-}
-
 export function isNativeDashCard(dashcard: QuestionDashboardCard) {
   // The `dataset_query` is null for questions on a dashboard the user doesn't have access to
   return dashcard.card.dataset_query?.type === "native";
@@ -145,9 +139,11 @@ export function showVirtualDashCardInfoText(
 
 export function getAllDashboardCards(dashboard: Dashboard) {
   const results = [];
-  for (const dashcard of dashboard.dashcards) {
-    const cards = [dashcard.card].concat((dashcard as any).series || []);
-    results.push(...cards.map(card => ({ card, dashcard })));
+  if (dashboard) {
+    for (const dashcard of dashboard.dashcards) {
+      const cards = [dashcard.card].concat((dashcard as any).series || []);
+      results.push(...cards.map(card => ({ card, dashcard })));
+    }
   }
   return results;
 }
@@ -320,7 +316,7 @@ export function generateTemporaryDashcardId() {
   return tempId--;
 }
 
-export type NewDashboardCard = Omit<
+type NewDashboardCard = Omit<
   DashboardCard,
   "entity_id" | "created_at" | "updated_at"
 >;

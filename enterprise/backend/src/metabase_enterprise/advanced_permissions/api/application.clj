@@ -5,9 +5,7 @@
   (:require
    [compojure.core :refer [GET PUT]]
    [metabase-enterprise.advanced-permissions.models.permissions.application-permissions :as a-perms]
-   [metabase.api.common :as api]
-   [metabase.models.application-permissions-revision :as a-perm-revision]
-   [metabase.util.malli.schema :as ms]))
+   [metabase.api.common :as api]))
 
 (set! *warn-on-reflection* true)
 
@@ -36,18 +34,11 @@
 
 (api/defendpoint PUT "/graph"
   "Do a batch update of Application Permissions by passing a modified graph."
-  [:as {body :body
-        {skip-graph :skip-graph
-         force      :force} :params}]
-  {body       :map
-   skip-graph [:maybe ms/BooleanValue]
-   force      [:maybe ms/BooleanValue]}
+  [:as {:keys [body]}]
   (api/check-superuser)
   (-> body
       dejsonify-graph
-      (a-perms/update-graph! force))
-  (if skip-graph
-    {:revision (a-perm-revision/latest-id)}
-    (a-perms/graph)))
+      a-perms/update-graph!)
+  (a-perms/graph))
 
 (api/define-routes)

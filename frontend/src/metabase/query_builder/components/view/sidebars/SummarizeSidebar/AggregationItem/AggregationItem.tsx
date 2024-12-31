@@ -1,20 +1,18 @@
-import { useDisclosure } from "@mantine/hooks";
+import { useCallback, useState } from "react";
 
-import { AggregationPicker } from "metabase/common/components/AggregationPicker";
-import { Box, Icon, Popover } from "metabase/ui";
-import type * as Lib from "metabase-lib";
+import { Popover } from "metabase/ui";
+import * as Lib from "metabase-lib";
 
-import AggregationItemS from "./AggregationItem.module.css";
+import { AggregationPicker } from "../SummarizeSidebar.styled";
+
+import { AggregationName, RemoveIcon, Root } from "./AggregationItem.styled";
 
 interface AggregationItemProps {
   query: Lib.Query;
-  onQueryChange: (query: Lib.Query) => void;
   stageIndex: number;
   aggregation: Lib.AggregationClause;
   aggregationIndex: number;
-  displayName: string;
-  onAggregationRemove: () => void;
-  operators: Lib.AggregationOperator[];
+  onQueryChange: (query: Lib.Query) => void;
 }
 
 export function AggregationItem({
@@ -23,30 +21,31 @@ export function AggregationItem({
   aggregation,
   aggregationIndex,
   onQueryChange,
-  displayName,
-  onAggregationRemove,
-  operators,
 }: AggregationItemProps) {
-  const [isOpened, { toggle }] = useDisclosure(false);
+  const [isOpened, setIsOpened] = useState(false);
+  const { displayName } = Lib.displayInfo(query, stageIndex, aggregation);
+
+  const operators = Lib.selectedAggregationOperators(
+    Lib.availableAggregationOperators(query, stageIndex),
+    aggregation,
+  );
+
+  const handleRemove = useCallback(() => {
+    const nextQuery = Lib.removeClause(query, stageIndex, aggregation);
+    onQueryChange(nextQuery);
+  }, [query, stageIndex, aggregation, onQueryChange]);
 
   return (
-    <Popover opened={isOpened} onChange={toggle}>
+    <Popover opened={isOpened} onChange={setIsOpened}>
       <Popover.Target>
-        <button
-          className={AggregationItemS.Root}
+        <Root
           aria-label={displayName}
           data-testid="aggregation-item"
-          onClick={toggle}
+          onClick={() => setIsOpened(!isOpened)}
         >
-          <Box component="span" className={AggregationItemS.AggregationName}>
-            {displayName}
-          </Box>
-          <Icon
-            className={AggregationItemS.RemoveIcon}
-            name="close"
-            onClick={onAggregationRemove}
-          />
-        </button>
+          <AggregationName>{displayName}</AggregationName>
+          <RemoveIcon name="close" onClick={handleRemove} />
+        </Root>
       </Popover.Target>
       <Popover.Dropdown>
         <AggregationPicker
@@ -55,7 +54,7 @@ export function AggregationItem({
           clause={aggregation}
           clauseIndex={aggregationIndex}
           operators={operators}
-          allowTemporalComparisons
+          hasExpressionInput={false}
           onQueryChange={onQueryChange}
         />
       </Popover.Dropdown>

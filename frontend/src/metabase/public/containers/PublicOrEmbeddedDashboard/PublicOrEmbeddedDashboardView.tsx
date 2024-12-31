@@ -42,7 +42,7 @@ import { EmbedFrame } from "../../components/EmbedFrame";
 
 import { DashboardContainer } from "./PublicOrEmbeddedDashboard.styled";
 
-interface InnerPublicOrEmbeddedDashboardViewProps {
+interface PublicOrEmbeddedDashboardViewProps {
   dashboard: Dashboard | null;
   selectedTabId: SelectedTabId;
   parameters: UiParameter[];
@@ -67,12 +67,6 @@ interface InnerPublicOrEmbeddedDashboardViewProps {
   cardTitled: boolean;
   downloadsEnabled: boolean;
 }
-
-export type PublicOrEmbeddedDashboardViewProps =
-  InnerPublicOrEmbeddedDashboardViewProps &
-    DashboardRefreshPeriodControls &
-    DashboardNightModeControls &
-    DashboardFullscreenControls;
 
 export function PublicOrEmbeddedDashboardView({
   dashboard,
@@ -100,7 +94,7 @@ export function PublicOrEmbeddedDashboardView({
   slowCards,
   cardTitled,
   downloadsEnabled,
-}: InnerPublicOrEmbeddedDashboardViewProps &
+}: PublicOrEmbeddedDashboardViewProps &
   DashboardRefreshPeriodControls &
   DashboardNightModeControls &
   DashboardFullscreenControls) {

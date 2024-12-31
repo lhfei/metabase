@@ -7,7 +7,7 @@ export const ModalRoot = styled.div`
   max-height: 90vh;
 `;
 
-interface ModalBodyProps {
+export interface ModalBodyProps {
   isTopAligned?: boolean;
 }
 

@@ -340,7 +340,7 @@ describe("Static Embed Setup phase", () => {
           ).toBeVisible();
 
           expect(screen.getByTestId("text-editor-mock")).toHaveTextContent(
-            `params: { "${DATE_PARAMETER_MOCK.slug}": [] }`,
+            `params: { "${DATE_PARAMETER_MOCK.slug}": null }`,
           );
         });
 
@@ -365,7 +365,7 @@ describe("Static Embed Setup phase", () => {
             ).getByRole("button", { name: DATE_PARAMETER_MOCK.name }),
           );
 
-          await userEvent.click(screen.getByText("Feb"));
+          await userEvent.click(screen.getByText("February"));
 
           await userEvent.click(screen.getByText("Code"));
 
@@ -496,14 +496,14 @@ describe("Static Embed Setup phase", () => {
 
         expect(
           screen.getByText(
-            "The “Powered by Metabase” banner appears on all static embeds created with your current version. Upgrade to remove it (and customize a lot more)",
+            "The “Powered by Metabase” banner appears on all static embeds created with the open source version. You’ll need to upgrade to remove it.",
           ),
         ).toBeVisible();
 
         const link = within(
           screen.getByLabelText("Removing the banner"),
         ).getByRole("link", {
-          name: "Upgrade plan",
+          name: "Upgrade to a paid plan",
         });
         expect(link).toBeVisible();
         expect(link).toHaveAttribute(
@@ -621,7 +621,7 @@ describe("Static Embed Setup phase", () => {
 
     await userEvent.click(screen.getByText("Locked"));
 
-    const parametersChangedCode = `params: { "${DATE_PARAMETER_MOCK.slug}": [] }`;
+    const parametersChangedCode = `params: { "${DATE_PARAMETER_MOCK.slug}": null }`;
 
     expect(
       screen.getByTestId("text-editor-mock-highlighted-code"),
@@ -635,7 +635,7 @@ describe("Static Embed Setup phase", () => {
 
     expect(
       screen.getByTestId("text-editor-mock-highlighted-code"),
-    ).toHaveTextContent(`params: { "${DATE_PARAMETER_MOCK.slug}": [] }`);
+    ).toHaveTextContent(`params: { "${DATE_PARAMETER_MOCK.slug}": null }`);
 
     await userEvent.click(screen.getByText("Dark"));
 

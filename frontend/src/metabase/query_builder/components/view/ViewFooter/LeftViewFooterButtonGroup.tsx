@@ -1,7 +1,5 @@
-import cx from "classnames";
 import { t } from "ttag";
 
-import ButtonGroup from "metabase/core/components/ButtonGroup";
 import CS from "metabase/css/core/index.css";
 import { useDispatch, useSelector } from "metabase/lib/redux";
 import {
@@ -11,11 +9,10 @@ import {
   onOpenChartType,
 } from "metabase/query_builder/actions";
 import ViewButton from "metabase/query_builder/components/view/ViewButton";
+import { FooterButtonGroup } from "metabase/query_builder/components/view/ViewFooter.styled";
 import { getUiControls } from "metabase/query_builder/selectors";
 import { Group } from "metabase/ui";
 import type { QueryBuilderUIControls } from "metabase-types/store";
-
-import S from "./LeftViewFooterButtonGroup.module.css";
 
 export const LeftViewFooterButtonGroup = () => {
   const {
@@ -26,14 +23,13 @@ export const LeftViewFooterButtonGroup = () => {
   const dispatch = useDispatch();
 
   return (
-    <Group className={cx(CS.flex1, S.Root)}>
-      <ButtonGroup className={S.FooterButtonGroup}>
+    <Group className={CS.flex1}>
+      <FooterButtonGroup>
         <ViewButton
           medium
           labelBreakpoint="sm"
           data-testid="viz-type-button"
           active={isShowingChartTypeSidebar}
-          className={S.Button}
           onClick={
             isShowingChartTypeSidebar
               ? () => dispatch(onCloseChartType())
@@ -43,7 +39,6 @@ export const LeftViewFooterButtonGroup = () => {
           {t`Visualization`}
         </ViewButton>
         <ViewButton
-          className={S.Button}
           active={isShowingChartSettingsSidebar}
           icon="gear"
           iconSize={16}
@@ -57,7 +52,7 @@ export const LeftViewFooterButtonGroup = () => {
               : () => dispatch(onOpenChartSettings())
           }
         />
-      </ButtonGroup>
+      </FooterButtonGroup>
     </Group>
   );
 };

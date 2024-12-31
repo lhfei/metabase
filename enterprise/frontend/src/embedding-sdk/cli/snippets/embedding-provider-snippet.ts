@@ -10,14 +10,14 @@ export const getEmbeddingProviderSnippet = (options: Options) => {
   const { instanceUrl, apiKey, userSwitcherEnabled } = options;
 
   let imports = "";
-  let apiKeyOrAuthUriConfig = "";
+  let apiKeyOrJwtConfig = "";
 
   // Fallback to API keys when user switching is not enabled.
   if (userSwitcherEnabled) {
-    apiKeyOrAuthUriConfig += `authProviderUri: \`\${BASE_SSO_API}/sso/metabase\`,`;
+    apiKeyOrJwtConfig += `jwtProviderUri: \`\${BASE_SSO_API}/sso/metabase\`,`;
     imports = `import { AnalyticsContext, BASE_SSO_API } from './analytics-provider'`;
   } else {
-    apiKeyOrAuthUriConfig += `apiKey: '${apiKey}'`;
+    apiKeyOrJwtConfig += `apiKey: '${apiKey}'`;
     imports = `import { AnalyticsContext } from './analytics-provider'`;
   }
 
@@ -27,10 +27,10 @@ import {MetabaseProvider} from '${SDK_PACKAGE_NAME}'
 
 ${imports}
 
-/** @type {import('@metabase/embedding-sdk-react').MetabaseAuthConfig} */
-const authConfig = {
+/** @type {import('@metabase/embedding-sdk-react').SDKConfig} */
+const config = {
   metabaseInstanceUrl: \`${instanceUrl}\`,
-  ${apiKeyOrAuthUriConfig}
+  ${apiKeyOrJwtConfig}
 }
 
 export const EmbeddingProvider = ({children}) => {
@@ -38,7 +38,7 @@ export const EmbeddingProvider = ({children}) => {
   const theme = useMemo(() => THEMES[themeKey], [themeKey])
 
   return (
-    <MetabaseProvider authConfig={authConfig} theme={theme}>
+    <MetabaseProvider config={config} theme={theme}>
       {children}
     </MetabaseProvider>
   )

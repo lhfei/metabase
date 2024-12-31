@@ -7,6 +7,7 @@ import { loadMetadataForCard } from "metabase/questions/actions";
 import { addUndo } from "metabase/redux/undo";
 import * as Lib from "metabase-lib";
 import type Question from "metabase-lib/v1/Question";
+import { getTemplateTagParametersFromCard } from "metabase-lib/v1/parameters/utils/template-tags";
 import type NativeQuery from "metabase-lib/v1/queries/NativeQuery";
 import type { Card, Series } from "metabase-types/api";
 import type {
@@ -125,7 +126,11 @@ export const updateQuestion = (
       );
     }
 
-    newQuestion = newQuestion.applyTemplateTagParameters();
+    // Sync card's parameters with the template tags;
+    if (isNewQuestionNative) {
+      const parameters = getTemplateTagParametersFromCard(newQuestion.card());
+      newQuestion = newQuestion.setParameters(parameters);
+    }
 
     await dispatch({
       type: UPDATE_QUESTION,

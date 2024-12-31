@@ -1,5 +1,13 @@
-import { H } from "e2e/support";
 import { ORDERS_DASHBOARD_ID } from "e2e/support/cypress_sample_instance_data";
+import {
+  appBar,
+  describeEE,
+  navigationSidebar,
+  popover,
+  restore,
+  setTokenFeatures,
+  visitDashboard,
+} from "e2e/support/helpers";
 
 describe("scenarios > navigation > navbar", () => {
   describe("OSS", () => {
@@ -9,97 +17,105 @@ describe("scenarios > navigation > navbar", () => {
 
     it("should be open after logging in", () => {
       cy.visit("/");
-      H.navigationSidebar().should("be.visible");
+      navigationSidebar().should("be.visible");
     });
 
     it("should display error ui when data fetching fails", () => {
       cy.intercept("GET", "/api/database", req => req.reply(500));
       cy.visit("/");
-      H.navigationSidebar().findByText(/An error occurred/);
+      navigationSidebar().findByText(/An error occurred/);
     });
 
     it("state should preserve when clicking the mb logo", () => {
       cy.visit("/collection/root");
-      H.navigationSidebar().should("be.visible");
+      navigationSidebar().should("be.visible");
       cy.findByTestId("main-logo-link").click();
-      H.navigationSidebar().should("be.visible");
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
-      H.navigationSidebar().should("not.be.visible");
+      navigationSidebar().should("be.visible");
+      visitDashboard(ORDERS_DASHBOARD_ID);
+      navigationSidebar().should("not.be.visible");
       cy.findByTestId("main-logo-link").click();
-      H.navigationSidebar().should("not.be.visible");
+      navigationSidebar().should("not.be.visible");
     });
 
     it("should close when visiting a dashboard", () => {
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
-      H.navigationSidebar().should("not.be.visible");
+      visitDashboard(ORDERS_DASHBOARD_ID);
+      navigationSidebar().should("not.be.visible");
     });
 
     it("should preserve state when visting a collection", () => {
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
-      H.navigationSidebar().should("not.be.visible");
-      H.appBar().contains("Our analytics").parentsUntil("a").first().click();
-      H.navigationSidebar().should("not.be.visible");
+      visitDashboard(ORDERS_DASHBOARD_ID);
+      navigationSidebar().should("not.be.visible");
+      appBar().contains("Our analytics").parentsUntil("a").first().click();
+      navigationSidebar().should("not.be.visible");
     });
 
     it("should close when creating a new question", () => {
       cy.visit("/");
-      H.navigationSidebar().should("be.visible");
-      H.appBar().findByText("New").click();
-      H.popover()
+      navigationSidebar().should("be.visible");
+      appBar().findByText("New").click();
+      popover()
         .findByText(/Question/)
         .click();
-      H.navigationSidebar().should("not.be.visible");
+      navigationSidebar().should("not.be.visible");
     });
 
     it("should close when opening a sql editor", () => {
       cy.visit("/");
-      H.navigationSidebar().should("be.visible");
-      H.appBar().findByText("New").click();
-      H.popover()
+      navigationSidebar().should("be.visible");
+      appBar().findByText("New").click();
+      popover()
         .findByText(/SQL query/)
         .click();
-      H.navigationSidebar().should("not.be.visible");
+      navigationSidebar().should("not.be.visible");
     });
 
     it("should be open when visiting home with a custom home page configured", () => {
       cy.signInAsAdmin();
-      H.updateSetting("custom-homepage", true);
-      H.updateSetting("custom-homepage-dashboard", ORDERS_DASHBOARD_ID);
+      cy.request("PUT", "/api/setting/custom-homepage", { value: true });
+      cy.request("PUT", "/api/setting/custom-homepage-dashboard", {
+        value: ORDERS_DASHBOARD_ID,
+      });
       cy.visit("/");
       cy.reload();
       cy.url().should("contain", "question");
-      H.navigationSidebar().should("be.visible");
+      navigationSidebar().should("be.visible");
     });
 
     it("should preserve state when clicking the mb logo and a custom home page is configured", () => {
       cy.signInAsAdmin();
-      H.updateSetting("custom-homepage", true);
-      H.updateSetting("custom-homepage-dashboard", ORDERS_DASHBOARD_ID);
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
+      cy.request("PUT", "/api/setting/custom-homepage", { value: true });
+      cy.request("PUT", "/api/setting/custom-homepage-dashboard", {
+        value: ORDERS_DASHBOARD_ID,
+      });
+      visitDashboard(ORDERS_DASHBOARD_ID);
       cy.findByTestId("main-logo-link").click();
-      H.navigationSidebar().should("not.be.visible");
+      navigationSidebar().should("not.be.visible");
     });
   });
 
-  H.describeEE("EE", () => {
+  describeEE("EE", () => {
     beforeEach(() => {
-      H.restore();
+      restore();
       cy.signInAsAdmin();
-      H.setTokenFeatures("all");
+      setTokenFeatures("all");
     });
 
     it("should be open when logging in with a landing page configured", () => {
-      H.updateSetting("landing-page", "/question/76");
+      cy.request("PUT", "/api/setting/landing-page", {
+        value: "/question/76",
+      });
       cy.visit("/");
       cy.url().should("contain", "question");
-      H.navigationSidebar().should("be.visible");
+      navigationSidebar().should("be.visible");
     });
 
     it("should preserve state when clicking the mb logo and landing page is configured", () => {
-      H.updateSetting("landing-page", "/question/76");
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
+      cy.request("PUT", "/api/setting/landing-page", {
+        value: "/question/76",
+      });
+      visitDashboard(ORDERS_DASHBOARD_ID);
       cy.findByTestId("main-logo-link").click();
-      H.navigationSidebar().should("not.be.visible");
+      navigationSidebar().should("not.be.visible");
     });
   });
 });

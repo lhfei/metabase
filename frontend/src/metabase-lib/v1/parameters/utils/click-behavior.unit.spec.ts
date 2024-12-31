@@ -517,10 +517,11 @@ describe("metabase/lib/click-behavior", () => {
       };
       const extraData = {
         // the UI wouldn't actually let you configure a text column -> date param link
-        dashboard: createMockDashboard(),
-        parameters: [
-          createMockParameter({ id: "param123", type: "date/single" }),
-        ],
+        dashboard: createMockDashboard({
+          parameters: [
+            createMockParameter({ id: "param123", type: "date/single" }),
+          ],
+        }),
       };
       const clickBehavior = { type: "crossfilter" as const };
       const value = formatSourceForTarget(source, target, {
@@ -552,10 +553,11 @@ describe("metabase/lib/click-behavior", () => {
         },
       };
       const extraData = {
-        dashboard: createMockDashboard(),
-        parameters: [
-          createMockParameter({ id: "param123", type: "date/all-options" }),
-        ],
+        dashboard: createMockDashboard({
+          parameters: [
+            createMockParameter({ id: "param123", type: "date/all-options" }),
+          ],
+        }),
       };
       const clickBehavior = { type: "crossfilter" as const };
       const value = formatSourceForTarget(source, target, {
@@ -584,10 +586,11 @@ describe("metabase/lib/click-behavior", () => {
         },
       };
       const extraData = {
-        dashboard: createMockDashboard(),
-        parameters: [
-          createMockParameter({ id: "param123", type: "date/month-year" }),
-        ],
+        dashboard: createMockDashboard({
+          parameters: [
+            createMockParameter({ id: "param123", type: "date/month-year" }),
+          ],
+        }),
       };
       const clickBehavior = { type: "crossfilter" as const };
       const value = formatSourceForTarget(source, target, {

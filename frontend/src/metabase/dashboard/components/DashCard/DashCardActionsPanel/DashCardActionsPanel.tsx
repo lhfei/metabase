@@ -1,7 +1,6 @@
 import type { MouseEvent } from "react";
 import { memo, useCallback, useState } from "react";
 import { t } from "ttag";
-import _ from "underscore";
 
 import { isActionDashCard } from "metabase/actions/utils";
 import { isLinkDashCard, isVirtualDashCard } from "metabase/dashboard/utils";
@@ -37,7 +36,7 @@ interface Props {
   onRemove: (dashcard: DashboardCard) => void;
   onAddSeries: (dashcard: DashboardCard) => void;
   onReplaceCard: (dashcard: DashboardCard) => void;
-  onReplaceAllDashCardVisualizationSettings: (
+  onReplaceAllVisualizationSettings: (
     dashcardId: DashCardId,
     settings: VisualizationSettings,
   ) => void;
@@ -61,7 +60,7 @@ function DashCardActionsPanelInner({
   onRemove,
   onAddSeries,
   onReplaceCard,
-  onReplaceAllDashCardVisualizationSettings,
+  onReplaceAllVisualizationSettings,
   onUpdateVisualizationSettings,
   showClickBehaviorSidebar,
   onPreviewToggle,
@@ -96,9 +95,9 @@ function DashCardActionsPanelInner({
         return;
       }
 
-      onReplaceAllDashCardVisualizationSettings(dashcard.id, settings);
+      onReplaceAllVisualizationSettings(dashcard.id, settings);
     },
-    [dashcard, onReplaceAllDashCardVisualizationSettings],
+    [dashcard, onReplaceAllVisualizationSettings],
   );
 
   const handleReplaceCard = useCallback(() => {
@@ -136,15 +135,19 @@ function DashCardActionsPanelInner({
     );
   }
 
-  if (supportPreviewing && isPreviewing) {
+  if (supportPreviewing) {
     buttons.push(
       <DashCardActionButton
         key="preview"
         onClick={onPreviewToggle}
-        tooltip={t`Edit`}
-        aria-label={t`Edit card`}
+        tooltip={isPreviewing ? t`Edit` : t`Preview`}
+        aria-label={isPreviewing ? t`Edit card` : t`Preview card`}
       >
-        {isPreviewing ? <DashCardActionButton.Icon name="pencil" /> : null}
+        {isPreviewing ? (
+          <DashCardActionButton.Icon name="edit_document" />
+        ) : (
+          <DashCardActionButton.Icon name="eye" size={18} />
+        )}
       </DashCardActionButton>,
     );
   }
@@ -238,21 +241,19 @@ function DashCardActionsPanelInner({
   }
 
   return (
-    <>
-      <DashCardActionsPanelContainer
-        data-testid="dashboardcard-actions-panel"
-        onMouseDown={onMouseDown}
-        isDashCardTabMenuOpen={isDashCardTabMenuOpen}
-        onLeftEdge={onLeftEdge}
-      >
-        <DashCardActionButtonsContainer>
-          {buttons}
-          <DashCardActionButton onClick={handleRemoveCard} tooltip={t`Remove`}>
-            <DashCardActionButton.Icon name="close" />
-          </DashCardActionButton>
-        </DashCardActionButtonsContainer>
-      </DashCardActionsPanelContainer>
-    </>
+    <DashCardActionsPanelContainer
+      data-testid="dashboardcard-actions-panel"
+      onMouseDown={onMouseDown}
+      isDashCardTabMenuOpen={isDashCardTabMenuOpen}
+      onLeftEdge={onLeftEdge}
+    >
+      <DashCardActionButtonsContainer>
+        {buttons}
+        <DashCardActionButton onClick={handleRemoveCard} tooltip={t`Remove`}>
+          <DashCardActionButton.Icon name="close" />
+        </DashCardActionButton>
+      </DashCardActionButtonsContainer>
+    </DashCardActionsPanelContainer>
   );
 }
 

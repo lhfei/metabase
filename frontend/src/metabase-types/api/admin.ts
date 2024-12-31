@@ -24,10 +24,6 @@ export type CreateApiKeyRequest = {
 
 export type CreateApiKeyResponse = {
   unmasked_key: string;
-  name: string;
-  errors: {
-    name: string;
-  };
 };
 
 export type UpdateApiKeyRequest = {

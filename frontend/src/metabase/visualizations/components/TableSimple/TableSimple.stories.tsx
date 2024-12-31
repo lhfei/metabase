@@ -1,4 +1,4 @@
-import type { StoryFn } from "@storybook/react";
+import type { Story } from "@storybook/react";
 
 import {
   SdkVisualizationWrapper,
@@ -14,7 +14,7 @@ export default {
   title: "viz/TableSimple",
 };
 
-export const Default: StoryFn = () => (
+export const Default: Story = () => (
   <VisualizationWrapper>
     <Box h={500}>
       <Visualization rawSeries={RAW_SERIES} isDashboard />,
@@ -22,7 +22,7 @@ export const Default: StoryFn = () => (
   </VisualizationWrapper>
 );
 
-export const EmbeddingTheme: StoryFn = () => {
+export const EmbeddingTheme: Story = () => {
   const theme: MetabaseTheme = {
     colors: {
       brand: "#eccc68",

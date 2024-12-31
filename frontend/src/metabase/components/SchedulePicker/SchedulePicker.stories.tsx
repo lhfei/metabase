@@ -1,5 +1,5 @@
-import { useArgs } from "@storybook/preview-api";
-import type { StoryFn } from "@storybook/react";
+import { useArgs } from "@storybook/addons";
+import type { ComponentStory } from "@storybook/react";
 
 import SchedulePicker from "./SchedulePicker";
 
@@ -8,7 +8,7 @@ export default {
   component: SchedulePicker,
 };
 
-const Template: StoryFn<typeof SchedulePicker> = args => {
+const Template: ComponentStory<typeof SchedulePicker> = args => {
   const [
     {
       schedule,
@@ -29,16 +29,13 @@ const Template: StoryFn<typeof SchedulePicker> = args => {
   );
 };
 
-export const Default = {
-  render: Template,
-
-  args: {
-    schedule: {
-      schedule_day: "mon",
-      schedule_frame: null,
-      schedule_hour: 0,
-      schedule_type: "daily",
-    },
-    textBeforeInterval: "Deliver",
+export const Default = Template.bind({});
+Default.args = {
+  schedule: {
+    schedule_day: "mon",
+    schedule_frame: null,
+    schedule_hour: 0,
+    schedule_type: "daily",
   },
+  textBeforeInterval: "Deliver",
 };

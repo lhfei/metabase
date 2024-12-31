@@ -20,8 +20,8 @@ import type {
   FieldDimension,
   FieldId,
   ForeignKey,
-  Group,
   GroupListQuery,
+  ListDashboardsResponse,
   ModelCacheRefreshStatus,
   ModelIndex,
   NativeQuerySnippet,
@@ -37,7 +37,6 @@ import type {
   Timeline,
   TimelineEvent,
   UserInfo,
-  WritebackAction,
 } from "metabase-types/api";
 import {
   ACTIVITY_MODELS,
@@ -74,18 +73,6 @@ export function invalidateTags(
 // ----------------------------------------------------------------------- //
 // Keep the below list of entity-specific functions alphabetically sorted. //
 // ----------------------------------------------------------------------- //
-
-export function provideActionListTags(
-  actions: WritebackAction[],
-): TagDescription<TagType>[] {
-  return [listTag("action"), ...actions.flatMap(provideActionTags)];
-}
-
-export function provideActionTags(
-  action: WritebackAction,
-): TagDescription<TagType>[] {
-  return [idTag("action", action.id)];
-}
 
 export function provideActivityItemListTags(
   items: RecentItem[] | PopularItem[],
@@ -168,12 +155,6 @@ export function provideCardQueryMetadataTags(
   return [idTag("card", id), ...provideAdhocQueryMetadataTags(metadata)];
 }
 
-export function provideCardQueryTags(
-  cardId: CardId,
-): TagDescription<TagType>[] {
-  return [idTag("card", cardId)];
-}
-
 export function provideCloudMigrationTags(
   migration: CloudMigration,
 ): TagDescription<TagType>[] {
@@ -226,13 +207,6 @@ export function provideModelIndexListTags(
   ];
 }
 
-export function provideModeratedItemTags(
-  itemType: TagType,
-  itemId: number,
-): TagDescription<TagType>[] {
-  return [listTag(itemType), idTag(itemType, itemId)];
-}
-
 export function provideChannelTags(
   channel: NotificationChannel,
 ): TagDescription<TagType>[] {
@@ -279,7 +253,7 @@ export function provideDatabaseTags(
 }
 
 export function provideDashboardListTags(
-  dashboards: Pick<Dashboard, "id">[],
+  dashboards: ListDashboardsResponse,
 ): TagDescription<TagType>[] {
   return [
     listTag("dashboard"),
@@ -373,23 +347,14 @@ export function providePermissionsGroupListTags(
 ): TagDescription<TagType>[] {
   return [
     listTag("permissions-group"),
-    ...groups.flatMap(providePermissionsGroupListQueryTags),
+    ...groups.flatMap(providePermissionsGroupTags),
   ];
-}
-
-export function providePermissionsGroupListQueryTags(
-  group: GroupListQuery,
-): TagDescription<TagType>[] {
-  return [idTag("permissions-group", group.id)];
 }
 
 export function providePermissionsGroupTags(
-  group: Group,
+  group: GroupListQuery,
 ): TagDescription<TagType>[] {
-  return [
-    idTag("permissions-group", group.id),
-    ...group.members.map(member => idTag("user", member.user_id)),
-  ];
+  return [idTag("permissions-group", group.id)];
 }
 
 export function providePersistedInfoListTags(

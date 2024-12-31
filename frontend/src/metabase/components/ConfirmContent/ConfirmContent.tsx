@@ -9,7 +9,7 @@ import CS from "metabase/css/core/index.css";
 
 interface ConfirmContentProps {
   "data-testid"?: string;
-  title: string | ReactNode;
+  title: string;
   content?: string | null;
   message?: string | ReactNode;
   onClose?: () => void;

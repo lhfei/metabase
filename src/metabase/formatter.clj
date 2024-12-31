@@ -7,12 +7,11 @@
    [clojure.string :as str]
    [hiccup.util]
    [metabase.formatter.datetime :as datetime]
-   [metabase.models.visualization-settings :as mb.viz]
    [metabase.public-settings :as public-settings]
    [metabase.query-processor.streaming.common :as common]
+   [metabase.shared.models.visualization-settings :as mb.viz]
+   [metabase.shared.util.currency :as currency]
    [metabase.types :as types]
-   [metabase.util.currency :as currency]
-   [metabase.util.json :as json]
    [metabase.util.malli :as mu]
    [metabase.util.malli.schema :as ms]
    [metabase.util.ui-logic :as ui-logic]
@@ -20,6 +19,7 @@
    [potemkin.types :as p.types])
   (:import
    (java.math RoundingMode)
+   (java.net URL)
    (java.text DecimalFormat DecimalFormatSymbols)))
 
 (set! *warn-on-reflection* true)
@@ -29,8 +29,15 @@
 
 (p/import-vars
  [datetime
-  make-temporal-str-formatter
+  format-temporal-str
   temporal-string?])
+
+(def RenderedPulseCard
+  "Schema used for functions that operate on pulse card contents and their attachments"
+  [:map
+   [:attachments [:maybe [:map-of :string (ms/InstanceOfClass URL)]]]
+   [:content     [:sequential :any]]
+   [:render/text {:optional true} [:maybe :string]]])
 
 (p.types/defrecord+ NumericWrapper [^String num-str ^Number num-value]
   hiccup.util/ToString
@@ -82,7 +89,7 @@
 (defn- qualify-keys
   [m]
   (update-keys m (fn [k] (keyword
-                          "metabase.models.visualization-settings"
+                          "metabase.shared.models.visualization-settings"
                           (name k)))))
 
 ;; TODO: use `metabase.query-processor.streaming.common/viz-settings-for-col` here, it's
@@ -125,7 +132,7 @@
 
         currency           (when currency?
                              (keyword (or currency "USD")))
-        integral?          (and (isa? (or effective_type base_type) :type/Integer) (integer? (or scale 1)))
+        integral?          (isa? (or effective_type base_type) :type/Integer)
         relation?          (isa? semantic_type :Relation/*)
         percent?           (or (isa? semantic_type :type/Percentage) (= number-style "percent"))
         scientific?        (= number-style "scientific")
@@ -258,37 +265,22 @@
              (format "%.8f° %s" (Math/abs v) dir)
              v)))))
 
-(defn- dictionary-formatter
-  "Format dictionaries as json.
-  The value if a dictionary is Clojure edn on the backend, but displays as JSON in
-  When exporting, the map must be encoded as json so that exports match the app's output."
-  [value]
-  (cond-> value
-    (not (string? value)) json/encode))
-
 (mu/defn create-formatter
   "Create a formatter for a column based on its timezone, column metadata, and visualization-settings"
-  ([timezone-id :- [:maybe :string] col visualization-settings]
-   (create-formatter timezone-id col visualization-settings true))
-  ([timezone-id :- [:maybe :string] col visualization-settings apply-formatting?]
-   (cond
-     ;; for numbers, return a format function that has already computed the differences.
-     ;; todo: do the same for temporal strings
-     (and apply-formatting? (types/temporal-field? col))
-     (datetime/make-temporal-str-formatter timezone-id col visualization-settings)
+  [timezone-id :- [:maybe :string] col visualization-settings]
+  (cond
+    ;; for numbers, return a format function that has already computed the differences.
+    ;; todo: do the same for temporal strings
+    (types/temporal-field? col)
+    #(datetime/format-temporal-str timezone-id % col visualization-settings)
 
-     (and apply-formatting? (isa? (:semantic_type col) :type/Coordinate))
-     (partial format-geographic-coordinates (:semantic_type col))
+    (isa? (:semantic_type col) :type/Coordinate)
+    (partial format-geographic-coordinates (:semantic_type col))
 
-     ;; todo integer columns with a unit
-     (and apply-formatting?
-          (or (isa? (:effective_type col) :type/Number)
-              (isa? (:base_type col) :type/Number)))
-     (number-formatter col visualization-settings)
+    ;; todo integer columns with a unit
+    (or (isa? (:effective_type col) :type/Number)
+        (isa? (:base_type col) :type/Number))
+    (number-formatter col visualization-settings)
 
-     (or (isa? (:semantic_type col) :type/SerializedJSON)
-         (isa? ((some-fn :effective_type :base_type) col) :type/Dictionary))
-     dictionary-formatter
-
-     :else
-     (if apply-formatting? str identity))))
+    :else
+    str))

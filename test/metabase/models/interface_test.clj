@@ -1,5 +1,6 @@
 (ns metabase.models.interface-test
   (:require
+   [cheshire.core :as json]
    [clojure.test :refer :all]
    [java-time.api :as t]
    [metabase.legacy-mbql.normalize :as mbql.normalize]
@@ -10,7 +11,6 @@
    [metabase.util :as u]
    [metabase.util.encryption :as encryption]
    [metabase.util.encryption-test :as encryption-test]
-   [metabase.util.json :as json]
    [toucan2.core :as t2]
    [toucan2.tools.with-temp :as t2.with-temp])
   (:import (com.fasterxml.jackson.core JsonParseException)))
@@ -23,7 +23,7 @@
                 "response because of one malformed Card, dump the error to the logs and return nil.")
     (is (= nil
            ((:out mi/transform-metabase-query)
-            (json/encode
+            (json/generate-string
              {:database 1
               :type     :native
               :native   {:template-tags 1000}}))))))
@@ -46,14 +46,14 @@
   (testing "Legacy Metric/Segment definitions should get normalized"
     (is (= {:filter [:= [:field 1 nil] [:field 2 {:temporal-unit :month}]]}
            ((:out mi/transform-legacy-metric-segment-definition)
-            (json/encode
+            (json/generate-string
              {:filter [:= [:field-id 1] [:datetime-field [:field-id 2] :month]]}))))))
 
 (deftest ^:parallel dont-explode-on-way-out-from-db-test
   (testing "`metric-segment-definition`s should avoid explosions coming out of the DB..."
     (is (= nil
            ((:out mi/transform-legacy-metric-segment-definition)
-            (json/encode
+            (json/generate-string
              {:filter 1000}))))
 
     (testing "...but should still throw them coming in"
@@ -68,7 +68,7 @@
     (with-redefs [mbql.normalize/normalize-tokens (fn [& _] (throw (Exception. "BARF")))]
       (is (= nil
              ((:out mi/transform-parameters-list)
-              (json/encode
+              (json/generate-string
                [{:target [:dimension [:field "ABC" nil]]}])))))))
 
 (deftest do-not-eat-exceptions-test
@@ -181,9 +181,14 @@
          "graph.metrics" ["expression"],
          "pivot_table.column_split"
          {"rows"
-          ["CREATED_AT" "expression" "TAX"],
+          [["field" 39 {"base-type" "type/DateTime", "temporal-unit" "month"}]
+           ["expression" "expression"]
+           ["field"
+            33
+            {"base-type" "type/Float",
+             "binning" {"strategy" "num-bins", "min-value" 0, "max-value" 12, "num-bins" 8, "bin-width" 2}}]],
           "columns" [],
-          "values" ["sum"]},
+          "values" [["aggregation" 0]]},
          "pivot_table.column_widths" {"leftHeaderWidths" [141 99 80], "totalLeftHeaderWidths" 320, "valueHeaderWidths" {}},
          "table.cell_column" "expression",
          "table.column_formatting"
@@ -200,9 +205,15 @@
     (is (= {:table.pivot_column "TAX"
             :graph.metrics ["expression"]
             :pivot_table.column_split
-            {:rows ["CREATED_AT" "expression" "TAX"]
+            {:rows
+             [[:field 39 {:base-type :type/DateTime, :temporal-unit :month}]
+              [:expression "expression"]
+              [:field
+               33
+               {:base-type :type/Float
+                :binning {:strategy :num-bins, :min-value 0, :max-value 12, :num-bins 8, :bin-width 2}}]]
              :columns []
-             :values ["sum"]}
+             :values [[:aggregation 0]]}
             :pivot_table.column_widths {:leftHeaderWidths [141 99 80], :totalLeftHeaderWidths 320, :valueHeaderWidths {}}
             :table.cell_column "expression"
             :table.column_formatting

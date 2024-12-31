@@ -10,12 +10,12 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import _ from "underscore";
 
+import { waitTimeContext } from "metabase/context/wait-time";
 import CS from "metabase/css/core/index.css";
 import { isCypressActive } from "metabase/env";
-import { delay } from "metabase/lib/delay";
 import resizeObserver from "metabase/lib/resize-observer";
 
-const WAIT_TIME = delay(300);
+const WAIT_TIME = 300;
 
 const REFRESH_MODE = {
   throttle: (fn: () => void) => _.throttle(fn, WAIT_TIME),
@@ -47,9 +47,6 @@ type InnerProps = {
 
 type ExplicitSizeOuterProps<T> = Omit<T, "width" | "height">;
 
-/**
- * @deprecated HOCs are deprecated
- */
 function ExplicitSize<T>({
   selector,
   wrapped = false,
@@ -59,6 +56,8 @@ function ExplicitSize<T>({
     const displayName = ComposedComponent.displayName || ComposedComponent.name;
 
     class WrappedComponent extends Component<T & InnerProps> {
+      static contextType = waitTimeContext;
+
       static displayName = `ExplicitSize[${displayName}]`;
 
       state: SizeState = {
@@ -74,13 +73,15 @@ function ExplicitSize<T>({
 
       _refreshMode: RefreshMode;
 
+      _isMounted: boolean = false;
+
       _updateSize: () => void;
 
-      constructor(props: T & InnerProps) {
-        super(props);
+      constructor(props: T & InnerProps, context: unknown) {
+        super(props, context);
 
         this._printMediaQuery = window.matchMedia && window.matchMedia("print");
-        if (WAIT_TIME === 0) {
+        if (this.context === 0) {
           this._refreshMode = "none";
         } else {
           this._refreshMode =
@@ -91,6 +92,9 @@ function ExplicitSize<T>({
       }
 
       _getElement() {
+        if (!this._isMounted) {
+          return null;
+        }
         try {
           let element = ReactDOM.findDOMNode(this);
           if (selector && element instanceof Element) {
@@ -104,6 +108,7 @@ function ExplicitSize<T>({
       }
 
       componentDidMount() {
+        this._isMounted = true;
         this._initMediaQueryListener();
         this._initResizeObserver();
         // Set the size on the next tick. We had issues with wrapped components
@@ -118,6 +123,7 @@ function ExplicitSize<T>({
       }
 
       componentWillUnmount() {
+        this._isMounted = false;
         this._teardownResizeObserver();
         this._teardownQueryMediaListener();
         if (this.timeoutId !== null) {

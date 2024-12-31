@@ -1,5 +1,5 @@
 export {
-  ExpressionEditorTextfield,
+  default as ExpressionEditorTextfield,
   type SuggestionFooter,
   type SuggestionShortcut,
 } from "./ExpressionEditorTextfield";

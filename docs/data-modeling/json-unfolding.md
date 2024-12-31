@@ -6,7 +6,7 @@ title: Working with JSON
 
 ## Filtering JSON
 
-In the [query builder](../questions/query-builder/editor.md), Metabase can't parse JSON in columns, so you can only filter by "Is empty" or "Not empty".
+In the [query builder](../questions/query-builder/introduction.md), Metabase can't parse JSON in columns, so you can only filter by "Is empty" or "Not empty".
 
 ## JSON unfolding
 
@@ -68,4 +68,3 @@ For example, if you upload a CSV with JSON in it, you might need to update the d
 - [PostgreSQL](../databases/connections/postgresql.md)
 - [MySQL](../databases/connections/mysql.md)
 - [Druid (JDBC)](../databases/connections/druid.md)
-- [BigQuery](../databases/connections/bigquery.md) (always enabled)

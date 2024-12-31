@@ -52,8 +52,6 @@ export const updateQuestionSdk =
       shouldRunQueryOnQuestionChange = false;
     }
 
-    nextQuestion = nextQuestion.applyTemplateTagParameters();
-
     const rawSeries = createRawSeries({
       question: nextQuestion,
       queryResult: queryResults?.[0],

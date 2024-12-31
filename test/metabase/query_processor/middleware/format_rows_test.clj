@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.query-processor.middleware.format-rows-test
+(ns metabase.query-processor.middleware.format-rows-test
   (:require
    [clojure.test :refer :all]
    [java-time.api :as t]

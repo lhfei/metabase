@@ -1,4 +1,4 @@
-import type { DatePickerShortcut } from "metabase/querying/filters/types";
+import type { DatePickerShortcut } from "../../DatePicker";
 
 export const MAIN_SHORTCUTS: DatePickerShortcut[] = [
   "today",

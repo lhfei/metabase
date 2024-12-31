@@ -1,5 +1,4 @@
-import { H } from "e2e/support";
-import { SAMPLE_DB_ID, USERS } from "e2e/support/cypress_data";
+import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import {
   ADMIN_PERSONAL_COLLECTION_ID,
@@ -7,6 +6,26 @@ import {
   ORDERS_COUNT_QUESTION_ID,
   ORDERS_MODEL_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  type NativeQuestionDetails,
+  createNativeQuestion,
+  createQuestion,
+  describeEE,
+  entityPickerModal,
+  entityPickerModalTab,
+  getNotebookStep,
+  openNotebook,
+  openProductsTable,
+  openReviewsTable,
+  popover,
+  restore,
+  setTokenFeatures,
+  tableInteractive,
+  visitModel,
+  visitQuestion,
+  visitQuestionAdhoc,
+  visualize,
+} from "e2e/support/helpers";
 import { DataPermissionValue } from "metabase/admin/permissions/types";
 import { METAKEY } from "metabase/lib/browser";
 
@@ -30,7 +49,7 @@ const clickConfig = {
 
 describe("scenarios > notebook > link to data source", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
     cy.on("window:before:load", win => {
@@ -44,24 +63,24 @@ describe("scenarios > notebook > link to data source", () => {
   });
 
   it("smoke test", () => {
-    H.openReviewsTable({ mode: "notebook" });
+    openReviewsTable({ mode: "notebook" });
 
     cy.log("Normal click on the data source still opens the entity picker");
-    H.getNotebookStep("data").findByText("Reviews").click();
+    getNotebookStep("data").findByText("Reviews").click();
     cy.findByTestId("entity-picker-modal").within(() => {
       cy.findByText("Pick your starting data").should("be.visible");
       cy.findByLabelText("Close").click();
     });
 
     cy.log("Meta/Ctrl click on the fields picker behaves as a regular click");
-    H.getNotebookStep("data").findByTestId("fields-picker").click(clickConfig);
-    H.popover().within(() => {
+    getNotebookStep("data").findByTestId("fields-picker").click(clickConfig);
+    popover().within(() => {
       cy.findByText("Select none").click();
     });
     // Regular click on the fields picker again to close the popover
-    H.getNotebookStep("data").findByTestId("fields-picker").click();
+    getNotebookStep("data").findByTestId("fields-picker").click();
     // Mid-test sanity-check assertion
-    H.visualize();
+    visualize();
     cy.findAllByTestId("header-cell")
       .should("have.length", 1)
       .and("have.text", "ID");
@@ -69,10 +88,10 @@ describe("scenarios > notebook > link to data source", () => {
     cy.log(
       "Deselecting columns should have no effect on the linked data source in new tab/window",
     );
-    H.openNotebook();
+    openNotebook();
 
     cy.log("Make sure tooltip is being shown on hover");
-    H.getNotebookStep("data")
+    getNotebookStep("data")
       .findByText("Reviews")
       .should("be.visible")
       .realHover();
@@ -81,12 +100,12 @@ describe("scenarios > notebook > link to data source", () => {
       `${METAKEY}+click to open in new tab`,
     );
 
-    H.getNotebookStep("data").findByText("Reviews").click(clickConfig);
+    getNotebookStep("data").findByText("Reviews").click(clickConfig);
     cy.wait("@dataset"); // already intercepted in `visualize()`
 
     cy.log("Make sure Reviews table is rendered in a simple mode");
     cy.findAllByTestId("header-cell").should("contain", "Reviewer");
-    H.tableInteractive().should("contain", "xavier");
+    tableInteractive().should("contain", "xavier");
     cy.findByTestId("question-row-count").should(
       "have.text",
       "Showing 1,112 rows",
@@ -97,13 +116,13 @@ describe("scenarios > notebook > link to data source", () => {
 
   context("questions", () => {
     it("should open the source table from a simple question", () => {
-      H.visitQuestion(ORDERS_COUNT_QUESTION_ID);
-      H.openNotebook();
-      H.getNotebookStep("data").findByText("Orders").click(clickConfig);
+      visitQuestion(ORDERS_COUNT_QUESTION_ID);
+      openNotebook();
+      getNotebookStep("data").findByText("Orders").click(clickConfig);
 
       cy.log("Make sure Orders table is rendered in a simple mode");
       cy.findAllByTestId("header-cell").should("contain", "Subtotal");
-      H.tableInteractive().should("contain", "37.65");
+      tableInteractive().should("contain", "37.65");
       cy.findByTestId("question-row-count").should(
         "have.text",
         "Showing first 2,000 rows",
@@ -113,7 +132,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it("should open the source question from a nested question", () => {
-      H.createQuestion(
+      createQuestion(
         {
           name: "Nested question based on a question",
           query: { "source-table": `card__${ORDERS_COUNT_QUESTION_ID}` },
@@ -121,8 +140,8 @@ describe("scenarios > notebook > link to data source", () => {
         { visitQuestion: true },
       );
 
-      H.openNotebook();
-      H.getNotebookStep("data").findByText("Orders, Count").click(clickConfig);
+      openNotebook();
+      getNotebookStep("data").findByText("Orders, Count").click(clickConfig);
 
       cy.log("Make sure the source question rendered in a simple mode");
       cy.location("pathname").should(
@@ -132,7 +151,7 @@ describe("scenarios > notebook > link to data source", () => {
       cy.findAllByTestId("header-cell")
         .should("have.length", "1")
         .and("have.text", "Count");
-      H.tableInteractive().should("contain", "18,760");
+      tableInteractive().should("contain", "18,760");
       cy.findByTestId("question-row-count").should(
         "have.text",
         "Showing 1 row",
@@ -151,8 +170,8 @@ describe("scenarios > notebook > link to data source", () => {
         },
       };
 
-      H.createNativeQuestion(source).then(({ body: sourceQuestion }) => {
-        H.createQuestion(
+      createNativeQuestion(source).then(({ body: sourceQuestion }) => {
+        createQuestion(
           {
             name: "Nested question based on a native question",
             query: { "source-table": `card__${sourceQuestion.id}` },
@@ -160,8 +179,8 @@ describe("scenarios > notebook > link to data source", () => {
           { visitQuestion: true },
         );
 
-        H.openNotebook();
-        H.getNotebookStep("data").findByText(source.name).click(clickConfig);
+        openNotebook();
+        getNotebookStep("data").findByText(source.name).click(clickConfig);
 
         cy.log("Make sure the source question rendered in a simple mode");
         cy.location("pathname").should(
@@ -186,7 +205,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it("should open the source model from a nested question", () => {
-      H.createQuestion(
+      createQuestion(
         {
           name: "Nested question based on a model",
           query: { "source-table": `card__${ORDERS_MODEL_ID}` },
@@ -194,8 +213,8 @@ describe("scenarios > notebook > link to data source", () => {
         { visitQuestion: true },
       );
 
-      H.openNotebook();
-      H.getNotebookStep("data").findByText("Orders Model").click(clickConfig);
+      openNotebook();
+      getNotebookStep("data").findByText("Orders Model").click(clickConfig);
 
       cy.log("Make sure the source model is rendered in a simple mode");
       cy.location("pathname").should(
@@ -203,7 +222,7 @@ describe("scenarios > notebook > link to data source", () => {
         `/model/${ORDERS_MODEL_ID}-orders-model`,
       );
       cy.findAllByTestId("header-cell").should("contain", "Subtotal");
-      H.tableInteractive().should("contain", "37.65");
+      tableInteractive().should("contain", "37.65");
       cy.findByTestId("question-row-count").should(
         "have.text",
         "Showing first 2,000 rows",
@@ -214,7 +233,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it("should open the source model from a nested question where the source is native model", () => {
-      const source: H.NativeQuestionDetails = {
+      const source: NativeQuestionDetails = {
         name: "Native source",
         native: {
           query: "select 1 as foo",
@@ -223,8 +242,8 @@ describe("scenarios > notebook > link to data source", () => {
         type: "model",
       };
 
-      H.createNativeQuestion(source).then(({ body: sourceQuestion }) => {
-        H.createQuestion(
+      createNativeQuestion(source).then(({ body: sourceQuestion }) => {
+        createQuestion(
           {
             name: "Nested question based on a native question",
             query: { "source-table": `card__${sourceQuestion.id}` },
@@ -232,8 +251,8 @@ describe("scenarios > notebook > link to data source", () => {
           { visitQuestion: true },
         );
 
-        H.openNotebook();
-        H.getNotebookStep("data")
+        openNotebook();
+        getNotebookStep("data")
           .findByText(sourceQuestion.name)
           .click(clickConfig);
 
@@ -255,7 +274,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it('should open the "trash" if the source question has been archived', () => {
-      H.createQuestion({
+      createQuestion({
         name: "Nested question based on a question",
         query: { "source-table": `card__${ORDERS_COUNT_QUESTION_ID}` },
       }).then(({ body: nestedQuestion }) => {
@@ -264,11 +283,11 @@ describe("scenarios > notebook > link to data source", () => {
           archived: true,
         });
 
-        H.visitQuestion(nestedQuestion.id);
+        visitQuestion(nestedQuestion.id);
       });
 
-      H.openNotebook();
-      H.getNotebookStep("data").findByText("Orders, Count").click(clickConfig);
+      openNotebook();
+      getNotebookStep("data").findByText("Orders, Count").click(clickConfig);
 
       cy.log('Make sure the source question opens in the "trash"');
       cy.location("pathname").should(
@@ -284,9 +303,9 @@ describe("scenarios > notebook > link to data source", () => {
 
   context("models", () => {
     it("should open the underlying model", () => {
-      H.visitModel(ORDERS_MODEL_ID);
-      H.openNotebook();
-      H.getNotebookStep("data").findByText("Orders Model").click(clickConfig);
+      visitModel(ORDERS_MODEL_ID);
+      openNotebook();
+      getNotebookStep("data").findByText("Orders Model").click(clickConfig);
 
       cy.log("Make sure the source model is rendered in a simple mode");
       cy.location("pathname").should(
@@ -294,7 +313,7 @@ describe("scenarios > notebook > link to data source", () => {
         `/model/${ORDERS_MODEL_ID}-orders-model`,
       );
       cy.findAllByTestId("header-cell").should("contain", "Subtotal");
-      H.tableInteractive().should("contain", "37.65");
+      tableInteractive().should("contain", "37.65");
       cy.findByTestId("question-row-count").should(
         "have.text",
         "Showing first 2,000 rows",
@@ -305,7 +324,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it("should open the underlying native model", () => {
-      const model: H.NativeQuestionDetails = {
+      const model: NativeQuestionDetails = {
         name: "Native model",
         native: {
           query: "select 1 as foo",
@@ -314,11 +333,11 @@ describe("scenarios > notebook > link to data source", () => {
         type: "model",
       };
 
-      H.createNativeQuestion(model).then(({ body: { id, name } }) => {
-        H.visitModel(id);
+      createNativeQuestion(model).then(({ body: { id, name } }) => {
+        visitModel(id);
 
-        H.openNotebook();
-        H.getNotebookStep("data").findByText(name).click(clickConfig);
+        openNotebook();
+        getNotebookStep("data").findByText(name).click(clickConfig);
 
         cy.log("Make sure the source model rendered in a simple mode");
         cy.location("pathname").should("eq", `/model/${id}-native-model`);
@@ -335,7 +354,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it("should open the nested model (based on a question) as the data source", () => {
-      H.createQuestion(
+      createQuestion(
         {
           name: "Nested model based on a question",
           query: { "source-table": `card__${ORDERS_COUNT_QUESTION_ID}` },
@@ -344,8 +363,8 @@ describe("scenarios > notebook > link to data source", () => {
         { visitQuestion: true, wrapId: true, idAlias: "nestedModelId" },
       );
 
-      H.openNotebook();
-      H.getNotebookStep("data")
+      openNotebook();
+      getNotebookStep("data")
         .findByText("Nested model based on a question")
         .click(clickConfig);
 
@@ -367,7 +386,7 @@ describe("scenarios > notebook > link to data source", () => {
     });
 
     it("should open the nested model (based on a model) as the data source", () => {
-      H.createQuestion(
+      createQuestion(
         {
           name: "Nested model based on a model",
           query: { "source-table": `card__${ORDERS_MODEL_ID}` },
@@ -376,8 +395,8 @@ describe("scenarios > notebook > link to data source", () => {
         { visitQuestion: true, wrapId: true, idAlias: "nestedModelId" },
       );
 
-      H.openNotebook();
-      H.getNotebookStep("data")
+      openNotebook();
+      getNotebookStep("data")
         .findByText("Nested model based on a model")
         .click(clickConfig);
 
@@ -388,7 +407,7 @@ describe("scenarios > notebook > link to data source", () => {
           `/model/${id}-nested-model-based-on-a-model`,
         );
         cy.findAllByTestId("header-cell").should("contain", "Subtotal");
-        H.tableInteractive().should("contain", "37.65");
+        tableInteractive().should("contain", "37.65");
         cy.findByTestId("question-row-count").should(
           "have.text",
           "Showing first 2,000 rows",
@@ -402,7 +421,7 @@ describe("scenarios > notebook > link to data source", () => {
 
   context("permissions", () => {
     it("shouldn't show the source question if it lives in a collection that user can't see", () => {
-      H.createQuestion({
+      createQuestion({
         name: "Nested question based on a question",
         query: { "source-table": `card__${ORDERS_COUNT_QUESTION_ID}` },
       }).then(({ body: nestedQuestion }) => {
@@ -412,7 +431,7 @@ describe("scenarios > notebook > link to data source", () => {
         });
 
         cy.signInAsNormalUser();
-        H.visitQuestion(nestedQuestion.id);
+        visitQuestion(nestedQuestion.id);
 
         cy.log("We should not even show the notebook icon");
         cy.findByTestId("qb-header-action-panel")
@@ -428,13 +447,13 @@ describe("scenarios > notebook > link to data source", () => {
           cy.findByLabelText("Close").click();
         });
 
-        H.getNotebookStep("data").should("contain", "Pick your starting data");
+        getNotebookStep("data").should("contain", "Pick your starting data");
 
         cy.log(
           "The same should be true for a user that additionally doesn't have write query permissions",
         );
         cy.signIn("nodata");
-        H.visitQuestion(nestedQuestion.id);
+        visitQuestion(nestedQuestion.id);
         cy.findByTestId("qb-header-action-panel")
           .icon("notebook")
           .should("not.exist");
@@ -445,17 +464,17 @@ describe("scenarios > notebook > link to data source", () => {
           cy.findByLabelText("Close").click();
         });
 
-        H.getNotebookStep("data").should("contain", "Pick your starting data");
+        getNotebookStep("data").should("contain", "Pick your starting data");
       });
     });
 
     it("user with the curate collection permissions but without write query permissions shouldn't be able to see/open the source question", () => {
-      H.createQuestion({
+      createQuestion({
         name: "Nested question based on a question",
         query: { "source-table": `card__${ORDERS_COUNT_QUESTION_ID}` },
       }).then(({ body: nestedQuestion }) => {
         cy.signIn("nodata");
-        H.visitQuestion(nestedQuestion.id);
+        visitQuestion(nestedQuestion.id);
 
         cy.log("We should not even show the notebook icon");
         cy.findByTestId("qb-header-action-panel")
@@ -467,9 +486,9 @@ describe("scenarios > notebook > link to data source", () => {
       });
     });
 
-    H.describeEE("sandboxing", () => {
+    describeEE("sandboxing", () => {
       beforeEach(() => {
-        H.setTokenFeatures("all");
+        setTokenFeatures("all");
 
         cy.updatePermissionsGraph({
           [ALL_USERS_GROUP_ID]: {
@@ -494,33 +513,28 @@ describe("scenarios > notebook > link to data source", () => {
       });
 
       it("should work for sandboxed users when opening a table/question/model", () => {
-        H.visitModel(ORDERS_MODEL_ID);
+        visitModel(ORDERS_MODEL_ID);
         cy.findByTestId("question-row-count").should(
           "have.text",
           "Showing 11 rows",
         );
-        H.openNotebook();
-        H.getNotebookStep("data").findByText("Orders Model").click(clickConfig);
+        openNotebook();
+        getNotebookStep("data").findByText("Orders Model").click(clickConfig);
         cy.findByTestId("question-row-count").should(
           "have.text",
           "Showing 11 rows",
         );
-        H.assertDatasetReqIsSandboxed({
-          requestAlias: `@modelQuery${ORDERS_MODEL_ID}`,
-        });
       });
 
       it("should work for sandboxed users when joined table is sandboxed", () => {
-        cy.intercept("/api/dataset").as("dataset");
-
-        H.openProductsTable({ mode: "notebook" });
+        openProductsTable({ mode: "notebook" });
         cy.findByTestId("action-buttons").button("Join data").click();
-        H.entityPickerModal().within(() => {
-          H.entityPickerModalTab("Tables").click();
+        entityPickerModal().within(() => {
+          entityPickerModalTab("Tables").click();
           cy.findByText("Orders").click();
         });
 
-        H.getNotebookStep("join")
+        getNotebookStep("join")
           .findByLabelText("Right table")
           .should("have.text", "Orders")
           .click(clickConfig);
@@ -529,10 +543,6 @@ describe("scenarios > notebook > link to data source", () => {
           "have.text",
           "Showing 11 rows",
         );
-        H.assertDatasetReqIsSandboxed({
-          columnId: ORDERS.USER_ID,
-          columnAssertion: USERS.sandboxed.login_attributes.attr_uid,
-        });
       });
     });
   });
@@ -612,19 +622,22 @@ describe("scenarios > notebook > link to data source", () => {
     };
 
     it("rhs joined data sources should open in a new tab on the meta/ctrl click", () => {
-      H.createQuestion({
+      createQuestion({
         name: "People - Saved Question",
         query: {
           "source-table": PEOPLE_ID,
         },
       }).then(({ body: savedQuestion }) => {
         const queryWithMultipleJoins = getQuery(savedQuestion.id);
-        H.visitQuestionAdhoc(queryWithMultipleJoins, { mode: "notebook" });
+        visitQuestionAdhoc(queryWithMultipleJoins, { mode: "notebook" });
 
         (function testModel() {
           cy.log("Model should open in a new tab");
 
-          H.getNotebookStep("join", { stage: 0, index: 0 }).within(() => {
+          getNotebookStep("join", { stage: 0, index: 0 }).within(() => {
+            // Clicking on a left join cell does not have any effect
+            cy.findByLabelText("Left table").click(clickConfig);
+
             cy.findByLabelText("Right table")
               .should("have.text", "Orders Model")
               .click(clickConfig);
@@ -635,7 +648,7 @@ describe("scenarios > notebook > link to data source", () => {
             `/model/${ORDERS_MODEL_ID}-orders-model`,
           );
           cy.findAllByTestId("header-cell").should("contain", "Subtotal");
-          H.tableInteractive().should("contain", "37.65");
+          tableInteractive().should("contain", "37.65");
           cy.findByTestId("question-row-count").should(
             "have.text",
             "Showing first 2,000 rows",
@@ -649,7 +662,10 @@ describe("scenarios > notebook > link to data source", () => {
         (function testSavedQuestion() {
           cy.log("Saved question should open in a new tab");
 
-          H.getNotebookStep("join", { stage: 0, index: 1 }).within(() => {
+          getNotebookStep("join", { stage: 0, index: 1 }).within(() => {
+            // Clicking on a left join cell does not have any effect
+            cy.findByLabelText("Left table").click(clickConfig);
+
             cy.findByLabelText("Right table")
               .should("have.text", savedQuestion.name)
               .click(clickConfig);
@@ -660,7 +676,7 @@ describe("scenarios > notebook > link to data source", () => {
             `/question/${savedQuestion.id}-people-saved-question`,
           );
           cy.findAllByTestId("header-cell").should("contain", "City");
-          H.tableInteractive().should("contain", "Beaver Dams");
+          tableInteractive().should("contain", "Beaver Dams");
           cy.findByTestId("question-row-count").should(
             "have.text",
             "Showing first 2,000 rows",
@@ -673,14 +689,17 @@ describe("scenarios > notebook > link to data source", () => {
 
         (function testRawTable() {
           cy.log("Raw table should open in a new tab");
-          H.getNotebookStep("join", { stage: 0, index: 2 }).within(() => {
+          getNotebookStep("join", { stage: 0, index: 2 }).within(() => {
+            // Clicking on a left join cell does not have any effect
+            cy.findByLabelText("Left table").click(clickConfig);
+
             cy.findByLabelText("Right table")
               .should("have.text", "Reviews")
               .click(clickConfig);
           });
 
           cy.findAllByTestId("header-cell").should("contain", "Reviewer");
-          H.tableInteractive().should("contain", "xavier");
+          tableInteractive().should("contain", "xavier");
           cy.findByTestId("question-row-count").should(
             "have.text",
             "Showing 1,112 rows",
@@ -695,47 +714,47 @@ describe("scenarios > notebook > link to data source", () => {
           cy.log(
             "Join type selector behaves the same regardless of the click keyboard modifiers",
           );
-          H.getNotebookStep("join")
+          getNotebookStep("join")
             .findByLabelText("Change join type")
             .click(clickConfig);
-          H.popover().should("contain", "Inner join");
+          popover().should("contain", "Inner join");
 
           cy.log(
             "Pick columns selector behaves the same regardless of the click keyboard modifiers",
           );
-          H.getNotebookStep("join")
+          getNotebookStep("join")
             .findByLabelText("Pick columns")
             .click(clickConfig);
-          H.popover().should("contain", "Discount");
+          popover().should("contain", "Discount");
 
           cy.log(
             "Left column join condition selector behaves the same regardless of the click keyboard modifiers",
           );
-          H.getNotebookStep("join")
+          getNotebookStep("join")
             .findByLabelText("Left column")
             .click(clickConfig);
-          H.popover().should("contain", "Vendor");
+          popover().should("contain", "Vendor");
 
           cy.log(
             "Operator selector behaves the same regardless of the click keyboard modifiers",
           );
-          H.getNotebookStep("join")
+          getNotebookStep("join")
             .findByLabelText("Change operator")
             .click(clickConfig);
-          H.popover().should("contain", ">=");
+          popover().should("contain", ">=");
 
           cy.log(
             "Right column join condition selector behaves the same regardless of the click keyboard modifiers",
           );
-          H.getNotebookStep("join")
+          getNotebookStep("join")
             .findByLabelText("Right column")
             .click(clickConfig);
-          H.popover().should("contain", "Discount");
+          popover().should("contain", "Discount");
 
           cy.log(
             "New join condition button behaves the same regardless of the click keyboard modifiers",
           );
-          H.getNotebookStep("join")
+          getNotebookStep("join")
             .findByLabelText("Add condition")
             .click(clickConfig);
           cy.findByTestId("new-join-condition").should("be.visible");

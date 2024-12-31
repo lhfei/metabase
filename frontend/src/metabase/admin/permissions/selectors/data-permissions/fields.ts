@@ -3,7 +3,6 @@ import _ from "underscore";
 import { getNativePermissionDisabledTooltip } from "metabase/admin/permissions/selectors/data-permissions/shared";
 import {
   getFieldsPermission,
-  getSchemasPermission,
   getTablesPermission,
 } from "metabase/admin/permissions/utils/graph";
 import {
@@ -26,7 +25,6 @@ import {
   DataPermissionValue,
 } from "../../types";
 import {
-  getBlockWarning,
   getPermissionWarning,
   getPermissionWarningModal,
   getRevokingAccessToAllTablesWarningModal,
@@ -55,7 +53,6 @@ const buildAccessPermission = (
     entityId,
     DataPermission.VIEW_DATA,
   );
-
   const defaultGroupValue = getFieldsPermission(
     permissions,
     defaultGroup.id,
@@ -63,32 +60,13 @@ const buildAccessPermission = (
     DataPermission.VIEW_DATA,
   );
 
-  const dbValue = getSchemasPermission(
-    permissions,
-    groupId,
-    entityId,
-    DataPermission.VIEW_DATA,
-  );
-
-  const schemaValue = getTablesPermission(
-    permissions,
-    groupId,
-    entityId,
-    DataPermission.VIEW_DATA,
-  );
-
-  const permissionWarning = getPermissionWarning(
+  const warning = getPermissionWarning(
     value,
     defaultGroupValue,
     "fields",
     defaultGroup,
     groupId,
   );
-
-  const blockWarning = getBlockWarning(dbValue, schemaValue, value);
-
-  // permissionWarning should always trump a blockWarning
-  const warning = permissionWarning || blockWarning;
 
   const confirmations = (newValue: DataPermissionValue) => [
     getPermissionWarningModal(

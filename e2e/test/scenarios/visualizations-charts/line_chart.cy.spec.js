@@ -1,6 +1,21 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  addOrUpdateDashboardCard,
+  assertEChartsTooltip,
+  cartesianChartCircle,
+  cartesianChartCircleWithColor,
+  echartsContainer,
+  getXYTransform,
+  modal,
+  openSeriesSettings,
+  popover,
+  queryBuilderMain,
+  restore,
+  trendLine,
+  visitDashboard,
+  visitQuestionAdhoc,
+} from "e2e/support/helpers";
 
 const { ORDERS, ORDERS_ID, PRODUCTS, PRODUCTS_ID, PEOPLE, PEOPLE_ID } =
   SAMPLE_DATABASE;
@@ -17,32 +32,32 @@ const testQuery = {
 
 describe("scenarios > visualizations > line chart", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsNormalUser();
   });
 
   it("should be able to change y axis position (metabase#13487)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: testQuery,
       display: "line",
     });
 
     cy.findByTestId("viz-settings-button").click();
-    H.openSeriesSettings("Count");
+    openSeriesSettings("Count");
 
-    H.echartsContainer()
+    echartsContainer()
       .findByText("Count")
       .then(label => {
-        const { x, y } = H.getXYTransform(label);
+        const { x, y } = getXYTransform(label);
         cy.wrap({ x, y }).as("leftAxisLabelPosition");
       });
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Right").click();
-    H.echartsContainer()
+    echartsContainer()
       .findByText("Count")
       .then(label => {
-        const { x: xRight, y: yRight } = H.getXYTransform(label);
+        const { x: xRight, y: yRight } = getXYTransform(label);
         cy.get("@leftAxisLabelPosition").then(({ x: xLeft, y: yLeft }) => {
           expect(yRight).to.be.eq(yLeft);
           expect(xRight).to.be.greaterThan(xLeft);
@@ -51,15 +66,15 @@ describe("scenarios > visualizations > line chart", () => {
   });
 
   it("should display line settings only for line/area charts", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: testQuery,
       display: "line",
     });
 
     cy.findByTestId("viz-settings-button").click();
-    H.openSeriesSettings("Count");
+    openSeriesSettings("Count");
 
-    H.popover().within(() => {
+    popover().within(() => {
       // For line chart
       cy.findByText("Line shape").should("exist");
       cy.findByText("Line style").should("exist");
@@ -83,32 +98,32 @@ describe("scenarios > visualizations > line chart", () => {
   });
 
   it("should allow changing formatting settings", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: testQuery,
       display: "line",
     });
 
     cy.findByTestId("viz-settings-button").click();
-    H.openSeriesSettings("Count");
+    openSeriesSettings("Count");
 
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText("Formatting").click();
 
       cy.findByText("Add a prefix").should("exist");
       cy.findByPlaceholderText("$").type("prefix").blur();
     });
 
-    H.echartsContainer().findByText("prefix0");
+    echartsContainer().findByText("prefix0");
   });
 
   it("should reset series settings when switching to line chart", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: testQuery,
       display: "area",
     });
 
     cy.findByTestId("viz-settings-button").click();
-    H.openSeriesSettings("Count");
+    openSeriesSettings("Count");
     cy.icon("bar").click();
 
     cy.findByTestId("viz-type-button").click();
@@ -116,11 +131,11 @@ describe("scenarios > visualizations > line chart", () => {
     cy.icon("line").click();
 
     // should be a line chart
-    H.cartesianChartCircleWithColor("#509EE3");
+    cartesianChartCircleWithColor("#509EE3");
   });
 
   it("should reset stacking settings when switching to line chart (metabase#43538)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         database: SAMPLE_DB_ID,
         query: {
@@ -143,14 +158,14 @@ describe("scenarios > visualizations > line chart", () => {
 
     cy.icon("line").click();
 
-    H.cartesianChartCircleWithColor("#A989C5");
+    cartesianChartCircleWithColor("#A989C5");
 
     // Y-axis scale should not be normalized
-    H.echartsContainer().findByText("100%").should("not.exist");
+    echartsContainer().findByText("100%").should("not.exist");
   });
 
   it("should be able to format data point values style independently on multi-series chart (metabase#13095)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -178,11 +193,11 @@ describe("scenarios > visualizations > line chart", () => {
       },
     });
 
-    H.echartsContainer().get("text").contains("39.75%");
+    echartsContainer().get("text").contains("39.75%");
   });
 
   it("should let unpin y-axis from zero", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "query",
         query: {
@@ -200,7 +215,7 @@ describe("scenarios > visualizations > line chart", () => {
     });
 
     // The chart is pinned to zero by default: 0 tick should exist
-    H.echartsContainer().findByText("0");
+    echartsContainer().findByText("0");
 
     cy.findByTestId("viz-settings-button").click();
     cy.findByTestId("chartsettings-sidebar").within(() => {
@@ -209,17 +224,17 @@ describe("scenarios > visualizations > line chart", () => {
     });
 
     // Ensure unpinned chart does not have 0 tick
-    H.echartsContainer().findByText("0").should("not.exist");
+    echartsContainer().findByText("0").should("not.exist");
 
     cy.findByTestId("chartsettings-sidebar")
       .findByText("Unpin from zero")
       .click();
 
-    H.echartsContainer().findByText("0");
+    echartsContainer().findByText("0");
   });
 
   it("should display an error message when there are more series than the chart supports", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       display: "line",
       dataset_query: {
         database: SAMPLE_DB_ID,
@@ -246,7 +261,7 @@ describe("scenarios > visualizations > line chart", () => {
   });
 
   it("should correctly display tooltip values when X-axis is numeric and style is 'Ordinal' (metabase#15998)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         database: SAMPLE_DB_ID,
         query: {
@@ -270,8 +285,8 @@ describe("scenarios > visualizations > line chart", () => {
       },
     });
 
-    H.cartesianChartCircleWithColor("#509EE3").eq(3).realHover();
-    H.assertEChartsTooltip({
+    cartesianChartCircleWithColor("#509EE3").eq(3).realHover();
+    assertEChartsTooltip({
       header: "2.7",
       rows: [
         {
@@ -294,7 +309,7 @@ describe("scenarios > visualizations > line chart", () => {
   });
 
   it("should be possible to update/change label for an empty row value (metabase#12128)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "native",
         native: {
@@ -314,15 +329,15 @@ describe("scenarios > visualizations > line chart", () => {
     cy.findByTestId("viz-settings-button").click();
 
     // Make sure we can update input with some existing value
-    H.openSeriesSettings("cat1", true);
-    H.popover().within(() => {
+    openSeriesSettings("cat1", true);
+    popover().within(() => {
       cy.findByDisplayValue("cat1").type(" new").blur();
       cy.findByDisplayValue("cat1 new");
       cy.wait(500);
     });
     // Now do the same for the input with no value
-    H.openSeriesSettings("(empty)", true);
-    H.popover().within(() => {
+    openSeriesSettings("(empty)", true);
+    popover().within(() => {
       cy.findAllByLabelText("series-name-input").clear().type("cat2").blur();
       cy.findByDisplayValue("cat2");
     });
@@ -335,7 +350,7 @@ describe("scenarios > visualizations > line chart", () => {
   });
 
   it("should interpolate null value by not rendering a data point (metabase#4122)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "native",
         native: {
@@ -353,11 +368,11 @@ describe("scenarios > visualizations > line chart", () => {
       display: "line",
     });
 
-    H.cartesianChartCircle().should("have.length", 2);
+    cartesianChartCircle().should("have.length", 2);
   });
 
   it("should show the trend line", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       display: "line",
       dataset_query: {
         database: SAMPLE_DB_ID,
@@ -383,11 +398,11 @@ describe("scenarios > visualizations > line chart", () => {
       },
     });
 
-    H.trendLine().should("be.visible");
+    trendLine().should("be.visible");
   });
 
   it("should show label for empty value series breakout (metabase#32107)", () => {
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: {
         type: "native",
         native: {
@@ -421,7 +436,7 @@ describe("scenarios > visualizations > line chart", () => {
 
   describe("y-axis splitting (metabase#12939)", () => {
     it("should not split the y-axis when columns are of the same semantic_type and have close values", () => {
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           type: "query",
           query: {
@@ -443,7 +458,7 @@ describe("scenarios > visualizations > line chart", () => {
     });
 
     it("should split the y-axis when columns are of different semantic_type", () => {
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           type: "query",
           query: {
@@ -461,14 +476,14 @@ describe("scenarios > visualizations > line chart", () => {
         display: "line",
       });
 
-      H.echartsContainer().within(() => {
+      echartsContainer().within(() => {
         cy.findByText("Average of Latitude").should("be.visible");
         cy.findByText("Average of Longitude").should("be.visible");
       });
     });
 
     it("should split the y-axis when columns are of the same semantic_type but have far values", () => {
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           type: "query",
           query: {
@@ -486,14 +501,14 @@ describe("scenarios > visualizations > line chart", () => {
         display: "line",
       });
 
-      H.echartsContainer().within(() => {
+      echartsContainer().within(() => {
         cy.findByText("Sum of Total").should("be.visible");
         cy.findByText("Min of Total").should("be.visible");
       });
     });
 
     it("should not split the y-axis when the setting is disabled", () => {
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           type: "query",
           query: {
@@ -549,7 +564,7 @@ describe("scenarios > visualizations > line chart", () => {
               firstCardId: question1Id,
               secondCardId: question2Id,
             });
-            H.visitDashboard(dashboardId);
+            visitDashboard(dashboardId);
 
             // Rename both series
             renameSeries([
@@ -561,7 +576,7 @@ describe("scenarios > visualizations > line chart", () => {
             assertOnYAxisValues();
 
             showTooltipForFirstCircleInSeries("#88BF4D");
-            H.assertEChartsTooltip({
+            assertEChartsTooltip({
               header: "2022",
               rows: [
                 {
@@ -604,7 +619,7 @@ describe("scenarios > visualizations > line chart", () => {
               secondCardId: question2Id,
             });
 
-            H.visitDashboard(dashboardId);
+            visitDashboard(dashboardId);
 
             renameSeries([
               ["16249_Q3", RENAMED_FIRST_SERIES],
@@ -615,7 +630,7 @@ describe("scenarios > visualizations > line chart", () => {
             assertOnYAxisValues();
 
             showTooltipForFirstCircleInSeries("#88BF4D");
-            H.assertEChartsTooltip({
+            assertEChartsTooltip({
               header: "2022",
               rows: [
                 {
@@ -649,7 +664,7 @@ describe("scenarios > visualizations > line chart", () => {
       secondCardId,
     } = {}) {
       // Add the first question to the dashboard
-      H.addOrUpdateDashboardCard({
+      addOrUpdateDashboardCard({
         dashboard_id: dashboardId,
         card_id: firstCardId,
         card: {
@@ -686,7 +701,7 @@ describe("scenarios > visualizations > line chart", () => {
         cy.findByDisplayValue(old_name).clear().type(new_name).blur();
       });
 
-      H.modal()
+      modal()
         .as("modal")
         .within(() => {
           cy.button("Done").click();
@@ -702,7 +717,7 @@ describe("scenarios > visualizations > line chart", () => {
     }
 
     function assertOnYAxisValues() {
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .should("contain", RENAMED_FIRST_SERIES)
         .and("contain", RENAMED_SECOND_SERIES);
@@ -711,7 +726,7 @@ describe("scenarios > visualizations > line chart", () => {
 
   describe("problems with the labels when showing only one row in the results (metabase#12782, metabase#4995)", () => {
     beforeEach(() => {
-      H.visitQuestionAdhoc({
+      visitQuestionAdhoc({
         dataset_query: {
           database: SAMPLE_DB_ID,
           query: {
@@ -737,15 +752,15 @@ describe("scenarios > visualizations > line chart", () => {
       cy.log("Ensure that legend is hidden when not dealing with multi series");
       cy.findByTestId("viz-settings-button").click();
       cy.findByTestId("remove-CATEGORY").click();
-      H.queryBuilderMain().should("not.contain", "Doohickey");
+      queryBuilderMain().should("not.contain", "Doohickey");
     });
 
     it("should display correct axis labels (metabase#12782)", () => {
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .contains("Created At")
         .should("be.visible");
-      H.echartsContainer()
+      echartsContainer()
         .get("text")
         .contains("Average of Price")
         .should("be.visible");
@@ -765,13 +780,13 @@ describe("scenarios > visualizations > line chart", () => {
 
     cy.viewport(1280, 800);
 
-    H.visitQuestionAdhoc({
+    visitQuestionAdhoc({
       dataset_query: testQuery,
       display: "line",
     });
 
-    H.queryBuilderMain().within(() => {
-      H.echartsContainer().findByText("Quantity").should("exist");
+    queryBuilderMain().within(() => {
+      echartsContainer().findByText("Quantity").should("exist");
     });
     cy.wait(100); // wait to avoid grabbing the svg before the chart redraws
 
@@ -787,7 +802,7 @@ describe("scenarios > visualizations > line chart", () => {
       "Quantity is between",
     );
     const X_AXIS_VALUE = 8;
-    H.echartsContainer().within(() => {
+    echartsContainer().within(() => {
       cy.get("text").contains("Quantity").should("be.visible");
       cy.findByText(X_AXIS_VALUE);
     });
@@ -795,5 +810,5 @@ describe("scenarios > visualizations > line chart", () => {
 });
 
 function showTooltipForFirstCircleInSeries(seriesColor) {
-  H.cartesianChartCircleWithColor(seriesColor).eq(0).trigger("mousemove");
+  cartesianChartCircleWithColor(seriesColor).eq(0).trigger("mousemove");
 }

@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "__support__/ui";
 import { checkNotNull } from "metabase/lib/types";
 import * as Lib from "metabase-lib";
-import { columnFinder } from "metabase-lib/test-helpers";
 
 import {
   createQuery,
@@ -73,10 +72,6 @@ function setup({ query, column, filter, isNew = false }: SetupOpts) {
 
 describe("DateFilterPicker", () => {
   const initialQuery = createQuery();
-  const findColumn = columnFinder(
-    initialQuery,
-    Lib.filterableColumns(initialQuery, -1),
-  );
   const column = findDateTimeColumn(initialQuery);
 
   it("should add a filter via shortcut", async () => {
@@ -92,7 +87,7 @@ describe("DateFilterPicker", () => {
     expect(getNextRelativeFilterParts()).toMatchObject({
       column: expect.anything(),
       value: "current",
-      unit: "day",
+      bucket: "day",
     });
   });
 
@@ -154,9 +149,9 @@ describe("DateFilterPicker", () => {
     expect(getNextRelativeFilterParts()).toMatchObject({
       column: expect.anything(),
       value: -20,
-      unit: "day",
+      bucket: "day",
       offsetValue: null,
-      offsetUnit: null,
+      offsetBucket: null,
     });
   });
 
@@ -176,9 +171,9 @@ describe("DateFilterPicker", () => {
     expect(getNextFilterColumnName()).toBe(COLUMN_NAME);
     expect(getNextRelativeFilterParts()).toMatchObject({
       value: 20,
-      unit: "day",
+      bucket: "day",
       offsetValue: null,
-      offsetUnit: null,
+      offsetBucket: null,
     });
   });
 
@@ -199,7 +194,7 @@ describe("DateFilterPicker", () => {
       column: expect.anything(),
       operator: "!=",
       values: [1],
-      unit: "day-of-week",
+      bucket: "day-of-week",
     });
   });
 
@@ -223,30 +218,7 @@ describe("DateFilterPicker", () => {
       column: expect.anything(),
       operator: "!=",
       values: [3, 5],
-      unit: "day-of-week",
+      bucket: "day-of-week",
     });
-  });
-
-  it("should not allow to set time for a date only column", async () => {
-    setup({
-      query: initialQuery,
-      column: findColumn("PEOPLE", "BIRTH_DATE"),
-      isNew: true,
-    });
-
-    await userEvent.click(screen.getByText("Specific dates…"));
-    await userEvent.click(screen.getByText("On"));
-    expect(screen.queryByText("Add time")).not.toBeInTheDocument();
-
-    await userEvent.click(screen.getByLabelText("Back"));
-    await userEvent.click(screen.getByText("Relative dates…"));
-    await userEvent.click(screen.getByDisplayValue("days"));
-    expect(screen.getByText("days")).toBeInTheDocument();
-    expect(screen.queryByText("hours")).not.toBeInTheDocument();
-
-    await userEvent.click(screen.getByLabelText("Back"));
-    await userEvent.click(screen.getByText("Exclude…"));
-    expect(screen.getByText("Days of the week…")).toBeInTheDocument();
-    expect(screen.queryByText("Hours of the day…")).not.toBeInTheDocument();
   });
 });

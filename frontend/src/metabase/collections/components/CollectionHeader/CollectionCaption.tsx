@@ -21,7 +21,7 @@ import {
   CaptionTitleContainer,
 } from "./CollectionCaption.styled";
 
-interface CollectionCaptionProps {
+export interface CollectionCaptionProps {
   collection: Collection;
   onUpdateCollection: (entity: Collection, values: Partial<Collection>) => void;
 }
@@ -48,7 +48,7 @@ export const CollectionCaption = ({
   );
 
   return (
-    <CaptionRoot data-testid="collection-caption">
+    <CaptionRoot>
       <CaptionTitleContainer>
         <CollectionCaptionIcon collection={collection} />
         <CaptionTitle
@@ -62,19 +62,15 @@ export const CollectionCaption = ({
       </CaptionTitleContainer>
       {(isEditable || hasDescription) && (
         <CaptionDescription
-          key={
-            // Including the description in the key prevents a stale value from
-            // being stored in the state of EditableText if the collection's
-            // description is modified in another component
-            `${collection.id}-${collection.description}`
-          }
-          description={collection.description}
+          key={collection.id}
+          initialValue={collection.description}
           placeholder={t`Add description`}
           isVisible={Boolean(collection.description)}
-          canWrite={isEditable}
+          isDisabled={!isEditable}
+          isOptional
+          isMultiline
+          isMarkdown
           onChange={handleChangeDescription}
-          data-testid="collection-description-in-caption"
-          left={0}
         />
       )}
     </CaptionRoot>

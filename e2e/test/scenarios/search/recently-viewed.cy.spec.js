@@ -1,22 +1,35 @@
-import { H } from "e2e/support";
 import {
   ORDERS_DASHBOARD_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  commandPalette,
+  createModerationReview,
+  describeEE,
+  entityPickerModal,
+  openCommandPalette,
+  openPeopleTable,
+  popover,
+  restore,
+  setTokenFeatures,
+  visitDashboard,
+  visitFullAppEmbeddingUrl,
+  visitQuestion,
+} from "e2e/support/helpers";
 
 describe("search > recently viewed", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
 
-    H.openPeopleTable();
+    openPeopleTable();
     cy.findByTextEnsureVisible("Address");
 
     // "Orders" question
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
     // "Orders in a dashboard" dashboard
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
     cy.findByTextEnsureVisible("Product ID");
 
     // inside the "Orders in a dashboard" dashboard, the order is queried again,
@@ -24,10 +37,7 @@ describe("search > recently viewed", () => {
 
     cy.intercept("/api/activity/recents?*").as("recent");
     //Because this is testing keyboard navigation, these tests can run in embedded mode
-    H.visitFullAppEmbeddingUrl({
-      url: "/",
-      qs: { top_nav: true, search: true },
-    });
+    visitFullAppEmbeddingUrl({ url: "/", qs: { top_nav: true, search: true } });
     cy.wait("@recent");
 
     cy.findByPlaceholderText("Search…").click();
@@ -54,6 +64,8 @@ describe("search > recently viewed", () => {
     cy.findByPlaceholderText("Search…").click();
     cy.wait("@recent");
     cy.findByTestId("loading-indicator").should("not.exist");
+    cy.log("check output");
+    cy.wait(10000);
 
     assertRecentlyViewedItem(0, "Orders in a dashboard", "Dashboard");
     assertRecentlyViewedItem(1, "Orders", "Question");
@@ -77,7 +89,7 @@ describe("search > recently viewed", () => {
 
 describe("Recently Viewed > Entity Picker", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
     cy.visit("/");
   });
@@ -88,10 +100,10 @@ describe("Recently Viewed > Entity Picker", () => {
     });
 
     cy.findByTestId("app-bar").button(/New/).click();
-    H.popover().findByText("Dashboard").click();
+    popover().findByText("Dashboard").click();
     cy.findByTestId("collection-picker-button").click();
 
-    H.entityPickerModal().within(() => {
+    entityPickerModal().within(() => {
       cy.findByText("Select a collection").click();
       cy.findByRole("tab", { name: /Recents/ });
       cy.findByRole("tab", { name: /Collections/ });
@@ -102,13 +114,13 @@ describe("Recently Viewed > Entity Picker", () => {
   });
 
   it("shows recently visited dashboard in entity picker", () => {
-    H.visitDashboard(ORDERS_DASHBOARD_ID);
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitDashboard(ORDERS_DASHBOARD_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
     cy.findByTestId("qb-header").icon("ellipsis").click();
-    H.popover().findByText("Add to dashboard").click();
+    popover().findByText("Add to dashboard").click();
 
-    H.entityPickerModal().within(() => {
+    entityPickerModal().within(() => {
       cy.findByText("Add this question to a dashboard").click();
       cy.findByRole("tab", { name: /Recents/ });
       cy.findByRole("tab", { name: /Dashboards/ });
@@ -125,27 +137,27 @@ describe("Recently Viewed > Entity Picker", () => {
   });
 });
 
-H.describeEE("search > recently viewed > enterprise features", () => {
+describeEE("search > recently viewed > enterprise features", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
-    H.setTokenFeatures("all");
+    setTokenFeatures("all");
 
-    H.createModerationReview({
+    createModerationReview({
       status: "verified",
       moderated_item_id: ORDERS_QUESTION_ID,
       moderated_item_type: "card",
     });
 
-    H.visitQuestion(ORDERS_QUESTION_ID);
+    visitQuestion(ORDERS_QUESTION_ID);
 
     cy.findByTestId("qb-header-left-side").find(".Icon-verified");
   });
 
   it("should show verified badge in the 'Recently viewed' list (metabase#18021)", () => {
-    H.openCommandPalette();
+    openCommandPalette();
 
-    H.commandPalette().within(() => {
+    commandPalette().within(() => {
       cy.icon("verified_filled").should("be.visible");
     });
   });

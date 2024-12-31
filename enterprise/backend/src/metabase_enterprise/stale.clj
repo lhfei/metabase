@@ -1,10 +1,9 @@
 (ns metabase-enterprise.stale
   (:require [malli.experimental.time]
             [metabase.embed.settings :as embed.settings]
-            [metabase.models.setting :refer [defsetting]]
             [metabase.public-settings :as public-settings]
+            [metabase.public-settings.premium-features :refer [defenterprise]]
             [metabase.util.honey-sql-2 :as h2x]
-            [metabase.util.i18n :refer [deferred-tru]]
             [metabase.util.malli :as mu]
             [toucan2.core :as t2]))
 
@@ -39,17 +38,14 @@
                :pulse [:and
                        [:= :pulse_card.pulse_id :pulse.id]
                        [:= :pulse.archived false]]
-               :sandboxes [:= :sandboxes.card_id :report_card.id]
-               :collection [:= :collection.id :report_card.collection_id]]
+               :sandboxes [:= :sandboxes.card_id :report_card.id]]
    :where [:and
            [:= :sandboxes.id nil]
            [:= :pulse.id nil]
            [:= :moderation_review.id nil]
            [:= :report_card.archived false]
            [:<= :report_card.last_used_at (-> args :cutoff-date)]
-           ;; find things only in regular collections, not the `instance-analytics` collection.
-           [:= :collection.type nil]
-           (when (embed.settings/some-embedding-enabled?)
+           (when (embed.settings/enable-embedding)
              [:= :report_card.enable_embedding false])
            (when (public-settings/enable-public-sharing)
              [:= :report_card.public_uuid nil])
@@ -67,21 +63,12 @@
    :from :report_dashboard
    :left-join [:pulse [:and
                        [:= :pulse.archived false]
-                       [:= :pulse.dashboard_id :report_dashboard.id]]
-               :collection [:= :collection.id :report_dashboard.collection_id]
-               :moderation_review [:and
-                                   [:= :moderation_review.moderated_item_id :report_dashboard.id]
-                                   [:= :moderation_review.moderated_item_type (h2x/literal "dashboard")]
-                                   [:= :moderation_review.most_recent true]
-                                   [:= :moderation_review.status (h2x/literal "verified")]]]
+                       [:= :pulse.dashboard_id :report_dashboard.id]]]
    :where [:and
            [:= :pulse.id nil]
-           [:= :moderation_review.id nil]
            [:= :report_dashboard.archived false]
            [:<= :report_dashboard.last_viewed_at (-> args :cutoff-date)]
-           ;; find things only in regular collections, not the `instance-analytics` collection.
-           [:= :collection.type nil]
-           (when (embed.settings/some-embedding-enabled?)
+           (when (embed.settings/enable-embedding)
              [:= :report_dashboard.enable_embedding false])
            (when (public-settings/enable-public-sharing)
              [:= :report_dashboard.public_uuid nil])
@@ -113,11 +100,11 @@
   {:select [[:%count.* :count]]
    :from [[{:union-all (queries args)} :dummy_alias]]})
 
-(mu/defn find-candidates :- [:map
-                             [:rows [:sequential [:map
-                                                  [:id pos-int?]
-                                                  [:model keyword?]]]]
-                             [:total :int]]
+(mu/defn find-stale-candidates* :- [:map
+                                    [:rows [:sequential [:map
+                                                         [:id pos-int?]
+                                                         [:model keyword?]]]]
+                                    [:total :int]]
   "Find stale content in the given collections.
 
   Arguments are defined by [[FindStaleContentArgs]]:
@@ -148,10 +135,9 @@
                (t2/query (rows-query args)))
    :total (:count (t2/query-one (total-query args)))})
 
-(defsetting dismissed-collection-cleanup-banner
-  (deferred-tru "Was the collection cleanup banner dismissed?")
-  :user-local :only
-  :visibility :authenticated
-  :type :boolean
-  :default false
-  :export? false)
+(defenterprise find-stale-candidates
+  "Finds stale content in the given collection. See `find-stale-candidates* for details and malli schema for the
+  argument map.."
+  :feature :collection-cleanup
+  [arg-map]
+  (find-stale-candidates* arg-map))

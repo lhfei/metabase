@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.query-processor-test.constraints-test
+(ns metabase.query-processor-test.constraints-test
   "Test for MBQL `:constraints`"
   (:require
    [clojure.test :refer :all]

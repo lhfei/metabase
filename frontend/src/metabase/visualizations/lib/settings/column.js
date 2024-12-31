@@ -2,9 +2,9 @@ import moment from "moment-timezone"; // eslint-disable-line no-restricted-impor
 import { t } from "ttag";
 import _ from "underscore";
 
-import { currency } from "cljs/metabase.util.currency";
+import { currency } from "cljs/metabase.shared.util.currency";
 import {
-  displayNameForColumn,
+  formatColumn,
   getCurrencySymbol,
   getDateFormatFromStyle,
   numberFormatterForOptions,
@@ -327,14 +327,11 @@ export const NUMBER_COLUMN_SETTINGS = {
   currency_in_header: {
     title: t`Where to display the unit of currency`,
     widget: "radio",
-    getProps: (_series, _vizSettings, onChange) => {
-      return {
-        onChange: value => onChange(value === "true"),
-        options: [
-          { name: t`In the column heading`, value: true },
-          { name: t`In every table cell`, value: false },
-        ],
-      };
+    props: {
+      options: [
+        { name: t`In the column heading`, value: true },
+        { name: t`In every table cell`, value: false },
+      ],
     },
     getDefault: getDefaultCurrencyInHeader,
     getHidden: (_column, settings, { series, forAdminSettings }) => {
@@ -365,7 +362,7 @@ export const NUMBER_COLUMN_SETTINGS = {
     getDefault: getDefaultNumberSeparators,
   },
   decimals: {
-    title: t`Number of decimal places`,
+    title: t`Minimum number of decimal places`,
     widget: "number",
     props: {
       placeholder: "1",
@@ -438,8 +435,7 @@ const COMMON_COLUMN_SETTINGS = {
   },
   _column_title_full: {
     getValue: (column, settings) => {
-      let columnTitle =
-        settings["column_title"] || displayNameForColumn(column);
+      let columnTitle = settings["column_title"] || formatColumn(column);
       const headerUnit = settings["_header_unit"];
       if (headerUnit) {
         columnTitle += ` (${headerUnit})`;
@@ -503,11 +499,10 @@ export function isPivoted(series, settings) {
 export const getTitleForColumn = (column, series, settings) => {
   const pivoted = isPivoted(series, settings);
   if (pivoted) {
-    return displayNameForColumn(column) || t`Unset`;
+    return formatColumn(column) || t`Unset`;
   } else {
     return (
-      settings.column(column)["_column_title_full"] ||
-      displayNameForColumn(column)
+      settings.column(column)["_column_title_full"] || formatColumn(column)
     );
   }
 };

@@ -1,10 +1,3 @@
-/** @see overlays.stories.tsx */
-.Overlay {
-  /* !important is needed to override the z-index that Mantine applies. The
-   * specificity hack doesn't work. */
-  z-index: var(--mb-overlay-z-index) !important;
-}
-
 .z1 {
   z-index: 1;
 }
@@ -27,4 +20,8 @@
 
 .z6 {
   z-index: 6;
+}
+
+.zF {
+  z-index: 999;
 }

@@ -16,7 +16,6 @@ export type DashboardSidebarName =
   | "action"
   | "clickBehavior"
   | "editParameter"
-  | "settings"
   | "sharing"
   | "info";
 

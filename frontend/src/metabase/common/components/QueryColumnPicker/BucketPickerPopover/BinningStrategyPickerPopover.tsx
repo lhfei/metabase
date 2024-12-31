@@ -10,8 +10,6 @@ import {
 } from "./BaseBucketPickerPopover";
 import type { CommonBucketPickerProps } from "./types";
 
-const INITIALLY_VISIBLE_ITEMS_COUNT = 5;
-
 export function BinningStrategyPickerPopover({
   query,
   stageIndex,
@@ -59,7 +57,6 @@ export function BinningStrategyPickerPopover({
       selectedBucket={selectedBucket}
       isEditing={isEditing}
       triggerLabel={t`Binning strategy`}
-      initiallyVisibleItemsCount={INITIALLY_VISIBLE_ITEMS_COUNT}
       checkBucketIsSelected={checkBucketIsSelected}
       renderTriggerContent={renderTriggerContent}
       onSelect={handleBucketSelect}

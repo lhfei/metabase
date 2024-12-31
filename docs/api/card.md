@@ -142,13 +142,13 @@ Create a new `Card`. Card `type` can be `question`, `metric`, or `model`.
 
 -  **`collection_position`** nullable value must be an integer greater than zero.
 
--  **`result_metadata`** nullable value must be an array of valid results column metadata maps.
+-  **`result_metadata`** nullable :metabase.analyze.query-results/ResultsMetadata.
 
 -  **`collection_id`** nullable value must be an integer greater than zero.
 
 -  **`name`** value must be a non-blank string.
 
--  **`type`** nullable enum of :question, :metric, :model.
+-  **`type`** nullable :metabase.api.card/card-type.
 
 -  **`cache_ttl`** nullable value must be an integer greater than zero.
 
@@ -208,9 +208,7 @@ Run the query associated with a Card, and return its results as a file in the sp
 
 -  **`parameters`** nullable value must be a valid JSON string.
 
--  **`pivot_results`** nullable value must be a valid boolean string ('true' or 'false').
-
--  **`format_rows`** nullable value must be a valid boolean string ('true' or 'false').
+-  **`format_rows`** nullable boolean.
 
 ## `POST /api/card/:card-id/refresh`
 
@@ -286,7 +284,7 @@ Update a `Card`.
 
 -  **`collection_position`** nullable value must be an integer greater than zero.
 
--  **`result_metadata`** nullable value must be an array of valid results column metadata maps.
+-  **`result_metadata`** nullable :metabase.analyze.query-results/ResultsMetadata.
 
 -  **`enable_embedding`** nullable boolean.
 
@@ -296,7 +294,7 @@ Update a `Card`.
 
 -  **`name`** nullable value must be a non-blank string.
 
--  **`type`** nullable enum of :question, :metric, :model.
+-  **`type`** nullable :metabase.api.card/card-type.
 
 -  **`embedding_params`** nullable value must be a valid embedding params map.
 

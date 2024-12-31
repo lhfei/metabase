@@ -7,8 +7,8 @@
    [metabase.lib.schema.common :as common]
    [metabase.lib.schema.expression :as expression]
    [metabase.lib.schema.mbql-clause :as mbql-clause]
-   [metabase.util.malli.registry :as mr]
-   [metabase.util.time.impl-common :as u.time.impl-common]))
+   [metabase.shared.util.internal.time-common :as shared.ut.common]
+   [metabase.util.malli.registry :as mr]))
 
 (defmethod expression/type-of-method :dispatch-type/nil
   [_nil]
@@ -53,30 +53,30 @@
 (mr/def ::string.date
   [:re
    {:error/message "date string literal"}
-   u.time.impl-common/local-date-regex])
+   shared.ut.common/local-date-regex])
 
 (mr/def ::string.zone-offset
   [:re
    {:error/message "timezone offset string literal"}
-   u.time.impl-common/zone-offset-part-regex])
+   shared.ut.common/zone-offset-part-regex])
 
 (mr/def ::string.time
   [:or
    [:re
     {:error/message "local time string literal"}
-    u.time.impl-common/local-time-regex]
+    shared.ut.common/local-time-regex]
    [:re
     {:error/message "offset time string literal"}
-    u.time.impl-common/offset-time-regex]])
+    shared.ut.common/offset-time-regex]])
 
 (mr/def ::string.datetime
   [:or
    [:re
     {:error/message "local date time string literal"}
-    u.time.impl-common/local-datetime-regex]
+    shared.ut.common/local-datetime-regex]
    [:re
     {:error/message "offset date time string literal"}
-    u.time.impl-common/offset-datetime-regex]])
+    shared.ut.common/offset-datetime-regex]])
 
 (defmethod expression/type-of-method :dispatch-type/string
   [s]
@@ -131,12 +131,12 @@
 (mr/def ::string.year-month
   [:re
    {:error/message "year-month string literal"}
-   u.time.impl-common/year-month-regex])
+   shared.ut.common/year-month-regex])
 
 (mr/def ::string.year
   [:re
    {:error/message "year string literal"}
-   u.time.impl-common/year-regex])
+   shared.ut.common/year-regex])
 
 ;;; `:effective-type` is required for `:value` clauses. This was not a rule in the legacy MBQL schema, but in actual
 ;;; usage they basically always have `:base-type`; in MLv2 we're trying to use `:effective-type` everywhere instead;

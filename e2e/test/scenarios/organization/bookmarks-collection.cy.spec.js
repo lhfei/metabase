@@ -1,9 +1,15 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_TABLES, USERS } from "e2e/support/cypress_data";
 import {
   ADMIN_PERSONAL_COLLECTION_ID,
   FIRST_COLLECTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  getSidebarSectionTitle,
+  navigationSidebar,
+  popover,
+  restore,
+  visitCollection,
+} from "e2e/support/helpers";
 
 const adminFullName = USERS.admin.first_name + " " + USERS.admin.last_name;
 const adminPersonalCollectionName = adminFullName + "'s Personal Collection";
@@ -12,7 +18,7 @@ const { STATIC_ORDERS_ID } = SAMPLE_DB_TABLES;
 
 describe("scenarios > organization > bookmarks > collection", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -25,36 +31,36 @@ describe("scenarios > organization > bookmarks > collection", () => {
 
     cy.wait("@fetchRootCollectionItems");
 
-    H.getSidebarSectionTitle("Collections");
+    getSidebarSectionTitle("Collections");
     cy.icon("bookmark").should("not.exist");
   });
 
   it("can add, update bookmark name when collection name is updated, and remove bookmarks from collection from its page", () => {
-    H.visitCollection(FIRST_COLLECTION_ID);
+    visitCollection(FIRST_COLLECTION_ID);
 
     // Add bookmark
     cy.icon("bookmark").click();
 
-    H.navigationSidebar().within(() => {
-      H.getSidebarSectionTitle(/Bookmarks/);
+    navigationSidebar().within(() => {
+      getSidebarSectionTitle(/Bookmarks/);
       cy.findAllByText("First collection").should("have.length", 2);
 
       // Once there is a list of bookmarks,
       // we add a heading to the list of collections below the list of bookmarks
-      H.getSidebarSectionTitle("Collections");
+      getSidebarSectionTitle("Collections");
     });
 
     // Rename bookmarked collection
     cy.findByTestId("collection-name-heading").click().type(" 2").blur();
 
-    H.navigationSidebar()
+    navigationSidebar()
       .findAllByText("First collection 2")
       .should("have.length", 2);
 
     // Remove bookmark
     cy.findByTestId("collection-menu").icon("bookmark_filled").click();
 
-    H.navigationSidebar()
+    navigationSidebar()
       .findAllByText("First collection 2")
       .should("have.length", 1);
 
@@ -116,11 +122,11 @@ describe("scenarios > organization > bookmarks > collection", () => {
     // Add bookmark
     cy.findByTestId("collection-menu").icon("bookmark").click();
 
-    H.navigationSidebar().within(() => {
+    navigationSidebar().within(() => {
       cy.icon("bookmark_filled").click({ force: true });
     });
 
-    H.getSidebarSectionTitle(/Bookmarks/).should("not.exist");
+    getSidebarSectionTitle(/Bookmarks/).should("not.exist");
   });
 
   it("can toggle bookmark list visibility", () => {
@@ -129,12 +135,12 @@ describe("scenarios > organization > bookmarks > collection", () => {
     // Add bookmark
     cy.icon("bookmark").click();
 
-    H.navigationSidebar().within(() => {
-      H.getSidebarSectionTitle(/Bookmarks/).click();
+    navigationSidebar().within(() => {
+      getSidebarSectionTitle(/Bookmarks/).click();
 
       cy.findByText(adminPersonalCollectionName).should("not.exist");
 
-      H.getSidebarSectionTitle(/Bookmarks/).click();
+      getSidebarSectionTitle(/Bookmarks/).click();
 
       cy.findByText(adminPersonalCollectionName);
     });
@@ -152,8 +158,8 @@ function addBookmarkTo(name) {
   openEllipsisMenuFor(name);
   cy.findByText("Bookmark").click();
 
-  H.navigationSidebar().within(() => {
-    H.getSidebarSectionTitle(/Bookmarks/);
+  navigationSidebar().within(() => {
+    getSidebarSectionTitle(/Bookmarks/);
     cy.findByText(name);
   });
 }
@@ -163,8 +169,8 @@ function removeBookmarkFrom(name) {
 
   cy.findByText("Remove from bookmarks").click();
 
-  H.navigationSidebar().within(() => {
-    H.getSidebarSectionTitle(/Bookmarks/).should("not.exist");
+  navigationSidebar().within(() => {
+    getSidebarSectionTitle(/Bookmarks/).should("not.exist");
     cy.findByText(name).should("not.exist");
   });
 }
@@ -184,14 +190,14 @@ function bookmarkThenArchive(name) {
 
 function pin(name) {
   openEllipsisMenuFor(name);
-  H.popover().within(() => {
+  popover().within(() => {
     cy.findByText("Pin this").click();
   });
 }
 
 function archive(name) {
   openEllipsisMenuFor(name);
-  H.popover().within(() => {
+  popover().within(() => {
     cy.findByText("Move to trash").click();
   });
 }
@@ -204,8 +210,8 @@ function bookmarkPinnedItem(name) {
 
   cy.findByText("Bookmark").click();
 
-  H.navigationSidebar().within(() => {
-    H.getSidebarSectionTitle(/Bookmarks/);
+  navigationSidebar().within(() => {
+    getSidebarSectionTitle(/Bookmarks/);
     cy.findByText(name);
   });
 }

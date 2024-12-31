@@ -31,7 +31,7 @@
                      (custom-values/values-from-card
                       (t2/select-one Card :id card-id)
                       (mt/$ids $venues.name)
-                      {:query-string "bakery"}))))))))))
+                      "bakery"))))))))))
 
 (deftest ^:parallel with-mbql-card-test-2
   (testing "source card is a model" ; Models are opaque, so this sees the post-aggregation columns.
@@ -63,14 +63,14 @@
                    (custom-values/values-from-card
                     (t2/select-one Card :id card-id)
                     [:field "sum" {:base-type :type/Float}]
-                    {:query-string 2}))))
+                    2))))
           (testing "doing case in-sensitve search on breakout columns"
             (is (= {:has_more_values false
                     :values          [["Bakery"]]}
                    (custom-values/values-from-card
                     (t2/select-one Card :id card-id)
                     [:field "NAME" {:base-type :type/Text}]
-                    {:query-string "bakery"}))))))))
+                    "bakery"))))))))
 
   (testing "source card is a question" ; Questions are transparent, so this can drop the aggregations and filter the original.
     (binding [custom-values/*max-rows* 3]
@@ -95,7 +95,7 @@
                    (custom-values/values-from-card
                     (t2/select-one Card :id card-id)
                     [:field (mt/id :categories :name) {:source-field (mt/id :venues :category_id)}]
-                    {:query-string "bakery"})))))))))
+                    "bakery")))))))))
 
 (deftest ^:parallel with-mbql-card-test-3
   (doseq [model? [true false]]
@@ -122,26 +122,7 @@
                        (custom-values/values-from-card
                         (t2/select-one Card :id card-id)
                         (mt/$ids $venues.category_id)
-                        {:query-string 2})))))))))))
-
-(deftest ^:parallel with-filter-stage-test
-  (binding [custom-values/*max-rows* 3]
-    (testing "should nest the query if the target stage is after the last stage"
-      (mt/with-column-remappings [venues.category_id categories.name]
-        (mt/with-temp
-          [Card {card-id :id} (merge (mt/card-with-source-metadata-for-query
-                                      (mt/mbql-query venues
-                                        {:joins [{:source-table $$categories
-                                                  :alias        "Categories"
-                                                  :fields       :all
-                                                  :condition    [:= $venues.category_id &Categories.categories.id]}]}))
-                                     {:type :question})]
-          (is (= {:values [["American"] ["Artisan"] ["Asian"]]
-                  :has_more_values true}
-                 (custom-values/values-from-card
-                  (t2/select-one Card :id card-id)
-                  [:field "NAME_2" {:base_type :type/Text}]
-                  {:stage-number 1}))))))))
+                        2)))))))))))
 
 (deftest ^:parallel with-native-card-test
   (doseq [model? [true false]]
@@ -165,7 +146,7 @@
                    (custom-values/values-from-card
                     (t2/select-one Card :id card-id)
                     [:field "NAME" {:base-type :type/Text}]
-                    {:query-string "medicine"})))))))))
+                    "medicine")))))))))
 
 (deftest ^:parallel deduplicate-and-remove-non-empty-values-empty
   (mt/dataset test-data
@@ -185,7 +166,7 @@
                    (custom-values/values-from-card
                     (t2/select-one Card :id card-id)
                     [:field "SOURCE" {:base-type :type/Text}]
-                    {:query-string "oo"})))))))))
+                    "oo")))))))))
 
 (deftest ^:parallel deduplicate-and-remove-non-empty-values-empty-2
   (mt/dataset test-data
@@ -205,7 +186,7 @@
                    (custom-values/values-from-card
                     (t2/select-one Card :id card-id)
                     (mt/$ids $people.source)
-                    {:query-string "oo"})))))))))
+                    "oo")))))))))
 
 (deftest errors-test
   (testing "error if doesn't have permissions"

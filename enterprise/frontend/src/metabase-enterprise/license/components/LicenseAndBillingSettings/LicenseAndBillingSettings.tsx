@@ -1,4 +1,5 @@
-import dayjs from "dayjs";
+import moment from "moment-timezone"; // eslint-disable-line no-restricted-imports -- deprecated usage
+import { connect } from "react-redux";
 import { jt, t } from "ttag";
 
 import { LicenseInput } from "metabase/admin/settings/components/LicenseInput";
@@ -12,12 +13,12 @@ import {
 import { ExplorePlansIllustration } from "metabase/admin/settings/components/SettingsLicense/ExplorePlansIllustration";
 import LoadingSpinner from "metabase/components/LoadingSpinner";
 import ExternalLink from "metabase/core/components/ExternalLink";
-import { connect } from "metabase/lib/redux";
 import { getUpgradeUrl } from "metabase/selectors/settings";
 import { useGetBillingInfoQuery } from "metabase-enterprise/api";
 import { showLicenseAcceptedToast } from "metabase-enterprise/license/actions";
+import type { TokenStatus } from "metabase-enterprise/settings/hooks/use-license";
 import { useLicense } from "metabase-enterprise/settings/hooks/use-license";
-import type { SettingDefinition, TokenStatus } from "metabase-types/api";
+import type { SettingDefinition } from "metabase-types/api";
 import type { State } from "metabase-types/store";
 
 import { BillingInfo } from "../BillingInfo";
@@ -31,7 +32,7 @@ const getDescription = (tokenStatus?: TokenStatus, hasToken?: boolean) => {
     return t`Bought a license to unlock advanced functionality? Please enter it below.`;
   }
 
-  if (!tokenStatus || !tokenStatus.valid) {
+  if (!tokenStatus || !tokenStatus.isValid) {
     return (
       <>
         {jt`Your license isn’t valid anymore. If you have a new license, please
@@ -44,13 +45,13 @@ const getDescription = (tokenStatus?: TokenStatus, hasToken?: boolean) => {
     );
   }
 
-  const daysRemaining = dayjs(tokenStatus["valid-thru"]).diff(dayjs(), "days");
+  const daysRemaining = moment(tokenStatus.validUntil).diff(moment(), "days");
 
-  if (tokenStatus.valid && tokenStatus.trial) {
+  if (tokenStatus.isValid && tokenStatus.isTrial) {
     return t`Your trial ends in ${daysRemaining} days. If you already have a license, please enter it below.`;
   }
 
-  const validUntil = dayjs(tokenStatus["valid-thru"]).format("MMM D, YYYY");
+  const validUntil = moment(tokenStatus.validUntil).format("MMM D, YYYY");
   return t`Your license is active until ${validUntil}! Hope you’re enjoying it.`;
 };
 
@@ -87,10 +88,10 @@ const LicenseAndBillingSettings = ({
   } = useLicense(showLicenseAcceptedToast);
 
   const isInvalidToken =
-    !!licenseError || (tokenStatus != null && !tokenStatus.valid);
+    !!licenseError || (tokenStatus != null && !tokenStatus.isValid);
 
   const isStoreManagedBilling =
-    tokenStatus?.features?.includes(STORE_MANAGED_FEATURE_KEY) ?? false;
+    tokenStatus?.features?.has(STORE_MANAGED_FEATURE_KEY) ?? false;
   const shouldFetchBillingInfo =
     !licenseLoading && !isInvalidToken && isStoreManagedBilling;
 
@@ -118,9 +119,9 @@ const LicenseAndBillingSettings = ({
   const description = getDescription(tokenStatus, hasToken);
 
   const shouldShowLicenseInput =
-    !tokenStatus?.features?.includes(HOSTING_FEATURE_KEY);
+    !tokenStatus?.features?.has(HOSTING_FEATURE_KEY);
 
-  const shouldUpsell = !tokenStatus?.features?.includes(NO_UPSELL_FEATURE_HEY);
+  const shouldUpsell = !tokenStatus?.features?.has(NO_UPSELL_FEATURE_HEY);
 
   return (
     <SettingsLicenseContainer data-testid="license-and-billing-content">
@@ -134,7 +135,9 @@ const LicenseAndBillingSettings = ({
       {shouldShowLicenseInput && (
         <>
           <SectionHeader>{t`License`}</SectionHeader>
+
           <SectionDescription>{description}</SectionDescription>
+
           <LicenseInput
             disabled={is_env_setting}
             placeholder={is_env_setting ? t`Using ${env_name}` : undefined}
@@ -147,7 +150,7 @@ const LicenseAndBillingSettings = ({
         </>
       )}
 
-      {tokenStatus?.valid && shouldUpsell && (
+      {tokenStatus?.isValid && shouldUpsell && (
         <>
           <SectionHeader>{t`Looking for more?`}</SectionHeader>
           <SectionDescription>

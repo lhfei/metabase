@@ -1,12 +1,12 @@
 import { useCallback, useRef, useState } from "react";
-import { match } from "ts-pattern";
 import { t } from "ttag";
 
 import { useToggle } from "metabase/hooks/use-toggle";
 import { Button, Icon } from "metabase/ui";
 import type { RecentItem, SearchResult } from "metabase-types/api";
 
-import type { EntityPickerTab } from "../../EntityPicker";
+import type { CollectionPickerModel } from "../../CollectionPicker";
+import type { EntityTab } from "../../EntityPicker";
 import {
   EntityPickerModal,
   defaultOptions as defaultEntityPickerOptions,
@@ -16,7 +16,6 @@ import type {
   DashboardPickerInitialValueItem,
   DashboardPickerItem,
   DashboardPickerOptions,
-  DashboardPickerStatePath,
   DashboardPickerValueItem,
 } from "../types";
 import { getCollectionId } from "../utils";
@@ -27,7 +26,7 @@ import {
 } from "./DashboardPicker";
 import { NewDashboardDialog } from "./NewDashboardDialog";
 
-export interface DashboardPickerModalProps {
+interface DashboardPickerModalProps {
   title?: string;
   onChange: (item: DashboardPickerValueItem) => void;
   onClose: () => void;
@@ -39,40 +38,18 @@ export interface DashboardPickerModalProps {
     item: DashboardPickerItem,
     isReadOnlyCollection?: boolean,
   ) => boolean;
-  canSelectCollection?: boolean;
 }
 
 const canSelectItem = (
   item: DashboardPickerItem | DashboardPickerInitialValueItem | null,
-  canSelectCollection: boolean,
 ): item is DashboardPickerValueItem => {
-  return (
-    item?.model === "dashboard" ||
-    (canSelectCollection && item?.model === "collection")
-  );
+  return item?.model === "dashboard";
 };
 
 const defaultOptions: DashboardPickerOptions = {
   ...defaultEntityPickerOptions,
   ...defaultDashboardPickerOptions,
 };
-
-const mergeOptions = (
-  options: Partial<DashboardPickerOptions>,
-  canSelectCollection: boolean,
-  selectedModel: DashboardPickerItem["model"] | null | undefined,
-) => ({
-  ...defaultOptions,
-  ...(canSelectCollection
-    ? {
-        confirmButtonText: match(selectedModel)
-          .with("dashboard", () => t`Save in this dashboard`)
-          .with("collection", () => t`Save in this collection`)
-          .otherwise(() => t`Save`),
-      }
-    : {}),
-  ...options,
-});
 
 export const DashboardPickerModal = ({
   title = t`Choose a dashboard`,
@@ -83,29 +60,11 @@ export const DashboardPickerModal = ({
   shouldDisableItem,
   searchFilter,
   recentFilter,
-  canSelectCollection = false,
 }: DashboardPickerModalProps) => {
+  options = { ...defaultOptions, ...options };
+
   const [selectedItem, setSelectedItem] = useState<DashboardPickerItem | null>(
-    canSelectItem(value, canSelectCollection) ? value : null,
-  );
-
-  options = mergeOptions(options, canSelectCollection, selectedItem?.model);
-
-  const [dashboardsPath, setDashboardsPath] =
-    useState<DashboardPickerStatePath>();
-
-  const handleDashboardsPathChange = useCallback(
-    function (newPath: DashboardPickerStatePath) {
-      setDashboardsPath(newPath);
-      const last = newPath?.[newPath.length - 1];
-      if (
-        last &&
-        canSelectItem(last?.selectedItem ?? null, canSelectCollection)
-      ) {
-        setSelectedItem(last.selectedItem);
-      }
-    },
-    [canSelectCollection],
+    canSelectItem(value) ? value : null,
   );
 
   const { tryLogRecentItem } = useLogRecentItem();
@@ -131,15 +90,15 @@ export const DashboardPickerModal = ({
     (item: DashboardPickerItem) => {
       if (options.hasConfirmButtons) {
         setSelectedItem(item);
-      } else if (canSelectItem(item, canSelectCollection)) {
+      } else if (canSelectItem(item)) {
         handleOnChange(item);
       }
     },
-    [handleOnChange, options, canSelectCollection],
+    [handleOnChange, options],
   );
 
   const handleConfirm = () => {
-    if (selectedItem && canSelectItem(selectedItem, canSelectCollection)) {
+    if (selectedItem && canSelectItem(selectedItem)) {
       handleOnChange(selectedItem);
     }
   };
@@ -156,27 +115,19 @@ export const DashboardPickerModal = ({
     </Button>,
   ];
 
-  const tabs: EntityPickerTab<
-    DashboardPickerItem["id"],
-    DashboardPickerItem["model"],
-    DashboardPickerItem
-  >[] = [
+  const tabs: EntityTab<CollectionPickerModel>[] = [
     {
-      id: "dashboards-tab",
       displayName: t`Dashboards`,
-      models: ["dashboard" as const],
-      folderModels: ["collection" as const],
+      model: "dashboard",
       icon: "dashboard",
-      render: ({ onItemSelect }) => (
+      element: (
         <DashboardPicker
+          onItemSelect={handleItemSelect}
           initialValue={value}
-          models={["dashboard", "collection"]}
           options={options}
-          path={dashboardsPath}
+          models={["dashboard"]}
           ref={pickerRef}
           shouldDisableItem={shouldDisableItem}
-          onItemSelect={onItemSelect}
-          onPathChange={handleDashboardsPathChange}
         />
       ),
     },
@@ -193,10 +144,7 @@ export const DashboardPickerModal = ({
       <EntityPickerModal
         title={title}
         onItemSelect={handleItemSelect}
-        canSelectItem={
-          !isCreateDialogOpen &&
-          canSelectItem(selectedItem, canSelectCollection)
-        }
+        canSelectItem={!isCreateDialogOpen && canSelectItem(selectedItem)}
         onConfirm={handleConfirm}
         onClose={onClose}
         selectedItem={selectedItem}
@@ -210,8 +158,8 @@ export const DashboardPickerModal = ({
           options.showRootCollection === false
             ? { filter_items_in_personal_collection: "only" }
             : options.showPersonalCollections === false
-              ? { filter_items_in_personal_collection: "exclude" }
-              : undefined
+            ? { filter_items_in_personal_collection: "exclude" }
+            : undefined
         }
         trapFocus={!isCreateDialogOpen}
       />

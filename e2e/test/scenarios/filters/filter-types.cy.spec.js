@@ -1,4 +1,14 @@
-import { H } from "e2e/support";
+import {
+  assertQueryBuilderRowCount,
+  filter,
+  getNotebookStep,
+  openProductsTable,
+  popover,
+  relativeDatePicker,
+  restore,
+  selectFilterOperator,
+  visualize,
+} from "e2e/support/helpers";
 
 const STRING_CASES = [
   {
@@ -452,7 +462,7 @@ const RELATIVE_DATE_CASES = [
 
 describe("scenarios > filters > filter types", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsNormalUser();
   });
 
@@ -468,12 +478,12 @@ describe("scenarios > filters > filter types", () => {
         expectedRowCount,
       }) => {
         it(title, () => {
-          H.openProductsTable({ mode: "notebook" });
-          H.filter({ mode: "notebook" });
+          openProductsTable({ mode: "notebook" });
+          filter({ mode: "notebook" });
 
-          H.popover().findByText(columnName).click();
-          H.selectFilterOperator(operator);
-          H.popover().within(() => {
+          popover().findByText(columnName).click();
+          selectFilterOperator(operator);
+          popover().within(() => {
             values.forEach(value => {
               cy.findByLabelText("Filter value")
                 .focus()
@@ -485,8 +495,8 @@ describe("scenarios > filters > filter types", () => {
           });
 
           assertFilterName(expectedDisplayName);
-          H.visualize();
-          H.assertQueryBuilderRowCount(expectedRowCount);
+          visualize();
+          assertQueryBuilderRowCount(expectedRowCount);
         });
       },
     );
@@ -503,12 +513,12 @@ describe("scenarios > filters > filter types", () => {
         expectedRowCount,
       }) => {
         it(title, () => {
-          H.openProductsTable({ mode: "notebook" });
-          H.filter({ mode: "notebook" });
+          openProductsTable({ mode: "notebook" });
+          filter({ mode: "notebook" });
 
-          H.popover().findByText(columnName).click();
-          H.selectFilterOperator(operator);
-          H.popover()
+          popover().findByText(columnName).click();
+          selectFilterOperator(operator);
+          popover()
             .first()
             .within(() => {
               values.forEach(value => {
@@ -521,8 +531,8 @@ describe("scenarios > filters > filter types", () => {
             });
 
           assertFilterName(expectedDisplayName);
-          H.visualize();
-          H.assertQueryBuilderRowCount(expectedRowCount);
+          visualize();
+          assertQueryBuilderRowCount(expectedRowCount);
         });
       },
     );
@@ -533,15 +543,15 @@ describe("scenarios > filters > filter types", () => {
       DATE_SHORTCUT_CASES.forEach(
         ({ title, shortcut, expectedDisplayName }) => {
           it(title, () => {
-            H.openProductsTable({ mode: "notebook" });
-            H.filter({ mode: "notebook" });
+            openProductsTable({ mode: "notebook" });
+            filter({ mode: "notebook" });
 
-            H.popover().within(() => {
+            popover().within(() => {
               cy.findByText("Created At").click();
               cy.findByText(shortcut).click();
             });
             assertFilterName(expectedDisplayName);
-            H.visualize();
+            visualize();
             assertFiltersExist();
           });
         },
@@ -561,30 +571,30 @@ describe("scenarios > filters > filter types", () => {
           expectedDisplayName,
         }) => {
           it(title, () => {
-            H.openProductsTable({ mode: "notebook" });
-            H.filter({ mode: "notebook" });
+            openProductsTable({ mode: "notebook" });
+            filter({ mode: "notebook" });
 
-            H.popover().within(() => {
+            popover().within(() => {
               cy.findByText("Created At").click();
               cy.findByText("Relative dates…").click();
               cy.findByRole("tab", { name: offset }).click();
             });
 
-            H.relativeDatePicker.setValue({ value, unit });
+            relativeDatePicker.setValue({ value, unit });
 
             if (includeCurrent) {
-              H.relativeDatePicker.toggleCurrentInterval();
+              relativeDatePicker.toggleCurrentInterval();
             } else if (offsetUnit && offsetValue) {
-              H.relativeDatePicker.addStartingFrom({
+              relativeDatePicker.addStartingFrom({
                 value: offsetValue,
                 unit: offsetUnit,
               });
             }
 
-            H.popover().button("Add filter").click();
+            popover().button("Add filter").click();
 
             assertFilterName(expectedDisplayName);
-            H.visualize();
+            visualize();
             assertFiltersExist();
           });
         },
@@ -595,10 +605,10 @@ describe("scenarios > filters > filter types", () => {
       EXCLUDE_DATE_CASES.forEach(
         ({ title, label, options, expectedDisplayName, expectedRowCount }) => {
           it(title, () => {
-            H.openProductsTable({ mode: "notebook" });
-            H.filter({ mode: "notebook" });
+            openProductsTable({ mode: "notebook" });
+            filter({ mode: "notebook" });
 
-            H.popover().within(() => {
+            popover().within(() => {
               cy.findByText("Created At").click();
               cy.findByText("Exclude…").click();
               cy.findByText(label).click();
@@ -608,8 +618,8 @@ describe("scenarios > filters > filter types", () => {
               }
             });
             assertFilterName(expectedDisplayName);
-            H.visualize();
-            H.assertQueryBuilderRowCount(expectedRowCount);
+            visualize();
+            assertQueryBuilderRowCount(expectedRowCount);
           });
         },
       );
@@ -618,7 +628,7 @@ describe("scenarios > filters > filter types", () => {
 });
 
 function assertFilterName(filterName, options) {
-  H.getNotebookStep("filter", options)
+  getNotebookStep("filter", options)
     .findByText(filterName)
     .should("be.visible");
 }

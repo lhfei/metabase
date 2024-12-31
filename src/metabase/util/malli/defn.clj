@@ -53,7 +53,7 @@
                                     ")"))
         "\n  Return: " (str/replace (u/pprint-to-str (:schema return :any))
                                     "\n"
-                                    "\n          ")
+                                    (str "\n          "))
         (when (not-empty original-docstring)
           (str "\n\n  " original-docstring)))))
 

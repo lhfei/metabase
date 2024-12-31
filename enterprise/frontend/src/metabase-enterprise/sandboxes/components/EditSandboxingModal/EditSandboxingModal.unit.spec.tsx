@@ -22,7 +22,6 @@ import {
   createMockCard,
   createMockCardQueryMetadata,
   createMockCollection,
-  createMockGroup,
 } from "metabase-types/api/mocks";
 import {
   PEOPLE,
@@ -81,10 +80,7 @@ const setup = ({
   );
 
   fetchMock.post("path:/api/mt/gtap/validate", 204);
-  fetchMock.get(
-    "path:/api/permissions/group/1",
-    createMockGroup({ members: [] }),
-  );
+  fetchMock.get("path:/api/permissions/group/1", {});
 
   if (shouldMockQuestions) {
     fetchMock.get("path:/api/collection/root/items", {
@@ -148,7 +144,6 @@ describe("EditSandboxingModal", () => {
               foo: [
                 "dimension",
                 ["field", PEOPLE.ID, { "base-type": "type/BigInteger" }],
-                { "stage-number": 0 },
               ],
             },
             card_id: null,

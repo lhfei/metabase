@@ -1,6 +1,6 @@
+import type { DatePickerValue } from "metabase/querying/filters/components/DatePicker";
 import { SimpleDatePicker } from "metabase/querying/filters/components/DatePicker/SimpleDatePicker";
 import { useDateFilter } from "metabase/querying/filters/hooks/use-date-filter";
-import type { DatePickerValue } from "metabase/querying/filters/types";
 import type * as Lib from "metabase-lib";
 
 interface SimpleDateFilterPickerProps {
@@ -18,13 +18,12 @@ export function SimpleDateFilterPicker({
   filter,
   onChange,
 }: SimpleDateFilterPickerProps) {
-  const { value, availableOperators, availableUnits, getFilterClause } =
-    useDateFilter({
-      query,
-      stageIndex,
-      column,
-      filter,
-    });
+  const { value, availableOperators, getFilterClause } = useDateFilter({
+    query,
+    stageIndex,
+    column,
+    filter,
+  });
 
   const handleChange = (value: DatePickerValue | undefined) => {
     if (value) {
@@ -39,7 +38,6 @@ export function SimpleDateFilterPicker({
       <SimpleDatePicker
         value={value}
         availableOperators={availableOperators}
-        availableUnits={availableUnits}
         onChange={handleChange}
       />
     </div>

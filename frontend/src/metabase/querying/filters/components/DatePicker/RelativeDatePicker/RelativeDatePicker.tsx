@@ -1,15 +1,13 @@
 import { useState } from "react";
 
-import type {
-  DatePickerUnit,
-  RelativeDatePickerValue,
-} from "metabase/querying/filters/types";
 import { Box, Divider, Flex, PopoverBackButton, Tabs } from "metabase/ui";
+
+import type { RelativeDatePickerValue } from "../types";
 
 import { CurrentDatePicker } from "./CurrentDatePicker";
 import { DateIntervalPicker } from "./DateIntervalPicker";
 import { DateOffsetIntervalPicker } from "./DateOffsetIntervalPicker";
-import S from "./RelativeDatePicker.module.css";
+import { TabList } from "./RelativeDatePicker.styled";
 import { DEFAULT_VALUE, TABS } from "./constants";
 import {
   getDirection,
@@ -20,22 +18,20 @@ import {
 
 interface RelativeDatePickerProps {
   value: RelativeDatePickerValue | undefined;
-  availableUnits: DatePickerUnit[];
-  submitButtonLabel: string;
+  canUseRelativeOffsets: boolean;
+  isNew: boolean;
   onChange: (value: RelativeDatePickerValue) => void;
   onBack: () => void;
 }
 
 export function RelativeDatePicker({
   value: initialValue,
-  availableUnits,
-  submitButtonLabel,
+  canUseRelativeOffsets,
+  isNew,
   onChange,
   onBack,
 }: RelativeDatePickerProps) {
-  const [value, setValue] = useState<RelativeDatePickerValue | undefined>(
-    initialValue ?? DEFAULT_VALUE,
-  );
+  const [value, setValue] = useState(initialValue ?? DEFAULT_VALUE);
   const direction = getDirection(value);
 
   const handleTabChange = (tabValue: string | null) => {
@@ -46,22 +42,20 @@ export function RelativeDatePicker({
   };
 
   const handleSubmit = () => {
-    if (value != null) {
-      onChange(value);
-    }
+    onChange(value);
   };
 
   return (
     <Tabs value={direction} onTabChange={handleTabChange}>
       <Flex>
         <PopoverBackButton p="sm" onClick={onBack} />
-        <Tabs.List className={S.TabList}>
+        <TabList>
           {TABS.map(tab => (
             <Tabs.Tab key={tab.direction} value={tab.direction}>
               {tab.label}
             </Tabs.Tab>
           ))}
-        </Tabs.List>
+        </TabList>
       </Flex>
       <Divider />
       {TABS.map(tab => (
@@ -69,26 +63,21 @@ export function RelativeDatePicker({
           {isOffsetIntervalValue(value) ? (
             <DateOffsetIntervalPicker
               value={value}
-              availableUnits={availableUnits}
-              submitButtonLabel={submitButtonLabel}
+              isNew={isNew}
               onChange={setValue}
               onSubmit={handleSubmit}
             />
           ) : isIntervalValue(value) ? (
             <DateIntervalPicker
               value={value}
-              availableUnits={availableUnits}
-              submitButtonLabel={submitButtonLabel}
+              isNew={isNew}
+              canUseRelativeOffsets={canUseRelativeOffsets}
               onChange={setValue}
               onSubmit={handleSubmit}
             />
           ) : (
             <Box p="md">
-              <CurrentDatePicker
-                value={value}
-                availableUnits={availableUnits}
-                onChange={onChange}
-              />
+              <CurrentDatePicker value={value} onChange={onChange} />
             </Box>
           )}
         </Tabs.Panel>

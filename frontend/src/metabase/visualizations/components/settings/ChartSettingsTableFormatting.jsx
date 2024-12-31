@@ -10,7 +10,7 @@ import NumericInput from "metabase/components/NumericInput";
 import Button from "metabase/core/components/Button";
 import ColorRange from "metabase/core/components/ColorRange";
 import ColorRangeSelector from "metabase/core/components/ColorRangeSelector";
-import { ColorSelector } from "metabase/core/components/ColorSelector";
+import ColorSelector from "metabase/core/components/ColorSelector";
 import Input from "metabase/core/components/Input";
 import Radio from "metabase/core/components/Radio";
 import Select, { Option } from "metabase/core/components/Select";
@@ -314,13 +314,13 @@ const RuleDescription = ({ rule }) => {
       {rule.type === "range"
         ? t`Cells in this column will be tinted based on their values.`
         : rule.type === "single"
-          ? jt`When a cell in these columns ${(
-              <span key="bold" className={CS.textBold}>
-                {ALL_OPERATOR_NAMES[rule.operator]}
-                {getValueForDescription(rule)}
-              </span>
-            )} it will be tinted this color.`
-          : null}
+        ? jt`When a cell in these columns ${(
+            <span className={CS.textBold}>
+              {ALL_OPERATOR_NAMES[rule.operator]}
+              {getValueForDescription(rule)}
+            </span>
+          )} it will be tinted this color.`
+        : null}
     </span>
   );
 };
@@ -426,10 +426,10 @@ const RuleEditor = ({
               ...(isBooleanRule
                 ? BOOLEAN_OPERATIOR_NAMES
                 : isNumericRule
-                  ? NUMBER_OPERATOR_NAMES
-                  : isStringRule
-                    ? STRING_OPERATOR_NAMES
-                    : {}),
+                ? NUMBER_OPERATOR_NAMES
+                : isStringRule
+                ? STRING_OPERATOR_NAMES
+                : {}),
             }).map(([operator, operatorName]) => (
               <Option key={operatorName} value={operator}>
                 {operatorName}

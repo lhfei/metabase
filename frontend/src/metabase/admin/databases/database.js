@@ -142,7 +142,7 @@ export const addSampleDatabase = createThunkAction(
     return async function (dispatch) {
       try {
         dispatch({ type: ADDING_SAMPLE_DATABASE });
-        const sampleDatabase = await Databases.api.addSampleDatabase(dispatch);
+        const sampleDatabase = await MetabaseApi.db_add_sample_database();
         dispatch(Databases.actions.invalidateLists());
         return sampleDatabase;
       } catch (error) {

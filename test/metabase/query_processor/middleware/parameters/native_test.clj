@@ -1,4 +1,4 @@
-(ns ^:mb/driver-tests metabase.query-processor.middleware.parameters.native-test
+(ns metabase.query-processor.middleware.parameters.native-test
   (:require
    [clojure.test :refer :all]
    [metabase.driver :as driver]

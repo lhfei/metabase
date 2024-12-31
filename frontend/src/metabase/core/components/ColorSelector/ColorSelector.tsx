@@ -1,9 +1,9 @@
-import { useDisclosure } from "@mantine/hooks";
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, Ref } from "react";
+import { forwardRef } from "react";
 
+import TippyPopoverWithTrigger from "metabase/components/PopoverWithTrigger/TippyPopoverWithTrigger";
 import type { PillSize } from "metabase/core/components/ColorPill";
-import { ColorPill } from "metabase/core/components/ColorPill";
-import { Center, Popover } from "metabase/ui";
+import ColorPill from "metabase/core/components/ColorPill";
 
 import ColorSelectorPopover from "./ColorSelectorPopover";
 
@@ -19,29 +19,26 @@ export interface ColorSelectorProps extends ColorSelectorAttributes {
   onChange?: (newValue: string) => void;
 }
 
-export const ColorSelector = ({
-  value,
-  colors,
-  onChange,
-  ...props
-}: ColorSelectorProps) => {
-  const [opened, { toggle, close }] = useDisclosure(false);
-
+const ColorSelector = forwardRef(function ColorSelector(
+  { value, colors, onChange, ...props }: ColorSelectorProps,
+  ref: Ref<HTMLDivElement>,
+) {
   return (
-    <Popover opened={opened} onClose={close} position="bottom-start">
-      <Popover.Target>
-        <Center>
-          <ColorPill {...props} color={value} onClick={toggle} />
-        </Center>
-      </Popover.Target>
-      <Popover.Dropdown>
+    <TippyPopoverWithTrigger
+      renderTrigger={({ onClick }) => (
+        <ColorPill {...props} ref={ref} color={value} onClick={onClick} />
+      )}
+      popoverContent={({ closePopover }) => (
         <ColorSelectorPopover
           value={value}
           colors={colors}
           onChange={onChange}
-          onClose={close}
+          onClose={closePopover}
         />
-      </Popover.Dropdown>
-    </Popover>
+      )}
+    />
   );
-};
+});
+
+// eslint-disable-next-line import/no-default-export -- deprecated usage
+export default ColorSelector;

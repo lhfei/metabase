@@ -6,12 +6,11 @@ interface Props {
 }
 
 export const useAvailableData = ({ databaseId }: Props = {}) => {
-  const { data, isLoading } = useSearchQuery(
+  const { data } = useSearchQuery(
     {
       limit: 0,
       models: ["card"],
       table_db_id: databaseId,
-      calculate_available_models: true,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -23,7 +22,6 @@ export const useAvailableData = ({ databaseId }: Props = {}) => {
   const hasMetrics = availableModels.includes("metric");
 
   return {
-    isLoading,
     hasQuestions,
     hasModels,
     hasMetrics,

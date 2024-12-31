@@ -1,7 +1,7 @@
 import {
   getAvailableOperatorOptions,
   getDefaultAvailableOperator,
-} from "metabase/querying/filters/utils";
+} from "metabase/querying/filters/utils/operators";
 import * as Lib from "metabase-lib";
 
 import { OPERATOR_OPTIONS } from "./constants";
@@ -24,28 +24,25 @@ export function getAvailableOptions(
   );
 }
 
-export function getOptionByOperator(operator: Lib.StringFilterOperator) {
+export function getOptionByOperator(operator: Lib.StringFilterOperatorName) {
   return OPERATOR_OPTIONS[operator];
 }
 
 export function getDefaultOperator(
-  query: Lib.Query,
   column: Lib.ColumnMetadata,
   availableOptions: OperatorOption[],
-): Lib.StringFilterOperator {
-  const fieldValuesInfo = Lib.fieldValuesSearchInfo(query, column);
-
+): Lib.StringFilterOperatorName {
   const desiredOperator =
     Lib.isPrimaryKey(column) ||
     Lib.isForeignKey(column) ||
-    fieldValuesInfo.hasFieldValues !== "none"
+    Lib.isCategory(column)
       ? "="
       : "contains";
   return getDefaultAvailableOperator(availableOptions, desiredOperator);
 }
 
 export function getDefaultValues(
-  operator: Lib.StringFilterOperator,
+  operator: Lib.StringFilterOperatorName,
   values: string[],
 ): string[] {
   const { type } = OPERATOR_OPTIONS[operator];
@@ -53,7 +50,7 @@ export function getDefaultValues(
 }
 
 export function isValidFilter(
-  operator: Lib.StringFilterOperator,
+  operator: Lib.StringFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: string[] = [],
   options: Lib.StringFilterOptions,
@@ -62,7 +59,7 @@ export function isValidFilter(
 }
 
 export function getFilterClause(
-  operator: Lib.StringFilterOperator,
+  operator: Lib.StringFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: string[],
   options: Lib.StringFilterOptions,
@@ -72,7 +69,7 @@ export function getFilterClause(
 }
 
 function getFilterParts(
-  operator: Lib.StringFilterOperator,
+  operator: Lib.StringFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: string[],
   options: Lib.StringFilterOptions,

@@ -83,7 +83,7 @@ describe("TokenField", () => {
   };
 
   const options = () => {
-    return screen.queryAllByRole("listbox")[0];
+    return screen.getAllByRole("list")[1];
   };
 
   const type = str => fireEvent.change(input(), { target: { value: str } });

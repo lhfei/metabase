@@ -1,1 +1,1 @@
-export { FilterPicker, type FilterPickerProps } from "./FilterPicker";
+export { FilterPicker } from "./FilterPicker";

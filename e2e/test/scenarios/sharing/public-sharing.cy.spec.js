@@ -1,10 +1,23 @@
-import { H } from "e2e/support";
 import { SAMPLE_DB_ID } from "e2e/support/cypress_data";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
 import {
   ORDERS_DASHBOARD_ID,
   ORDERS_QUESTION_ID,
 } from "e2e/support/cypress_sample_instance_data";
+import {
+  createAction,
+  describeEE,
+  modal,
+  openSharingMenu,
+  restore,
+  setActionsEnabledForDB,
+  setTokenFeatures,
+  setupSMTP,
+  sidebar,
+  visitDashboard,
+  visitDashboardAndCreateTab,
+  visitQuestion,
+} from "e2e/support/helpers";
 
 const { ORDERS_ID } = SAMPLE_DATABASE;
 
@@ -59,7 +72,7 @@ const DEFAULT_ACTION_DETAILS = {
 
 describe("scenarios > admin > settings > public sharing", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
   });
 
@@ -95,7 +108,7 @@ describe("scenarios > admin > settings > public sharing", () => {
       });
 
     cy.get("@dashboardId").then(dashboardId =>
-      H.visitDashboardAndCreateTab({ dashboardId }),
+      visitDashboardAndCreateTab({ dashboardId }),
     );
 
     cy.visit("/admin/settings/public-sharing");
@@ -130,7 +143,7 @@ describe("scenarios > admin > settings > public sharing", () => {
     });
 
     cy.button("Revoke link").click();
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByText("Disable this link?").should("be.visible");
       cy.button("Yes").click();
     });
@@ -184,7 +197,7 @@ describe("scenarios > admin > settings > public sharing", () => {
     });
 
     cy.button("Revoke link").click();
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByText("Disable this link?").should("be.visible");
       cy.button("Yes").click();
     });
@@ -195,7 +208,7 @@ describe("scenarios > admin > settings > public sharing", () => {
   });
 
   it("should see public actions", () => {
-    H.setActionsEnabledForDB(SAMPLE_DB_ID);
+    setActionsEnabledForDB(SAMPLE_DB_ID);
     const expectedActionName = "Public action";
 
     cy.createQuestion({
@@ -210,7 +223,7 @@ describe("scenarios > admin > settings > public sharing", () => {
     });
 
     cy.get("@modelId").then(modelId => {
-      H.createAction({
+      createAction({
         ...DEFAULT_ACTION_DETAILS,
         name: expectedActionName,
         model_id: modelId,
@@ -255,7 +268,7 @@ describe("scenarios > admin > settings > public sharing", () => {
     });
 
     cy.button("Revoke link").click();
-    H.modal().within(() => {
+    modal().within(() => {
       cy.findByText("Disable this link?").should("be.visible");
       cy.button("Yes").click();
     });
@@ -266,7 +279,7 @@ describe("scenarios > admin > settings > public sharing", () => {
   });
 });
 
-H.describeEE(
+describeEE(
   "scenarios > sharing > approved domains (EE)",
   { tags: "@external" },
   () => {
@@ -281,24 +294,26 @@ H.describeEE(
     }
 
     function setAllowedDomains() {
-      H.updateSetting("subscription-allowed-domains", allowedDomain);
+      cy.request("PUT", "/api/setting/subscription-allowed-domains", {
+        value: allowedDomain,
+      });
     }
 
     beforeEach(() => {
-      H.restore();
+      restore();
       cy.signInAsAdmin();
-      H.setTokenFeatures("all");
-      H.setupSMTP();
+      setTokenFeatures("all");
+      setupSMTP();
       setAllowedDomains();
     });
 
     it("should validate approved email domains for a question alert", () => {
-      H.visitQuestion(ORDERS_QUESTION_ID);
+      visitQuestion(ORDERS_QUESTION_ID);
 
-      H.openSharingMenu("Create alert");
-      H.modal().findByText("Set up an alert").click();
+      openSharingMenu("Create alert");
+      modal().findByText("Set up an alert").click();
 
-      H.modal()
+      modal()
         .findByRole("heading", { name: "Email" })
         .closest("li")
         .within(() => {
@@ -309,12 +324,12 @@ H.describeEE(
     });
 
     it("should validate approved email domains for a dashboard subscription (metabase#17977)", () => {
-      H.visitDashboard(ORDERS_DASHBOARD_ID);
-      H.openSharingMenu("Subscriptions");
+      visitDashboard(ORDERS_DASHBOARD_ID);
+      openSharingMenu("Subscriptions");
 
       cy.findByRole("heading", { name: "Email it" }).click();
 
-      H.sidebar().within(() => {
+      sidebar().within(() => {
         addEmailRecipient(deniedEmail);
 
         // Reproduces metabase#17977

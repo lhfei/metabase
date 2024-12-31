@@ -82,30 +82,16 @@ export function getDashboardDrillUrl(clicked) {
     clickBehavior,
   );
 
-  const targetDashboard = extraData.dashboards[targetId];
-  const targetDefaultParameters = Object.fromEntries(
-    targetDashboard.parameters.map(parameter => [
-      parameter.slug,
-      parameter.default ?? "",
-    ]),
-  );
-
   const baseQueryParams = getParameterValuesBySlug(parameterMapping, {
     data,
     extraData,
     clickBehavior,
   });
 
-  const tabParams =
+  const queryParams =
     typeof clickBehavior.tabId === "undefined"
-      ? {}
-      : { tab: clickBehavior.tabId };
-
-  const queryParams = {
-    ...targetDefaultParameters,
-    ...baseQueryParams,
-    ...tabParams,
-  };
+      ? baseQueryParams
+      : { ...baseQueryParams, tab: clickBehavior.tabId };
 
   const path = Urls.dashboard({ id: targetId });
   return `${path}?${querystring.stringify(queryParams)}`;
@@ -118,15 +104,10 @@ export function getDashboardDrillQuestionUrl(question, clicked) {
     clickBehavior,
   );
 
-  const baseQuestion = new Question(
+  const targetQuestion = new Question(
     extraData.questions[targetId],
     question.metadata(),
   ).lockDisplay();
-  const targetQuestion =
-    // Pivot tables cannot work when there is an extra stage added on top of breakouts and aggregations
-    baseQuestion.display() === "pivot"
-      ? baseQuestion
-      : baseQuestion.setQuery(Lib.ensureFilterStage(baseQuestion.query()));
 
   const parameters = _.chain(parameterMapping)
     .values()
@@ -147,15 +128,9 @@ export function getDashboardDrillQuestionUrl(question, clicked) {
   const isTargetQuestionNative = Lib.queryDisplayInfo(
     targetQuestion.query(),
   ).isNative;
-  const originalQuestion = targetQuestion;
 
   return !isTargetQuestionNative
-    ? ML_Urls.getUrlWithParameters(
-        targetQuestion,
-        originalQuestion,
-        parameters,
-        queryParams,
-      )
+    ? ML_Urls.getUrlWithParameters(targetQuestion, parameters, queryParams)
     : `${ML_Urls.getUrl(targetQuestion)}?${querystring.stringify(queryParams)}`;
 }
 

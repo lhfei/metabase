@@ -23,10 +23,8 @@
    [metabase.lib.drill-thru.zoom-in-timeseries :as lib.drill-thru.zoom-in-timeseries]
    [metabase.lib.metadata :as lib.metadata]
    [metabase.lib.metadata.calculation :as lib.metadata.calculation]
-   [metabase.lib.query :as lib.query]
    [metabase.lib.schema :as lib.schema]
    [metabase.lib.schema.drill-thru :as lib.schema.drill-thru]
-   [metabase.lib.schema.id :as lib.schema.id]
    [metabase.util :as u]
    [metabase.util.log :as log]
    [metabase.util.malli :as mu]))
@@ -94,9 +92,7 @@
    (try
      (into []
            (when (lib.metadata/editable? query)
-             (let [{:keys [query stage-number]} (lib.query/wrap-native-query-with-mbql
-                                                 query stage-number (:card-id context))
-                   dim-contexts                 (dimension-contexts context)]
+             (let [dim-contexts (dimension-contexts context)]
                (for [{:keys [f return-drills-for-dimensions?]} available-drill-thru-fns
                      context                                   (if (and return-drills-for-dimensions? dim-contexts)
                                                                  dim-contexts
@@ -119,14 +115,12 @@
 
   Returns the updated query."
   ([query drill]
-   (drill-thru query -1 nil drill))
+   (drill-thru query -1 drill))
 
   ([query        :- ::lib.schema/query
     stage-number :- :int
-    card-id      :- [:maybe ::lib.schema.id/card]
     drill        :- ::lib.schema.drill-thru/drill-thru
     & args]
    (log/debugf "Applying drill thru: %s"
                (u/pprint-to-str {:query query, :stage-number stage-number, :drill drill, :args args}))
-   (let [{:keys [query stage-number]} (lib.query/wrap-native-query-with-mbql query stage-number card-id)]
-     (apply lib.drill-thru.common/drill-thru-method query stage-number drill args))))
+   (apply lib.drill-thru.common/drill-thru-method query stage-number drill args)))

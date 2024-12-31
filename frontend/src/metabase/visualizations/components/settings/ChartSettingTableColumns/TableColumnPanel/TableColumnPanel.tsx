@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from "react";
 
 import type { DragEndEvent } from "metabase/core/components/Sortable";
-import { Box } from "metabase/ui";
 import type {
   DatasetColumn,
   TableColumnOrderSetting,
@@ -77,9 +76,9 @@ export const TableColumnPanel = ({
   );
 
   return (
-    <Box role="list" data-testid="chart-settings-table-columns">
+    <div role="list" data-testid="chart-settings-table-columns">
       {columns.length > 0 && (
-        <Box role="group" data-testid="visible-columns">
+        <div role="group" data-testid="visible-columns">
           <ChartSettingOrderedItems
             getId={getId}
             items={columnItems}
@@ -89,9 +88,9 @@ export const TableColumnPanel = ({
             onEdit={handleEditColumn}
             onSortEnd={handleDragColumn}
           />
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

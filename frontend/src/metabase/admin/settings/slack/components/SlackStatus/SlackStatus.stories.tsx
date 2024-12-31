@@ -1,6 +1,6 @@
-import type { StoryObj } from "@storybook/react";
+import type { ComponentStory } from "@storybook/react";
 
-import SlackStatus, { type SlackStatusProps } from "./SlackStatus";
+import SlackStatus from "./SlackStatus";
 
 export default {
   title: "Admin/Settings/Slack/SlackStatus",
@@ -11,13 +11,11 @@ export default {
   },
 };
 
-export const Default: StoryObj<SlackStatusProps> = {
-  render: args => {
-    return <SlackStatus {...args} />;
-  },
+export const Default: ComponentStory<typeof SlackStatus> = args => {
+  return <SlackStatus {...args} />;
+};
 
-  args: {
-    Form: () => <div />,
-    isValid: true,
-  },
+Default.args = {
+  Form: () => <div />,
+  isValid: true,
 };

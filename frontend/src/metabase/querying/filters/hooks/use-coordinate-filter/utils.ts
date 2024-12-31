@@ -1,7 +1,7 @@
 import {
   getAvailableOperatorOptions,
   getDefaultAvailableOperator,
-} from "metabase/querying/filters/utils";
+} from "metabase/querying/filters/utils/operators";
 import * as Lib from "metabase-lib";
 
 import { OPERATOR_OPTIONS } from "./constants";
@@ -24,13 +24,15 @@ export function getAvailableOptions(
   );
 }
 
-export function getOptionByOperator(operator: Lib.CoordinateFilterOperator) {
+export function getOptionByOperator(
+  operator: Lib.CoordinateFilterOperatorName,
+) {
   return OPERATOR_OPTIONS[operator];
 }
 
 export function getDefaultOperator(
   availableOptions: OperatorOption[],
-): Lib.CoordinateFilterOperator {
+): Lib.CoordinateFilterOperatorName {
   return getDefaultAvailableOperator(availableOptions, "between");
 }
 
@@ -50,20 +52,20 @@ export function getAvailableColumns(
 
 export function getDefaultSecondColumn(
   columns: Lib.ColumnMetadata[],
-  filterParts: Lib.CoordinateFilterParts | null,
+  longitudeColumn?: Lib.ColumnMetadata,
 ): Lib.ColumnMetadata | undefined {
-  return filterParts?.longitudeColumn ?? columns[0];
+  return longitudeColumn ?? columns[0];
 }
 
 export function canPickColumns(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   columns: Lib.ColumnMetadata[],
 ) {
   return operator === "inside" && columns.length > 1;
 }
 
 export function getDefaultValues(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   values: NumberValue[],
 ): NumberValue[] {
   const { valueCount, hasMultipleValues } = OPERATOR_OPTIONS[operator];
@@ -77,7 +79,7 @@ export function getDefaultValues(
 }
 
 export function isValidFilter(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   column: Lib.ColumnMetadata,
   secondColumn: Lib.ColumnMetadata | undefined,
   values: NumberValue[],
@@ -86,7 +88,7 @@ export function isValidFilter(
 }
 
 export function getFilterClause(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   column: Lib.ColumnMetadata,
   secondColumn: Lib.ColumnMetadata | undefined,
   values: NumberValue[],
@@ -98,7 +100,7 @@ export function getFilterClause(
 }
 
 function getFilterParts(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   column: Lib.ColumnMetadata,
   secondColumn: Lib.ColumnMetadata | undefined,
   values: NumberValue[],
@@ -114,7 +116,7 @@ function getFilterParts(
 }
 
 function getSimpleFilterParts(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ): Lib.CoordinateFilterParts | undefined {
@@ -129,13 +131,12 @@ function getSimpleFilterParts(
   return {
     operator,
     column,
-    longitudeColumn: null,
     values: values.filter(isNotEmpty),
   };
 }
 
 function getBetweenFilterParts(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   column: Lib.ColumnMetadata,
   values: NumberValue[],
 ): Lib.CoordinateFilterParts | undefined {
@@ -144,21 +145,18 @@ function getBetweenFilterParts(
     return {
       operator,
       column,
-      longitudeColumn: null,
       values: [Math.min(startValue, endValue), Math.max(startValue, endValue)],
     };
   } else if (isNotEmpty(startValue)) {
     return {
       operator: ">=",
       column,
-      longitudeColumn: null,
       values: [startValue],
     };
   } else if (isNotEmpty(endValue)) {
     return {
       operator: "<=",
       column,
-      longitudeColumn: null,
       values: [endValue],
     };
   } else {
@@ -167,7 +165,7 @@ function getBetweenFilterParts(
 }
 
 function getInsideFilterParts(
-  operator: Lib.CoordinateFilterOperator,
+  operator: Lib.CoordinateFilterOperatorName,
   column: Lib.ColumnMetadata,
   secondColumn: Lib.ColumnMetadata | undefined,
   values: NumberValue[],

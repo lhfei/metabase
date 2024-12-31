@@ -6,7 +6,6 @@ import {
   getMetabaseInstanceSetupCompleteMessage,
 } from "../constants/messages";
 import type { CliStepMethod } from "../types/cli";
-import { getSuggestedImportPath } from "../utils/get-suggested-import-path";
 import { printEmptyLines, printWithPadding } from "../utils/print";
 
 export const showPostSetupSteps: CliStepMethod = async state => {
@@ -18,23 +17,16 @@ export const showPostSetupSteps: CliStepMethod = async state => {
   ${green("npm run start")}
 `;
 
-  const importPath = getSuggestedImportPath(state.reactComponentDir);
-
   const STEP_2 = `
-  Import the component in your React frontend. For example:
-  ${green(`import { AnalyticsPage } from "${importPath}";`)}
+  Import the component in your React frontend.
+  ${green(`import { AnalyticsPage } from "./${state.reactComponentDir}";`)}
 
-  Make sure the import path is valid.
-  Depending on your app's directory structure, you may need to move the components to a new directory.
-
-  Then, add the component to your page.
+  Add the component to your page.
   ${green(`<AnalyticsPage />`)}
 `;
 
   const STEP_3 = getMetabaseInstanceSetupCompleteMessage(
     state.instanceUrl ?? "",
-    state.email ?? "",
-    state.password ?? "",
   );
 
   const POST_SETUP_STEPS = [];

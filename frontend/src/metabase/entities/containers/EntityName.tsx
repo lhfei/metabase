@@ -1,42 +1,53 @@
-import { useMemo } from "react";
+import type Question from "metabase-lib/v1/Question";
 
-import type { EntityDefinition, EntityId, EntityType } from "./rtk-query";
+import EntityObjectLoader from "./EntityObjectLoader";
 
-interface Props {
+type EntityId = string | number;
+
+interface EntityNameProps {
+  entityType: string;
   entityId: EntityId;
-  entityType: EntityType;
+  property?: string;
 }
 
-/**
- * @deprecated use "metabase/api" instead
- */
-export const EntityName = <Entity, EntityWrapper>({
+interface EntityWrapper {
+  getName: () => string;
+}
+
+export const EntityName = ({
   entityType,
   entityId,
-}: Props) => {
-  const entityDefinition: EntityDefinition<Entity, EntityWrapper> =
-    useMemo(() => {
-      // dynamic require due to circular dependencies
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const entitiesDefinitions = require("metabase/entities");
-      return entitiesDefinitions[entityType];
-    }, [entityType]);
-
-  const {
-    /**
-     * Hack: this hook appears to be acquired conditionally, which in
-     * normal circumstances would violate the rules of React hooks.
-     * As long as getUseGetQuery is a pure function we have a guarantee that
-     * the same hook will be used and rules of hooks are not violated.
-     */
-    useGetQuery,
-  } = entityDefinition.rtk.getUseGetQuery("fetch");
-
-  const { data: entity } = useGetQuery({ id: entityId });
-
-  if (!entity) {
-    return null;
+  property = "name",
+}: EntityNameProps) => {
+  // This is a special case for questions, because we're returning `metabase-lib/v1/Question`
+  // from question entity's `getObject` in https://github.com/metabase/metabase/pull/30729.
+  // If we wrap it in `EntityWrapper`, we'd lose all properties from `metabase-lib/v1/Question`.
+  if (entityType === "questions") {
+    return (
+      <EntityObjectLoader
+        entityType={entityType}
+        entityId={entityId}
+        properties={[property]}
+        loadingAndErrorWrapper={false}
+      >
+        {({ object: question }: { object: Question }) =>
+          question ? <span>{question.displayName()}</span> : null
+        }
+      </EntityObjectLoader>
+    );
   }
 
-  return <span>{entityDefinition.objectSelectors.getName(entity)}</span>;
+  return (
+    <EntityObjectLoader
+      entityType={entityType}
+      entityId={entityId}
+      properties={[property]}
+      loadingAndErrorWrapper={false}
+      wrapped
+    >
+      {({ object }: { object: EntityWrapper }) =>
+        object ? <span>{object.getName()}</span> : null
+      }
+    </EntityObjectLoader>
+  );
 };

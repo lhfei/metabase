@@ -23,9 +23,6 @@ export const colors = {
   accent5: "#F2A86F",
   accent6: "#98D9D9",
   accent7: "#7172AD",
-  "accent-gray": "#F3F3F4", // Orion 10 (--mb-base-color-orion-10)
-  "accent-gray-light": "#FAFAFB", // Orion 5 (--mb-base-color-orion-5)
-  "accent-gray-dark": "#DCDFE0", // Orion 20 (--mb-base-color-orion-20)
   "admin-navbar": "#7172AD",
   white: "#FFFFFF",
   success: "#84BB4C",
@@ -58,7 +55,7 @@ export const colors = {
 
 export const originalColors = { ...colors };
 
-export const aliases: Record<string, (palette: ColorPalette) => string> = {
+const aliases: Record<string, (palette: ColorPalette) => string> = {
   dashboard: palette => color("brand", palette),
   nav: palette => color("bg-white", palette),
   content: palette => color("bg-light", palette),

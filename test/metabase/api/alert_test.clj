@@ -3,7 +3,7 @@
   (:require
    [clojure.test :refer :all]
    [medley.core :as m]
-   [metabase.channel.impl.http-test :as channel.http-test]
+   [metabase.channel.http-test :as channel.http-test]
    [metabase.email-test :as et]
    [metabase.http-client :as client]
    [metabase.models
@@ -11,17 +11,14 @@
             User]]
    [metabase.models.permissions :as perms]
    [metabase.models.permissions-group :as perms-group]
-   [metabase.models.pulse :as models.pulse]
+   [metabase.models.pulse :as pulse]
    [metabase.models.pulse-test :as pulse-test]
-   [metabase.request.core :as request]
+   [metabase.server.request.util :as req.util]
    [metabase.test :as mt]
-   [metabase.test.fixtures :as fixtures]
    [metabase.test.mock.util :refer [pulse-channel-defaults]]
    [metabase.util :as u]
    [toucan2.core :as t2]
    [toucan2.tools.with-temp :as t2.with-temp]))
-
-(use-fixtures :once (fixtures/initialize :notifications))
 
 ;;; +----------------------------------------------------------------------------------------------------------------+
 ;;; |                                              Helper Fns & Macros                                               |
@@ -35,13 +32,11 @@
 
 (defn- pulse-card-details [card]
   (-> card
-      (select-keys [:name :description :display :pivot_results])
+      (select-keys [:name :description :display])
       (update :display name)
       (update :collection_id boolean)
-      (assoc :id true :include_csv false :include_xls false
-             :format_rows true :pivot_results false
-             :dashboard_card_id false
-             :dashboard_id false :parameter_mappings nil)))
+      (assoc :id true, :include_csv false, :include_xls false, :format_rows true, :dashboard_card_id false,
+             :dashboard_id false, :parameter_mappings nil)))
 
 (defn- recipient-details [user-kwd]
   (-> user-kwd
@@ -87,7 +82,7 @@
     ;; Make this Alert actually be an alert
     (t2/update! Pulse (u/the-id alert) {:alert_condition "rows"})
     (let [alert (t2/select-one Pulse :id (u/the-id alert))]
-      (assert (models.pulse/is-alert? alert))
+      (assert (pulse/is-alert? alert))
       ;; Since Alerts do not actually go in Collections, but rather their Cards do, put the Card in the Collection
       (t2/update! Card (u/the-id card) {:collection_id (u/the-id collection)})
       (let [card (t2/select-one Card :id (u/the-id card))]
@@ -121,7 +116,7 @@
       ;; Go ahead and put all the Cards for all of the Alerts in the temp Collection
       (when (seq alerts-or-ids)
         (doseq [alert (t2/select Pulse :id [:in (set (map u/the-id alerts-or-ids))])
-                :let  [card (#'models.pulse/alert->card alert)]]
+                :let  [card (#'pulse/alert->card alert)]]
           (t2/update! Card (u/the-id card) {:collection_id (u/the-id collection)})))
       (f))))
 
@@ -139,10 +134,10 @@
 ;; authentication test on every single individual endpoint
 
 (deftest auth-tests
-  (is (= (get request/response-unauthentic :body)
+  (is (= (get req.util/response-unauthentic :body)
          (client/client :get 401 "alert")))
 
-  (is (= (get request/response-unauthentic :body)
+  (is (= (get req.util/response-unauthentic :body)
          (client/client :put 401 "alert/13"))))
 
 ;;; +----------------------------------------------------------------------------------------------------------------+

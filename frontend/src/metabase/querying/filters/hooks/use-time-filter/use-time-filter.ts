@@ -50,8 +50,10 @@ export function useTimeFilter({
     availableOptions,
     isValid,
     getDefaultValues,
-    getFilterClause: (operator: Lib.TimeFilterOperator, values: TimeValue[]) =>
-      getFilterClause(operator, column, values),
+    getFilterClause: (
+      operator: Lib.TimeFilterOperatorName,
+      values: TimeValue[],
+    ) => getFilterClause(operator, column, values),
     setOperator,
     setValues,
   };

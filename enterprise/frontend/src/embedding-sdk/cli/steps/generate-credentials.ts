@@ -4,7 +4,6 @@ import { input } from "@inquirer/prompts";
 
 import { isEmail } from "metabase/lib/email";
 
-import { SAMPLE_CREDENTIALS_FILE_NAME } from "../constants/config";
 import type { CliStepMethod } from "../types/cli";
 import { addFileToGitIgnore } from "../utils/add-file-to-git-ignore";
 import { generateRandomDemoPassword } from "../utils/generate-password";
@@ -27,11 +26,13 @@ export const generateCredentials: CliStepMethod = async state => {
 
   const password = generateRandomDemoPassword();
 
-  await addFileToGitIgnore(SAMPLE_CREDENTIALS_FILE_NAME);
+  const credentialFile = "METABASE_LOGIN.json";
+
+  await addFileToGitIgnore(credentialFile);
 
   // Store the login credentials to a file.
   await fs.writeFile(
-    `./${SAMPLE_CREDENTIALS_FILE_NAME}`,
+    `./${credentialFile}`,
     JSON.stringify({ email, password }, null, 2),
   );
 

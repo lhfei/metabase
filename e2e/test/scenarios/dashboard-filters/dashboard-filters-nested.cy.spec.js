@@ -1,11 +1,21 @@
-import { H } from "e2e/support";
 import { SAMPLE_DATABASE } from "e2e/support/cypress_sample_database";
+import {
+  editDashboard,
+  filterWidget,
+  getDashboardCard,
+  multiAutocompleteInput,
+  popover,
+  restore,
+  saveDashboard,
+  setFilter,
+  visitDashboard,
+} from "e2e/support/helpers";
 
 const { PRODUCTS_ID } = SAMPLE_DATABASE;
 
 describe("scenarios > dashboard > filters > nested questions", () => {
   beforeEach(() => {
-    H.restore();
+    restore();
     cy.signInAsAdmin();
     cy.intercept("POST", "/api/dataset").as("dataset");
     cy.intercept("POST", "/api/dashboard/*/dashcard/*/card/*/query").as(
@@ -45,11 +55,11 @@ describe("scenarios > dashboard > filters > nested questions", () => {
         questionDetails: nestedQuestion,
         dashboardDetails,
       }).then(({ body: { dashboard_id } }) => {
-        H.visitDashboard(dashboard_id);
+        visitDashboard(dashboard_id);
       });
     });
 
-    H.editDashboard();
+    editDashboard();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText(filter.name).find(".Icon-gear").click();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
@@ -57,19 +67,19 @@ describe("scenarios > dashboard > filters > nested questions", () => {
 
     // This part reproduces metabase#13186
     cy.log("Reported failing in v0.36.4 (`Category` is missing)");
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText(/Ean/i);
       cy.findByText(/Title/i);
       cy.findByText(/Vendor/i);
       cy.findByText(/Category/i).click();
     });
 
-    H.saveDashboard();
+    saveDashboard();
 
     // Add multiple values (metabase#18113)
-    H.filterWidget().click();
-    H.popover().within(() => {
-      H.fieldValuesInput().type("Gizmo,Gadget").blur();
+    filterWidget().click();
+    popover().within(() => {
+      multiAutocompleteInput().type("Gizmo,Gadget").blur();
     });
 
     cy.button("Add filter").click();
@@ -89,17 +99,17 @@ describe("scenarios > dashboard > filters > nested questions", () => {
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("2 selections");
 
-    H.editDashboard();
+    editDashboard();
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText(filter.name).find(".Icon-gear").click();
 
-    H.getDashboardCard().within(() => {
+    getDashboardCard().within(() => {
       cy.findByText("Column to filter on");
       cy.findByText("18113 Source.CATEGORY").click();
     });
 
     // This part reproduces metabase#12614
-    H.popover().within(() => {
+    popover().within(() => {
       cy.findByText(/Ean/i);
       cy.findByText(/Title/i);
       cy.findByText(/Vendor/i);
@@ -119,20 +129,20 @@ describe("scenarios > dashboard > filters > nested questions", () => {
 
       cy.createQuestionAndDashboard({ questionDetails }).then(
         ({ body: { dashboard_id } }) => {
-          H.visitDashboard(dashboard_id);
+          visitDashboard(dashboard_id);
         },
       );
     });
 
-    H.editDashboard();
+    editDashboard();
 
-    H.setFilter("ID");
+    setFilter("ID");
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("No valid fields").should("not.exist");
 
     // eslint-disable-next-line no-unscoped-text-selectors -- deprecated usage
     cy.findByText("Select…").click();
-    H.popover().contains("ID").click();
+    popover().contains("ID").click();
   });
 });

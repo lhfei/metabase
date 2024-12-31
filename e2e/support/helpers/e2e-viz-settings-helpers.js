@@ -4,18 +4,12 @@ export function openSeriesSettings(field, isBreakout = false) {
       .contains(field)
       .closest("[data-testid^=draggable-item]")
       .find(".Icon-ellipsis")
-      .click({ force: true });
+      .click();
   } else {
-    cy.findAllByTestId("chart-setting-select")
-      .then($elements => {
-        for (const element of $elements) {
-          if (element.value === field) {
-            return cy.wrap(element);
-          }
-        }
-      })
+    cy.findAllByTestId("chartsettings-field-picker")
+      .contains(field)
       .closest("[data-testid=chartsettings-field-picker]")
-      .icon("ellipsis")
-      .click({ force: true });
+      .find(".Icon-ellipsis")
+      .click();
   }
 }

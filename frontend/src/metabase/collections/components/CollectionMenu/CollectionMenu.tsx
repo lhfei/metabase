@@ -5,6 +5,7 @@ import {
   isInstanceAnalyticsCustomCollection,
   isRootCollection,
   isRootPersonalCollection,
+  isTrashedCollection,
 } from "metabase/collections/utils";
 import EntityMenu from "metabase/components/EntityMenu";
 import * as Urls from "metabase/lib/urls";
@@ -32,7 +33,7 @@ export const CollectionMenu = ({
         limit: 0, // we don't want any of the items, we just want to know how many there are in the collection
       },
       {
-        skip: !PLUGIN_COLLECTIONS.canCleanUp(collection),
+        skip: !PLUGIN_COLLECTIONS.canCleanUp,
       },
     ).data?.total ?? 0;
 
@@ -42,6 +43,7 @@ export const CollectionMenu = ({
   const isPersonal = isRootPersonalCollection(collection);
   const isInstanceAnalyticsCustom =
     isInstanceAnalyticsCustomCollection(collection);
+  const isTrashed = isTrashedCollection(collection);
 
   const canWrite = collection.can_write;
   const canMove =
@@ -74,8 +76,11 @@ export const CollectionMenu = ({
 
   items.push(
     ...PLUGIN_COLLECTIONS.getCleanUpMenuItems(
-      collection,
       maybeCollectionItemCount,
+      url,
+      isInstanceAnalyticsCustom,
+      isTrashed,
+      canWrite,
     ),
   );
 

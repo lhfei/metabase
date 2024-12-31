@@ -4,10 +4,12 @@ import {
   PLUGIN_ADMIN_USER_MENU_ITEMS,
   PLUGIN_ADMIN_USER_MENU_ROUTES,
   PLUGIN_AUDIT,
+  PLUGIN_DASHBOARD_HEADER,
+  PLUGIN_QUERY_BUILDER_HEADER,
 } from "metabase/plugins";
 import { hasPremiumFeature } from "metabase-enterprise/settings";
 
-import { InsightsLink } from "./components/InsightsLink";
+import { InstanceAnalyticsButton } from "./components/InstanceAnalyticsButton/InstanceAnalyticsButton";
 import { getUserMenuRotes } from "./routes";
 import { isAuditDb } from "./utils";
 
@@ -21,7 +23,33 @@ if (hasPremiumFeature("audit_app")) {
 
   PLUGIN_ADMIN_USER_MENU_ROUTES.push(getUserMenuRotes);
 
-  PLUGIN_AUDIT.isAuditDb = isAuditDb;
+  PLUGIN_DASHBOARD_HEADER.extraButtons = dashboard => {
+    return [
+      {
+        key: "Usage insights",
+        component: (
+          <InstanceAnalyticsButton
+            model="dashboard"
+            linkQueryParams={{ dashboard_id: dashboard.id }}
+          />
+        ),
+      },
+    ];
+  };
 
-  PLUGIN_AUDIT.InsightsLink = InsightsLink;
+  PLUGIN_QUERY_BUILDER_HEADER.extraButtons = question => {
+    return [
+      {
+        key: "Usage insights",
+        component: (
+          <InstanceAnalyticsButton
+            model="question"
+            linkQueryParams={{ question_id: question.id() }}
+          />
+        ),
+      },
+    ];
+  };
+
+  PLUGIN_AUDIT.isAuditDb = isAuditDb;
 }

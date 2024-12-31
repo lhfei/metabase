@@ -100,7 +100,7 @@ export const PARAMETER_OPERATOR_TYPES = {
     {
       type: "date/all-options",
       operator: "all-options",
-      name: t`All Options`,
+      name: t`Date Filter`,
       menuName: t`All Options`,
       description: t`Contains all of the above`,
     },

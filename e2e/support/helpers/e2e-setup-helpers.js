@@ -9,6 +9,7 @@ export function snapshot(name) {
  * "setup" |
  * "without-models" |
  * "default" |
+ * "default-ee" |
  * "withSqlite" |
  * "mongo-5" |
  * "postgres-12" |
