@@ -316,7 +316,7 @@ function QueryBuilder(props) {
 
   useEffect(() => {
     if (previousLocation && location !== previousLocation) {
-      locationChanged(previousLocation, location, params);
+      // locationChanged(previousLocation, location, params);
     }
   }, [location, params, previousLocation, locationChanged]);
 
