@@ -28,7 +28,7 @@ import {
 } from "metabase/selectors/user";
 
 import * as actions from "../actions";
-import ViewChat from "../components/view/ViewChat";
+import ViewChat from "../components/view/ViewChat/ViewChat";
 import { VISUALIZATION_SLOW_TIMEOUT } from "../constants";
 import {
   getAutocompleteResultsFn,

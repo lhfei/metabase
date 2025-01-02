@@ -2,6 +2,7 @@
  * created by liushuai
  */
 /* eslint-disable react/prop-types */
+import { memo } from "react";
 import { useMarkdownToJSX } from "markdown-to-jsx";
 import { Component, createRef } from "react";
 import ReactMarkdown from "react-markdown";
@@ -35,19 +36,19 @@ import Visualization from "metabase/visualizations/components/Visualization";
 import * as Lib from "metabase-lib";
 import { HARD_ROW_LIMIT } from "metabase-lib/v1/queries/utils";
 
-import DatasetEditor from "../DatasetEditor";
-import NativeQueryEditorChat from "../NativeQueryEditorChat";
-import { QueryModals } from "../QueryModals";
-import QueryVisualization from "../QueryVisualization";
-import { SavedQuestionIntroModal } from "../SavedQuestionIntroModal";
-import VisualizationResult from "../VisualizationResult";
-import DataReference from "../dataref/DataReference";
-import { SnippetSidebar } from "../template_tags/SnippetSidebar";
-import { TagEditorSidebar } from "../template_tags/TagEditorSidebar";
+import DatasetEditor from "../../DatasetEditor";
+import NativeQueryEditorChat from "../../NativeQueryEditorChat";
+import { QueryModals } from "../../QueryModals";
+import QueryVisualization from "../../QueryVisualization";
+import { SavedQuestionIntroModal } from "../../SavedQuestionIntroModal";
+import VisualizationResult from "../../VisualizationResult";
+import DataReference from "../../dataref/DataReference";
+import { SnippetSidebar } from "../../template_tags/SnippetSidebar";
+import { TagEditorSidebar } from "../../template_tags/TagEditorSidebar";
 
-import NewQuestionHeader from "./NewQuestionHeader";
-import { QuestionItem } from "./QuestionItem";
-import { NotebookContainer } from "./View/NotebookContainer";
+import NewQuestionHeader from "../NewQuestionHeader";
+import { QuestionItem } from "../QuestionItem";
+import { NotebookContainer } from "../View/NotebookContainer";
 import {
   BorderedViewTitleHeader,
   NativeQueryEditorContainer,
@@ -57,16 +58,18 @@ import {
   QueryBuilderViewRoot,
   StyledDebouncedFrame,
   StyledSyncedParametersList,
-} from "./View.styled";
-import { QueryVisualizationRoot } from "./ViewChat.styled";
-import { ViewFooter } from "./ViewFooter";
-import ViewSidebar from "./ViewSidebar";
-import ChartSettingsSidebar from "./sidebars/ChartSettingsSidebar";
-import ChartTypeSidebar from "./sidebars/ChartTypeSidebar";
-import { QuestionInfoSidebar } from "./sidebars/QuestionInfoSidebar";
-import { SummarizeSidebar } from "./sidebars/SummarizeSidebar";
-import TimelineSidebar from "./sidebars/TimelineSidebar";
-import { testData } from "./testmd";
+} from "../View.styled";
+import { QueryVisualizationRoot } from "../ViewChat.styled";
+import { ViewFooter } from "../ViewFooter";
+import ViewSidebar from "../ViewSidebar";
+import ChartSettingsSidebar from "../sidebars/ChartSettingsSidebar";
+import ChartTypeSidebar from "../sidebars/ChartTypeSidebar";
+import { QuestionInfoSidebar } from "../sidebars/QuestionInfoSidebar";
+import { SummarizeSidebar } from "../sidebars/SummarizeSidebar";
+import TimelineSidebar from "../sidebars/TimelineSidebar";
+import { testData } from "../testmd";
+
+const MemoedReactMarkdown = memo(ReactMarkdown);
 
 const ALLOWED_VISUALIZATION_PROPS = [
   // Table
@@ -435,7 +438,7 @@ class View extends Component {
                       marginLeft: 8,
                     }}
                   >
-                    <ReactMarkdown
+                    <MemoedReactMarkdown
                       remarkPlugins={[this.captureH2Content()]}
                       components={{
                         // 自定义Markdown标签对应的React组件
@@ -511,7 +514,7 @@ class View extends Component {
                       }}
                     >
                       {chat.markdown}
-                    </ReactMarkdown>
+                    </MemoedReactMarkdown>
                   </div>
                 </div>
               );
