@@ -139,6 +139,56 @@ export const runQuestionQuery = ({
   };
 };
 
+export const runQuestionQueryChat = ({
+  shouldUpdateUrl = true,
+  ignoreCache = false,
+  overrideWithQuestion = null,
+} = {}) => {
+  return async (dispatch, getState) => {
+    dispatch(loadStartUIControls());
+
+    const question = overrideWithQuestion
+      ? overrideWithQuestion
+      : getQuestion(getState());
+    const originalQuestion = getOriginalQuestion(getState());
+
+    const isCardDirty = originalQuestion
+      ? question.isDirtyComparedToWithoutParameters(originalQuestion) ||
+        question.id() == null
+      : true;
+
+    const isQueryDirty = originalQuestion
+      ? question.isQueryDirtyComparedTo(originalQuestion)
+      : true;
+
+    if (shouldUpdateUrl) {
+      const isAdHocModelOrMetric = isAdHocModelOrMetricQuestion(
+        question,
+        originalQuestion,
+      );
+
+      // dispatch(
+      //   updateUrl(question, { dirty: !isAdHocModelOrMetric && isCardDirty }),
+      // );
+    }
+
+    const startTime = new Date();
+    const cancelQueryDeferred = defer();
+
+    apiRunQuestionQuery(question, {
+      cancelDeferred: cancelQueryDeferred,
+      ignoreCache: ignoreCache,
+      isDirty: isQueryDirty,
+    })
+      .then(queryResults => {
+        return dispatch(queryCompleted(question, queryResults));
+      })
+      .catch(error => dispatch(queryErrored(startTime, error)));
+
+    dispatch({ type: RUN_QUERY, payload: { cancelQueryDeferred } });
+  };
+};
+
 const loadStartUIControls = createThunkAction(
   LOAD_START_UI_CONTROLS,
   () => (dispatch, getState) => {

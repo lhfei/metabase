@@ -327,6 +327,7 @@ class View extends Component {
       <NativeQueryEditorContainer>
         <NativeQueryEditorChat
           {...this.props}
+          runQuestionQuery={this.props.runQuestionQueryChat}
           query={legacyQuery}
           viewHeight={height}
           isOpen={legacyQuery.isEmpty() || isDirty}

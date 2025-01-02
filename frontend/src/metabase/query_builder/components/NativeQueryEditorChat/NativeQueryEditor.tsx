@@ -389,7 +389,67 @@ export class NativeQueryEditor extends Component<
     const selectedText = this._editor?.getSelectedText();
 
     if (selectedText) {
-      // this.execSelectedText(selectedText);
+      this.execSelectedText(selectedText);
+      // // test only
+      // addChat({
+      //   type: "user",
+      //   question: selectedText,
+      //   id: uuid(),
+      //   card: {
+      //     creationType: "native_question",
+      //     dataset_query: {
+      //       type: "native",
+      //       native: {
+      //         query: "SELECT * FROM Products WHERE price > 90;",
+      //         "template-tags": {},
+      //       },
+      //       database: 1,
+      //     },
+      //     display: "bar",
+      //     type: "question",
+      //     visualization_settings: {
+      //       "graph.dimensions": ["TITLE"],
+      //       "graph.metrics": ["PRICE"],
+      //     },
+      //     parameters: [],
+      //   },
+      // });
+      // addChat({ type: "gpt", markdown: testData, id: uuid() });
+    } else if (query.canRun()) {
+      addChat({
+        type: "user",
+        question: query.queryText(),
+        id: uuid(),
+        card: {
+          creationType: "native_question",
+          dataset_query: {
+            type: "native",
+            native: {
+              query: "SELECT * FROM Products WHERE price > 90;",
+              "template-tags": {},
+            },
+            database: 1,
+          },
+          display: "bar",
+          type: "question",
+          visualization_settings: {
+            "graph.dimensions": ["TITLE"],
+            "graph.metrics": ["PRICE"],
+          },
+          parameters: [],
+        },
+      });
+      addChat({ type: "gpt", markdown: testData, id: uuid() });
+      // addChat({ type: "gpt", markdown: "loading...", id: uuid() });
+
+      // runQuestionQuery();
+    }
+  };
+
+  execSelectedText = (selectedText: string) => {
+    const { query, question, runQuestionQuery, addChat } = this.props;
+
+    if (selectedText.includes("柱状图")) {
       // test only
       addChat({
         type: "user",
@@ -415,52 +475,40 @@ export class NativeQueryEditor extends Component<
         },
       });
       addChat({ type: "gpt", markdown: testData, id: uuid() });
-    } else if (query.canRun()) {
-      runQuestionQuery();
-    }
-  };
-
-  execSelectedText = (selectedText: string) => {
-    const { query, question, runQuestionQuery } = this.props;
-
-    if (selectedText.includes("柱状图")) {
-      if (question.display() !== "bar") {
-        let temporaryQuestion = query
-          .setQueryText(`SELECT * FROM Products WHERE price > 90;`)
-          .question();
-        temporaryQuestion = temporaryQuestion.setDisplay("bar").lockDisplay();
-        temporaryQuestion = temporaryQuestion.setSettings({
-          "graph.dimensions": ["TITLE"],
-          "graph.metrics": ["PRICE"],
-        });
-        const visualization = visualizations.get("bar");
-        if (visualization?.onDisplayUpdate) {
-          const updatedSettings = visualization.onDisplayUpdate(
-            temporaryQuestion.settings(),
-          );
-          temporaryQuestion = temporaryQuestion.setSettings(updatedSettings);
-        }
-
-        runQuestionQuery({
-          overrideWithQuestion: temporaryQuestion,
-          shouldUpdateUrl: false,
-        });
-      } else {
-        const temporaryQuestion = query
-          .setQueryText(`SELECT * FROM Products WHERE price > 90;`)
-          .question();
-        runQuestionQuery({
-          overrideWithQuestion: temporaryQuestion,
-          shouldUpdateUrl: false,
-        });
-      }
+      // addChat({ type: "gpt", markdown: "loading...", id: uuid() });
     } else {
       // 作为普通的sql
-      const temporaryQuestion = query.setQueryText(selectedText).question();
-      runQuestionQuery({
-        overrideWithQuestion: temporaryQuestion,
-        shouldUpdateUrl: false,
+      // const temporaryQuestion = query.setQueryText(selectedText).question();
+      // runQuestionQuery({
+      //   overrideWithQuestion: temporaryQuestion,
+      //   shouldUpdateUrl: false,
+      // });
+
+      addChat({
+        type: "user",
+        question: query.queryText(),
+        id: uuid(),
+        card: {
+          creationType: "native_question",
+          dataset_query: {
+            type: "native",
+            native: {
+              query: query.queryText(),
+              "template-tags": {},
+            },
+            database: 1,
+          },
+          display: "table",
+          type: "question",
+          visualization_settings: {
+            "graph.dimensions": ["TITLE"],
+            "graph.metrics": ["PRICE"],
+          },
+          parameters: [],
+        },
       });
+      addChat({ type: "gpt", markdown: testData, id: uuid() });
+      // addChat({ type: "gpt", markdown: "loading...", id: uuid() });
     }
   };
 
