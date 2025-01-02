@@ -15,7 +15,7 @@ export interface SetupOpts {
 }
 
 export const setup = ({
-  applicationName = "Dataos",
+  applicationName = "DataOS",
   showMetabaseLinks = true,
   hasEnterprisePlugins,
   tokenFeatures = {},
