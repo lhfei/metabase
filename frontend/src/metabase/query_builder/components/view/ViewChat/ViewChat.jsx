@@ -2,9 +2,8 @@
  * created by liushuai
  */
 /* eslint-disable react/prop-types */
-import { memo } from "react";
 import { useMarkdownToJSX } from "markdown-to-jsx";
-import { Component, createRef } from "react";
+import { Component, createRef, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { connect } from "react-redux";
 import remarkDirective from "remark-directive";
@@ -45,7 +44,6 @@ import VisualizationResult from "../../VisualizationResult";
 import DataReference from "../../dataref/DataReference";
 import { SnippetSidebar } from "../../template_tags/SnippetSidebar";
 import { TagEditorSidebar } from "../../template_tags/TagEditorSidebar";
-
 import NewQuestionHeader from "../NewQuestionHeader";
 import { QuestionItem } from "../QuestionItem";
 import { NotebookContainer } from "../View/NotebookContainer";
@@ -69,7 +67,7 @@ import { SummarizeSidebar } from "../sidebars/SummarizeSidebar";
 import TimelineSidebar from "../sidebars/TimelineSidebar";
 import { testData } from "../testmd";
 
-const MemoedReactMarkdown = memo(ReactMarkdown);
+import { MemoedMarkdownParser } from "./MarkdownParser";
 
 const ALLOWED_VISUALIZATION_PROPS = [
   // Table
@@ -438,83 +436,30 @@ class View extends Component {
                       marginLeft: 8,
                     }}
                   >
-                    <MemoedReactMarkdown
-                      remarkPlugins={[this.captureH2Content()]}
-                      components={{
-                        // 自定义Markdown标签对应的React组件
-                        h1: mdProps => {
-                          return (
-                            <h1 style={{ marginBottom: 0 }}>
-                              {mdProps.children}
-                            </h1>
-                          );
-                        },
-                        h2: (node, ...mdProps) => {
-                          // console.log("node", JSON.parse(node.originalContent));
-                          let rawSeries = [];
-                          try {
-                            const data = JSON.parse(node.originalContent);
-                            const question = chatList[index - 1];
-                            rawSeries = this.getRawSeries(question, data.data);
-                          } catch (error) {
-                            rawSeries = [];
-                          }
-                          return (
-                            <QueryVisualizationRoot>
-                              {/* <QueryVisualization
-                          // {...this.props}
-                          {...restProps}
-                          rawSeries={data}
-                          noHeader
-                          className={CS.spread}
-                          mode={queryMode}
-                        /> */}
-
-                              {
-                                <Visualization
-                                  className={this.props.className}
-                                  rawSeries={rawSeries}
-                                  // onChangeCardAndRun={
-                                  //   hasDrills ? navigateToNewCardInsideQB : undefined
-                                  // }
-                                  isEditing={true}
-                                  isObjectDetail={false}
-                                  isQueryBuilder={true}
-                                  queryBuilderMode={queryBuilderMode}
-                                  showTitle={false}
-                                  metadata={question.metadata()}
-                                  timelineEvents={this.props.timelineEvents}
-                                  selectedTimelineEventIds={
-                                    this.props.selectedTimelineEventIds
-                                  }
-                                  handleVisualizationClick={
-                                    this.props.handleVisualizationClick
-                                  }
-                                  onOpenTimelines={this.props.onOpenTimelines}
-                                  onSelectTimelineEvents={
-                                    this.props.selectTimelineEvents
-                                  }
-                                  onDeselectTimelineEvents={
-                                    this.props.deselectTimelineEvents
-                                  }
-                                  onOpenChartSettings={
-                                    this.props.onOpenChartSettings
-                                  }
-                                  onUpdateWarnings={this.props.onUpdateWarnings}
-                                  onUpdateVisualizationSettings={
-                                    this.props.onUpdateVisualizationSettings
-                                  }
-                                  {...vizSpecificProps}
-                                />
-                              }
-                            </QueryVisualizationRoot>
-                          );
-                        },
-                        // 其他自定义组件
-                      }}
-                    >
-                      {chat.markdown}
-                    </MemoedReactMarkdown>
+                    <MemoedMarkdownParser
+                      chat={chat}
+                      chatList={chatList}
+                      index={index}
+                      queryBuilderMode={this.props.queryBuilderMode}
+                      question={this.props.question}
+                      timelineEvents={this.props.timelineEvents}
+                      selectedTimelineEventIds={
+                        this.props.selectedTimelineEventIds
+                      }
+                      handleVisualizationClick={
+                        this.props.handleVisualizationClick
+                      }
+                      onOpenTimelines={this.props.onOpenTimelines}
+                      selectTimelineEvents={this.props.selectTimelineEvents}
+                      deselectTimelineEvents={this.props.deselectTimelineEvents}
+                      onOpenChartSettings={this.props.onOpenChartSettings}
+                      onUpdateWarnings={this.props.onUpdateWarnings}
+                      onUpdateVisualizationSettings={
+                        this.props.onUpdateVisualizationSettings
+                      }
+                      vizSpecificProps={vizSpecificProps}
+                      className={this.props.className}
+                    ></MemoedMarkdownParser>
                   </div>
                 </div>
               );
