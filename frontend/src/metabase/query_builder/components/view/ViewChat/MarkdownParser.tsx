@@ -1,4 +1,4 @@
-import React, { type FC, type PropsWithChildren, memo } from "react";
+import React, { type FC, type PropsWithChildren, memo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { visit } from "unist-util-visit";
 
@@ -27,6 +27,9 @@ interface IProps {
 
 const MarkdownParser: FC<PropsWithChildren<IProps>> = props => {
   const { chatList, index, queryBuilderMode } = props;
+
+  const dataRef = useRef<any>(null);
+  const contentRef = useRef<string | null>(null);
 
   const getTextContent = (node: any) => {
     if (node.type === "text") {
@@ -59,6 +62,25 @@ const MarkdownParser: FC<PropsWithChildren<IProps>> = props => {
     return [{ card, data: result }];
   };
 
+  const getRawSeries2 = (node: any) => {
+    if (contentRef.current !== node.originalContent) {
+      let rawSeries: any[] = [];
+      try {
+        const data = JSON.parse(node.originalContent);
+        const question = chatList[index - 1];
+        rawSeries = getRawSeries(question, data.data);
+      } catch (error) {
+        rawSeries = [];
+      }
+      contentRef.current = node.originalContent;
+      dataRef.current = rawSeries;
+
+      return rawSeries;
+    }
+
+    return dataRef.current;
+  };
+
   return (
     <ReactMarkdown
       remarkPlugins={[captureH2Content()]}
@@ -68,15 +90,7 @@ const MarkdownParser: FC<PropsWithChildren<IProps>> = props => {
           return <h1 style={{ marginBottom: 0 }}>{mdProps.children}</h1>;
         },
         h2: (node: any, ...mdProps) => {
-          // console.log("node", JSON.parse(node.originalContent));
-          let rawSeries: any[] = [];
-          try {
-            const data = JSON.parse(node.originalContent);
-            const question = chatList[index - 1];
-            rawSeries = getRawSeries(question, data.data);
-          } catch (error) {
-            rawSeries = [];
-          }
+          const rawSeries = getRawSeries2(node);
           return (
             <QueryVisualizationRoot>
               {/* <QueryVisualization
