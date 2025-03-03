@@ -7,6 +7,7 @@ fork 自[Metabase](https://github.com/metabase/metabase/tree/master)
 1. 本地启动 MySQL
 2. yarn
 3. yarn dev
+4. 项目会启动在`http://localhost:3000`
 
 ## 汉化
 
