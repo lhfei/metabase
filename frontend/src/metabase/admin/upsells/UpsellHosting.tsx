@@ -10,6 +10,7 @@ import { UpsellCard } from "./components";
 const UPSELL_CARD_WIDTH = 202;
 
 export const UpsellHosting = ({ source }: { source: string }) => {
+  return null;
   const isHosted = useSelector(getIsHosted);
 
   if (isHosted) {
