@@ -47,7 +47,7 @@
 /process.yml
 /reset-password-artifacts
 /resources/frontend_client/app/dist/
-/resources/frontend_client/app/locales
+# /resources/frontend_client/app/locales
 /resources/frontend_client/embed.html
 /resources/frontend_client/index.html
 /resources/frontend_client/public.html
