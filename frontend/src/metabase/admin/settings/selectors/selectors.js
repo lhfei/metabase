@@ -457,12 +457,13 @@ export const ADMIN_SETTINGS_SECTIONS = {
     ),
     settings: [],
   },
-  license: {
-    name: t`License`,
-    order: 110,
-    component: SettingsLicense,
-    settings: [],
-  },
+  // 隐藏菜单项"许可证"
+  // license: {
+  //   name: t`License`,
+  //   order: 110,
+  //   component: SettingsLicense,
+  //   settings: [],
+  // },
   llm: {
     name: t`AI Features`,
     getHidden: settings =>
@@ -483,15 +484,16 @@ export const ADMIN_SETTINGS_SECTIONS = {
       },
     ],
   },
-  cloud: {
-    name: t`Cloud`,
-    getHidden: settings =>
-      settings["token-features"]?.hosting === true ||
-      settings["airgap-enabled"],
-    order: 132,
-    component: CloudPanel,
-    settings: [],
-  },
+  // 隐藏菜单项"云"
+  // cloud: {
+  //   name: t`Cloud`,
+  //   getHidden: settings =>
+  //     settings["token-features"]?.hosting === true ||
+  //     settings["airgap-enabled"],
+  //   order: 132,
+  //   component: CloudPanel,
+  //   settings: [],
+  // },
 };
 
 export const getSectionsWithPlugins = _.once(() =>
