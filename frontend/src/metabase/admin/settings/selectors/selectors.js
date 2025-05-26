@@ -181,19 +181,19 @@ export const ADMIN_SETTINGS_SECTIONS = {
       },
     ],
   },
-  updates: {
-    name: t`Updates`,
-    order: 30,
-    component: SettingsUpdatesForm,
-    settings: [
-      {
-        key: "check-for-updates",
-        display_name: t`Check for updates`,
-        type: "boolean",
-      },
-    ],
-    adminOnly: true,
-  },
+  // updates: {
+  //   name: t`Updates`,
+  //   order: 30,
+  //   component: SettingsUpdatesForm,
+  //   settings: [
+  //     {
+  //       key: "check-for-updates",
+  //       display_name: t`Check for updates`,
+  //       type: "boolean",
+  //     },
+  //   ],
+  //   adminOnly: true,
+  // },
   email: {
     name: t`Email`,
     order: 40,
