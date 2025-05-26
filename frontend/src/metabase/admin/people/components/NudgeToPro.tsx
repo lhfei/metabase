@@ -8,6 +8,7 @@ import { Icon } from "metabase/ui";
 import { Description, NudgeCard, ProLink, Subtitle } from "./NudgeToPro.styled";
 
 export const NudgeToPro = () => {
+  return null;
   const upgradeUrl = useSelector(state =>
     getUpgradeUrl(state, { utm_content: "people" }),
   );
