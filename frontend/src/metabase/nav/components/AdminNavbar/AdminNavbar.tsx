@@ -66,8 +66,8 @@ export const AdminNavbar = ({
             />
           ))}
         </AdminNavbarItems>
-
-        {!isPaidPlan && <StoreLink />}
+        {/* 隐藏付费功能 */}
+        {/* {!isPaidPlan && <StoreLink />} */}
         <AdminExitLink
           to="/"
           data-testid="exit-admin"
