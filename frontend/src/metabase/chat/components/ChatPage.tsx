@@ -71,7 +71,11 @@ export const ChatPage = () => {
       <h2 style={{ margin: `16px 0` }}>柱状图</h2>
       <div style={{ width: "100%", height: 300, background: "#fff" }}>
         <BarChart width={containerWidth} height={300} data={data}>
-          <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
+          <CartesianGrid
+            vertical={false}
+            stroke={gridColor}
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="name"
             stroke={axisLineColor}
@@ -104,7 +108,11 @@ export const ChatPage = () => {
       <h2 style={{ margin: `32px 0 16px 0` }}>折线图</h2>
       <div style={{ width: "100%", height: 300, background: "#fff" }}>
         <LineChart width={containerWidth} height={300} data={lineData}>
-          <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
+          <CartesianGrid
+            vertical={false}
+            stroke={gridColor}
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="name"
             stroke={axisLineColor}
