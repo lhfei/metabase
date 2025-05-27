@@ -1,5 +1,6 @@
 // import { BarChart } from "metabase/visualizations/visualizations/BarChart";
 
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -13,18 +14,30 @@ import {
 } from "recharts";
 
 export const ChatPage = () => {
+  // Reference to the container div
+  const containerRef = useRef<HTMLDivElement>(null);
+  // State to store the container width
+  const [containerWidth, setContainerWidth] = useState(0);
   const data = [
     { name: "A", value: 12 },
     { name: "B", value: 19 },
     { name: "C", value: 7 },
     { name: "D", value: 15 },
+    { name: "E", value: 15 },
+    { name: "F", value: 15 },
+    { name: "G", value: 15 },
+    { name: "H", value: 15 },
   ];
 
   const lineData = [
     { name: "A", value: 10 },
     { name: "B", value: 14 },
     { name: "C", value: 8 },
-    { name: "D", value: 20 },
+    { name: "D", value: 10 },
+    { name: "E", value: 15 },
+    { name: "F", value: 19 },
+    { name: "G", value: 20 },
+    { name: "H", value: 17 },
   ];
 
   const fontFamily = "Lato, Arial, sans-serif";
@@ -35,11 +48,29 @@ export const ChatPage = () => {
   const barColor = "#88BF4D";
   const gridColor = "#EEECEC";
 
+  // Update container width on mount and resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    // Initial width
+    updateWidth();
+
+    // Add resize event listener
+    window.addEventListener("resize", updateWidth);
+
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
   return (
-    <div style={{ margin: 16 }}>
+    <div ref={containerRef} style={{ margin: 16 }}>
       <h2 style={{ margin: `16px 0` }}>柱状图</h2>
-      <div style={{ width: 800, height: 300, background: "#fff" }}>
-        <BarChart width={800} height={300} data={data}>
+      <div style={{ width: "100%", height: 300, background: "#fff" }}>
+        <BarChart width={containerWidth} height={300} data={data}>
           <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
           <XAxis
             dataKey="name"
@@ -71,8 +102,8 @@ export const ChatPage = () => {
       </div>
 
       <h2 style={{ margin: `32px 0 16px 0` }}>折线图</h2>
-      <div style={{ width: 800, height: 300, background: "#fff" }}>
-        <LineChart width={800} height={300} data={lineData}>
+      <div style={{ width: "100%", height: 300, background: "#fff" }}>
+        <LineChart width={containerWidth} height={300} data={lineData}>
           <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
           <XAxis
             dataKey="name"
