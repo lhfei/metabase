@@ -40,7 +40,7 @@ export const EChartsRenderer = forwardRef<HTMLDivElement, EChartsRendererProps>(
     const chartElemRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<EChartsType>();
 
-    console.log("barchart option2", option);
+    console.log("chart option", option);
 
     useMount(() => {
       chartRef.current = init(chartElemRef.current, null, {
