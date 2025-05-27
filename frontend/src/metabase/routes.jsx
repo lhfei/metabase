@@ -16,6 +16,7 @@ import {
   BrowseSchemas,
   BrowseTables,
 } from "metabase/browse";
+import { ChatPage } from "metabase/chat/components/ChatPage";
 import CollectionLanding from "metabase/collections/components/CollectionLanding";
 import { MoveCollectionModal } from "metabase/collections/components/MoveCollectionModal";
 import { TrashCollectionLanding } from "metabase/collections/components/TrashCollectionLanding";
@@ -293,6 +294,12 @@ export const getRoutes = store => {
 
           {/* ADMIN */}
           {getAdminRoutes(store, CanAccessSettings, IsAdmin)}
+
+          <Route
+            path="chat"
+            // title={t`Chat`}
+            component={ChatPage}
+          />
         </Route>
       </Route>
 
