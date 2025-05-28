@@ -1,169 +1,132 @@
-// import { BarChart } from "metabase/visualizations/visualizations/BarChart";
-
+import { useViewportSize } from "@mantine/hooks";
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
+
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  Button,
+  // Container,
+  Group,
+  Loader,
+  Paper,
+  ScrollArea,
+  Text,
+  Textarea,
+} from "metabase/ui";
 
-export const ChatPage = () => {
-  // Reference to the container div
-  const containerRef = useRef<HTMLDivElement>(null);
-  // State to store the container width
-  const [containerWidth, setContainerWidth] = useState(0);
-  const data = [
-    { name: "A", value: 12 },
-    { name: "B", value: 19 },
-    { name: "C", value: 7 },
-    { name: "D", value: 15 },
-    { name: "E", value: 15 },
-    { name: "F", value: 15 },
-    { name: "G", value: 15 },
-    { name: "H", value: 15 },
-  ];
+interface Message {
+  sender: "user" | "ai";
+  text: string;
+  loading?: boolean;
+}
 
-  const lineData = [
-    { name: "A", value: 10 },
-    { name: "B", value: 14 },
-    { name: "C", value: 8 },
-    { name: "D", value: 10 },
-    { name: "E", value: 15 },
-    { name: "F", value: 19 },
-    { name: "G", value: 20 },
-    { name: "H", value: 17 },
-  ];
+export function ChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const viewport = useViewportSize();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const fontFamily = "Lato, Arial, sans-serif";
-  const fontColor = "#4C5773";
-  const fontWeight = 700;
-  const fontSize = 12;
-  const axisLineColor = "#EEECEC";
-  const barColor = "#88BF4D";
-  const gridColor = "#EEECEC";
+  const handleSend = () => {
+    if (!input.trim()) {
+      return;
+    }
 
-  // Update container width on mount and resize
-  useEffect(() => {
-    const updateWidth = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
+    const userMessage: Message = { sender: "user", text: input };
+    const loadingMessage: Message = {
+      sender: "ai",
+      text: "正在输入...",
+      loading: true,
     };
 
-    // Initial width
-    updateWidth();
+    setMessages(prev => [...prev, userMessage, loadingMessage]);
+    const userInput = input;
+    setInput("");
 
-    // Add resize event listener
-    window.addEventListener("resize", updateWidth);
+    // 模拟 AI 响应
+    setTimeout(() => {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          sender: "ai",
+          text: `你说的是：“${userInput}”`,
+        };
+        return updated;
+      });
+    }, 1200);
+  };
 
-    // Cleanup event listener on unmount
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   return (
-    <div ref={containerRef} style={{ margin: 16 }}>
-      <h2 style={{ margin: `16px 0` }}>柱状图</h2>
-      <div style={{ width: "100%", height: 300, background: "#fff" }}>
-        <BarChart width={containerWidth} height={300} data={data}>
-          <CartesianGrid
-            vertical={false}
-            stroke={gridColor}
-            strokeDasharray="3 3"
-          />
-          <XAxis
-            dataKey="name"
-            stroke={axisLineColor}
-            tick={{
-              fill: fontColor,
-              fontFamily,
-              fontWeight,
-              fontSize,
-            }}
-            axisLine={{ stroke: axisLineColor }}
-            tickLine={false}
-          />
-          <YAxis
-            stroke={axisLineColor}
-            tick={{
-              fill: fontColor,
-              fontFamily,
-              fontWeight,
-              fontSize,
-            }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="value" fill={barColor} />
-        </BarChart>
-      </div>
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "576px", // sm 尺寸在 Mantine 中默认为 576px
+        padding: "var(--mantine-spacing-md) 0", // py="md" 对应上下 padding
+        height: viewport.height,
+      }}
+    >
+      <ScrollArea style={{ height: "calc(100vh - 150px)" }} offsetScrollbars>
+        <div ref={scrollRef}>
+          {messages.map((msg, index) => (
+            <Group
+              key={index}
+              position={msg.sender === "user" ? "right" : "left"}
+              mb="xs"
+              noWrap
+            >
+              <Paper
+                radius="md"
+                p="sm"
+                withBorder
+                shadow="xs"
+                style={{
+                  maxWidth: "75%",
+                  backgroundColor:
+                    msg.sender === "user" ? "#dbeafe" : "#f8fafc",
+                }}
+              >
+                {msg.loading ? (
+                  <Group spacing="xs">
+                    <Loader size="xs" variant="dots" />
+                    <Text size="sm" color="dimmed">
+                      正在输入...
+                    </Text>
+                  </Group>
+                ) : (
+                  <Text size="sm">{msg.text}</Text>
+                )}
+              </Paper>
+            </Group>
+          ))}
+        </div>
+      </ScrollArea>
 
-      <h2 style={{ margin: `32px 0 16px 0` }}>折线图</h2>
-      <div style={{ width: "100%", height: 300, background: "#fff" }}>
-        <LineChart width={containerWidth} height={300} data={lineData}>
-          <CartesianGrid
-            vertical={false}
-            stroke={gridColor}
-            strokeDasharray="3 3"
-          />
-          <XAxis
-            dataKey="name"
-            stroke={axisLineColor}
-            tick={{
-              fill: fontColor,
-              fontFamily,
-              fontWeight,
-              fontSize,
-            }}
-            axisLine={{ stroke: axisLineColor }}
-            tickLine={false}
-          />
-          <YAxis
-            stroke={axisLineColor}
-            tick={{
-              fill: fontColor,
-              fontFamily,
-              fontWeight,
-              fontSize,
-            }}
-            axisLine={false}
-            tickLine={false}
-            // 分割线虚线
-            tickMargin={10}
-          />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="linear"
-            dataKey="value"
-            stroke="#88BF4D"
-            strokeWidth={2}
-            dot={{
-              r: 6,
-              stroke: "#88BF4D",
-              strokeWidth: 2,
-              fill: "#fff",
-              fillOpacity: 1,
-            }}
-            activeDot={{
-              r: 7,
-              stroke: "#88BF4D",
-              strokeWidth: 2,
-              fill: "#fff",
-              fillOpacity: 1,
-            }}
-            opacity={1}
-            connectNulls
-          />
-        </LineChart>
-      </div>
+      <Textarea
+        placeholder="输入你的消息..."
+        autosize
+        minRows={2}
+        maxRows={4}
+        value={input}
+        onChange={event => setInput(event.currentTarget.value)}
+        onKeyDown={handleKeyDown}
+        mt="md"
+      />
+
+      <Group position="right" mt="xs">
+        <Button onClick={handleSend}>发送</Button>
+      </Group>
     </div>
   );
-};
+}
