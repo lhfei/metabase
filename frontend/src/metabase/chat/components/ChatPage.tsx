@@ -1,11 +1,9 @@
 import styled from "@emotion/styled";
-import { useViewportSize } from "@mantine/hooks";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
 import {
   Button,
-  // Container,
   Group,
   Loader,
   Paper,
@@ -17,8 +15,9 @@ import {
 const Container = styled.div`
   width: 100%;
   max-width: 576px;
-  padding: var(--mantine-spacing-md) 0;
-  height: calc(100vh - 56px);
+  margin: 0 auto;
+  padding-top: 24px;
+  height: calc(100vh - 80px);
 `;
 
 interface Message {
@@ -77,7 +76,7 @@ export function ChatPage() {
 
   return (
     <Container>
-      <ScrollArea h="calc(100vh - 176px)" offsetScrollbars>
+      <ScrollArea h="calc(100vh - 200px)" offsetScrollbars>
         <div ref={scrollRef}>
           {messages.map((msg, index) => (
             <Group
