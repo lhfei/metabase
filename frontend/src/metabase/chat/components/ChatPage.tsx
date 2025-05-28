@@ -13,6 +13,7 @@ import {
 } from "metabase/ui";
 
 import { MemoedMarkdown } from "./Markdown";
+import { md } from "./mockMdWithHtml";
 
 interface Message {
   sender: "user" | "ai";
@@ -47,7 +48,8 @@ export function ChatPage() {
         const updated = [...prev];
         updated[updated.length - 1] = {
           sender: "ai",
-          text: `你说的是：“${userInput}”`,
+          // text: `你说的是：“${userInput}”`,
+          text: `${md}`,
         };
         return updated;
       });
@@ -93,7 +95,7 @@ export function ChatPage() {
                 p="sm"
                 withBorder
                 shadow="xs"
-                maw="75%"
+                // maw="75%"
                 bg={
                   msg.sender === "user"
                     ? theme.colors.brand?.[0] || "#dbeafe"
