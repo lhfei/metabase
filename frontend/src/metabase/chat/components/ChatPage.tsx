@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -12,9 +11,6 @@ import {
   Textarea,
   useMantineTheme,
 } from "metabase/ui";
-
-// 移除 Container，直接用 Box 或 div 并用 theme 变量
-// const Container = styled.div` ... `;
 
 interface Message {
   sender: "user" | "ai";
