@@ -70,8 +70,6 @@ export function ChatPage() {
     });
   }, [messages]);
 
-  console.log("colors", theme.colors);
-
   return (
     <div
       style={{
@@ -134,26 +132,62 @@ export function ChatPage() {
         </div>
       </ScrollArea>
 
-      <Textarea
-        placeholder="输入你的消息..."
-        autosize
-        minRows={2}
-        maxRows={4}
-        value={input}
-        onChange={event => setInput(event.currentTarget.value)}
-        onKeyDown={handleKeyDown}
-        mt="md"
-        styles={{
-          input: {
-            fontSize: theme.fontSizes.md,
-            fontFamily: theme.fontFamily,
-          },
+      <Paper
+        withBorder
+        radius="md"
+        shadow="sm"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          borderColor: theme.colors.gray[4],
         }}
-      />
+      >
+        <Textarea
+          placeholder="输入你的消息..."
+          autosize
+          minRows={2}
+          maxRows={4}
+          value={input}
+          onChange={event => setInput(event.currentTarget.value)}
+          onKeyDown={handleKeyDown}
+          styles={{
+            root: {
+              flex: 1,
+              // 移除 Textarea 自身的边框
+              border: "none",
+              "&:focus-within": {
+                boxShadow: "none",
+              },
+            },
+            input: {
+              fontSize: theme.fontSizes.md,
+              fontFamily: theme.fontFamily,
+              border: "none",
+              borderRadius: theme.radius.md,
+            },
+          }}
+        />
 
-      <Group position="right" mt="xs">
-        <Button onClick={handleSend}>发送</Button>
-      </Group>
+        <Group
+          position="right"
+          p="xs"
+          style={{
+            borderTop: `1px solid ${theme.colors.gray[3]}`,
+            backgroundColor: theme.colors.gray[0],
+          }}
+        >
+          <Button
+            onClick={handleSend}
+            size="sm"
+            style={{
+              // 保持按钮高度与输入框对齐
+              height: 32,
+            }}
+          >
+            发送
+          </Button>
+        </Group>
+      </Paper>
     </div>
   );
 }
