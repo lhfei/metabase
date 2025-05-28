@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useViewportSize } from "@mantine/hooks";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +14,13 @@ import {
   Textarea,
 } from "metabase/ui";
 
+const Container = styled.div`
+  width: 100%;
+  max-width: 576px;
+  padding: var(--mantine-spacing-md) 0;
+  height: calc(100vh - 56px);
+`;
+
 interface Message {
   sender: "user" | "ai";
   text: string;
@@ -22,7 +30,6 @@ interface Message {
 export function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const viewport = useViewportSize();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleSend = () => {
@@ -69,16 +76,8 @@ export function ChatPage() {
   }, [messages]);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: "576px", // sm 尺寸在 Mantine 中默认为 576px
-        padding: "var(--mantine-spacing-md) 0", // py="md" 对应上下 padding
-        // height: viewport.height,
-        height: viewport.height - 56,
-      }}
-    >
-      <ScrollArea style={{ height: "calc(100vh - 176px)" }} offsetScrollbars>
+    <Container>
+      <ScrollArea h="calc(100vh - 176px)" offsetScrollbars>
         <div ref={scrollRef}>
           {messages.map((msg, index) => (
             <Group
@@ -92,11 +91,8 @@ export function ChatPage() {
                 p="sm"
                 withBorder
                 shadow="xs"
-                style={{
-                  maxWidth: "75%",
-                  backgroundColor:
-                    msg.sender === "user" ? "#dbeafe" : "#f8fafc",
-                }}
+                maw="75%"
+                bg={msg.sender === "user" ? "#dbeafe" : "#f8fafc"}
               >
                 {msg.loading ? (
                   <Group spacing="xs">
@@ -128,6 +124,6 @@ export function ChatPage() {
       <Group position="right" mt="xs">
         <Button onClick={handleSend}>发送</Button>
       </Group>
-    </div>
+    </Container>
   );
 }
