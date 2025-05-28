@@ -74,10 +74,11 @@ export function ChatPage() {
         width: "100%",
         maxWidth: "576px", // sm 尺寸在 Mantine 中默认为 576px
         padding: "var(--mantine-spacing-md) 0", // py="md" 对应上下 padding
-        height: viewport.height,
+        // height: viewport.height,
+        height: viewport.height - 56,
       }}
     >
-      <ScrollArea style={{ height: "calc(100vh - 150px)" }} offsetScrollbars>
+      <ScrollArea style={{ height: "calc(100vh - 176px)" }} offsetScrollbars>
         <div ref={scrollRef}>
           {messages.map((msg, index) => (
             <Group
