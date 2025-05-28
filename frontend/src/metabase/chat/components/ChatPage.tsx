@@ -10,15 +10,11 @@ import {
   ScrollArea,
   Text,
   Textarea,
+  useMantineTheme,
 } from "metabase/ui";
 
-const Container = styled.div`
-  width: 100%;
-  max-width: 576px;
-  margin: 0 auto;
-  padding-top: 24px;
-  height: calc(100vh - 80px);
-`;
+// 移除 Container，直接用 Box 或 div 并用 theme 变量
+// const Container = styled.div` ... `;
 
 interface Message {
   sender: "user" | "ai";
@@ -27,6 +23,7 @@ interface Message {
 }
 
 export function ChatPage() {
+  const theme = useMantineTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -47,7 +44,6 @@ export function ChatPage() {
     const userInput = input;
     setInput("");
 
-    // 模拟 AI 响应
     setTimeout(() => {
       setMessages(prev => {
         const updated = [...prev];
@@ -74,8 +70,19 @@ export function ChatPage() {
     });
   }, [messages]);
 
+  console.log("colors", theme.colors);
+
   return (
-    <Container>
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 576,
+        margin: "0 auto",
+        paddingTop: theme.spacing.lg,
+        height: `calc(100vh - 80px)`,
+        fontFamily: theme.fontFamily,
+      }}
+    >
       <ScrollArea h="calc(100vh - 200px)" offsetScrollbars>
         <div ref={scrollRef}>
           {messages.map((msg, index) => (
@@ -86,12 +93,20 @@ export function ChatPage() {
               noWrap
             >
               <Paper
-                radius="md"
+                radius={theme.radius.md}
                 p="sm"
                 withBorder
                 shadow="xs"
                 maw="75%"
-                bg={msg.sender === "user" ? "#dbeafe" : "#f8fafc"}
+                bg={
+                  msg.sender === "user"
+                    ? theme.colors.brand?.[0] || "#dbeafe"
+                    : theme.colors.gray?.[0] || "#f8fafc"
+                }
+                style={{
+                  fontSize: theme.fontSizes.md,
+                  lineHeight: theme.lineHeight,
+                }}
               >
                 {msg.loading ? (
                   <Group spacing="xs">
@@ -101,7 +116,17 @@ export function ChatPage() {
                     </Text>
                   </Group>
                 ) : (
-                  <Text size="sm">{msg.text}</Text>
+                  <Text
+                    style={{
+                      color:
+                        msg.sender === "user"
+                          ? theme.colors.white?.[0]
+                          : "unset",
+                    }}
+                    size="sm"
+                  >
+                    {msg.text}
+                  </Text>
                 )}
               </Paper>
             </Group>
@@ -118,11 +143,17 @@ export function ChatPage() {
         onChange={event => setInput(event.currentTarget.value)}
         onKeyDown={handleKeyDown}
         mt="md"
+        styles={{
+          input: {
+            fontSize: theme.fontSizes.md,
+            fontFamily: theme.fontFamily,
+          },
+        }}
       />
 
       <Group position="right" mt="xs">
         <Button onClick={handleSend}>发送</Button>
       </Group>
-    </Container>
+    </div>
   );
 }
