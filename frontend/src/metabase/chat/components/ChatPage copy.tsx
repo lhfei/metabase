@@ -13,6 +13,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { MemoedBarChart } from "./BarChart";
+
 export const ChatPage = () => {
   // Reference to the container div
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,7 +71,8 @@ export const ChatPage = () => {
   return (
     <div ref={containerRef} style={{ margin: 16 }}>
       <h2 style={{ margin: `16px 0` }}>柱状图</h2>
-      <div style={{ width: "100%", height: 300, background: "#fff" }}>
+      <MemoedBarChart data={data} width={containerWidth} />
+      {/* <div style={{ width: "100%", height: 300, background: "#fff" }}>
         <BarChart width={containerWidth} height={300} data={data}>
           <CartesianGrid
             vertical={false}
@@ -103,7 +106,7 @@ export const ChatPage = () => {
           <Legend />
           <Bar dataKey="value" fill={barColor} />
         </BarChart>
-      </div>
+      </div> */}
 
       <h2 style={{ margin: `32px 0 16px 0` }}>折线图</h2>
       <div style={{ width: "100%", height: 300, background: "#fff" }}>
