@@ -103,7 +103,7 @@ export function ChatPage() {
                 }
                 style={{
                   fontSize: theme.fontSizes.md,
-                  lineHeight: theme.lineHeight,
+                  // lineHeight: theme.lineHeight,
                 }}
               >
                 {msg.loading ? (
