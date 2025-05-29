@@ -14,6 +14,7 @@ import {
 
 import { MemoedMarkdown } from "./Markdown";
 import { MemoedVoiceInputButton } from "./VoiceInputButton/VoiceInputButton";
+import { useVoiceInput } from "./VoiceInputButton/useVoiceInput";
 import { md } from "./mockMdWithHtml";
 
 interface Message {
@@ -27,6 +28,8 @@ export function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const { listening, setListening } = useVoiceInput();
 
   const handleSend = () => {
     if (!input.trim()) {
@@ -174,8 +177,13 @@ export function ChatPage() {
             backgroundColor: theme.colors.gray[0],
           }}
         >
-          <MemoedVoiceInputButton onResult={setInput} />
+          <MemoedVoiceInputButton
+            listening={listening}
+            setListening={setListening}
+            onResult={setInput}
+          />
           <Button
+            disabled={!input.trim() || listening}
             onClick={handleSend}
             size="sm"
             style={{

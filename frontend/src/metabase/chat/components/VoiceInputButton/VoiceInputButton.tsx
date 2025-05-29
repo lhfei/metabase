@@ -6,10 +6,13 @@ import styles from "./VoiceInputButton.modules.css";
 
 const VoiceInputButton = ({
   onResult,
+  listening,
+  setListening,
 }: {
   onResult: (text: string) => void;
+  listening: boolean;
+  setListening: (listening: boolean) => void;
 }) => {
-  const [listening, setListening] = useState(false);
   const [interimText, setInterimText] = useState("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
