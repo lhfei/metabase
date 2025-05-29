@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -76,7 +77,10 @@ export function ChatPage() {
   }, [messages]);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       style={{
         width: "100%",
         paddingTop: theme.spacing.lg,
@@ -94,42 +98,53 @@ export function ChatPage() {
               <MemoedWelcome />
             ) : (
               messages.map((msg, index) => (
-                <Group
+                <motion.div
                   key={index}
-                  position={msg.sender === "user" ? "right" : "left"}
-                  mb="xs"
-                  noWrap
+                  initial={{ opacity: 0, x: msg.sender === "user" ? 50 : -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: index * 0.05,
+                    duration: 0.4,
+                    ease: "easeOut",
+                  }}
                 >
-                  <Paper
-                    radius={theme.radius.md}
-                    p="sm"
-                    withBorder
-                    shadow="xs"
-                    bg={
-                      msg.sender === "user"
-                        ? theme.colors.brand?.[0] || "#dbeafe"
-                        : theme.colors.gray?.[0] || "#f8fafc"
-                    }
-                    style={{
-                      fontSize: theme.fontSizes.md,
-                    }}
+                  <Group
+                    key={index}
+                    position={msg.sender === "user" ? "right" : "left"}
+                    mb="xs"
+                    noWrap
                   >
-                    {msg.loading ? (
-                      <Group spacing="xs">
-                        <Loader size="xs" variant="dots" />
-                        <Text size="sm" color="dimmed">
-                          正在输入...
+                    <Paper
+                      radius={theme.radius.md}
+                      p="sm"
+                      withBorder
+                      shadow="xs"
+                      bg={
+                        msg.sender === "user"
+                          ? theme.colors.brand?.[0] || "#dbeafe"
+                          : theme.colors.gray?.[0] || "#f8fafc"
+                      }
+                      style={{
+                        fontSize: theme.fontSizes.md,
+                      }}
+                    >
+                      {msg.loading ? (
+                        <Group spacing="xs">
+                          <Loader size="xs" variant="dots" />
+                          <Text size="sm" color="dimmed">
+                            正在输入...
+                          </Text>
+                        </Group>
+                      ) : msg.sender === "user" ? (
+                        <Text color={theme.colors.white?.[9]} size="sm">
+                          {msg.text}
                         </Text>
-                      </Group>
-                    ) : msg.sender === "user" ? (
-                      <Text color={theme.colors.white?.[9]} size="sm">
-                        {msg.text}
-                      </Text>
-                    ) : (
-                      <MemoedMarkdown msg={msg} />
-                    )}
-                  </Paper>
-                </Group>
+                      ) : (
+                        <MemoedMarkdown msg={msg} />
+                      )}
+                    </Paper>
+                  </Group>
+                </motion.div>
               ))
             )}
           </div>
@@ -200,6 +215,6 @@ export function ChatPage() {
           </Button>
         </Group>
       </Paper>
-    </div>
+    </motion.div>
   );
 }
