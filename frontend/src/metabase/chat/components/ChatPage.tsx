@@ -81,50 +81,49 @@ export function ChatPage() {
         fontFamily: theme.fontFamily,
       }}
     >
-      <ScrollArea
-        offsetScrollbars
-        style={{ height: "calc(100vh - 200px)", overflow: "auto" }}
-      >
+      <ScrollArea offsetScrollbars>
         <div
           ref={scrollRef}
-          style={{ width: "100%", maxWidth: 576, margin: "0 auto" }}
+          style={{ height: "calc(100vh - 200px)", overflow: "auto" }}
         >
-          {messages.map((msg, index) => (
-            <Group
-              key={index}
-              position={msg.sender === "user" ? "right" : "left"}
-              mb="xs"
-              noWrap
-            >
-              <Paper
-                radius={theme.radius.md}
-                p="sm"
-                withBorder
-                shadow="xs"
-                // maw="75%"
-                bg={
-                  msg.sender === "user"
-                    ? theme.colors.brand?.[0] || "#dbeafe"
-                    : theme.colors.gray?.[0] || "#f8fafc"
-                }
-                style={{
-                  fontSize: theme.fontSizes.md,
-                  // lineHeight: theme.lineHeight,
-                }}
+          <div style={{ width: "100%", maxWidth: 576, margin: "0 auto" }}>
+            {messages.map((msg, index) => (
+              <Group
+                key={index}
+                position={msg.sender === "user" ? "right" : "left"}
+                mb="xs"
+                noWrap
               >
-                {msg.loading ? (
-                  <Group spacing="xs">
-                    <Loader size="xs" variant="dots" />
-                    <Text size="sm" color="dimmed">
-                      正在输入...
-                    </Text>
-                  </Group>
-                ) : (
-                  <MemoedMarkdown msg={msg} />
-                )}
-              </Paper>
-            </Group>
-          ))}
+                <Paper
+                  radius={theme.radius.md}
+                  p="sm"
+                  withBorder
+                  shadow="xs"
+                  // maw="75%"
+                  bg={
+                    msg.sender === "user"
+                      ? theme.colors.brand?.[0] || "#dbeafe"
+                      : theme.colors.gray?.[0] || "#f8fafc"
+                  }
+                  style={{
+                    fontSize: theme.fontSizes.md,
+                    // lineHeight: theme.lineHeight,
+                  }}
+                >
+                  {msg.loading ? (
+                    <Group spacing="xs">
+                      <Loader size="xs" variant="dots" />
+                      <Text size="sm" color="dimmed">
+                        正在输入...
+                      </Text>
+                    </Group>
+                  ) : (
+                    <MemoedMarkdown msg={msg} />
+                  )}
+                </Paper>
+              </Group>
+            ))}
+          </div>
         </div>
       </ScrollArea>
       <Paper
