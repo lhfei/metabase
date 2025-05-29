@@ -15,6 +15,7 @@ import {
 import { MemoedMarkdown } from "./Markdown";
 import { MemoedVoiceInputButton } from "./VoiceInputButton/VoiceInputButton";
 import { useVoiceInput } from "./VoiceInputButton/useVoiceInput";
+import { MemoedWelcome } from "./Welcome";
 import { md } from "./mockMdWithHtml";
 
 interface Message {
@@ -89,46 +90,48 @@ export function ChatPage() {
           style={{ height: "calc(100vh - 200px)", overflow: "auto" }}
         >
           <div style={{ width: "100%", maxWidth: 576, margin: "0 auto" }}>
-            {messages.map((msg, index) => (
-              <Group
-                key={index}
-                position={msg.sender === "user" ? "right" : "left"}
-                mb="xs"
-                noWrap
-              >
-                <Paper
-                  radius={theme.radius.md}
-                  p="sm"
-                  withBorder
-                  shadow="xs"
-                  // maw="75%"
-                  bg={
-                    msg.sender === "user"
-                      ? theme.colors.brand?.[0] || "#dbeafe"
-                      : theme.colors.gray?.[0] || "#f8fafc"
-                  }
-                  style={{
-                    fontSize: theme.fontSizes.md,
-                    // lineHeight: theme.lineHeight,
-                  }}
+            {messages.length === 0 ? (
+              <MemoedWelcome />
+            ) : (
+              messages.map((msg, index) => (
+                <Group
+                  key={index}
+                  position={msg.sender === "user" ? "right" : "left"}
+                  mb="xs"
+                  noWrap
                 >
-                  {msg.loading ? (
-                    <Group spacing="xs">
-                      <Loader size="xs" variant="dots" />
-                      <Text size="sm" color="dimmed">
-                        正在输入...
+                  <Paper
+                    radius={theme.radius.md}
+                    p="sm"
+                    withBorder
+                    shadow="xs"
+                    bg={
+                      msg.sender === "user"
+                        ? theme.colors.brand?.[0] || "#dbeafe"
+                        : theme.colors.gray?.[0] || "#f8fafc"
+                    }
+                    style={{
+                      fontSize: theme.fontSizes.md,
+                    }}
+                  >
+                    {msg.loading ? (
+                      <Group spacing="xs">
+                        <Loader size="xs" variant="dots" />
+                        <Text size="sm" color="dimmed">
+                          正在输入...
+                        </Text>
+                      </Group>
+                    ) : msg.sender === "user" ? (
+                      <Text color={theme.colors.white?.[9]} size="sm">
+                        {msg.text}
                       </Text>
-                    </Group>
-                  ) : msg.sender === "user" ? (
-                    <Text color={theme.colors.white?.[9]} size="sm">
-                      {msg.text}
-                    </Text>
-                  ) : (
-                    <MemoedMarkdown msg={msg} />
-                  )}
-                </Paper>
-              </Group>
-            ))}
+                    ) : (
+                      <MemoedMarkdown msg={msg} />
+                    )}
+                  </Paper>
+                </Group>
+              ))
+            )}
           </div>
         </div>
       </ScrollArea>
