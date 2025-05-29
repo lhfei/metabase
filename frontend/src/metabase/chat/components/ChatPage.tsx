@@ -78,8 +78,6 @@ export function ChatPage() {
     <div
       style={{
         width: "100%",
-        // maxWidth: 576,
-        // margin: "0 auto",
         paddingTop: theme.spacing.lg,
         height: `calc(100vh - 80px)`,
         fontFamily: theme.fontFamily,
@@ -121,6 +119,10 @@ export function ChatPage() {
                         正在输入...
                       </Text>
                     </Group>
+                  ) : msg.sender === "user" ? (
+                    <Text color={theme.colors.white?.[9]} size="sm">
+                      {msg.text}
+                    </Text>
                   ) : (
                     <MemoedMarkdown msg={msg} />
                   )}
