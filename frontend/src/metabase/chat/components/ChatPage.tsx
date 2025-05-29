@@ -74,15 +74,21 @@ export function ChatPage() {
     <div
       style={{
         width: "100%",
-        maxWidth: 576,
-        margin: "0 auto",
+        // maxWidth: 576,
+        // margin: "0 auto",
         paddingTop: theme.spacing.lg,
         height: `calc(100vh - 80px)`,
         fontFamily: theme.fontFamily,
       }}
     >
-      <ScrollArea h="calc(100vh - 200px)" offsetScrollbars>
-        <div ref={scrollRef}>
+      <ScrollArea
+        offsetScrollbars
+        style={{ height: "calc(100vh - 200px)", overflow: "auto" }}
+      >
+        <div
+          ref={scrollRef}
+          style={{ width: "100%", maxWidth: 576, margin: "0 auto" }}
+        >
           {messages.map((msg, index) => (
             <Group
               key={index}
@@ -121,7 +127,6 @@ export function ChatPage() {
           ))}
         </div>
       </ScrollArea>
-
       <Paper
         withBorder
         radius="md"
@@ -130,6 +135,9 @@ export function ChatPage() {
           display: "flex",
           flexDirection: "column",
           borderColor: theme.colors.gray[4],
+          width: "100%",
+          maxWidth: 576,
+          margin: "0 auto",
         }}
       >
         <Textarea
