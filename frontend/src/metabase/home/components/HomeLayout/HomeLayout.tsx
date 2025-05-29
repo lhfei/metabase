@@ -107,9 +107,7 @@ export const HomeLayout = ({ children }: HomeLayoutProps): JSX.Element => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
       />
-      {location.pathname !== "/chat" && (
-        <FloatButton onClick={() => dispatch(push("/chat"))} />
-      )}
+      <FloatButton onClick={() => dispatch(push("/chat"))} />
     </LayoutRoot>
   );
 };
