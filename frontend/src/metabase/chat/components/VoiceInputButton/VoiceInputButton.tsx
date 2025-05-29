@@ -14,7 +14,9 @@ const VoiceInputButton = ({
   setListening: (listening: boolean) => void;
 }) => {
   const [interimText, setInterimText] = useState("");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<
+    (typeof window extends { SpeechRecognition: infer T } ? T : any) | null
+  >(null);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -31,7 +33,7 @@ const VoiceInputButton = ({
     recognition.continuous = true; // 连续识别
     recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: any) => {
       let finalTranscript = "";
       let interimTranscript = "";
 
@@ -55,7 +57,7 @@ const VoiceInputButton = ({
       }
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: any) => {
       console.error("语音识别错误:", event.error);
       stopListening();
     };
