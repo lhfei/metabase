@@ -13,6 +13,7 @@ import {
 } from "metabase/ui";
 
 import { MemoedMarkdown } from "./Markdown";
+import { MemoedVoiceInputButton } from "./VoiceInputButton/VoiceInputButton";
 import { md } from "./mockMdWithHtml";
 
 interface Message {
@@ -173,6 +174,7 @@ export function ChatPage() {
             backgroundColor: theme.colors.gray[0],
           }}
         >
+          <MemoedVoiceInputButton onResult={setInput} />
           <Button
             onClick={handleSend}
             size="sm"
