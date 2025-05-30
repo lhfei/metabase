@@ -45,6 +45,7 @@ import { refreshSiteSettings } from "metabase/redux/settings";
 import { EmotionCacheProvider } from "metabase/styled-components/components/EmotionCacheProvider";
 import { GlobalStyles } from "metabase/styled-components/containers/GlobalStyles";
 import { ThemeProvider } from "metabase/ui";
+import { customTheme } from "metabase/ui/customTheme";
 import registerVisualizations from "metabase/visualizations/register";
 
 import { getStore } from "./store";
@@ -74,7 +75,7 @@ function _init(reducers, getRoutes, callback) {
     <MetabaseReduxProvider store={store}>
       <EmotionCacheProvider>
         <DragDropContextProvider backend={HTML5Backend} context={{ window }}>
-          <ThemeProvider>
+          <ThemeProvider theme={customTheme}>
             <GlobalStyles />
             <Router history={history}>{routes}</Router>
           </ThemeProvider>
