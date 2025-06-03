@@ -95,4 +95,5 @@ export const _UpsellCard: React.FC<UpsellCardProps> = ({
   );
 };
 
-export const UpsellCard = UpsellWrapper(_UpsellCard);
+export const UpsellCard0 = UpsellWrapper(_UpsellCard);
+export const UpsellCard = () => null;
