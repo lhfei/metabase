@@ -44,10 +44,10 @@ export function EmbeddingSettings({
           </Stack>
         </Box>
         <StaticEmbeddingOptionCard onToggle={handleToggleStaticEmbedding} />
-        <EmbeddingSdkOptionCard onToggle={handleToggleEmbeddingSdk} />
-        <InteractiveEmbeddingOptionCard
+        {/* <EmbeddingSdkOptionCard onToggle={handleToggleEmbeddingSdk} /> */}
+        {/* <InteractiveEmbeddingOptionCard
           onToggle={handleToggleInteractiveEmbedding}
-        />
+        /> */}
       </Stack>
     </Box>
   );
