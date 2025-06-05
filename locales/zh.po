@@ -1580,7 +1580,7 @@ msgstr "清楚"
 #: frontend/src/metabase/admin/settings/components/SettingsLdapForm.tsx:155
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:304
 msgid "Authentication"
-msgstr "认证"
+msgstr "验证"
 
 #: frontend/src/metabase/admin/settings/components/SettingsLdapForm.jsx:51
 msgid "Server Settings"
