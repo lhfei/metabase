@@ -62,9 +62,9 @@ const CollectionHeader = ({
               saveFile={saveFile}
             />
           )}
-          {!isInstanceAnalytics && (
+          {/* {!isInstanceAnalytics && (
             <CollectionTimeline collection={collection} />
-          )}
+          )} */}
           {isInstanceAnalytics && (
             <CollectionPermissions collection={collection} />
           )}
