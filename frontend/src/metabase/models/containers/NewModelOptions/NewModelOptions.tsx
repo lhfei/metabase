@@ -100,7 +100,7 @@ const NewModelOptions = ({ location }: NewModelOptionsProps) => {
         )}
       </Grid>
 
-      {showMetabaseLinks && (
+      {/* {showMetabaseLinks && (
         <EducationalButton
           target="_blank"
           href={EDUCATIONAL_LINK}
@@ -108,7 +108,7 @@ const NewModelOptions = ({ location }: NewModelOptionsProps) => {
         >
           {t`What's a model?`}
         </EducationalButton>
-      )}
+      )} */}
     </OptionsRoot>
   );
 };
