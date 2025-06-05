@@ -8055,7 +8055,7 @@ msgstr "连接到您的数据，以便您的整个团队可以开始探索。"
 #: frontend/src/metabase/home/components/Onboarding/Onboarding.tsx:530
 #: metabase/api/setup.clj:215
 msgid "Set up email"
-msgstr "设置邮件地址"
+msgstr "设置电子邮件"
 
 #: metabase/api/setup.clj:217
 msgid "Add email credentials so you can more easily invite team members and get updates via Pulses."
