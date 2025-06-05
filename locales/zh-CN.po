@@ -1964,7 +1964,7 @@ msgstr "帮助请求的邮箱地址"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:357
 msgid "Report Timezone"
-msgstr "报告时区"
+msgstr "时区设置"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:360
 msgid "Database Default"
@@ -15585,7 +15585,7 @@ msgstr "本地化"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:341
 msgid "Instance language"
-msgstr "实例语言"
+msgstr "语言设置"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:384
 msgid "Localization options"
