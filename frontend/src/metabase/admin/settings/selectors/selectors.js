@@ -314,25 +314,25 @@ export const ADMIN_SETTINGS_SECTIONS = {
     settings: [], // added by plugins
     adminOnly: true,
   },
-  maps: {
-    name: t`Maps`,
-    order: 70,
-    settings: [
-      {
-        key: "map-tile-server-url",
-        display_name: t`Map tile server URL`,
-        note: t`Metabase uses OpenStreetMaps by default.`,
-        type: "string",
-      },
-      {
-        key: "custom-geojson",
-        display_name: t`Custom Maps`,
-        description: t`Add your own GeoJSON files to enable different region map visualizations`,
-        widget: CustomGeoJSONWidget,
-        noHeader: true,
-      },
-    ],
-  },
+  // maps: {
+  //   name: t`Maps`,
+  //   order: 70,
+  //   settings: [
+  //     {
+  //       key: "map-tile-server-url",
+  //       display_name: t`Map tile server URL`,
+  //       note: t`Metabase uses OpenStreetMaps by default.`,
+  //       type: "string",
+  //     },
+  //     {
+  //       key: "custom-geojson",
+  //       display_name: t`Custom Maps`,
+  //       description: t`Add your own GeoJSON files to enable different region map visualizations`,
+  //       widget: CustomGeoJSONWidget,
+  //       noHeader: true,
+  //     },
+  //   ],
+  // },
   localization: {
     name: t`Localization`,
     order: 80,
