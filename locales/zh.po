@@ -4509,7 +4509,7 @@ msgstr "提出一个问题"
 #: frontend/src/metabase/dashboard/containers/CreateDashboardModal.tsx:50
 #: frontend/src/metabase/palette/hooks/useCommandPaletteBasicActions.tsx:103
 msgid "New dashboard"
-msgstr "新仪表板"
+msgstr "新仪表盘"
 
 #: frontend/src/metabase/pulse/components/PulseEdit.jsx:150
 msgid "New pulse"
