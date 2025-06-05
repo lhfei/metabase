@@ -33820,7 +33820,7 @@ msgstr "Metabase 正在进行维护，并以只读模式运行。详情请联系
 
 #: frontend/src/metabase/palette/components/Palette.tsx:52
 msgid "Search for anything or jump somewhere…"
-msgstr "搜索任何东西或跳转到某个地方..."
+msgstr "输入搜索关键词"
 
 #: frontend/src/metabase/nav/containers/MainNavbar/MainNavbarContainer/BrowseNavSection.tsx:44
 #: frontend/src/metabase/palette/hooks/useCommandPaletteBasicActions.tsx:172
