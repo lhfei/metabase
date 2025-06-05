@@ -3172,14 +3172,14 @@ msgstr "描述"
 #: frontend/src/metabase/query_builder/components/template_tags/SnippetForm/SnippetForm.tsx:171
 #: frontend/src/metabase/questions/components/CopyQuestionForm.tsx:78
 msgid "It's optional but oh, so helpful"
-msgstr "这是可选的，但是哦，很有帮助"
+msgstr "可选项"
 
 #: frontend/src/metabase/components/SaveQuestionForm/SaveQuestionForm.tsx:68
 #: frontend/src/metabase/dashboard/containers/CopyDashboardForm.tsx:114
 #: frontend/src/metabase/dashboard/containers/CreateDashboardForm.tsx:126
 #: frontend/src/metabase/questions/components/CopyQuestionForm.tsx:85
 msgid "Which collection should this go in?"
-msgstr "进入那个收藏？"
+msgstr "收藏"
 
 #: frontend/src/metabase/containers/UndoListing.tsx:32
 msgid "modified"
@@ -3396,7 +3396,7 @@ msgstr "颜色为必填项"
 #: frontend/src/metabase/dashboard/containers/CreateDashboardForm.tsx:115
 #: frontend/src/metabase/questions/components/CopyQuestionForm.tsx:71
 msgid "What is the name of your dashboard?"
-msgstr "您的仪表盘的名称是什么？"
+msgstr "仪表盘名称"
 
 #: frontend/src/metabase/home/components/Activity.jsx:94
 msgid "did some super awesome stuff that's hard to describe"
@@ -20969,7 +20969,7 @@ msgstr "仅限局部视图"
 
 #: frontend/src/metabase/query_builder/components/DatasetEditor/DatasetFieldMetadataSidebar/DatasetFieldMetadataSidebar.jsx:97
 msgid "It’s optional, but oh, so helpful"
-msgstr "这是可选的，但是，哦，很有帮助"
+msgstr "可选项"
 
 #: frontend/src/metabase/query_builder/components/DatasetEditor/DatasetFieldMetadataSidebar/DatasetFieldMetadataSidebar.jsx:279
 msgid "Database column this maps to"

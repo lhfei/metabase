@@ -3136,14 +3136,14 @@ msgstr "描述"
 #: frontend/src/metabase/query_builder/components/template_tags/SnippetForm/SnippetForm.tsx:171
 #: frontend/src/metabase/questions/components/CopyQuestionForm.tsx:78
 msgid "It's optional but oh, so helpful"
-msgstr "这是可选的，但非常有用"
+msgstr "可选项"
 
 #: frontend/src/metabase/components/SaveQuestionForm/SaveQuestionForm.tsx:68
 #: frontend/src/metabase/dashboard/containers/CopyDashboardForm.tsx:114
 #: frontend/src/metabase/dashboard/containers/CreateDashboardForm.tsx:126
 #: frontend/src/metabase/questions/components/CopyQuestionForm.tsx:85
 msgid "Which collection should this go in?"
-msgstr "这问题应该放在哪个集合里？"
+msgstr "收藏"
 
 #: frontend/src/metabase/containers/UndoListing.tsx:32
 msgid "modified"
@@ -3362,7 +3362,7 @@ msgstr "颜色是必填项"
 #: frontend/src/metabase/dashboard/containers/CreateDashboardForm.tsx:115
 #: frontend/src/metabase/questions/components/CopyQuestionForm.tsx:71
 msgid "What is the name of your dashboard?"
-msgstr "你仪表板的名称是什么？"
+msgstr "仪表盘名称"
 
 #: frontend/src/metabase/home/components/Activity.jsx:94
 msgid "did some super awesome stuff that's hard to describe"
