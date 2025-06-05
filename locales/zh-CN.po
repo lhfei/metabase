@@ -36158,11 +36158,11 @@ msgstr "如果您的团队使用 Slack，您可以在那里发送仪表板订阅
 
 #: frontend/src/metabase/admin/settings/notifications/NotificationSettings.tsx:50
 msgid "Webhooks for Alerts"
-msgstr "警报网络钩子"
+msgstr "webhook配置"
 
 #: frontend/src/metabase/admin/settings/notifications/NotificationSettings.tsx:77
 msgid "Add a webhook"
-msgstr "添加网络钩子"
+msgstr "添加webhook"
 
 #: frontend/src/metabase/admin/settings/notifications/NotificationSettings.tsx:78
 msgid "Specify a webhook URL where you can send the content of Alerts"
