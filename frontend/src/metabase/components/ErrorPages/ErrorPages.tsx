@@ -41,7 +41,7 @@ export const GenericError = ({
       }
     />
     <ErrorDetails className={CS.pt2} details={details} centered />
-    <ErrorDiagnosticModalTrigger />
+    {/* <ErrorDiagnosticModalTrigger /> */}
   </ErrorPageRoot>
 );
 
