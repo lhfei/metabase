@@ -28,7 +28,7 @@ export const BrowseDataHeader = () => {
               {t`Databases`}
             </Group>
           </Title>
-          <LearnAboutDataLink />
+          {/* <LearnAboutDataLink /> */}
         </Flex>
       </BrowseSection>
     </BrowseHeader>
