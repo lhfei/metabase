@@ -18,11 +18,7 @@ export const HomePage = (): JSX.Element => {
     return <LoadingAndErrorWrapper loading={isLoadingDash} />;
   }
 
-  return (
-    <HomeLayout>
-      <HomeContent />
-    </HomeLayout>
-  );
+  return <HomeLayout>{/* <HomeContent /> */}</HomeLayout>;
 };
 
 const useDashboardRedirect = () => {
