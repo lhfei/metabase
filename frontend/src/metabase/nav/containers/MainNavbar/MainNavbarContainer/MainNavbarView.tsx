@@ -190,7 +190,7 @@ export function MainNavbarView({
             >
               {t`Home`}
             </PaddedSidebarLink>
-            {showOnboardingLink && (
+            {/* {showOnboardingLink && (
               <PaddedSidebarLinkDismissible
                 icon="learn"
                 right={
@@ -206,10 +206,9 @@ export function MainNavbarView({
                 isSelected={isOnboardingPageSelected}
                 onClick={() => trackOnboardingChecklistOpened()}
               >
-                {/* eslint-disable-next-line no-literal-metabase-strings -- We only show this to non-whitelabelled instances */}
                 {t`How to use Metabase`}
               </PaddedSidebarLinkDismissible>
-            )}
+            )} */}
             {showUploadCSVButton && <DwhUploadCSV />}
           </SidebarSection>
 
