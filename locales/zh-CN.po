@@ -9791,7 +9791,7 @@ msgstr "主机地址"
 
 #: metabase/driver/common.clj:28
 msgid "Port"
-msgstr "端口"
+msgstr "端口号"
 
 #: src/metabase/driver/common.clj
 msgid "Database username"

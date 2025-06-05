@@ -9744,11 +9744,11 @@ msgstr "所有个人集合"
 
 #: metabase/driver/common.clj:20 metabase/lib/extraction.cljc:49
 msgid "Host"
-msgstr "宿主"
+msgstr "主机地址"
 
 #: metabase/driver/common.clj:28
 msgid "Port"
-msgstr "港口"
+msgstr "端口号"
 
 #: src/metabase/driver/common.clj
 msgid "Database username"
