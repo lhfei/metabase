@@ -61,11 +61,7 @@ export const InviteUserForm = ({
             nullable
           />
         </UserFieldGroup>
-        <FormInput
-          name="email"
-          title={t`Email`}
-          placeholder={"nicetoseeyou@email.com"}
-        />
+        <FormInput name="email" title={t`Email`} placeholder="123xxx@qq.com" />
         <FormSubmitButton title={t`Send invitation`} primary />
       </Form>
     </FormProvider>

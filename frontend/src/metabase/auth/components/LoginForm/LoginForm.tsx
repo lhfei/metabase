@@ -63,14 +63,14 @@ export const LoginForm = ({
             isLdapEnabled ? t`Username or email address` : t`Email address`
           }
           type={isLdapEnabled ? "input" : "email"}
-          placeholder="nicetoseeyou@email.com"
+          placeholder="123xxx@qq.com"
           autoFocus
         />
         <FormInput
           name="password"
           title={t`Password`}
           type="password"
-          placeholder={t`Shhh...`}
+          // placeholder={t`Shhh...`}
         />
         {!hasSessionCookies && (
           <FormCheckBox name="remember" title={t`Remember me`} />

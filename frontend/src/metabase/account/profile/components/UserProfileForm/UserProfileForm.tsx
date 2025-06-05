@@ -78,7 +78,7 @@ const UserProfileForm = ({
                 name="email"
                 type="email"
                 title={t`Email`}
-                placeholder="nicetoseeyou@email.com"
+                placeholder="123xxx@qq.com"
               />
             </>
           )}

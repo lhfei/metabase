@@ -61,7 +61,7 @@ export const UserForm = ({
             name="email"
             type="email"
             title={t`Email`}
-            placeholder="nicetoseeyou@email.com"
+            placeholder="123xxx@qq.com"
             label={t`Email`}
             required
             mb="1rem"

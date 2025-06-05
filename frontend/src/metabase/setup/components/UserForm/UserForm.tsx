@@ -81,7 +81,7 @@ export const UserForm = ({
           name="email"
           type="email"
           title={t`Email`}
-          placeholder="nicetoseeyou@email.com"
+          placeholder="123xxx@qq.com"
         />
         <FormInput
           name="site_name"
