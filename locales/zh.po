@@ -13472,7 +13472,7 @@ msgstr "添加一个指标"
 #: frontend/src/metabase/lib/core.js:173 frontend/src/metabase/lib/core.js:179
 #: frontend/src/metabase/lib/core.js:185 frontend/src/metabase/lib/core.js:191
 msgid "Profile"
-msgstr "形象"
+msgstr "简介"
 
 #: frontend/src/metabase/visualizations/components/Visualization/LoadingView/LoadingView.tsx:32
 msgid "This is usually pretty fast but seems to be taking a while right now."

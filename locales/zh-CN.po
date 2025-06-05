@@ -1696,7 +1696,7 @@ msgstr "Metabase  {0} 可用。 您正在运行 {1}"
 #: frontend/src/metabase/timelines/common/components/TimelineForm/TimelineForm.tsx:69
 #: frontend/src/metabase/visualizations/components/ObjectDetail/utils.ts:161
 msgid "Update"
-msgstr "升级"
+msgstr "更新"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:127
 msgid "What's Changed:"
@@ -2004,7 +2004,7 @@ msgstr "启用嵌套查询"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:185
 msgid "Updates"
-msgstr "升级"
+msgstr "更新"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:191
 msgid "Check for updates"
@@ -4755,7 +4755,7 @@ msgstr "升级中..."
 
 #: frontend/src/metabase/search/components/InfoText/InfoTextEditedInfo.tsx:62
 msgid "Updated"
-msgstr "升级"
+msgstr "更新"
 
 #: frontend/src/metabase/public/components/widgets/AdvancedEmbedPane.jsx:64
 msgid "Failed!"
@@ -21952,7 +21952,7 @@ msgstr "集成Slack 机器人"
 #: frontend/src/metabase/admin/app/components/DeprecationNotice/DeprecationNotice.tsx:61
 #: frontend/src/metabase/admin/app/components/DeprecationNotice/DeprecationNotice.tsx:79
 msgid "upgrade"
-msgstr "升级"
+msgstr "更新"
 
 #: frontend/src/metabase/admin/app/components/DeprecationNotice/DeprecationNotice.tsx:64
 msgid "Your Slack bot was deprecated but is still working. We recommend you delete the existing connection and {0}."
