@@ -293,7 +293,7 @@ msgstr "计划中..."
 #: frontend/src/metabase/querying/metrics/components/MetricEditor/MetricEditorHeader/MetricEditorHeader.tsx:47
 #: frontend/src/metabase/reference/components/RevisionMessageModal.jsx:57
 msgid "Save changes"
-msgstr "保存改变"
+msgstr "保存"
 
 #. 动作
 #: frontend/src/metabase/admin/datamodel/containers/SegmentListApp.jsx:33
@@ -1039,7 +1039,7 @@ msgstr "成员"
 #: frontend/src/metabase/setup/components/InviteUserForm/InviteUserForm.tsx:66
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:83
 msgid "Email"
-msgstr "Email"
+msgstr "电子邮箱"
 
 #: frontend/src/metabase/admin/people/components/GroupMembersTable/GroupMembersTable.tsx:145
 msgid "A group is only as good as its members."
@@ -1604,7 +1604,7 @@ msgstr "已发送！"
 #: frontend/src/metabase/parameters/components/WidgetStatus/WidgetStatus.tsx:46
 #: frontend/src/metabase/querying/filters/components/FilterModal/DateFilterEditor/DateFilterEditor.tsx:141
 msgid "Clear"
-msgstr "清除"
+msgstr "重置"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsJWTForm/SettingsJWTForm.tsx:88
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:90
