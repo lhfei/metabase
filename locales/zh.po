@@ -37021,7 +37021,7 @@ msgstr "控制警报和订阅收件人的可见性。"
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:298
 #: frontend/src/metabase/admin/settings/slack/components/SlackSettings/SlackSettings.tsx:13
 msgid "Notification channels"
-msgstr "通知渠道"
+msgstr "通知配置"
 
 #: frontend/src/metabase/visualizations/lib/settings/graph.js:325
 msgid "Additional tooltip metrics"
