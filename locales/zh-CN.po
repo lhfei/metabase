@@ -20082,7 +20082,7 @@ msgstr "数据集"
 #: frontend/src/metabase/components/NewItemMenu/NewItemMenu.tsx:124
 #: metabase/models/revision/diff.clj:119
 msgid "Metric"
-msgstr "公制"
+msgstr "指标"
 
 #: frontend/src/metabase/nav/components/StoreLink/StoreLink.tsx:9
 msgid "Explore paid features"
