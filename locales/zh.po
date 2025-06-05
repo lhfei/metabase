@@ -33975,7 +33975,7 @@ msgstr "捷径"
 
 #: frontend/src/metabase/routes.jsx:144 metabase/models/collection.clj:120
 msgid "Trash"
-msgstr "垃圾"
+msgstr "回收站"
 
 #: enterprise/frontend/src/metabase-enterprise/upload_management/DeleteConfirmModal.tsx:39
 msgid "This may impact the models and questions that use the table(s) as their data source. This can't be undone."
