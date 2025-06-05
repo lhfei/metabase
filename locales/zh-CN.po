@@ -14036,7 +14036,7 @@ msgstr "“我们的数据”将不再显示在任何用户的主页上，但您
 
 #: frontend/src/metabase/collections/components/CreateCollectionForm/CreateCollectionForm.tsx:119
 msgid "My new fantastic collection"
-msgstr "我新的奇妙收藏"
+msgstr "集合名称"
 
 #: frontend/src/metabase/lib/core.js:210
 msgid "Cancelation timestamp"
