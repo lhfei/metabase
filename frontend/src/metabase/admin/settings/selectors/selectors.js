@@ -145,17 +145,17 @@ export const ADMIN_SETTINGS_SECTIONS = {
       //   type: "string",
       // },
 
-      {
-        key: "anon-tracking-enabled",
-        display_name: t`Anonymous Tracking`,
-        type: "boolean",
-        onChanged: (_oldValue, newValue) => {
-          trackTrackingPermissionChanged(newValue);
-        },
-        onBeforeChanged: (_oldValue, newValue) => {
-          trackTrackingPermissionChanged(newValue);
-        },
-      },
+      // {
+      //   key: "anon-tracking-enabled",
+      //   display_name: t`Anonymous Tracking`,
+      //   type: "boolean",
+      //   onChanged: (_oldValue, newValue) => {
+      //     trackTrackingPermissionChanged(newValue);
+      //   },
+      //   onBeforeChanged: (_oldValue, newValue) => {
+      //     trackTrackingPermissionChanged(newValue);
+      //   },
+      // },
       {
         key: "humanization-strategy",
         display_name: t`Friendly Table and Field Names`,
