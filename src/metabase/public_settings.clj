@@ -167,13 +167,21 @@
   :doc        false)
 
 (defsetting site-name
-  (deferred-tru "The name used for this instance of {0}."
-                (application-name-for-setting-descriptions))
+  (deferred-tru " ")
   :encryption :no
   :default    "Metabase"
   :audit      :getter
   :visibility :settings-manager
   :export?    true)
+
+;; (defsetting site-name
+;;   (deferred-tru "The name used for this instance of {0}."
+;;                 (application-name-for-setting-descriptions))
+;;   :encryption :no
+;;   :default    "Metabase"
+;;   :audit      :getter
+;;   :visibility :settings-manager
+;;   :export?    true)
 
 (def ^:private default-allowed-iframe-hosts
   "youtube.com,
@@ -208,12 +216,20 @@ x.com")
   :export?    true)
 
 (defsetting custom-homepage
-  (deferred-tru "Pick one of your dashboards to serve as homepage. Users without dashboard access will be directed to the default homepage.")
+  (deferred-tru " ")
   :encryption :no
   :default    false
   :type       :boolean
   :audit      :getter
   :visibility :public)
+
+;; (defsetting custom-homepage
+;;   (deferred-tru "Pick one of your dashboards to serve as homepage. Users without dashboard access will be directed to the default homepage.")
+;;   :encryption :no
+;;   :default    false
+;;   :type       :boolean
+;;   :audit      :getter
+;;   :visibility :public)
 
 (defsetting custom-homepage-dashboard
   (deferred-tru "ID of dashboard to use as a homepage")
@@ -265,9 +281,7 @@ x.com")
 ;; This value is *guaranteed* to never have a trailing slash :D
 ;; It will also prepend `http://` to the URL if there's no protocol when it comes in
 (defsetting site-url
-  (deferred-tru
-   (str "This URL is used for things like creating links in emails, auth redirects, and in some embedding scenarios, "
-        "so changing it could break functionality or get you locked out of this instance."))
+  (deferred-tru " ")
   :encryption :when-encryption-key-set
   :visibility :public
   :audit      :getter
@@ -286,6 +300,28 @@ x.com")
   :doc "This URL is critical for things like SSO authentication, email links, embedding and more.
         Even difference with `http://` vs `https://` can cause problems.
         Make sure that the address defined is how Metabase is being accessed.")
+;; (defsetting site-url
+;;   (deferred-tru
+;;    (str "This URL is used for things like creating links in emails, auth redirects, and in some embedding scenarios, "
+;;         "so changing it could break functionality or get you locked out of this instance."))
+;;   :encryption :when-encryption-key-set
+;;   :visibility :public
+;;   :audit      :getter
+;;   :getter     (fn []
+;;                 (try
+;;                   (some-> (setting/get-value-of-type :string :site-url) normalize-site-url)
+;;                   (catch clojure.lang.ExceptionInfo e
+;;                     (log/error e "site-url is invalid; returning nil for now. Will be reset on next request."))))
+;;   :setter     (fn [new-value]
+;;                 (let [new-value (some-> new-value normalize-site-url)
+;;                       https?    (some-> new-value (str/starts-with?  "https:"))]
+;;                   ;; if the site URL isn't HTTPS then disable force HTTPS redirects if set
+;;                   (when-not https?
+;;                     (redirect-all-requests-to-https! false))
+;;                   (setting/set-value-of-type! :string :site-url new-value)))
+;;   :doc "This URL is critical for things like SSO authentication, email links, embedding and more.
+;;         Even difference with `http://` vs `https://` can cause problems.
+;;         Make sure that the address defined is how Metabase is being accessed.")
 
 (defsetting site-locale
   (deferred-tru " ")

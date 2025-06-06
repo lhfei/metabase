@@ -96,7 +96,8 @@ export const ADMIN_SETTINGS_SECTIONS = {
         display_name: t`Site URL`,
         type: "string",
         widget: SiteUrlWidget,
-        warningMessage: t`Only change this if you know what you're doing!`,
+        warningMessage: ``,
+        // warningMessage: t`Only change this if you know what you're doing!`,
       },
       {
         key: "custom-homepage",
@@ -138,11 +139,11 @@ export const ADMIN_SETTINGS_SECTIONS = {
         getHidden: ({ "site-url": url }) => !/^https:\/\//.test(url),
         widget: HttpsOnlyWidget,
       },
-      {
-        key: "admin-email",
-        display_name: t`Email Address for Help Requests`,
-        type: "string",
-      },
+      // {
+      //   key: "admin-email",
+      //   display_name: t`Email Address for Help Requests`,
+      //   type: "string",
+      // },
 
       {
         key: "anon-tracking-enabled",
