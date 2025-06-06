@@ -46,7 +46,8 @@ export const LayoutIllustration = styled.div<{
     isDefault && `hue-rotate(${hueRotate("brand")}deg)`};
   background-image: ${({ backgroundImageSrc }) =>
     `url("${backgroundImageSrc}")`};
-  background-size: ${({ isDefault }) =>
+  background-size: ${({ isDefault }) => "100% auto"};
+  // background-size: ${({ isDefault }) =>
     isDefault ? "max(2592px, 100%) auto" : "100% auto"};
   background-repeat: no-repeat;
   background-position: right bottom;
