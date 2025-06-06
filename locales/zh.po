@@ -4499,7 +4499,7 @@ msgstr "并在加利福尼亚州的旧金山精心打造。"
 
 #: frontend/src/metabase/nav/components/AdminNavbar/AdminNavbar.tsx:52
 msgid "Metabase Admin"
-msgstr "Metabase管理后台"
+msgstr "HiCision管理后台"
 
 #: frontend/src/metabase/reference/databases/TableQuestions.jsx:33
 #: frontend/src/metabase/reference/segments/SegmentQuestions.jsx:27
