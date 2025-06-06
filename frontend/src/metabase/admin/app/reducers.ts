@@ -58,11 +58,11 @@ export const getAdminPaths: () => AdminPath[] = () => {
     });
   }
 
-  items.push(...PLUGIN_ADMIN_NAV_ITEMS, {
-    name: t`Troubleshooting`,
-    path: "/admin/troubleshooting",
-    key: "troubleshooting",
-  });
+  // items.push(...PLUGIN_ADMIN_NAV_ITEMS, {
+  //   name: t`Troubleshooting`,
+  //   path: "/admin/troubleshooting",
+  //   key: "troubleshooting",
+  // });
 
   return items;
 };
