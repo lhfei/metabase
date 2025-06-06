@@ -243,12 +243,17 @@
 
 (defn- productionize-tasks
   [info]
-  [{:title       (tru "Switch to a production-ready app database")
-    :group       (tru "Productionize")
-    :description (tru "Migrate off of the default H2 application database to PostgreSQL or MySQL")
-    :link        "https://www.metabase.com/docs/latest/installation-and-operation/migrating-from-h2"
-    :completed   (not= (:db-type info) :h2)
-    :triggered   (and (= (:db-type info) :h2) (not (:hosted? info)))}])
+  [])
+
+;; (defn- productionize-tasks
+;;   [info]
+;;   [
+;;     {:title       (tru "Switch to a production-ready app database")
+;;     :group       (tru "Productionize")
+;;     :description (tru "Migrate off of the default H2 application database to PostgreSQL or MySQL")
+;;     :link        "https://www.metabase.com/docs/latest/installation-and-operation/migrating-from-h2"
+;;     :completed   (not= (:db-type info) :h2)
+;;     :triggered   (and (= (:db-type info) :h2) (not (:hosted? info)))}])
 
 (defn- curate-tasks
   [{:keys [counts exists] :as _info}]
@@ -276,11 +281,18 @@
   (remove nil?
           [{:name  (tru "Get connected")
             :tasks (get-connected-tasks info)}
-           (when-not (:hosted? info)
-             {:name  (tru "Productionize")
-              :tasks (productionize-tasks info)})
            {:name  (tru "Curate your data")
             :tasks (curate-tasks info)}]))
+;; (mu/defn- checklist-items
+;;   [info :- ChecklistState]
+;;   (remove nil?
+;;           [{:name  (tru "Get connected")
+;;             :tasks (get-connected-tasks info)}
+;;            (when-not (:hosted? info)
+;;              {:name  (tru "Productionize")
+;;               :tasks (productionize-tasks info)})
+;;            {:name  (tru "Curate your data")
+;;             :tasks (curate-tasks info)}]))
 
 (defn- annotate
   "Add `is_next_step` key to all the `steps` from `admin-checklist`, and ensure `triggered` is a boolean.
