@@ -19058,7 +19058,7 @@ msgstr "找人"
 
 #: frontend/src/metabase/admin/people/containers/PeopleListingApp.jsx:56
 msgid "Invite someone"
-msgstr "邀请某人"
+msgstr "邀请成员"
 
 #: frontend/src/metabase/admin/settings/auth/components/GoogleAuthForm/GoogleAuthForm.tsx:77
 msgid "here"
