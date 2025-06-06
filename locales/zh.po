@@ -2236,7 +2236,7 @@ msgstr "登录"
 
 #: frontend/src/metabase/auth/components/PasswordPanel/PasswordPanel.tsx:45
 msgid "I seem to have forgotten my password"
-msgstr "我似乎忘记了我的密码"
+msgstr "忘记密码"
 
 #: frontend/src/metabase/auth/containers/PasswordResetApp.jsx:66
 msgid "request a new reset email"

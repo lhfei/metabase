@@ -2271,7 +2271,7 @@ msgstr "登录"
 
 #: frontend/src/metabase/auth/components/PasswordPanel/PasswordPanel.tsx:45
 msgid "I seem to have forgotten my password"
-msgstr "找回密码"
+msgstr "忘记密码"
 
 #: frontend/src/metabase/auth/containers/PasswordResetApp.jsx:66
 msgid "request a new reset email"
@@ -3104,7 +3104,7 @@ msgstr "从这里开始"
 #: metabase/models/collection/root.clj:59 metabase/models/revision/diff.clj:54
 #: metabase/models/revision/diff.clj:62
 msgid "Our analytics"
-msgstr "我们的分析"
+msgstr "分析中心"
 
 #: frontend/src/metabase/home/homepage/components/CollectionSection/CollectionSection.tsx:47
 msgid "Browse all items"
