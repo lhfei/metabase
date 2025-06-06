@@ -15,7 +15,7 @@ export const LeaveConfirmationModalContent = ({
 }: Props) => (
   <ConfirmContent
     cancelButtonText={t`Cancel`}
-    confirmButtonText={t`Discard changes`}
+    confirmButtonText={t`Discard`}
     data-testid="leave-confirmation"
     message={t`Your changes haven't been saved, so you'll lose them if you navigate away.`}
     title={t`Discard your changes?`}
