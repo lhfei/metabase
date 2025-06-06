@@ -20013,7 +20013,7 @@ msgstr "如果你现在离开这个页面，你的修改将不会被保存。"
 #: frontend/src/metabase/components/LeaveConfirmationModal/LeaveConfirmationModalContent.tsx:18
 #: frontend/src/metabase/public/components/EmbedModal/StaticEmbedSetupPane/EmbedModalContentStatusBar.tsx:48
 msgid "Discard changes"
-msgstr "丢弃变化"
+msgstr "取消"
 
 #: frontend/src/metabase/admin/permissions/pages/CollectionPermissionsPage/CollectionPermissionsPage.tsx:130
 msgid "Select a collection to see its permissions"
@@ -25784,7 +25784,7 @@ msgstr "你的模型将不会被创建。"
 
 #: frontend/src/metabase/admin/performance/hooks/useConfirmIfFormIsDirty.tsx:25
 msgid "Discard"
-msgstr "弃置"
+msgstr "确定"
 
 #: frontend/src/metabase/query_builder/components/NativeQueryEditor/utils.ts:124
 msgid "Question in {0}"

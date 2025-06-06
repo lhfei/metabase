@@ -4747,7 +4747,7 @@ msgstr "您需要先发布此 {0}，然后才能将其嵌入到另一个应用�
 
 #: frontend/src/metabase/public/components/widgets/AdvancedEmbedPane.jsx:55
 msgid "Discard Changes"
-msgstr "撤销更改"
+msgstr "取消"
 
 #: frontend/src/metabase/public/components/widgets/AdvancedEmbedPane.jsx:62
 msgid "Updating..."
@@ -25753,7 +25753,7 @@ msgstr "你的模型将不会被创建。"
 
 #: frontend/src/metabase/admin/performance/hooks/useConfirmIfFormIsDirty.tsx:25
 msgid "Discard"
-msgstr "弃置"
+msgstr "确定"
 
 #: frontend/src/metabase/query_builder/components/NativeQueryEditor/utils.ts:124
 msgid "Question in {0}"
