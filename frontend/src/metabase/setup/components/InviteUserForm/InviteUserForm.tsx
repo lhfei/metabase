@@ -50,7 +50,7 @@ export const InviteUserForm = ({
           <FormInput
             name="first_name"
             title={t`First name`}
-            placeholder={t`Johnny`}
+            // placeholder={t`Johnny`}
             nullable
             autoFocus
           />

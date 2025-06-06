@@ -46,7 +46,7 @@ export const UserForm = ({
           <FormTextInput
             name="first_name"
             title={t`First name`}
-            placeholder={t`Johnny`}
+            // placeholder={t`Johnny`}
             label={t`First name`}
             mb="1rem"
           />

@@ -19080,6 +19080,7 @@ msgid "Find someone"
 msgstr "查找"
 
 #: frontend/src/metabase/admin/people/containers/PeopleListingApp.jsx:56
+#: frontend/src/metabase/admin/people/containers/NewUserModal.tsx:28
 msgid "Invite someone"
 msgstr "邀请成员"
 

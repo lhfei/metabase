@@ -66,14 +66,14 @@ export const UserForm = ({
           <FormInput
             name="first_name"
             title={t`First name`}
-            placeholder={t`Johnny`}
+            // placeholder={t`Johnny`}
             nullable
             autoFocus={!isHosted}
           />
           <FormInput
             name="last_name"
             title={t`Last name`}
-            placeholder={t`Appleseed`}
+            // placeholder={t`Appleseed`}
             nullable
           />
         </UserFieldGroup>
