@@ -24,12 +24,12 @@ PLUGIN_AUTH_PROVIDERS.push(providers => {
 PLUGIN_ADMIN_SETTINGS_UPDATES.push(sections =>
   updateIn(sections, ["authentication", "settings"], settings => [
     ...settings,
-    {
-      key: "google-auth-enabled",
-      description: null,
-      noHeader: true,
-      widget: GoogleAuthCard,
-    },
+    // {
+    //   key: "google-auth-enabled",
+    //   description: null,
+    //   noHeader: true,
+    //   widget: GoogleAuthCard,
+    // },
   ]),
 );
 
