@@ -60,10 +60,16 @@
                   (throw (ex-info "Invalid reply-to address" {:value new-value})))))
 
 (defsetting email-smtp-host
-  (deferred-tru "The address of the SMTP server that handles your emails.")
+  (deferred-tru " ")
   :encryption :when-encryption-key-set
   :visibility :settings-manager
   :audit      :getter)
+
+;; (defsetting email-smtp-host
+;;   (deferred-tru "The address of the SMTP server that handles your emails.")
+;;   :encryption :when-encryption-key-set
+;;   :visibility :settings-manager
+;;   :audit      :getter)
 
 (defsetting email-smtp-username
   (deferred-tru "SMTP username.")
@@ -79,11 +85,18 @@
   :audit      :getter)
 
 (defsetting email-smtp-port
-  (deferred-tru "The port your SMTP server uses for outgoing emails.")
+  (deferred-tru " ")
   :encryption :when-encryption-key-set
   :type       :integer
   :visibility :settings-manager
   :audit      :getter)
+
+;; (defsetting email-smtp-port
+;;   (deferred-tru "The port your SMTP server uses for outgoing emails.")
+;;   :encryption :when-encryption-key-set
+;;   :type       :integer
+;;   :visibility :settings-manager
+;;   :audit      :getter)
 
 (defsetting email-smtp-security
   (deferred-tru "SMTP secure connection protocol. (tls, ssl, starttls, or none)")
