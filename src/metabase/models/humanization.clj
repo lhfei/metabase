@@ -76,9 +76,7 @@
       (re-humanize-table-and-field-names! old-strategy))))
 
 (defsetting ^{:added "0.28.0"} humanization-strategy
-  (deferred-tru
-   (str "To make table and field names more human-friendly, Metabase will replace dashes and underscores in them "
-        "with spaces. We’ll capitalize each word while at it, so ‘last_visited_at’ will become ‘Last Visited At’."))
+  (deferred-tru " ")
   :type       :keyword
   :default    :simple
   :visibility :settings-manager
@@ -91,3 +89,20 @@
                   (when (not valid-strategy?) (log/warn (u/format-color :yellow "Invalid humanization strategy '%s'. Defaulting to 'simple'" strategy)))
                   (if valid-strategy? strategy :simple)))
   :setter     set-humanization-strategy!)
+
+;; (defsetting ^{:added "0.28.0"} humanization-strategy
+;;   (deferred-tru
+;;    (str "To make table and field names more human-friendly, Metabase will replace dashes and underscores in them "
+;;         "with spaces. We’ll capitalize each word while at it, so ‘last_visited_at’ will become ‘Last Visited At’."))
+;;   :type       :keyword
+;;   :default    :simple
+;;   :visibility :settings-manager
+;;   :export?    true
+;;   :audit      :raw-value
+;;   :getter     (fn []
+;;                 (let [strategy (setting/get-value-of-type :keyword :humanization-strategy)
+;;                       valid-values (set (keys (methods u.humanization/name->human-readable-name)))
+;;                       valid-strategy? (contains? valid-values strategy)]
+;;                   (when (not valid-strategy?) (log/warn (u/format-color :yellow "Invalid humanization strategy '%s'. Defaulting to 'simple'" strategy)))
+;;                   (if valid-strategy? strategy :simple)))
+;;   :setter     set-humanization-strategy!)

@@ -177,7 +177,8 @@ export const ADMIN_SETTINGS_SECTIONS = {
       {
         key: "allowed-iframe-hosts",
         display_name: t`Allowed domains for iframes in dashboards`,
-        description: jt`You should make sure to trust the sources you allow your users to embed in dashboards. ${(<ExternalLink key="docs" href={getDocsUrl("configuring-metabase/settings", "allowed-domains-for-iframes-in-dashboards")}>{t`Learn more`}</ExternalLink>)}`,
+        description: "",
+        // description: jt`You should make sure to trust the sources you allow your users to embed in dashboards. ${(<ExternalLink key="docs" href={getDocsUrl("configuring-metabase/settings", "allowed-domains-for-iframes-in-dashboards")}>{t`Learn more`}</ExternalLink>)}`,
         type: "text",
       },
     ],

@@ -821,12 +821,20 @@ See [fonts](../configuring-metabase/fonts.md).")
   :audit      :getter)
 
 (defsetting enable-xrays
-  (deferred-tru "Allow users to explore data using X-rays")
+  (deferred-tru " ")
   :type       :boolean
   :default    true
   :visibility :authenticated
   :export?    true
   :audit      :getter)
+
+;; (defsetting enable-xrays
+;;   (deferred-tru "Allow users to explore data using X-rays")
+;;   :type       :boolean
+;;   :default    true
+;;   :visibility :authenticated
+;;   :export?    true
+;;   :audit      :getter)
 
 (defsetting show-homepage-data
   (deferred-tru
