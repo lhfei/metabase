@@ -147,7 +147,7 @@ export const ModelPersistenceConfiguration = () => {
         <p>
           {t`Enable model persistence to make your models (and the queries that use them) load faster.`}
         </p>
-        <p>
+        {/* <p>
           {c(
             '{0} is either "Metabase" or the customized name of the application.',
           )
@@ -161,7 +161,7 @@ export const ModelPersistenceConfiguration = () => {
               >{t`Learn more`}</ExternalLink>
             </>
           )}
-        </p>
+        </p> */}
         <DelayedLoadingAndErrorWrapper
           error={null}
           loading={modelPersistenceEnabled === undefined}
