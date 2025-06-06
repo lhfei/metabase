@@ -257,18 +257,19 @@
 
 (defn- curate-tasks
   [{:keys [counts exists] :as _info}]
-  [{:title       (tru "Hide irrelevant tables")
-    :group       (tru "Curate your data")
-    :description (tru "If your data contains technical or irrelevant info you can hide it.")
-    :link        "/admin/datamodel/database"
-    :completed   (exists :hidden-table)
-    :triggered   (>= (counts :table) 20)}
-   {:title       (tru "Organize questions")
-    :group       (tru "Curate your data")
-    :description (tru "Have a lot of saved questions in {0}? Create collections to help manage them and add context." (tru "Metabase"))
-    :link        "/collection/root"
-    :completed   (exists :collection)
-    :triggered   (>= (counts :card) 30)}
+  [
+    ;; {:title       (tru "Hide irrelevant tables")
+    ;; :group       (tru "Curate your data")
+    ;; :description (tru "If your data contains technical or irrelevant info you can hide it.")
+    ;; :link        "/admin/datamodel/database"
+    ;; :completed   (exists :hidden-table)
+    ;; :triggered   (>= (counts :table) 20)}
+  ;;  {:title       (tru "Organize questions")
+  ;;   :group       (tru "Curate your data")
+  ;;   :description (tru "Have a lot of saved questions in {0}? Create collections to help manage them and add context." (tru "Metabase"))
+  ;;   :link        "/collection/root"
+  ;;   :completed   (exists :collection)
+  ;;   :triggered   (>= (counts :card) 30)}
    {:title       (tru "Create a model")
     :group       (tru "Curate your data")
     :description (tru "Set up friendly starting points for your team to explore data")
