@@ -32,7 +32,7 @@
   :type       :string
   :audit      :getter
   :feature    :whitelabel
-  :default    "DataOS")
+  :default    "HiCision")
 
 (defn application-name-for-setting-descriptions
   "Returns the value of the [[application-name]] setting so setting docstrings can be generated during the compilation stage.
