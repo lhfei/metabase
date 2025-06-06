@@ -288,10 +288,7 @@ x.com")
         Make sure that the address defined is how Metabase is being accessed.")
 
 (defsetting site-locale
-  (deferred-tru
-   (str "The default language for all users across the {0} UI, system emails, pulses, and alerts. "
-        "Users can individually override this default language from their own account settings.")
-   (application-name-for-setting-descriptions))
+  (deferred-tru " ")
   :default    "en"
   :visibility :public
   :export?    true
@@ -306,6 +303,26 @@ x.com")
                   (when-not (i18n/available-locale? new-value)
                     (throw (ex-info (tru "Invalid locale {0}" (pr-str new-value)) {:status-code 400}))))
                 (setting/set-value-of-type! :string :site-locale (some-> new-value i18n/normalized-locale-string))))
+
+;; (defsetting site-locale
+;;   (deferred-tru
+;;    (str "The default language for all users across the {0} UI, system emails, pulses, and alerts. "
+;;         "Users can individually override this default language from their own account settings.")
+;;    (application-name-for-setting-descriptions))
+;;   :default    "en"
+;;   :visibility :public
+;;   :export?    true
+;;   :audit      :getter
+;;   :encryption :no
+;;   :getter     (fn []
+;;                 (let [value (setting/get-value-of-type :string :site-locale)]
+;;                   (when (i18n/available-locale? value)
+;;                     value)))
+;;   :setter     (fn [new-value]
+;;                 (when new-value
+;;                   (when-not (i18n/available-locale? new-value)
+;;                     (throw (ex-info (tru "Invalid locale {0}" (pr-str new-value)) {:status-code 400}))))
+;;                 (setting/set-value-of-type! :string :site-locale (some-> new-value i18n/normalized-locale-string))))
 
 (defsetting admin-email
   (deferred-tru "The email address users should be referred to if they encounter a problem.")
@@ -940,10 +957,7 @@ See [fonts](../configuring-metabase/fonts.md).")
                 (setting/set-value-of-type! :boolean :redirect-all-requests-to-https new-value)))
 
 (defsetting start-of-week
-  (deferred-tru
-   (str "This will affect things like grouping by week or filtering in GUI queries. "
-        "It won''t affect most SQL queries, "
-        "although it is used to set the WEEK_START session variable in Snowflake."))
+  (deferred-tru " ")
   :visibility :public
   :export?    true
   :type       :keyword
@@ -960,6 +974,28 @@ See [fonts](../configuring-metabase/fonts.md).")
                    (assert (#{:monday :tuesday :wednesday :thursday :friday :saturday :sunday} (keyword new-value))
                            (trs "Invalid day of week: {0}" (pr-str new-value))))
                  (setting/set-value-of-type! :keyword :start-of-week new-value)))
+
+;; (defsetting start-of-week
+;;   (deferred-tru
+;;    (str "This will affect things like grouping by week or filtering in GUI queries. "
+;;         "It won''t affect most SQL queries, "
+;;         "although it is used to set the WEEK_START session variable in Snowflake."))
+;;   :visibility :public
+;;   :export?    true
+;;   :type       :keyword
+;;   :default    :sunday
+;;   :audit      :raw-value
+;;   :getter     (fn []
+;;                 ;; if something invalid is somehow in the DB just fall back to Sunday
+;;                 (when-let [value (setting/get-value-of-type :keyword :start-of-week)]
+;;                   (if (#{:monday :tuesday :wednesday :thursday :friday :saturday :sunday} value)
+;;                     value
+;;                     :sunday)))
+;;   :setter      (fn [new-value]
+;;                  (when new-value
+;;                    (assert (#{:monday :tuesday :wednesday :thursday :friday :saturday :sunday} (keyword new-value))
+;;                            (trs "Invalid day of week: {0}" (pr-str new-value))))
+;;                  (setting/set-value-of-type! :keyword :start-of-week new-value)))
 
 (defsetting cloud-gateway-ips
   (deferred-tru "Metabase Cloud gateway IP addresses, to configure connections to DBs behind firewalls")
