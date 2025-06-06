@@ -20654,7 +20654,7 @@ msgstr "SSH身份验证"
 
 #: frontend/src/metabase/databases/components/DatabaseSshDescription/DatabaseSshDescription.tsx:12
 msgid "If a direct connection to your database isn't possible, you may want to use an SSH tunnel. {0}."
-msgstr "如果无法直接连接到数据库，则可能需要使用SSH隧道。{0}。"
+msgstr "如果无法直接连接到数据库，则可能需要使用SSH隧道。{0}"
 
 #: frontend/src/metabase/databases/components/DatabaseNameField/DatabaseNameField.tsx:16
 #: frontend/src/metabase/query_builder/components/DatasetEditor/DatasetFieldMetadataSidebar/DatasetFieldMetadataSidebar.jsx:240

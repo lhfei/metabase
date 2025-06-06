@@ -20611,7 +20611,7 @@ msgstr "你没有权限看到这个问题的栏目。"
 
 #: frontend/src/metabase/databases/constants.tsx:64
 msgid "Use an SSH-tunnel"
-msgstr "使用SSH-tunnel"
+msgstr "使用SSH隧道"
 
 #: frontend/src/metabase/databases/constants.tsx:69
 msgid "We suggest you leave this off unless you plan on doing a lot of manual timezone casting with this data."
@@ -20635,7 +20635,7 @@ msgstr "SSH认证"
 
 #: frontend/src/metabase/databases/components/DatabaseSshDescription/DatabaseSshDescription.tsx:12
 msgid "If a direct connection to your database isn't possible, you may want to use an SSH tunnel. {0}."
-msgstr "如果直接连接到你的数据库是不可能的，你可能想使用一个SSH隧道。{0}."
+msgstr "如果直接连接到你的数据库是不可能的，你可能想使用一个SSH隧道。{0}"
 
 #: frontend/src/metabase/databases/components/DatabaseNameField/DatabaseNameField.tsx:16
 #: frontend/src/metabase/query_builder/components/DatasetEditor/DatasetFieldMetadataSidebar/DatasetFieldMetadataSidebar.jsx:240

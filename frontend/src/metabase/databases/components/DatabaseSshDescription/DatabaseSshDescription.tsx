@@ -9,9 +9,10 @@ const DatabaseSshDescription = (): JSX.Element => {
 
   return (
     <>
-      {jt`If a direct connection to your database isn't possible, you may want to use an SSH tunnel. ${(
+      {jt`If a direct connection to your database isn't possible, you may want to use an SSH tunnel. ${null}.`}
+      {/* {jt`If a direct connection to your database isn't possible, you may want to use an SSH tunnel. ${(
         <ExternalLink key="link" href={docsUrl}>{t`Learn more`}</ExternalLink>
-      )}.`}
+      )}.`} */}
     </>
   );
 };
