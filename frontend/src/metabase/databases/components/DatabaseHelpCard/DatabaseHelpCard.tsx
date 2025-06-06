@@ -9,7 +9,7 @@ export interface DatabaseHelpCardProps {
   className?: string;
 }
 
-export const DatabaseHelpCard = ({
+export const DatabaseHelpCard0 = ({
   className,
 }: DatabaseHelpCardProps): JSX.Element => {
   const docsUrl = useSelector(state =>
@@ -37,4 +37,8 @@ export const DatabaseHelpCard = ({
       )}
     </HelpCard>
   );
+};
+
+export const DatabaseHelpCard = () => {
+  return null;
 };
