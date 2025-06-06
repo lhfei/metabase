@@ -32,7 +32,7 @@ export const NotificationSettings = () => {
   return (
     <>
       <Box w="47rem">
-        <Title mb="1.5rem">{t`Slack`}</Title>
+        {/* <Title mb="1.5rem">{t`Slack`}</Title>
         <Link to="/admin/settings/notifications/slack">
           <Paper shadow="0" withBorder p="lg" w="47rem" mb="2.5rem">
             <Flex gap="0.5rem" align="center" mb="0.5rem">
@@ -44,7 +44,7 @@ export const NotificationSettings = () => {
             alerts there`}
             </Text>
           </Paper>
-        </Link>
+        </Link> */}
 
         <Flex justify="space-between" align="center" mb="1.5rem">
           <Title>{t`Webhooks for Alerts`}</Title>{" "}
