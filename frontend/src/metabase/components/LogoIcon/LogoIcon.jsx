@@ -41,7 +41,7 @@ class DefaultLogoIcon0 extends Component {
   }
 }
 
-class DefaultLogoIcon extends Component {
+class DefaultLogoIcon1 extends Component {
   static defaultProps = {
     height: 32,
   };
@@ -85,6 +85,105 @@ class DefaultLogoIcon extends Component {
             <stop offset="1" stopColor="#6E848D" />
           </linearGradient>
         </defs>
+      </svg>
+    );
+  }
+}
+
+class DefaultLogoIcon extends Component {
+  static defaultProps = {
+    height: 32,
+  };
+  static propTypes = {
+    width: PropTypes.number,
+    height: PropTypes.number,
+    dark: PropTypes.bool,
+    fill: PropTypes.string,
+  };
+
+  render() {
+    const { dark, height, width, fill = "currentcolor" } = this.props;
+    return (
+      <svg
+        className={cx(
+          "Icon",
+          { [CS.textBrand]: !dark },
+          { [CS.textWhite]: dark },
+        )}
+        width={width}
+        height={height}
+        viewBox="0 0 400 400"
+        fill="none"
+        data-testid="main-logo"
+      >
+        <title>svg</title>
+        <defs>
+          <linearGradient
+            x1="50%"
+            y1="0%"
+            x2="50%"
+            y2="100%"
+            id="linearGradient-1"
+          >
+            <stop stopColor="#4646EB" offset="0%"></stop>
+            <stop stopColor="#478AF6" offset="100%"></stop>
+          </linearGradient>
+          <linearGradient
+            x1="50%"
+            y1="0%"
+            x2="50%"
+            y2="100%"
+            id="linearGradient-2"
+          >
+            <stop stopColor="#29DCE7" offset="0%"></stop>
+            <stop stopColor="#4570F2" stopOpacity="0" offset="100%"></stop>
+          </linearGradient>
+          <linearGradient
+            x1="83.7476193%"
+            y1="13.7636917%"
+            x2="19.1839896%"
+            y2="81.8392305%"
+            id="linearGradient-3"
+          >
+            <stop stopColor="#67FFD2" offset="0%"></stop>
+            <stop stopColor="#55EAFF" offset="100%"></stop>
+          </linearGradient>
+        </defs>
+        <g
+          id="svg"
+          stroke="none"
+          strokeWidth="1"
+          fill="none"
+          fillRule="evenodd"
+        >
+          <g id="v">
+            <rect id="矩形" x="0" y="0" width="400" height="400"></rect>
+            <g id="编组" transform="translate(55.000000, 72.000000)">
+              <path
+                d="M64.8,0 C86.89139,0 104.8,17.90861 104.8,40 C104.8,48.0166914 102.441662,55.4825634 98.3809109,61.7416897 L77.3656629,98.139963 C66.4304248,117.080351 72.745634,141.246545 91.4365059,152.445602 L92.006679,152.780979 C110.004439,163.171991 132.720792,157.986873 144.546138,141.408206 L165.358984,105.358984 C176.404679,86.2272789 200.868295,79.6722727 220,90.7179677 C239.131705,101.763663 245.686711,126.227279 234.641016,145.358984 L179.641016,240.621778 C169.000141,259.052314 145.906844,265.81112 127.124069,256.406578 C120.10641,253.146906 113.964191,247.8252 109.70104,240.710136 L109.365663,240.139963 L5.36566286,60.006679 C-5.68003214,40.8749741 0.874974071,16.4113579 20.006679,5.36566286 C26.3288072,1.71558046 33.2331755,-0.0125203927 40.0431929,6.82723412e-05 L40.0868993,0 L40.0868993,0 Z"
+                id="形状结合"
+                fill="url(#linearGradient-1)"
+              ></path>
+              <rect
+                id="矩形备份-3"
+                fill="url(#linearGradient-2)"
+                transform="translate(172.500000, 172.990381) rotate(30.000000) translate(-172.500000, -172.990381) "
+                x="132.5"
+                y="77.9903811"
+                width="80"
+                height="190"
+                rx="40"
+              ></rect>
+              <circle
+                id="椭圆形备份"
+                fill="url(#linearGradient-3)"
+                cx="249"
+                cy="40"
+                r="40"
+              ></circle>
+            </g>
+          </g>
+        </g>
       </svg>
     );
   }
