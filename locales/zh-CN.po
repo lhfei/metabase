@@ -6784,7 +6784,7 @@ msgstr "点击一下"
 
 #: frontend/src/metabase/setup/components/WelcomePage/WelcomePage.tsx:42
 msgid "Welcome to Metabase"
-msgstr "欢迎来到Metabase"
+msgstr "欢迎来到HiCision"
 
 #: frontend/src/metabase/setup/components/Setup.jsx:132
 msgid "Looks like everything is working. Now let’s get to know you, connect to your data, and start finding you some answers!"
@@ -6792,7 +6792,7 @@ msgstr "看起来一切正常。 现在让我们了解您，连接到您的数�
 
 #: frontend/src/metabase/setup/components/WelcomePage/WelcomePage.tsx:48
 msgid "Let's get started"
-msgstr "让我们开始吧"
+msgstr "开始"
 
 #: frontend/src/metabase/setup/components/CompletedStep/CompletedStep.tsx:50
 msgid "You're all set up!"
