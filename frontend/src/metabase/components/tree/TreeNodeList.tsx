@@ -14,6 +14,7 @@ interface TreeNodeListProps {
   className?: string;
   onToggleExpand: (id: ITreeNodeItem["id"]) => void;
   onSelect?: (item: ITreeNodeItem) => void;
+  onAddClick?: () => void;
   TreeNode: TreeNodeComponent;
 }
 
@@ -26,6 +27,7 @@ function BaseTreeNodeList({
   depth,
   onSelect,
   onToggleExpand,
+  onAddClick,
   TreeNode,
 }: TreeNodeListProps) {
   const selectedRef = useScrollOnMount();
@@ -48,6 +50,7 @@ function BaseTreeNodeList({
               item={item}
               onSelect={onItemSelect}
               onToggleExpand={onItemToggle}
+              onAddClick={onAddClick}
               isSelected={isSelected}
               isExpanded={isExpanded}
               hasChildren={hasChildren}

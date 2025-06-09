@@ -14,6 +14,7 @@ interface TreeProps {
   role?: string;
   emptyState?: React.ReactNode;
   onSelect?: (item: ITreeNodeItem) => void;
+  onAddClick?: () => void;
   TreeNode?: any; // This was previously set to TreeNodeComponent, but after upgrading to react 18, the type no longer played nice with forward ref compontents, including styled components
 }
 
@@ -23,6 +24,7 @@ function BaseTree({
   role = "menu",
   emptyState = null,
   onSelect,
+  onAddClick,
   TreeNode = DefaultTreeNode,
 }: TreeProps) {
   const [expandedIds, setExpandedIds] = useState(
@@ -68,6 +70,7 @@ function BaseTree({
       selectedId={selectedId}
       depth={0}
       onSelect={onSelect}
+      onAddClick={onAddClick}
       onToggleExpand={handleToggleExpand}
     />
   );
