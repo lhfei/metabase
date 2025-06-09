@@ -238,7 +238,12 @@ export function MainNavbarView({
                 data={collectionsWithoutTrash}
                 selectedId={collectionItem?.id}
                 onSelect={onItemSelect}
-                TreeNode={SidebarCollectionLink}
+                TreeNode={(props: any) => (
+                  <SidebarCollectionLink
+                    {...props}
+                    onAddClick={handleCreateNewCollection}
+                  />
+                )}
                 role="tree"
                 aria-label="collection-tree"
               />

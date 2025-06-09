@@ -38,10 +38,6 @@ const AddButton = styled.button`
 const CollectionNodeRootWithAdd = styled(CollectionNodeRoot)<{
   isSelected?: boolean;
 }>`
-  &:hover ${AddButton} {
-    opacity: 1;
-    pointer-events: auto;
-  }
   ${props =>
     props.isSelected &&
     `
@@ -51,6 +47,22 @@ const CollectionNodeRootWithAdd = styled(CollectionNodeRoot)<{
       }
     `}
 `;
+// const CollectionNodeRootWithAdd = styled(CollectionNodeRoot)<{
+//   isSelected?: boolean;
+// }>`
+//   &:hover ${AddButton} {
+//     opacity: 1;
+//     pointer-events: auto;
+//   }
+//   ${props =>
+//     props.isSelected &&
+//     `
+//       ${AddButton} {
+//         opacity: 1;
+//         pointer-events: auto;
+//       }
+//     `}
+// `;
 
 type DroppableProps = {
   hovered: boolean;
@@ -60,6 +72,7 @@ type DroppableProps = {
 type Props = DroppableProps &
   Omit<TreeNodeProps, "item"> & {
     collection: Collection;
+    onAddClick?: () => void;
   };
 
 const TIME_BEFORE_EXPANDING_ON_HOVER = 600;
@@ -75,6 +88,7 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
       isSelected,
       hasChildren,
       onToggleExpand,
+      onAddClick,
     }: Props,
     ref,
   ) {
@@ -121,8 +135,9 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
 
     const handleAddClick = (e: React.MouseEvent) => {
       e.stopPropagation();
-      // TODO: 替换为你的添加逻辑
-      alert(`添加到集合: ${collection.name}`);
+
+      // console.log(collection)
+      onAddClick?.();
     };
 
     return (
