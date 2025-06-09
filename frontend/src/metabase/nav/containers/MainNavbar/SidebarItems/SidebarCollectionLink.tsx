@@ -165,7 +165,7 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
           <NameContainer>{collection.name}</NameContainer>
         </FullWidthLink>
         <AddButton onClick={handleAddClick}>
-          <Icon name="add" />
+          <Icon name="add" tooltip="新集合" />
         </AddButton>
       </CollectionNodeRootWithAdd>
     );
