@@ -2569,7 +2569,7 @@ msgstr "你想如何引用这个数据库？"
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:80
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:119
 msgid "Next"
-msgstr "之后"
+msgstr "下一步"
 
 #: frontend/src/metabase/components/DeleteModalWithConfirm/DeleteModalWithConfirm.jsx:88
 msgid "Delete this {0}"
@@ -6710,11 +6710,11 @@ msgstr "以下是我们跟踪的所有内容和原因的完整清单。"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:84
 msgid "Allow Metabase to anonymously collect usage events"
-msgstr "允许Metabase匿名收集使用事件"
+msgstr "允许HiCision匿名收集使用事件"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:89
 msgid "Metabase {0} collects anything about your data or question results."
-msgstr "Metabase{0}收集任何事情关于你的数据或者提问结果"
+msgstr "HiCision{0}收集任何事情关于你的数据或者提问结果"
 
 #: frontend/src/metabase/lib/settings.ts:254
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:90
@@ -6782,7 +6782,7 @@ msgstr "创建一个密码"
 #: frontend/src/metabase/auth/components/ResetPasswordForm/ResetPasswordForm.tsx:73
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:95
 msgid "Shhh..."
-msgstr "嘘..."
+msgstr "..."
 
 #: frontend/src/metabase/setup/components/UserStep.jsx:265
 msgid "Confirm password"
@@ -6793,7 +6793,7 @@ msgstr "确认密码"
 #: frontend/src/metabase/auth/components/ResetPasswordForm/ResetPasswordForm.tsx:81
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:105
 msgid "Shhh... but one more time so we get it right"
-msgstr "嘘......但再来一次，这样我们就能成功了"
+msgstr "再来一次"
 
 #: frontend/src/metabase/entities/users/forms.js:87
 msgid "Your company or team name"
@@ -6801,7 +6801,7 @@ msgstr "你的公司或团队名称"
 
 #: frontend/src/metabase/setup/components/UserStep.jsx:291
 msgid "Department of awesome"
-msgstr "令人敬畏的部门"
+msgstr "部门"
 
 #: frontend/src/metabase/setup/containers/PostSetupApp.jsx:24
 msgid "Metabot is admiring your integers…"
@@ -15710,7 +15710,7 @@ msgstr "你的首选语言是什么？"
 
 #: frontend/src/metabase/setup/components/LanguageStep/LanguageStep.tsx:54
 msgid "This language will be used throughout Metabase and will be the default for new users."
-msgstr "这种语言将在整个Metabase中使用，并将成为新用户的默认语言。"
+msgstr "这种语言将在整个HiCision中使用，并将成为新用户的默认语言。"
 
 #: frontend/src/metabase/visualizations/components/PinMap.jsx:149
 msgid "We filtered out {0} row(s) containing null values."
@@ -16092,7 +16092,7 @@ msgstr "SAML密钥库密码"
 #. translated into "嘘....."   not a formal. Suggest  use " ......."
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:199
 msgid "Shh..."
-msgstr "嘘..."
+msgstr "..."
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:203
 #: enterprise/frontend/src/metabase-enterprise/auth/index.js:135
@@ -31362,11 +31362,11 @@ msgstr "我还不确定"
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:41
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:52
 msgid "What will you use Metabase for?"
-msgstr "Metabase 有什么用途？"
+msgstr "HiCision 有什么用途？"
 
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:62
 msgid "Let us know your plans with Metabase so that we can best guide you"
-msgstr "让我们了解您使用 Metabase 的计划，以便我们为您提供最佳指导"
+msgstr "让我们了解您使用 HiCision 的计划，以便我们为您提供最佳指导"
 
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:68
 msgid "Self-service analytics for my own company"

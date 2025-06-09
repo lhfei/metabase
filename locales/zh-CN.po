@@ -2605,7 +2605,7 @@ msgstr "您希望如何引用此数据库？"
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:80
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:119
 msgid "Next"
-msgstr "下一个"
+msgstr "下一步"
 
 #: frontend/src/metabase/components/DeleteModalWithConfirm/DeleteModalWithConfirm.jsx:88
 msgid "Delete this {0}"
@@ -6751,11 +6751,11 @@ msgstr "这个是我们要跟踪收集的数据的所有清单，以及为什么
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:84
 msgid "Allow Metabase to anonymously collect usage events"
-msgstr "允许 Metabase 匿名收集使用数据"
+msgstr "允许HiCision匿名收集使用事件"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:89
 msgid "Metabase {0} collects anything about your data or question results."
-msgstr "Metabase  {0} 收集有关您的数据或question结果的任何信息。"
+msgstr "HiCision{0}收集任何事情关于你的数据或者提问结果"
 
 #: frontend/src/metabase/lib/settings.ts:254
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:90
@@ -6840,7 +6840,7 @@ msgstr "您的公司或团队名称"
 
 #: frontend/src/metabase/setup/components/UserStep.jsx:291
 msgid "Department of awesome"
-msgstr "超棒的部门"
+msgstr "部门"
 
 #: frontend/src/metabase/setup/containers/PostSetupApp.jsx:24
 msgid "Metabot is admiring your integers…"
@@ -15738,7 +15738,7 @@ msgstr "你的首选语言是什么？"
 
 #: frontend/src/metabase/setup/components/LanguageStep/LanguageStep.tsx:54
 msgid "This language will be used throughout Metabase and will be the default for new users."
-msgstr "此语言将在整个元数据库中使用，并将成为新用户的默认语言。"
+msgstr "这种语言将在整个HiCision中使用，并将成为新用户的默认语言。"
 
 #: frontend/src/metabase/visualizations/components/PinMap.jsx:149
 msgid "We filtered out {0} row(s) containing null values."
@@ -16117,7 +16117,7 @@ msgstr "SAML密钥库密码"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:199
 msgid "Shh..."
-msgstr "嘘.."
+msgstr "..."
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:203
 #: enterprise/frontend/src/metabase-enterprise/auth/index.js:135
@@ -31331,11 +31331,11 @@ msgstr "我还不确定"
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:41
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:52
 msgid "What will you use Metabase for?"
-msgstr "Metabase 有什么用途？"
+msgstr "HiCision 有什么用途？"
 
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:62
 msgid "Let us know your plans with Metabase so that we can best guide you"
-msgstr "让我们了解您使用 Metabase 的计划，以便我们为您提供最佳指导"
+msgstr "让我们了解您使用 HiCision 的计划，以便我们为您提供最佳指导"
 
 #: frontend/src/metabase/setup/components/UsageQuestionStep/UsageQuestionStep.tsx:68
 msgid "Self-service analytics for my own company"
