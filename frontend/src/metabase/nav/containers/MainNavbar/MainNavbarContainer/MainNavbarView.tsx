@@ -227,6 +227,7 @@ export function MainNavbarView({
             </SidebarSection>
           )}
 
+          {/* 集合 */}
           <SidebarSection>
             <ErrorBoundary>
               <CollectionSectionHeading

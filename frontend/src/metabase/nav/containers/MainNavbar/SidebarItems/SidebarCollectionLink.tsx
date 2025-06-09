@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import type { KeyboardEvent } from "react";
 import { forwardRef, useCallback, useEffect, useRef } from "react";
 import { usePrevious } from "react-use";
@@ -8,6 +9,7 @@ import CollectionDropTarget from "metabase/containers/dnd/CollectionDropTarget";
 import { getCollectionIcon } from "metabase/entities/collections/utils";
 import * as Urls from "metabase/lib/urls";
 import { PLUGIN_COLLECTIONS } from "metabase/plugins";
+import { Icon } from "metabase/ui";
 import type { Collection } from "metabase-types/api";
 
 import {
@@ -17,6 +19,38 @@ import {
   NameContainer,
   SidebarIcon,
 } from "./SidebarItems.styled";
+
+const AddButton = styled.button`
+  margin-left: auto;
+  margin-right: 8px;
+  background: transparent;
+  border: none;
+  color: #1a7dd7;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+`;
+
+const CollectionNodeRootWithAdd = styled(CollectionNodeRoot)<{
+  isSelected?: boolean;
+}>`
+  &:hover ${AddButton} {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  ${props =>
+    props.isSelected &&
+    `
+      ${AddButton} {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    `}
+`;
 
 type DroppableProps = {
   hovered: boolean;
@@ -85,8 +119,14 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
       collection as unknown as Collection,
     );
 
+    const handleAddClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      // TODO: 替换为你的添加逻辑
+      alert(`添加到集合: ${collection.name}`);
+    };
+
     return (
-      <CollectionNodeRoot
+      <CollectionNodeRootWithAdd
         role="treeitem"
         depth={depth}
         aria-selected={isSelected}
@@ -109,7 +149,10 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
           </TreeNode.IconContainer>
           <NameContainer>{collection.name}</NameContainer>
         </FullWidthLink>
-      </CollectionNodeRoot>
+        <AddButton onClick={handleAddClick}>
+          <Icon name="add" />
+        </AddButton>
+      </CollectionNodeRootWithAdd>
     );
   },
 );
