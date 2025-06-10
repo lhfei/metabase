@@ -134,7 +134,8 @@ function ProfileLink({
         items={generateOptionsForUser()}
         triggerIcon="gear"
         triggerProps={{
-          color: color("text-medium"),
+          // color: color("text-medium"),
+          color: "white",
           hover: {
             backgroundColor: color("brand"),
             color: color("text-white"),
