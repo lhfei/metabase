@@ -25,13 +25,14 @@ const closeSidebarCSS = css`
   opacity: 0;
 `;
 
+//  background-color: var(--mb-color-bg-white);
 export const Sidebar = styled.aside<{ isOpen: boolean }>`
   width: 0;
   height: 100%;
   position: relative;
   flex-shrink: 0;
   align-items: center;
-  background-color: var(--mb-color-bg-white);
+  background-color: #edf3f7;
   overflow: auto;
   overflow-x: hidden;
   z-index: 4;
