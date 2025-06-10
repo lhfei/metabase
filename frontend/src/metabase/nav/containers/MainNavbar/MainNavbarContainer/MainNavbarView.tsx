@@ -41,7 +41,11 @@ import {
   SidebarSection,
   TrashSidebarSection,
 } from "../MainNavbar.styled";
-import { SidebarCollectionLink, SidebarLink } from "../SidebarItems";
+import {
+  SidebarCollectionLink,
+  SidebarCollectionLink2,
+  SidebarLink,
+} from "../SidebarItems";
 import { AddDatabase } from "../SidebarItems/AddDatabase";
 import { DwhUploadCSV } from "../SidebarItems/DwhUploadCSV/DwhUploadCSV";
 import { trackOnboardingChecklistOpened } from "../analytics";
@@ -263,7 +267,7 @@ export function MainNavbarView({
                   data={[trashCollection]}
                   selectedId={collectionItem?.id}
                   onSelect={onItemSelect}
-                  TreeNode={SidebarCollectionLink}
+                  TreeNode={SidebarCollectionLink2}
                   role="tree"
                 />
               </ErrorBoundary>

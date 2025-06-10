@@ -72,6 +72,7 @@ type DroppableProps = {
 type Props = DroppableProps &
   Omit<TreeNodeProps, "item"> & {
     collection: Collection;
+    withAdd?: boolean;
     onAddClick?: () => void;
   };
 
@@ -87,6 +88,7 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
       isExpanded,
       isSelected,
       hasChildren,
+      withAdd,
       onToggleExpand,
       onAddClick,
     }: Props,
@@ -164,9 +166,11 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
           </TreeNode.IconContainer>
           <NameContainer>{collection.name}</NameContainer>
         </FullWidthLink>
-        <AddButton onClick={handleAddClick}>
-          <Icon name="add" tooltip="新集合" />
-        </AddButton>
+        {withAdd && (
+          <AddButton onClick={handleAddClick}>
+            <Icon name="add" tooltip="新集合" />
+          </AddButton>
+        )}
       </CollectionNodeRootWithAdd>
     );
   },
@@ -187,6 +191,7 @@ const DroppableSidebarCollectionLink = forwardRef<HTMLLIElement, TreeNodeProps>(
               {...droppableProps}
               collection={collection}
               ref={ref}
+              withAdd
             />
           )}
         </CollectionDropTarget>
@@ -194,6 +199,30 @@ const DroppableSidebarCollectionLink = forwardRef<HTMLLIElement, TreeNodeProps>(
     );
   },
 );
+
+export const DroppableSidebarCollectionLink2 = forwardRef<
+  HTMLLIElement,
+  TreeNodeProps
+>(function DroppableSidebarCollectionLink(
+  { item, ...props }: TreeNodeProps,
+  ref,
+) {
+  const collection = item as unknown as Collection;
+  return (
+    <div data-testid="sidebar-collection-link-root">
+      <CollectionDropTarget collection={collection}>
+        {(droppableProps: DroppableProps) => (
+          <SidebarCollectionLink
+            {...props}
+            {...droppableProps}
+            collection={collection}
+            ref={ref}
+          />
+        )}
+      </CollectionDropTarget>
+    </div>
+  );
+});
 
 // eslint-disable-next-line import/no-default-export -- deprecated usage
 export default DroppableSidebarCollectionLink;
