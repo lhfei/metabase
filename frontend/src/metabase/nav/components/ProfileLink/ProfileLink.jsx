@@ -159,7 +159,7 @@ function ProfileLink({
               style={{ fontSize: "1.75em" }}
               className={CS.textDark}
             >{t`Thanks for using ${applicationName}!`}</h2>
-            <div className={CS.pt2}>
+            {/* <div className={CS.pt2}>
               <h3 className={cx(CS.textDark, CS.mb1)}>
                 {t`You're on version`} {tag}
               </h3>
@@ -175,9 +175,9 @@ function ProfileLink({
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
-          {showTrademark && (
+          {false && (
             <div
               style={{ borderWidth: "2px" }}
               className={cx(

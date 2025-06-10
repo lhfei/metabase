@@ -15062,7 +15062,7 @@ msgstr "必须是{0}个字符或更少"
 
 #: frontend/src/metabase/nav/components/ProfileLink.jsx:121
 msgid "Thanks for using Metabase!"
-msgstr "感谢您使用Metabase!"
+msgstr "感谢您使用HiCision!"
 
 #: frontend/src/metabase/public/components/EmbedFrame/LogoBadge.tsx:35
 msgid "Powered by {0}"
