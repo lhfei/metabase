@@ -6743,7 +6743,7 @@ msgstr "我们不会收集任何使用事件信息"
 
 #: frontend/src/metabase/setup/components/PreferencesStep.jsx:90
 msgid "In order to help us improve Metabase, we'd like to collect certain data about usage through Google Analytics."
-msgstr "为了帮助我们改进 Metabase，我们希望通过 Google Analytics 收集有关使用情况的某些数据。"
+msgstr "为了帮助我们改进 HiCision，我们希望通过 Google Analytics 收集有关使用情况的某些数据。"
 
 #: frontend/src/metabase/setup/components/PreferencesStep.jsx:95
 msgid "Here's a full list of everything we track and why."
@@ -6800,7 +6800,7 @@ msgstr "你已经设置完毕了！"
 
 #: frontend/src/metabase/setup/components/CompletedStep/CompletedStep.tsx:68
 msgid "Take me to Metabase"
-msgstr "带我去Metabase"
+msgstr "进入HiCision"
 
 #: frontend/src/metabase/setup/components/UserStep/UserStep.tsx:61
 msgid "What should we call you?"
@@ -21878,7 +21878,7 @@ msgstr "我会邀请队友连接数据库"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:71
 msgid "In order to help us improve Metabase, we'd like to collect certain data about product usage."
-msgstr "为了帮助我们改进 Metabase，我们希望收集有关产品使用情况的某些数据。"
+msgstr "为了帮助我们改进 HiCision，我们希望收集有关产品使用情况的某些数据。"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:74
 msgid "Here's a full list of what we track and why."

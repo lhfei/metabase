@@ -6702,7 +6702,7 @@ msgstr "我们不会收集任何使用事件"
 
 #: frontend/src/metabase/setup/components/PreferencesStep.jsx:90
 msgid "In order to help us improve Metabase, we'd like to collect certain data about usage through Google Analytics."
-msgstr "为了提升Metabase的用户体验，可能需要通过Google Analytics收集特定的使用数据。"
+msgstr "为了提升HiCision的用户体验，可能需要通过Google Analytics收集特定的使用数据。"
 
 #: frontend/src/metabase/setup/components/PreferencesStep.jsx:95
 msgid "Here's a full list of everything we track and why."
@@ -6759,7 +6759,7 @@ msgstr "都准备好了!"
 
 #: frontend/src/metabase/setup/components/CompletedStep/CompletedStep.tsx:68
 msgid "Take me to Metabase"
-msgstr "带我到Metabase"
+msgstr "进入HiCision"
 
 #: frontend/src/metabase/setup/components/UserStep/UserStep.tsx:61
 msgid "What should we call you?"
@@ -14552,7 +14552,7 @@ msgstr "密码不匹配"
 
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:89
 msgid "Department of Awesome"
-msgstr "令人敬畏的部门"
+msgstr "部门"
 
 #: frontend/src/metabase/lib/core.js:97 frontend/src/metabase/lib/core.js:103
 #: frontend/src/metabase/lib/core.js:109 frontend/src/metabase/lib/core.js:115
@@ -21861,7 +21861,7 @@ msgstr "我将邀请一个队友来连接数据库"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:71
 msgid "In order to help us improve Metabase, we'd like to collect certain data about product usage."
-msgstr "为了帮助我们改进Metabase，我们希望收集关于产品使用的某些数据。"
+msgstr "为了帮助我们改进HiCision，我们希望收集关于产品使用的某些数据。"
 
 #: frontend/src/metabase/setup/components/DataUsageStep/DataUsageStep.tsx:74
 msgid "Here's a full list of what we track and why."
