@@ -9,10 +9,12 @@ import {
 
 import { ADMIN_NAVBAR_HEIGHT } from "../../constants";
 
+//  background: ${() => color("admin-navbar")};
+
 export const AdminNavbarRoot = styled.nav`
   padding: 0.5rem 1rem;
-  background: ${() => color("admin-navbar")};
   color: var(--mb-color-text-white);
+  background: #262d34;
   font-size: 0.85rem;
   height: ${ADMIN_NAVBAR_HEIGHT};
   display: flex;
