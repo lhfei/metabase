@@ -15,9 +15,11 @@ export const AppBarRoot = styled.div<AppBarRootProps>`
   padding-right: 1rem;
   border-bottom: 1px solid
     ${props => (props.isNavBarOpen ? "var(--mb-color-border)" : "transparent")};
-  background-color: var(--mb-color-bg-white);
+  background-color: #262d34;
   transition: border-bottom-color 200ms ease;
 `;
+
+// background-color: var(--mb-color-bg-white);
 
 export const AppBarLeftContainer = styled.div`
   display: flex;
