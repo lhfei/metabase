@@ -33049,7 +33049,7 @@ msgstr "最短查询时间"
 
 #: frontend/src/metabase/admin/performance/components/StrategyForm.tsx:242
 msgid "Metabase will cache all saved questions with an average query execution time greater than this many seconds."
-msgstr "Metabase 将缓存所有平均查询执行时间大于此秒数的已保存问题。"
+msgstr "HiCision 将缓存所有平均查询执行时间大于此秒数的已保存问题。"
 
 #: frontend/src/metabase/admin/performance/components/StrategyForm.tsx:252
 msgid "Multiplier"
