@@ -1515,7 +1515,7 @@ msgstr "Google账号登录"
 #: frontend/src/metabase/admin/settings/auth/components/GoogleAuthForm/GoogleAuthForm.tsx:72
 #: frontend/src/metabase/admin/settings/auth/containers/GoogleAuthCard/GoogleAuthCard.tsx:19
 msgid "Allows users with existing Metabase accounts to login with a Google account that matches their email address in addition to their Metabase username and password."
-msgstr "允许拥有现有DataOS账户的用户在DataOS用户名和密码的基础上，用与他们的电子邮件地址相匹配的谷歌账户登录。"
+msgstr "允许拥有现有HiCision账户的用户在HiCision用户名和密码的基础上，用与他们的电子邮件地址相匹配的谷歌账户登录。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/EmbeddingSdkOptionCard/EmbeddingSdkOptionCard.tsx:45
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/InteractiveEmbeddingOptionCard/InteractiveEmbeddingOptionCard.tsx:81
@@ -1530,7 +1530,7 @@ msgstr "LDAP"
 
 #: frontend/src/metabase/admin/settings/auth/containers/LdapAuthCard/LdapAuthCard.tsx:14
 msgid "Allows users within your LDAP directory to log in to Metabase with their LDAP credentials, and allows automatic mapping of LDAP groups to Metabase groups."
-msgstr "允许你的LDAP目录中的用户用他们的LDAP凭证登录到DataOS，并允许LDAP组自动映射到DataOS组。"
+msgstr "允许你的LDAP目录中的用户用他们的LDAP凭证登录到HiCision，并允许LDAP组自动映射到HiCision组。"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:215
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:224
@@ -1609,7 +1609,7 @@ msgstr "设置"
 
 #: frontend/src/metabase/admin/settings/setup/components/SetupCheckList/SetupCheckList.jsx:135
 msgid "A few things you can do to get the most out of Metabase."
-msgstr "你可以做几件事情来获得DataOS的最大收益。"
+msgstr "你可以做几件事情来获得HiCision的最大收益。"
 
 #: frontend/src/metabase/admin/settings/setup/components/SetupCheckList/SetupCheckList.jsx:144
 msgid "Recommended next step"
@@ -1621,7 +1621,7 @@ msgstr "Google登录"
 
 #: frontend/src/metabase/admin/settings/components/SettingsSingleSignOnForm.jsx:123
 msgid "To allow users to sign in with Google you'll need to give Metabase a Google Developers console application client ID. It only takes a few steps and instructions on how to create a key can be found {0}"
-msgstr "为了允许用户使用Google登录，你需要给DataOS一个Google开发者应用端ID，在如何创建一个可以被找到的密钥上{0}，它只需要几步和一些指导。"
+msgstr "为了允许用户使用Google登录，你需要给HiCision一个Google开发者应用端ID，在如何创建一个可以被找到的密钥上{0}，它只需要几步和一些指导。"
 
 #: frontend/src/metabase/admin/settings/components/SettingsSingleSignOnForm.jsx:140
 msgid "Your Google client ID"
@@ -1641,7 +1641,7 @@ msgstr "为MetaBot创建一个Slack Bot用户"
 
 #: frontend/src/metabase/admin/settings/components/SettingsSlackForm.jsx:255
 msgid "Once you're there, give it a name and click {0}. Then copy and paste the Bot API Token into the field below. Once you are done, create a \"metabase_files\" channel in Slack. Metabase needs this to upload graphs."
-msgstr "一旦你到了那里，给它一个名字，然后点击{0}。然后复制并粘贴Bot API Token到下面的字段中。一旦你完成了，在Slack中创建一个 \"metabase_files \"频道。DataOS需要这个来上传图表。"
+msgstr "一旦你到了那里，给它一个名字，然后点击{0}。然后复制并粘贴Bot API Token到下面的字段中。一旦你完成了，在Slack中创建一个 \"metabase_files \"频道。HiCision需要这个来上传图表。"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:55
 msgid "You're running Metabase {0} which is the latest and greatest!"
