@@ -2524,7 +2524,7 @@ msgstr "这是一个大型数据库，所以让我选择Metabase同步和扫描�
 #: frontend/src/metabase/components/DatabaseDetailsForm.jsx:296
 msgid "By default, Metabase does a lightweight hourly sync and an intensive daily scan of field values.\n"
 "If you have a large database, we recommend turning this on and reviewing when and how often the field value scans happen."
-msgstr "默认情况下，Metabase每小时执行一次轻量级同步，每天执行一次密集扫描。\n"
+msgstr "默认情况下，HiCision每小时执行一次轻量级同步，每天执行一次密集扫描。\n"
 "如果你有一个大型数据库，我们建议启用此功能并查看字段值扫描的发生时间和频率。"
 
 #: frontend/src/metabase/databases/components/DatabaseClientIdDescription/DatabaseClientIdDescription.tsx:27
@@ -20531,7 +20531,7 @@ msgstr "默认情况下，Metabase每小时进行一次轻量级的同步，每�
 
 #: metabase/driver/common.clj:182
 msgid "This enables Metabase to scan for additional field values during syncs allowing smarter behavior, like improved auto-binning on your bar charts."
-msgstr "这使Metabase能够在同步过程中扫描更多的字段值，从而实现更智能的行为，比如在你的柱状图上改进自动排序。"
+msgstr "这使HiCision能够在同步过程中扫描更多的字段值，从而实现更智能的行为，比如在你的柱状图上改进自动排序。"
 
 #: frontend/src/metabase/setup/components/UserForm/UserForm.tsx:88
 msgid "Company or team name"
