@@ -985,11 +985,11 @@ msgstr "所有用户都属于{0}组，不能从该组中删除。为这个组设
 #: frontend/src/metabase/admin/people/components/GroupDetail.jsx:43
 msgid "This is a special group whose members can see everything in the Metabase instance, and who can access and make changes to the\n"
 "settings in the Admin Panel, including changing permissions! So, add people to this group with care."
-msgstr "这是一个特殊的组，其成员可以看到Metabase实例中的所有内容，并且可以访问和修改管理面板中的设置，包括改变权限！因此，请慎重将人们添加到这个组。"
+msgstr "这是一个特殊的组，其成员可以看到HiCision实例中的所有内容，并且可以访问和修改管理面板中的设置，包括改变权限！因此，请慎重将人们添加到这个组。"
 
 #: frontend/src/metabase/admin/people/components/GroupDetail.jsx:47
 msgid "To make sure you don't get locked out of Metabase, there always has to be at least one user in this group."
-msgstr "为了确保你不会被Metabase锁在外面，必须需要至少一个用户在这个群组里。"
+msgstr "为了确保你不会被HiCision锁在外面，必须需要至少一个用户在这个群组里。"
 
 #: frontend/src/metabase/admin/people/components/GroupsListing.jsx:286
 msgid "Members"
@@ -1054,7 +1054,7 @@ msgstr "默认"
 
 #: frontend/src/metabase/admin/people/components/GroupsListing.jsx:43
 msgid "Something like \"Marketing\""
-msgstr "类似于 \"市场营销 \""
+msgstr "输入名称"
 
 #: frontend/src/metabase/admin/people/components/GroupsListing.jsx:71
 msgid "Remove this group?"
@@ -29952,7 +29952,7 @@ msgstr "{0}对{1}"
 
 #: frontend/src/metabase/admin/people/components/AddMemberRow.jsx:60
 msgid "Julie McMemberson"
-msgstr "Julie McMemberson"
+msgstr ""
 
 #: frontend/src/metabase/components/LastEditInfoLabel/LastEditInfoLabel.jsx:46
 msgid "Edited"
