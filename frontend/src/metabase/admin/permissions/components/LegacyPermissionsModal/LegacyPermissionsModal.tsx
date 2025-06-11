@@ -56,8 +56,8 @@ export const LegacyPermissionsModal = ({
           <Text mb="1.5rem">
             {t`Your permissions have been automatically converted to the new settings, with no change in data access for your groups.`}
           </Text>
-          <Flex justify="space-between">
-            <Button
+          <Flex justify="end">
+            {/* <Button
               variant="subtle"
               p={0}
               component={Link}
@@ -65,7 +65,7 @@ export const LegacyPermissionsModal = ({
               target="_blank"
             >
               {t`Learn more`}
-            </Button>
+            </Button> */}
             <Button onClick={onClose} variant="filled">
               {t`Got it`}
             </Button>
