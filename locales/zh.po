@@ -1816,7 +1816,7 @@ msgstr "新增映射"
 msgid "Mappings allow Metabase to automatically add and remove users from groups based on the membership information provided by the\n"
 "directory server. Membership to the Admin group can be granted through mappings, but will not be automatically removed as a\n"
 "failsafe measure."
-msgstr "映射允许Metabase根据目录服务器提供的成员资格信息自动添加和删除组中的用户。Admin组的成员身份可以通过映射授予，但作为故障保护措施并不会被自动删除。"
+msgstr "映射允许HiCision根据目录服务器提供的成员资格信息自动添加和删除组中的用户。Admin组的成员身份可以通过映射授予，但作为故障保护措施并不会被自动删除。"
 
 #: frontend/src/metabase/plugins/builtin/auth/ldap.js:108
 msgid "Distinguished Name"
@@ -31218,7 +31218,7 @@ msgstr "该密钥应属于哪个组？该密钥将拥有授予该组的相同权
 
 #: frontend/src/metabase/admin/settings/components/ApiKeys/CreateApiKeyModal.tsx:69
 msgid "We don't version the Metabase API. We rarely change API endpoints, and almost never remove them, but if you write code that relies on the API, there's a chance you might have to update your code in the future."
-msgstr "我们不会对 Metabase API 进行版本更新。我们很少更改 API 端点，也几乎从不删除这些端点，但如果您编写的代码依赖于 API，那么将来有可能需要更新您的代码。"
+msgstr "我们不会对 HiCision API 进行版本更新。我们很少更改 API 端点，也几乎从不删除这些端点，但如果您编写的代码依赖于 API，那么将来有可能需要更新您的代码。"
 
 #: enterprise/frontend/src/metabase-enterprise/user_provisioning/index.ts:20
 #: frontend/src/metabase/admin/settings/auth/components/ApiKeysAuthCard.tsx:15
