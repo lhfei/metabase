@@ -38,11 +38,11 @@ export const CollectionPermissionsHelp = () => {
         />
       </Stack>
 
-      <Text component="footer" align="center" py={24} weight={600}>
+      {/* <Text component="footer" align="center" py={24} weight={600}>
         {jt`${(
           <ExternalLink key="link" href={url}>{t`Learn more`}</ExternalLink>
         )} about collection permissions`}
-      </Text>
+      </Text> */}
     </Flex>
   );
 };

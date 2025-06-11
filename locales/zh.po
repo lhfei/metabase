@@ -27645,7 +27645,7 @@ msgstr "使用Metabase Pro通过SAML、JWT或LDAP实现单点登录（SSO）"
 #: frontend/src/metabase/admin/permissions/components/CollectionPermissionsHelp/CollectionPermissionsHelp.tsx:14
 #: frontend/src/metabase/admin/permissions/components/DataPermissionsHelp/DataPermissionsHelp.tsx:41
 msgid "People can be members of multiple groups, and Metabase grants them the most permissive level of access across all of a person's groups."
-msgstr "人员可以是多个组的成员，Metabase会授予他们在所在的组中享有的最高权限级别。"
+msgstr "人员可以是多个组的成员，HiCision会授予他们在所在的组中享有的最高权限级别。"
 
 #: frontend/src/metabase/admin/permissions/components/DataPermissionsHelp/DataPermissionsHelp.tsx:44
 msgid "The group can use the query builder to ask questions of any table in the database."
