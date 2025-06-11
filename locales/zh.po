@@ -34837,7 +34837,7 @@ msgstr "您的数据权限可能看起来不同，但访问权限并没有改变
 
 #: frontend/src/metabase/admin/permissions/components/LegacyPermissionsModal/LegacyPermissionsModal.tsx:40
 msgid "In Metabase 50, we split our data permissions into two new settings: {0} and {1}. Having separate settings for what people can view and what they can query makes data permissions more expressive and easier to reason about."
-msgstr "在 Metabase 50 中，我们将数据权限分为两种新设置：{0}和{1}。分别设置人们可以查看的内容和可以查询的内容，使数据权限更具表现力，也更易于推理。"
+msgstr "在 HiCision 中，我们将数据权限分为两种新设置：{0}和{1}。分别设置人们可以查看的内容和可以查询的内容，使数据权限更具表现力，也更易于推理。"
 
 #: frontend/src/metabase/admin/permissions/components/LegacyPermissionsModal/LegacyPermissionsModal.tsx:57
 msgid "Your permissions have been automatically converted to the new settings, with no change in data access for your groups."
