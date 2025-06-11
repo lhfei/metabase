@@ -184,28 +184,7 @@
 ;;   :export?    true)
 
 (def ^:private default-allowed-iframe-hosts
-  "youtube.com,
-youtu.be,
-loom.com,
-vimeo.com,
-docs.google.com,
-calendar.google.com,
-airtable.com,
-typeform.com,
-canva.com,
-codepen.io,
-figma.com,
-grafana.com,
-miro.com,
-excalidraw.com,
-notion.com,
-atlassian.com,
-trello.com,
-asana.com,
-gist.github.com,
-linkedin.com,
-twitter.com,
-x.com")
+  "baidu.com")
 
 (defsetting allowed-iframe-hosts
   (deferred-tru "Allowed iframe hosts")
