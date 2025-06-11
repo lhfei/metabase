@@ -63,17 +63,18 @@ const UserProfileForm = ({
           {!isSsoUser && (
             <>
               <FormInput
-                name="first_name"
-                title={t`First name`}
-                placeholder={t`Johnny`}
-                nullable
-              />
-              <FormInput
                 name="last_name"
                 title={t`Last name`}
                 placeholder={t`Appleseed`}
                 nullable
               />
+              <FormInput
+                name="first_name"
+                title={t`First name`}
+                placeholder={t`Johnny`}
+                nullable
+              />
+
               <FormInput
                 name="email"
                 type="email"
