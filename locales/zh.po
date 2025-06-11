@@ -4475,7 +4475,7 @@ msgstr "关于Metabase"
 
 #: frontend/src/metabase/nav/components/ProfileLink/ProfileLink.jsx:78
 msgid "Sign out"
-msgstr "注销"
+msgstr "退出登录"
 
 #: frontend/src/metabase/nav/components/ProfileLink.jsx:109
 msgid "Thanks for using"
