@@ -5882,7 +5882,7 @@ msgstr "了解更多"
 #: frontend/src/metabase/common/components/CollectionPicker/components/NewCollectionDialog.tsx:64
 #: frontend/src/metabase/common/components/DashboardPicker/components/NewDashboardDialog.tsx:69
 msgid "Give it a name"
-msgstr "给它起个名字"
+msgstr "名称"
 
 #: frontend/src/metabase/query_builder/components/expressions/ExpressionWidget.tsx:260
 msgid "Something nice and descriptive"
@@ -36247,7 +36247,7 @@ msgstr "API 密钥值"
 
 #: frontend/src/metabase/admin/settings/notifications/WebhookForm.tsx:164
 msgid "Create destination"
-msgstr "创建目的地"
+msgstr "创建"
 
 #: frontend/src/metabase/admin/settings/notifications/WebhookForm.tsx:173
 #: frontend/src/metabase/pulse/components/WebhookChannelEdit.tsx:34
@@ -36284,7 +36284,7 @@ msgstr "验证方法"
 
 #: frontend/src/metabase/admin/settings/notifications/WebhookForm.tsx:297
 msgid "Bearer"
-msgstr "承载者"
+msgstr "承载令牌"
 
 #: frontend/src/metabase/admin/settings/notifications/WebhookForm.tsx:319
 msgid "Delete this destination"
@@ -36566,7 +36566,7 @@ msgstr "数据库缓存"
 
 #: frontend/src/metabase/admin/settings/notifications/CreateWebhookModal.tsx:58
 msgid "New webhook destination"
-msgstr "新的网络钩子目的地"
+msgstr "新建 Webhook 目标地址"
 
 #: frontend/src/metabase/admin/upsells/UpsellMetabaseBanner.tsx:10
 msgid "Upgrade plan"

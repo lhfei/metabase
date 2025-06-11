@@ -228,11 +228,7 @@ export const WebhookForm = ({
             py="1rem"
             radius="0.5rem"
           >
-            <Text>{jt`You can send the payload of any Alert to this destination whenever the Alert is triggered. ${(
-              <ExternalLink key="link" href={docsUrl}>
-                {t`Learn about Alerts`}
-              </ExternalLink>
-            )}`}</Text>
+            <Text>{jt`You can send the payload of any Alert to this destination whenever the Alert is triggered. ${""}`}</Text>
           </Alert>
           <Box mb="1.5rem">
             <Flex align="end" gap="1rem">
@@ -283,7 +279,7 @@ export const WebhookForm = ({
           <FormTextInput
             name="name"
             label={t`Give it a name`}
-            placeholder={t`Something descriptive`}
+            // placeholder={t`Something descriptive`}
             {...styles}
             mb="1.5rem"
             maw="14.5rem"
@@ -291,7 +287,7 @@ export const WebhookForm = ({
           <FormTextInput
             name="description"
             label={t`Description`}
-            placeholder={t`Where is this going and what does it send?`}
+            // placeholder={t`Where is this going and what does it send?`}
             {...styles}
             mb="1.5rem"
             maw="21rem"
