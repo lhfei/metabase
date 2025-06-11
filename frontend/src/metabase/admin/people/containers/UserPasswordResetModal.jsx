@@ -36,7 +36,7 @@ class UserPasswordResetModal extends Component {
     const { user, emailConfigured, temporaryPassword } = this.props;
     return temporaryPassword ? (
       <ModalContent
-        title={t`${user.common_name}'s password has been reset`}
+        title={t`${user.last_name + user.first_name}'s password has been reset`}
         footer={<Button primary onClick={this.handleClose}>{t`Done`}</Button>}
         onClose={this.handleClose}
       >
@@ -48,7 +48,7 @@ class UserPasswordResetModal extends Component {
       </ModalContent>
     ) : (
       <ModalContent
-        title={t`Reset ${user.common_name}'s password?`}
+        title={t`Reset ${user.last_name + user.first_name}'s password?`}
         onClose={this.handleClose}
       >
         <p>{t`Are you sure you want to do this?`}</p>
