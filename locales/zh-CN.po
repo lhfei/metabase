@@ -25367,7 +25367,7 @@ msgstr "占位符文本"
 #: frontend/src/metabase/forms/utils/messages.ts:7
 #: frontend/src/metabase/parameters/components/ParameterSettings/ParameterSettings.tsx:306
 msgid "Required"
-msgstr "需要"
+msgstr "必填"
 
 #: frontend/src/metabase/actions/containers/ActionCreator/FormCreator/FieldSettingsPopover.tsx:219
 msgid "Default Value"
