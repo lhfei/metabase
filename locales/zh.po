@@ -21809,7 +21809,7 @@ msgstr "要解决这个问题，只需删除这个问题中的变量，然后再
 #: frontend/src/metabase/auth/components/ForgotPassword/ForgotPassword.tsx:86
 #: frontend/src/metabase/auth/components/ForgotPasswordForm/ForgotPasswordForm.tsx:70
 msgid "Back to sign in"
-msgstr "返回签到"
+msgstr "返回登录"
 
 #: frontend/src/metabase/auth/components/ForgotPassword/ForgotPassword.tsx:84
 msgid "Please contact an administrator to have them reset your password."
