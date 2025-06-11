@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { Params } from "react-router/lib/Router";
+import { t } from "ttag";
 
 import { skipToken, useGetUserQuery } from "metabase/api";
 import LoadingAndErrorWrapper from "metabase/components/LoadingAndErrorWrapper";
@@ -36,7 +37,7 @@ export const EditUserModal = ({ onClose, params }: EditUserModalProps) => {
   };
 
   return (
-    <ModalContent title="Edit user" onClose={onClose}>
+    <ModalContent title={t`Edit user`} onClose={onClose}>
       <LoadingAndErrorWrapper loading={isLoading}>
         {() => {
           return (
