@@ -48,7 +48,7 @@ function userInitials(user: User | Group) {
 
 function nameInitials(user: User | Group) {
   if ("common_name" in user) {
-    return initial(user.first_name) + initial(user.last_name);
+    return initial(user.last_name) + initial(user.first_name);
   }
 
   // render group

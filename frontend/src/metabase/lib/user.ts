@@ -1,7 +1,8 @@
 export function getFullName(user: NamedUser): string | null {
   const firstName = user.first_name?.trim() || "";
   const lastName = user.last_name?.trim() || "";
-  return [firstName, lastName].join(" ").trim() || null;
+  // return [firstName, lastName].join(" ").trim() || null;
+  return [lastName, firstName].join(" ").trim() || null;
 }
 
 export const getUserName = (userInfo?: NamedUser) => {
