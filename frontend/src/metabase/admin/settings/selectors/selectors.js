@@ -284,7 +284,7 @@ export const ADMIN_SETTINGS_SECTIONS = {
         key: "email-smtp-password",
         display_name: t`SMTP Password`,
         description: null,
-        placeholder: "Shhh...",
+        placeholder: "...",
         type: "password",
         getHidden: () => MetabaseSettings.isHosted(),
       },
