@@ -23893,7 +23893,7 @@ msgstr "嵌入"
 
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/EmbeddingSettings.tsx:42
 msgid "Embed dashboards, questions, or the entire Metabase app into your application. Integrate with your server code to create a secure environment, limited to specific users or organizations."
-msgstr "将仪表板、问题或整个Metabase应用程序嵌入到应用程序中。可与你自己的服务器代码集成，创建一个安全的环境，限制于特定用户或组织使用。"
+msgstr "将仪表板、问题或整个HiCision应用程序嵌入到应用程序中。可与你自己的服务器代码集成，创建一个安全的环境，限制于特定用户或组织使用。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingLegalese/EmbeddingLegalese.tsx:28
 msgid "By enabling embedding you're agreeing to"
