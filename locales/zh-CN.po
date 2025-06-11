@@ -874,7 +874,7 @@ msgstr "为您的指标命名，以帮助其他人找到它。"
 
 #: frontend/src/metabase/admin/datamodel/components/SegmentForm/SegmentForm.tsx:92
 msgid "Something descriptive but not too long"
-msgstr "描述性的东西，但不要太长"
+msgstr "简短描述"
 
 #: frontend/src/metabase/admin/datamodel/components/MetricForm/MetricForm.tsx:109
 msgid "Describe Your Metric"
@@ -886,7 +886,7 @@ msgstr "给您的指标一个描述，以帮助其他人了解它的含义。"
 
 #: frontend/src/metabase/admin/datamodel/components/MetricForm/MetricForm.tsx:116
 msgid "This is a good place to be more specific about less obvious metric rules"
-msgstr "这是一个更好地针对不太明显的指标标准的好地方"
+msgstr "分段描述信息"
 
 #: frontend/src/metabase/admin/datamodel/components/SegmentForm/SegmentForm.tsx:108
 msgid "Reason For Changes"
@@ -19077,7 +19077,7 @@ msgstr[0] "找到 {0} 位"
 
 #: frontend/src/metabase/admin/people/containers/PeopleListingApp.jsx:39
 msgid "Find someone"
-msgstr "查找"
+msgstr "查找用户"
 
 #: frontend/src/metabase/admin/people/containers/PeopleListingApp.jsx:56
 #: frontend/src/metabase/admin/people/containers/NewUserModal.tsx:28

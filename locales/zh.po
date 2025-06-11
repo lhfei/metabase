@@ -369,7 +369,7 @@ msgstr "添加数据库"
 #: frontend/src/metabase/visualizations/lib/settings/column.js:317
 #: frontend/src/metabase/visualizations/visualizations/Scalar/scalars-bar-transform.ts:21
 msgid "Name"
-msgstr "命名"
+msgstr "名称"
 
 #: frontend/src/metabase/admin/databases/components/DatabaseList/DatabaseList.jsx:97
 msgid "Engine"
@@ -849,7 +849,7 @@ msgstr "为指标命名，方便其他人查找。"
 
 #: frontend/src/metabase/admin/datamodel/components/SegmentForm/SegmentForm.tsx:92
 msgid "Something descriptive but not too long"
-msgstr "描述一下，但不要太长"
+msgstr "简短描述"
 
 #: frontend/src/metabase/admin/datamodel/components/MetricForm/MetricForm.tsx:109
 msgid "Describe Your Metric"
@@ -913,7 +913,7 @@ msgstr "给你的分段提供描述， 帮助别人了解它的含义。"
 
 #: frontend/src/metabase/admin/datamodel/components/SegmentForm/SegmentForm.tsx:104
 msgid "This is a good place to be more specific about less obvious segment rules"
-msgstr "这是一个很好的地方，可以更具体地说明不太明显的分段规则"
+msgstr "分段描述信息"
 
 #: frontend/src/metabase/admin/datamodel/components/SegmentForm/SegmentForm.tsx:117
 msgid "This will show up in the revision history for this segment to help everyone remember why things changed"
@@ -19054,7 +19054,7 @@ msgstr[0] "发现{0}人"
 
 #: frontend/src/metabase/admin/people/containers/PeopleListingApp.jsx:39
 msgid "Find someone"
-msgstr "找人"
+msgstr "查找用户"
 
 #: frontend/src/metabase/admin/people/containers/PeopleListingApp.jsx:56
 #: frontend/src/metabase/admin/people/containers/NewUserModal.tsx:28

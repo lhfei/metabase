@@ -65,7 +65,7 @@ const UserProfileForm = ({
               <FormInput
                 name="last_name"
                 title={t`Last name`}
-                placeholder={t`Appleseed`}
+                // placeholder={t`Appleseed`}
                 nullable
               />
               <FormInput

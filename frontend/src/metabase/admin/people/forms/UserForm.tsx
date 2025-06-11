@@ -44,19 +44,20 @@ export const UserForm = ({
       {({ dirty }: { dirty: boolean }) => (
         <Form disabled={!dirty}>
           <FormTextInput
+            name="last_name"
+            title={t`Last name`}
+            // placeholder={t`Appleseed`}
+            label={t`Last name`}
+            mb="1rem"
+          />
+          <FormTextInput
             name="first_name"
             title={t`First name`}
             // placeholder={t`Johnny`}
             label={t`First name`}
             mb="1rem"
           />
-          <FormTextInput
-            name="last_name"
-            title={t`Last name`}
-            placeholder={t`Appleseed`}
-            label={t`Last name`}
-            mb="1rem"
-          />
+
           <FormTextInput
             name="email"
             type="email"
