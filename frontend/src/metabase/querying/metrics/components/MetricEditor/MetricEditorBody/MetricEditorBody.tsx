@@ -55,7 +55,7 @@ export function MetricEditorBody({
             hasVisualizeButton={false}
           />
         </Box>
-        <MetricEditorSidebar />
+        {/* <MetricEditorSidebar /> */}
       </Flex>
     </ResizableBox>
   );
