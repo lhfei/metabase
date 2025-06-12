@@ -57,7 +57,7 @@ msgstr "保存"
 
 #: frontend/src/metabase/admin/databases/components/DatabaseSchedulingForm.jsx:122
 msgid "To do some of its magic, Metabase needs to scan your database. We will also rescan it periodically to keep the metadata up-to-date. You can control when the periodic rescans happen below."
-msgstr "为了做一些神奇的事情，Metabase 需要扫描你的数据库。我们将会定期扫描，来保持源数据是最新的。你也可以在周期的扫描之前，手工来控制扫描。"
+msgstr "为了做一些神奇的事情，HiCision 需要扫描你的数据库。我们将会定期扫描，来保持源数据是最新的。你也可以在周期的扫描之前，手工来控制扫描。"
 
 #: metabase/driver/common.clj:147
 msgid "Database syncing"
@@ -83,11 +83,11 @@ msgid "Metabase can scan the values present in each\n"
 "field in this database to enable checkbox filters in dashboards and questions. This\n"
 "can be a somewhat resource-intensive process, particularly if you have a very large\n"
 "database."
-msgstr "Metabase 可以扫描数据库中每个字段的值，用来启用查询或仪表板中的选择框筛选器。当你的数据库很大时，它将可能是一个消耗大量系统资源的处理过程."
+msgstr "HiCision 可以扫描数据库中每个字段的值，用来启用查询或仪表板中的选择框筛选器。当你的数据库很大时，它将可能是一个消耗大量系统资源的处理过程."
 
 #: frontend/src/metabase/entities/databases/big-query-fields.js:167
 msgid "When should Metabase automatically scan and cache field values?"
-msgstr "Metabase 应该在什么时候自动扫描缓存的字段值？"
+msgstr "HiCision 应该在什么时候自动扫描缓存的字段值？"
 
 #: frontend/src/metabase/databases/components/DatabaseCacheScheduleField/DatabaseCacheScheduleField.tsx:74
 msgid "Regularly, on a schedule"
@@ -100,7 +100,7 @@ msgstr "只有当你在添加一个新的筛选控件时"
 #: frontend/src/metabase/admin/databases/components/widgets/CacheFieldValuesScheduleWidget.jsx:55
 msgid "When a user adds a new filter to a dashboard or a SQL question, Metabase will\n"
 "scan the field(s) mapped to that filter in order to show the list of selectable values."
-msgstr "当用户向仪表板或 SQL 查询器添加一个新的筛选器，Metabase 会扫描筛选器对应的字段来显示一个可选值列表。"
+msgstr "当用户向仪表板或 SQL 查询器添加一个新的筛选器，HiCision 会扫描筛选器对应的字段来显示一个可选值列表。"
 
 #: frontend/src/metabase/databases/components/DatabaseCacheScheduleField/DatabaseCacheScheduleField.tsx:95
 msgid "Never, I'll do this manually if I need to"
@@ -696,7 +696,7 @@ msgstr "{0} - 字段设置"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/FieldGeneralSettings/FieldGeneralSettings.tsx:145
 msgid "Where this field will appear throughout Metabase"
-msgstr "该字段将在整个Metabase中出现的位置"
+msgstr "该字段将在整个HiCision中出现的位置"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/FieldGeneralSettings/FieldGeneralSettings.tsx:277
 msgid "Filtering on this field"
@@ -778,7 +778,7 @@ msgstr "缓存字段值"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/FieldGeneralSettings/FieldGeneralSettings.tsx:323
 msgid "Metabase can scan the values for this field to enable checkbox filters in dashboards and questions."
-msgstr "Metabase 通过扫描该字段，以启用仪表板和问题中的多选框筛选。"
+msgstr "HiCision 通过扫描该字段，以启用仪表板和问题中的多选框筛选。"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/FieldGeneralSettings/FieldGeneralSettings.tsx:328
 msgid "Re-scan this field"
@@ -933,7 +933,7 @@ msgstr "设置"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/MetadataTableSettings/MetadataTableSettings.tsx:92
 msgid "Metabase can scan the values in this table to enable checkbox filters in dashboards and questions."
-msgstr "Metabase扫描此表中的值，用以启用仪表板和问题中的复选框筛选器。"
+msgstr "HiCision扫描此表中的值，用以启用仪表板和问题中的复选框筛选器。"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/MetadataTableSettings/MetadataTableSettings.tsx:97
 msgid "Re-scan this table"
@@ -980,7 +980,7 @@ msgstr "设置这个用户成为管理员"
 #: frontend/src/metabase/admin/people/components/GroupDetail.jsx:34
 msgid "All users belong to the {0} group and can't be removed from it. Setting permissions for this group is a great way to\n"
 "make sure you know what new Metabase users will be able to see."
-msgstr "所有用户都属于{0}组，不能从该组中删除。为这个组设置权限是一个很好的方法，可以确保你知道新的Metabase用户将能够看到哪些。"
+msgstr "所有用户都属于{0}组，不能从该组中删除。为这个组设置权限是一个很好的方法，可以确保你知道新的HiCision用户将能够看到哪些。"
 
 #: frontend/src/metabase/admin/people/components/GroupDetail.jsx:43
 msgid "This is a special group whose members can see everything in the Metabase instance, and who can access and make changes to the\n"
@@ -1381,15 +1381,15 @@ msgstr "对不起，发生了一个错误。"
 
 #: frontend/src/metabase/admin/permissions/constants/messages.ts:3
 msgid "Administrators always have the highest level of access to everything in Metabase."
-msgstr "管理员总是对Metabase中的一切有最高级别的访问权。"
+msgstr "管理员总是对HiCision中的一切有最高级别的访问权。"
 
 #: frontend/src/metabase/admin/permissions/selectors.js:70
 msgid "Every Metabase user belongs to the All Users group. If you want to limit or restrict a group's access to something, make sure the All Users group has an equal or lower level of access."
-msgstr "每个Metabase用户都属于“所有用户”组。如果要限制一个用户组对某些内容的访问权限，请确保“所有用户”组具有相同或更低级别的访问权限。"
+msgstr "每个HiCision用户都属于“所有用户”组。如果要限制一个用户组对某些内容的访问权限，请确保“所有用户”组具有相同或更低级别的访问权限。"
 
 #: frontend/src/metabase/admin/permissions/selectors.js:72
 msgid "MetaBot is Metabase's Slack bot. You can choose what it has access to here."
-msgstr "MetaBot是Metabase的Slack机器人，你可以在此处选择访问权限。"
+msgstr "MetaBot是HiCision的Slack机器人，你可以在此处选择访问权限。"
 
 #: frontend/src/metabase/admin/permissions/selectors/confirmations.tsx:79
 msgid "The \"{0}\" group may have access to a different set of {1} than this group, which may give this group additional access to some {2}."
@@ -1645,11 +1645,11 @@ msgstr "一旦你到了那里，给它一个名字，然后点击{0}。然后复
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:55
 msgid "You're running Metabase {0} which is the latest and greatest!"
-msgstr "你正在运行 Metabase {0}，已经是最新版本！"
+msgstr "你正在运行 HiCision {0}，已经是最新版本！"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm.jsx:100
 msgid "Metabase {0} is available.  You're running {1}"
-msgstr "Metabase {0}可更新。你正在运行是{1}"
+msgstr "HiCision {0}可更新。你正在运行是{1}"
 
 #: enterprise/frontend/src/metabase-enterprise/snippets/components/SnippetCollectionForm.tsx:167
 #: frontend/src/metabase/account/profile/components/UserProfileForm/UserProfileForm.tsx:90
@@ -1774,7 +1774,7 @@ msgstr "通过启用嵌入功能，你同意位于以下网址的嵌入许可：
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingLegalese.jsx:23
 msgid "In plain English, when you embed charts or dashboards from Metabase in your own application, that application isn't subject to the Affero General Public License that covers the rest of Metabase, provided you keep the Metabase logo and the \"Powered by Metabase\" visible on those embeds. You should, however, read the license text linked above as that is the actual license that you will be agreeing to by enabling this feature."
-msgstr "简单地说，当你在自己的应用程序中嵌入Metabase的图表或仪表板时，该应用程序不受涵盖Metabase其他部分的Affero通用公共许可证的约束，只要你在这些嵌入物上保持Metabase标志和 \"Powered by Metabase \"可见。但是，你应该阅读上面链接的许可证文本，因为这是你在启用此功能时将同意的实际许可证。"
+msgstr "简单地说，当你在自己的应用程序中嵌入HiCision的图表或仪表板时，该应用程序不受涵盖HiCision其他部分的Affero通用公共许可证的约束，只要你在这些嵌入物上保持HiCision标志和 \"Powered by HiCision \"可见。但是，你应该阅读上面链接的许可证文本，因为这是你在启用此功能时将同意的实际许可证。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingLegalese/EmbeddingLegalese.tsx:68
 msgid "Enable"
@@ -1786,11 +1786,11 @@ msgstr "启用高级嵌入功能"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingLevel.jsx:30
 msgid "Enter the token you bought from the Metabase Store"
-msgstr "输入你从Metabase商店购买的token"
+msgstr "输入你从HiCision商店购买的token"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingLevel.jsx:57
 msgid "Premium embedding lets you disable \"Powered by Metabase\" on your embedded dashboards and questions."
-msgstr "高级嵌入让你在嵌入的仪表板和问题上禁用 \"Powered by Metabase\"。"
+msgstr "高级嵌入让你在嵌入的仪表板和问题上禁用 \"Powered by HiCision\"。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingLevel.jsx:64
 msgid "Buy a token"
@@ -2094,7 +2094,7 @@ msgstr "地图瓦片服务器(Map tile server)URL"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:324
 msgid "Metabase uses OpenStreetMaps by default."
-msgstr "Metabase默认使用OpenStreet地图"
+msgstr "HiCision默认使用OpenStreet地图"
 
 #: frontend/src/metabase/admin/settings/selectors/selectors.js:329
 msgid "Custom Maps"
@@ -2126,7 +2126,7 @@ msgstr "嵌入在其他的应用中"
 
 #: frontend/src/metabase/admin/settings/selectors.js:332
 msgid "Enable Embedding Metabase in other Applications"
-msgstr "启用在其他应用程序中嵌入 Metabase"
+msgstr "启用在其他应用程序中嵌入 HiCision"
 
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/StaticEmbeddingSettings.tsx:20
 msgid "Embedding secret key"
@@ -2188,11 +2188,11 @@ msgstr "返回登录"
 
 #: frontend/src/metabase/auth/components/GoogleNoAccount.jsx:15
 msgid "No Metabase account exists for this Google account."
-msgstr "这个谷歌账户不存在Metabase账户。"
+msgstr "这个谷歌账户不存在HiCision账户。"
 
 #: metabase/integrations/google.clj:26
 msgid "You'll need an administrator to create a Metabase account before you can use Google to log in."
-msgstr "你需要一个管理员来创建Metabase账户，然后才能使用谷歌登录。"
+msgstr "你需要一个管理员来创建HiCision账户，然后才能使用谷歌登录。"
 
 #: frontend/src/metabase/auth/components/AuthProviderButton.jsx:24
 msgid "Sign in with {0}"
@@ -2208,7 +2208,7 @@ msgstr "忘记密码"
 
 #: frontend/src/metabase/auth/components/ForgotPasswordForm/ForgotPasswordForm.tsx:51
 msgid "The email you use for your Metabase account"
-msgstr "你用于Metabase账户的电子邮件"
+msgstr "你用于HiCision账户的电子邮件"
 
 #: frontend/src/metabase/auth/components/ForgotPasswordForm/ForgotPasswordForm.tsx:62
 msgid "Send password reset email"
@@ -2220,7 +2220,7 @@ msgstr "请查看你的电子邮件，了解如何重设密码的说明。"
 
 #: frontend/src/metabase/auth/components/Login/Login.tsx:30
 msgid "Sign in to Metabase"
-msgstr "登录到Metabase"
+msgstr "登录到HiCision"
 
 #: frontend/src/metabase/auth/containers/LoginApp.jsx:165
 msgid "OR"
@@ -2519,7 +2519,7 @@ msgstr "一些数据库安装只有通过SSH通道访问的服务器有权访问
 
 #: frontend/src/metabase/entities/databases/forms.js:349
 msgid "This is a large database, so let me choose when Metabase syncs and scans"
-msgstr "这是一个大型数据库，所以让我选择Metabase同步和扫描的时间"
+msgstr "这是一个大型数据库，所以让我选择HiCision同步和扫描的时间"
 
 #: frontend/src/metabase/components/DatabaseDetailsForm.jsx:296
 msgid "By default, Metabase does a lightweight hourly sync and an intensive daily scan of field values.\n"
@@ -2550,7 +2550,7 @@ msgstr "使用Google Driver权限"
 
 #: frontend/src/metabase/entities/databases/forms.js:248
 msgid "To use Metabase with this data you must enable API access in the Google Developers Console."
-msgstr "要将Metabase用于此数据，你必须在Google Developers Console中启用API访问权限。"
+msgstr "要将HiCision用于此数据，你必须在Google Developers Console中启用API访问权限。"
 
 #: frontend/src/metabase/entities/databases/forms.js:249
 msgid "{0} to go to the console if you haven't already done so."
@@ -2839,7 +2839,7 @@ msgstr "正在加载..."
 
 #: frontend/src/metabase/setup/components/NewsletterForm/NewsletterForm.tsx:47
 msgid "Metabase Newsletter"
-msgstr "Metabase新闻"
+msgstr "HiCision新闻"
 
 #: frontend/src/metabase/setup/components/CompletedStep/CompletedStep.tsx:55
 msgid "Get infrequent emails about new releases and feature updates."
@@ -2851,7 +2851,7 @@ msgstr "订阅"
 
 #: frontend/src/metabase/setup/components/NewsletterForm/NewsletterForm.tsx:74
 msgid "You're subscribed. Thanks for using Metabase!"
-msgstr "你已经订阅了。谢谢你使用Metabase!"
+msgstr "你已经订阅了。谢谢你使用HiCision!"
 
 #: frontend/src/metabase/components/ErrorPages/ErrorPages.tsx:49
 msgid "We're a little lost..."
@@ -2949,7 +2949,7 @@ msgstr "日历"
 
 #: frontend/src/metabase/components/SchedulePicker/SchedulePicker.tsx:235
 msgid "your Metabase timezone"
-msgstr "你的Metabase时区"
+msgstr "你的HiCision时区"
 
 #: frontend/src/metabase/components/SearchHeader.jsx:21
 msgid "Filter this list..."
@@ -3426,7 +3426,7 @@ msgstr "Hello World!"
 
 #: frontend/src/metabase/home/components/Activity.jsx:264
 msgid "Metabase is up and running."
-msgstr "Metabase正在运行"
+msgstr "HiCision正在运行"
 
 #: frontend/src/metabase/home/components/Activity.jsx:270
 #: frontend/src/metabase/home/components/Activity.jsx:300
@@ -3804,7 +3804,7 @@ msgstr "不包括"
 
 #: frontend/src/metabase/lib/core.js:260
 msgid "Metabase will never retrieve this field. Use this for sensitive or irrelevant information."
-msgstr "Metabase永远不会获取此字段。将此用于敏感或不相关的信息。"
+msgstr "HiCision永远不会获取此字段。将此用于敏感或不相关的信息。"
 
 #: frontend/src/metabase-lib/v1/operators/constants.js:327
 #: metabase/lib/aggregation.cljc:92 metabase/lib/schema/aggregation.cljc:141
@@ -4471,7 +4471,7 @@ msgstr "帮助"
 
 #: frontend/src/metabase/nav/components/ProfileLink.jsx:75
 msgid "About Metabase"
-msgstr "关于Metabase"
+msgstr "关于HiCision"
 
 #: frontend/src/metabase/nav/components/ProfileLink/ProfileLink.jsx:78
 msgid "Sign out"
@@ -4829,7 +4829,7 @@ msgstr "公共链接"
 
 #: frontend/src/metabase/public/components/widgets/SharingPane.tsx:119
 msgid "Share this {0} with people who don't have a Metabase account using the URL below:"
-msgstr "使用下面的URL与没有Metabase账户的人分享这个{0}。"
+msgstr "使用下面的URL与没有HiCision账户的人分享这个{0}。"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:149
 msgid "Public embed"
@@ -5041,7 +5041,7 @@ msgstr "帮助你团队中的每个人与你的数据保持同步。"
 
 #: frontend/src/metabase/pulse/components/WhatsAPulse.jsx:31
 msgid "Pulses let you send data from Metabase to email or Slack on the schedule of your choice."
-msgstr "定时让你按照你选择的时间表从Metabase发送数据到电子邮件或Slack。"
+msgstr "定时让你按照你选择的时间表从HiCision发送数据到电子邮件或Slack。"
 
 #: metabase/lib/fe_util.cljc:144
 msgid "After {0}"
@@ -6327,7 +6327,7 @@ msgstr "透视这个字段"
 #: frontend/src/metabase/models/containers/NewModelOptions/NewModelOptions.tsx:104
 #: frontend/src/metabase/reference/databases/NoDatabasesEmptyState.jsx:7
 msgid "Metabase is no fun without any data"
-msgstr "Metabase没有任何数据的话一点都不好玩"
+msgstr "HiCision没有任何数据的话一点都不好玩"
 
 #: frontend/src/metabase/reference/databases/NoDatabasesEmptyState.jsx:12
 msgid "Your databases will appear here once you connect one"
@@ -6465,7 +6465,7 @@ msgstr "联系{0}"
 
 #: frontend/src/metabase/reference/guide/GettingStartedGuideEditForm.jsx:253
 msgid "Help new Metabase users find their way around."
-msgstr "帮助Metabase的新用户找到他们的方法。"
+msgstr "帮助HiCision的新用户找到他们的方法。"
 
 #: frontend/src/metabase/reference/guide/GettingStartedGuideEditForm.jsx:256
 msgid "The Getting Started guide highlights the dashboard, metrics, segments, and tables that matter most, and informs your users of important things they should know before digging into the data."
@@ -6838,7 +6838,7 @@ msgstr "我们很快将会展示给你一些关于你的数据的有趣的探索
 
 #: frontend/src/metabase/setup/containers/PostSetupApp.jsx:69
 msgid "This seems to be taking a while. In the meantime, you can check out one of these example explorations to see what Metabase can do for you."
-msgstr "这似乎需要一些时间。在此期间，你可以查看其中一个例子的探索，看看Metabase能为你做什么。"
+msgstr "这似乎需要一些时间。在此期间，你可以查看其中一个例子的探索，看看HiCision能为你做什么。"
 
 #: frontend/src/metabase/setup/containers/PostSetupApp.jsx:83
 msgid "I took a look at the data you just connected, and I have some explorations of interesting things I found. Hope you like them!"
@@ -7990,7 +7990,7 @@ msgstr "电子邮件没有得到验证。"
 
 #: src/metabase/integrations/google.clj
 msgid "You''ll need an administrator to create a Metabase account before you can use Google to log in."
-msgstr "你需要一个管理员创建一个Metabase账户，然后才能使用谷歌登录。"
+msgstr "你需要一个管理员创建一个HiCision账户，然后才能使用谷歌登录。"
 
 #: target/classes/metabase/integrations/google.clj
 msgid "Successfully authenticated Google Auth token for: {0} {1}"
@@ -8063,7 +8063,7 @@ msgstr "{0} 中有很多已保存的question？ 创建集合以帮助管理它�
 #. It shows up a solid 10-15 seconds before the "Starting Metabase in STANDALONE mode" message because so many other namespaces need to get loaded
 #: metabase/api/setup.clj:263 metabase/email/messages.clj:43
 msgid "Metabase"
-msgstr "Metabase"
+msgstr "HiCision"
 
 #: metabase/api/setup.clj:254
 msgid "Create metrics"
@@ -8465,19 +8465,19 @@ msgstr "失败 [[[{0}]]]"
 
 #: metabase/core.clj:73
 msgid "Please use the following URL to setup your Metabase installation:"
-msgstr "请使用以下网址来设置你的Metabase安装。"
+msgstr "请使用以下网址来设置你的HiCision安装。"
 
 #: metabase/core.clj:87
 msgid "Metabase Shutting Down ..."
-msgstr "Metabase正在关闭……"
+msgstr "HiCision正在关闭……"
 
 #: metabase/core.clj:91
 msgid "Metabase Shutdown COMPLETE"
-msgstr "Metabase关闭完成"
+msgstr "HiCision关闭完成"
 
 #: metabase/core.clj:101
 msgid "Starting Metabase version {0} ..."
-msgstr "启动Metabase版本{0} ..."
+msgstr "启动HiCision版本{0} ..."
 
 #: src/metabase/core.clj
 msgid "System timezone is ''{0}'' ..."
@@ -8494,7 +8494,7 @@ msgstr "看起来这是一个全新安装......开始启动设置向导"
 
 #: metabase/core.clj:137
 msgid "Metabase Initialization COMPLETE"
-msgstr "Metabase初始化完成"
+msgstr "HiCision初始化完成"
 
 #: metabase/server.clj:49
 msgid "Launching Embedded Jetty Webserver with config:"
@@ -8506,11 +8506,11 @@ msgstr "关闭嵌入式Jetty Webserver"
 
 #: metabase/core.clj:166
 msgid "Starting Metabase in STANDALONE mode"
-msgstr "在STANDALONE模式下启动Metabase"
+msgstr "在STANDALONE模式下启动HiCision"
 
 #: metabase/core.clj:176
 msgid "Metabase Initialization FAILED"
-msgstr "Metabase初始化失败"
+msgstr "HiCision初始化失败"
 
 #: metabase/db/liquibase.clj:234
 msgid "Database has migration lock; cannot run migrations."
@@ -8671,7 +8671,7 @@ msgstr "成功地将metabase.driver.FixedHiveDriver与JDBC注册。"
 #. TODO - smtp-port should be switched to type :integer
 #: src/metabase/email.clj target/classes/metabase/email.clj
 msgid "Email address you want to use as the sender of Metabase."
-msgstr "你想用来作为Metabase的发件人的电子邮件地址。"
+msgstr "你想用来作为HiCision的发件人的电子邮件地址。"
 
 #: metabase/email.clj:63
 msgid "The address of the SMTP server that handles your emails."
@@ -8764,7 +8764,7 @@ msgstr "组的搜索基础，如果你的LDAP目录提供了''memberOf''覆盖�
 #. Should be in the form: {"cn=Some Group,dc=...": [1, 2, 3]} where keys are LDAP groups and values are lists of MB groups IDs
 #: metabase/integrations/ldap.clj:104
 msgid "JSON containing LDAP to Metabase group mappings."
-msgstr "JSON包含LDAP到Metabase 组映射"
+msgstr "JSON包含LDAP到HiCision 组映射"
 
 #. Define a setting which captures our Slack api token
 #: target/classes/metabase/integrations/slack.clj
@@ -8981,7 +8981,7 @@ msgstr "储存字段{0}的字段值..."
 
 #: src/metabase/models/humanization.clj
 msgid "Metabase can attempt to transform your table and field names into more sensible, human-readable versions, e.g. \"somehorriblename\" becomes \"Some Horrible Name\"."
-msgstr "Metabase 会尝试将数据表名称和表中字段名称转换为适合阅读的版本，例如：将somehorriblename转换为 Some Horrible Name。"
+msgstr "HiCision 会尝试将数据表名称和表中字段名称转换为适合阅读的版本，例如：将somehorriblename转换为 Some Horrible Name。"
 
 #: src/metabase/models/humanization.clj
 msgid "This doesn’t work all that well if the names are in a language other than English, however."
@@ -9132,11 +9132,11 @@ msgstr "正在加载插件{0}... "
 
 #: src/metabase/plugins.clj
 msgid "It looks like you have some external dependencies in your Metabase plugins directory."
-msgstr "看起来你的Metabase插件目录里有一些外部依赖。"
+msgstr "看起来你的HiCision插件目录里有一些外部依赖。"
 
 #: src/metabase/plugins.clj
 msgid "With Java 9 or higher, Metabase cannot automatically add them to your classpath."
-msgstr "对于Java 9或更高版本，Metabase不能自动将它们添加到你的classpath中。"
+msgstr "对于Java 9或更高版本，HiCision不能自动将它们添加到你的classpath中。"
 
 #: src/metabase/plugins.clj
 msgid "Instead, you should include them at launch with the -cp option. For example:"
@@ -9148,27 +9148,27 @@ msgstr "更多细节见https://metabase.com/docs/latest/operations-guide/start.h
 
 #: src/metabase/plugins.clj
 msgid "(If you're already running Metabase this way, you can ignore this message.)"
-msgstr "(如果你已经以这种方式运行Metabase，你可以忽略这条信息）。"
+msgstr "(如果你已经以这种方式运行HiCision，你可以忽略这条信息）。"
 
 #: metabase/public_settings.clj:71
 msgid "Identify when new versions of Metabase are available."
-msgstr "确定新版本的Metabase何时可用。"
+msgstr "确定新版本的HiCision何时可用。"
 
 #: metabase/public_settings.clj:142
 msgid "Information about available versions of Metabase."
-msgstr "关于Metabase的可用版本的信息。"
+msgstr "关于HiCision的可用版本的信息。"
 
 #: metabase/public_settings.clj:77
 msgid "The name used for this instance of Metabase."
-msgstr "用于Metabase的这个实例的名称。"
+msgstr "用于HiCision的这个实例的名称。"
 
 #: src/metabase/public_settings.clj
 msgid "The base URL of this Metabase instance, e.g. \"http://metabase.my-company.com\"."
-msgstr "这个Metabase实例的基本URL，例如 \"http://metabase.my-company.com\"。"
+msgstr "这个HiCision实例的基本URL，例如 \"http://metabase.my-company.com\"。"
 
 #: src/metabase/public_settings.clj
 msgid "The default language for this Metabase instance."
-msgstr "这个Metabase实例的默认语言。"
+msgstr "这个HiCision实例的默认语言。"
 
 #: src/metabase/public_settings.clj
 msgid "This only applies to emails, Pulses, etc. Users'' browsers will specify the language used in the user interface."
@@ -9180,7 +9180,7 @@ msgstr "如果用户遇到问题，应该参考的电子邮件地址。"
 
 #: metabase/public_settings.clj:195
 msgid "Enable the collection of anonymous usage data in order to help Metabase improve."
-msgstr "启用匿名使用数据的收集，以帮助Metabase改进。"
+msgstr "启用匿名使用数据的收集，以帮助HiCision改进。"
 
 #: metabase/public_settings.clj:325
 msgid "The map tile server URL template used in map visualizations, for example from OpenStreetMaps or MapBox."
@@ -9212,7 +9212,7 @@ msgstr "保留任何缓存查询结果的绝对最大时间，单位是秒。"
 
 #: metabase/public_settings.clj:299
 msgid "Metabase will cache all saved questions with an average query execution time longer than this many seconds:"
-msgstr "Metabase会捕捉所有平均查询时间大于这么多秒的已保存问题"
+msgstr "HiCision会捕捉所有平均查询时间大于这么多秒的已保存问题"
 
 #: src/metabase/public_settings.clj target/classes/metabase/public_settings.clj
 msgid "To determine how long each saved question''s cached result should stick around, we take the query''s average execution time and multiply that by whatever you input here."
@@ -9427,7 +9427,7 @@ msgstr "job已存在"
 #. the "Starting Metabase in STANDALONE mode" message because so many other namespaces need to get loaded
 #: src/metabase/util.clj
 msgid "Loading Metabase..."
-msgstr "正在加载Metabase..."
+msgstr "正在加载HiCision..."
 
 #: src/metabase/util/date.clj
 msgid "Possible timezone conflict found on database {0}."
@@ -9451,11 +9451,11 @@ msgstr "MB_ENCRYPTION_SECRET_KEY至少要16个字符"
 
 #: metabase/util/encryption.clj:44
 msgid "Saved credentials encryption is ENABLED for this Metabase instance."
-msgstr "保存的凭证加密对这个Metabase实例来说是ENABLED。"
+msgstr "保存的凭证加密对这个HiCision实例来说是ENABLED。"
 
 #: metabase/util/encryption.clj:45
 msgid "Saved credentials encryption is DISABLED for this Metabase instance."
-msgstr "对于这个Metabase实例，保存的凭证加密是禁用的。"
+msgstr "对于这个HiCision实例，保存的凭证加密是禁用的。"
 
 #: src/metabase/util/encryption.clj
 msgid "nFor more information, see"
@@ -9694,7 +9694,7 @@ msgstr "没有结果"
 
 #: frontend/src/metabase/home/containers/SearchApp.jsx:42
 msgid "Metabase couldn't find any results for your search."
-msgstr "Metabase无法找到你的搜索结果。"
+msgstr "HiCision无法找到你的搜索结果。"
 
 #: frontend/src/metabase/new_query/containers/MetricSearch.jsx:115
 msgid "No metrics"
@@ -10112,7 +10112,7 @@ msgstr "故障处理日志"
 
 #: frontend/src/metabase/admin/tasks/containers/TasksApp.tsx:73
 msgid "Trying to get to the bottom of something? This section shows logs of Metabase's background tasks, which can help shed light on what's going on."
-msgstr "试图弄清某些问题的根本原因？本节显示Metabase后台任务的日志，这有助于了解正在发生的事情。"
+msgstr "试图弄清某些问题的根本原因？本节显示HiCision后台任务的日志，这有助于了解正在发生的事情。"
 
 #: frontend/src/metabase/admin/tasks/containers/TasksApp.tsx:93
 msgid "Task"
@@ -11994,15 +11994,15 @@ msgstr "我们欢迎您反馈。"
 
 #: metabase/email/messages.clj:106
 msgid "It looks like Metabase wasn’t quite a match for you."
-msgstr "看起来似乎Metabase不太适合你。"
+msgstr "看起来似乎HiCision不太适合你。"
 
 #: metabase/email/messages.clj:108
 msgid "Would you mind taking a fast 5 question survey to help the Metabase team understand why and make things better in the future?"
-msgstr "为了帮助Metabase团队改进产品，请参与完成包含5个简单问题的调查，谢谢。"
+msgstr "为了帮助HiCision团队改进产品，请参与完成包含5个简单问题的调查，谢谢。"
 
 #: metabase/email/messages.clj:237
 msgid "We hope you''ve been enjoying Metabase."
-msgstr "我们希望你一直喜欢Metabase。"
+msgstr "我们希望你一直喜欢HiCision。"
 
 #: metabase/email/messages.clj:113
 msgid "Would you mind taking a fast 6 question survey to tell us how it’s going?"
@@ -12010,27 +12010,27 @@ msgstr "您是否愿意帮助我们来快速填写一个有着6个问题的调�
 
 #: src/metabase/email/messages.clj
 msgid "{0} created a Metabase account"
-msgstr "{0}创建了一个Metabase账号"
+msgstr "{0}创建了一个HiCision账号"
 
 #: src/metabase/email/messages.clj
 msgid "{0} accepted their Metabase invite"
-msgstr "{0}接受了Metabase的邀请"
+msgstr "{0}接受了HiCision的邀请"
 
 #: src/metabase/email/messages.clj
 msgid "[Metabase] Password Reset Request"
-msgstr "[Metabase] 重置密码请求"
+msgstr "[HiCision] 重置密码请求"
 
 #: src/metabase/email/messages.clj
 msgid "[Metabase] Notification"
-msgstr "[Metabase] 通知"
+msgstr "[HiCision] 通知"
 
 #: src/metabase/email/messages.clj
 msgid "[Metabase] Help make Metabase better."
-msgstr "[Metabase] 帮助Metabase变得更好"
+msgstr "[HiCision] 帮助HiCision变得更好"
 
 #: src/metabase/email/messages.clj
 msgid "[Metabase] Tell us how things are going."
-msgstr "[Metabase] 使用反馈"
+msgstr "[HiCision] 使用反馈"
 
 #: metabase/legacy_mbql/util.cljc:468
 msgid "Error: query''s source query has not been resolved. You probably need to `preprocess` the query first."
@@ -12327,7 +12327,7 @@ msgstr "你可能需要在你的应用程序DB连接字符串中添加`?sslmode=
 
 #: target/classes/metabase/db/env.clj
 msgid "If Metabase fails to launch, please add it and try again."
-msgstr "如果Metabase不能启动，请添加它并重新尝试。"
+msgstr "如果HiCision不能启动，请添加它并重新尝试。"
 
 #: target/classes/metabase/db/env.clj
 msgid "See https://github.com/metabase/metabase/issues/8908 for more details."
@@ -12335,7 +12335,7 @@ msgstr "更多细节见https://github.com/metabase/metabase/issues/8908。"
 
 #: src/metabase/db.clj
 msgid "WARNING: Using Metabase with an H2 application database is not recomended for production deployments."
-msgstr "警告：不建议在生产部署中使用Metabase与H2应用数据库。"
+msgstr "警告：不建议在生产部署中使用HiCision与H2应用数据库。"
 
 #: target/classes/metabase/db/env.clj
 msgid "For production deployments, we highly recommend using Postgres, MySQL, or MariaDB instead."
@@ -12351,7 +12351,7 @@ msgstr "更多信息见https://metabase.com/docs/latest/operations-guide/start.h
 
 #: metabase/db/setup.clj:114
 msgid "Unable to connect to Metabase {0} DB."
-msgstr " 不能连接到 Metabase {0} 数据库。"
+msgstr " 不能连接到 HiCision {0} 数据库。"
 
 #: target/classes/metabase/db/data_migrations.clj
 msgid "Error adding legacy SQL directive to BigQuery saved Question"
@@ -12469,15 +12469,15 @@ msgstr "{0} {1}从现在开始"
 
 #: metabase/plugins.clj:41
 msgid "Metabase cannot use the plugins directory {0}"
-msgstr "Metabase不能使用plugins路径下的{0}文件"
+msgstr "HiCision不能使用plugins路径下的{0}文件"
 
 #: metabase/plugins.clj:43
 msgid "Please make sure the directory exists and that Metabase has permission to write to it."
-msgstr "请确保该目录存在，并且Metabase有权限写入该目录。"
+msgstr "请确保该目录存在，并且HiCision有权限写入该目录。"
 
 #: metabase/plugins.clj:44
 msgid "You can change the directory Metabase uses for modules by setting the environment variable MB_PLUGINS_DIR."
-msgstr "你可以通过设置环境变量MB_PLUGINS_DIR来改变Metabase用于模块的目录。"
+msgstr "你可以通过设置环境变量MB_PLUGINS_DIR来改变HiCision用于模块的目录。"
 
 #: metabase/plugins.clj:45
 msgid "Falling back to a temporary directory for now."
@@ -12485,11 +12485,11 @@ msgstr "暂时回落到一个临时目录。"
 
 #: metabase/plugins.clj:50
 msgid "Metabase cannot write to temporary directory. Please set MB_PLUGINS_DIR to a writable directory and restart Metabase."
-msgstr "Metabase无法写入临时目录。请将MB_PLUGINS_DIR设置为可写目录并重新启动Metabase。"
+msgstr "HiCision无法写入临时目录。请将MB_PLUGINS_DIR设置为可写目录并重新启动HiCision。"
 
 #: src/metabase/plugins.clj
 msgid "spark-deps.jar is no longer needed by Metabase 1.0+. You can delete it from the plugins directory."
-msgstr "Metabase 1.0+以上版本不再需要spark-deps.jar。你可以从plugins目录中删除它。"
+msgstr "HiCision 1.0+以上版本不再需要spark-deps.jar。你可以从plugins目录中删除它。"
 
 #: metabase/plugins.clj:168
 msgid "Failied to initialize plugin {0}"
@@ -12521,7 +12521,7 @@ msgstr "添加URL {0}到classpath中"
 
 #: metabase/plugins/dependencies.clj:29
 msgid "Plugin {0} declares a dependency that Metabase does not understand: {1}"
-msgstr "插件{0}声明了一个Metabase不理解的依赖关系。{1}"
+msgstr "插件{0}声明了一个HiCision不理解的依赖关系。{1}"
 
 #: metabase/plugins/dependencies.clj:30
 msgid "Refer to the plugin manifest reference for a complete list of valid plugin dependencies:"
@@ -12529,7 +12529,7 @@ msgstr "请参阅插件清单参考，以获得有效插件依赖的完整列表
 
 #: metabase/plugins/dependencies.clj:49
 msgid "Metabase cannot initialize plugin {0} due to required dependencies."
-msgstr "由于需要依赖性，Metabase无法初始化插件{0}。"
+msgstr "由于需要依赖性，HiCision无法初始化插件{0}。"
 
 #: metabase/plugins/dependencies.clj:58
 msgid "Class not found: {0}"
@@ -12685,7 +12685,7 @@ msgstr "停止Quartz Scheduler {0}"
 
 #: src/metabase/task.clj
 msgid "Starting Quartz Scheduler {0}"
-msgstr "Metabase无权写入插件目录{0}"
+msgstr "HiCision无权写入插件目录{0}"
 
 #: metabase/task.clj:71
 msgid "Error loading tasks namespace {0}"
@@ -12743,7 +12743,7 @@ msgstr "任务历史清理成功，没有删除任何行"
 
 #: metabase/task/upgrade_checks.clj:31
 msgid "Checking for new Metabase version info."
-msgstr "检查新发布的Metabase版本信息。"
+msgstr "检查新发布的HiCision版本信息。"
 
 #: src/metabase/task/upgrade_checks.clj
 msgid "Error fetching version info"
@@ -13088,7 +13088,7 @@ msgstr "请求在完成前被取消。"
 
 #: src/metabase/middleware/json.clj
 msgid "Metabase only supports JSON requests."
-msgstr "Metabase仅支持JSON请求"
+msgstr "HiCision仅支持JSON请求"
 
 #: src/metabase/middleware/json.clj
 msgid "Make sure you set a 'Content-Type: application/json' header."
@@ -13096,7 +13096,7 @@ msgstr "确定你设置了一个'Content-Type：application / json'报头。"
 
 #: metabase/server/middleware/misc.clj:50
 msgid "Setting Metabase site URL to {0}"
-msgstr "将Metabase网站的URL设置为{0}。"
+msgstr "将HiCision网站的URL设置为{0}。"
 
 #: metabase/models/database.clj:92
 msgid "Error scheduling tasks for DB"
@@ -13203,7 +13203,7 @@ msgstr "在进行简单的筛选和聚合时自动运行查询"
 
 #: frontend/src/metabase/components/DatabaseDetailsForm.jsx:320
 msgid "When this is on Metabase will automatically run queries when users do simple explorations with the Summarize and Filter buttons when viewing a table or chart. You can turn this off if querying this database is slow. This setting doesn’t affect drill-throughs or SQL queries."
-msgstr "这个选项开启时，当用户在查看表格或图表时使用“汇总”和“筛选”按钮进行简单数据探索时，Metabase将自动运行查询。 如果查询此数据库的速度很慢，可以将该选项关闭。 此设置不会影响数据钻探或SQL查询。"
+msgstr "这个选项开启时，当用户在查看表格或图表时使用“汇总”和“筛选”按钮进行简单数据探索时，HiCision将自动运行查询。 如果查询此数据库的速度很慢，可以将该选项关闭。 此设置不会影响数据钻探或SQL查询。"
 
 #: frontend/src/metabase/containers/Overworld.jsx:313
 msgid "Learn about this database"
@@ -13556,11 +13556,11 @@ msgstr "请求被取消，取消了未来。"
 
 #: src/metabase/cmd/load_from_h2.clj
 msgid "Metabase can only transfer data from H2 to Postgres or MySQL/MariaDB."
-msgstr "Metabase只能将数据从H2传输到Postgres或MySQL / MariaDB。"
+msgstr "HiCision只能将数据从H2传输到Postgres或MySQL / MariaDB。"
 
 #: target/classes/metabase/db/env.clj
 msgid "WARNING: Using Metabase with an H2 application database is not recommended for production deployments."
-msgstr "警告：不建议在生产部署中使用Metabase与H2应用数据库。"
+msgstr "警告：不建议在生产部署中使用HiCision与H2应用数据库。"
 
 #: src/metabase/db.clj
 msgid "Application database setup"
@@ -13622,7 +13622,7 @@ msgstr "保存任务历史记录错误"
 
 #: metabase/plugins.clj:117
 msgid "spark-deps.jar is no longer needed by Metabase 0.32.0+. You can delete it from the plugins directory."
-msgstr "0.32.0 及以上版本的Metabase不再需要spark-deps.jar了. 您可以从插件目录中删除它."
+msgstr "0.32.0 及以上版本的HiCision不再需要spark-deps.jar了. 您可以从插件目录中删除它."
 
 #: src/metabase/plugins/classloader.clj
 msgid "Using NEWLY CREATED classloader as shared context classloader: {0}"
@@ -13655,7 +13655,7 @@ msgstr "我们无法显示这个定时。"
 
 #: metabase/channel/render/body.clj:644
 msgid "Please view this card in Metabase."
-msgstr "请在Metabase中查看此卡。"
+msgstr "请在HiCision中查看此卡。"
 
 #: metabase/channel/render/body.clj:43
 msgid "An error occurred while displaying this card."
@@ -13854,7 +13854,7 @@ msgstr "获取字段{0}失败。字段不存在，或属于另一个数据库。
 
 #: metabase/server/routes/index.clj:74
 msgid "Failed to load template ''{0}''. Did you remember to build the Metabase frontend?"
-msgstr "载入模板'{0}'失败。你是否记得建立了Metabase的前端？"
+msgstr "载入模板'{0}'失败。你是否记得建立了HiCision的前端？"
 
 #: target/classes/metabase/sample_data.clj
 msgid "Sample dataset DB file ''{0}'' cannot be found."
@@ -13912,7 +13912,7 @@ msgstr "选择需要包含的列"
 
 #: frontend/src/metabase/entities/databases/forms.js:343
 msgid "When this is on, Metabase will automatically run queries when users do simple explorations with the Summarize and Filter buttons when viewing a table or chart. You can turn this off if querying this database is slow. This setting doesn’t affect drill-throughs or SQL queries."
-msgstr "这个选项开启时，当用户在查看表格或图表时使用“汇总”和“过滤”按钮进行简单数据探索时，Metabase将自动运行查询。 如果查询此数据库的速度很慢，可以将该选项关闭。 此设置不会影响数据钻探或SQL查询。"
+msgstr "这个选项开启时，当用户在查看表格或图表时使用“汇总”和“过滤”按钮进行简单数据探索时，HiCision将自动运行查询。 如果查询此数据库的速度很慢，可以将该选项关闭。 此设置不会影响数据钻探或SQL查询。"
 
 #: frontend/src/metabase/querying/notebook/components/JoinStep/JoinStrategyPicker/JoinStrategyPicker.tsx:47
 #: frontend/src/metabase/querying/notebook/components/JoinStep/JoinStrategyPicker/JoinStrategyPicker.tsx:52
@@ -13955,11 +13955,11 @@ msgstr "诊断信息"
 
 #: frontend/src/metabase/admin/tasks/components/Logs/Logs.tsx:48
 msgid "Select Metabase process:"
-msgstr "选择Metabase过程："
+msgstr "选择HiCision过程："
 
 #: frontend/src/metabase/admin/tasks/components/Logs/Logs.tsx:59
 msgid "All Metabase processes"
-msgstr "所有Metabase进程"
+msgstr "所有HiCision进程"
 
 #: frontend/src/metabase/lib/auth.js:18
 msgid "The window was closed before completing Google Authentication."
@@ -13979,7 +13979,7 @@ msgstr "使用此选项要求提供的主机是FQDN。 如果连接到Atlas群�
 
 #: frontend/src/metabase/entities/databases/forms.js:350
 msgid "By default, Metabase does a lightweight hourly sync and an intensive daily scan of field values. If you have a large database, we recommend turning this on and reviewing when and how often the field value scans happen."
-msgstr "默认情况下，Metabase每小时执行一次轻量级同步，每天执行一次密集扫描。 如果您有一个大型数据库，我们建议启用此功能并查看字段值扫描的发生时间和频率。"
+msgstr "默认情况下，HiCision每小时执行一次轻量级同步，每天执行一次密集扫描。 如果您有一个大型数据库，我们建议启用此功能并查看字段值扫描的发生时间和频率。"
 
 #: frontend/src/metabase/home/homepage/components/XraySection/XraySection.tsx:45
 msgid "Remove these suggestions"
@@ -14315,7 +14315,7 @@ msgstr "通过邮箱发送告警（{0}：{1}）"
 
 #: target/classes/metabase/pulse.clj
 msgid "Metabase alert: {0} has {1}"
-msgstr "Metabase 告警: {0} 有 {1}"
+msgstr "HiCision 告警: {0} 有 {1}"
 
 #: metabase/pulse.clj:484
 msgid "Sending Alert ({0}: {1}) via Slack"
@@ -14400,7 +14400,7 @@ msgstr "认可"
 
 #: frontend/src/metabase/admin/settings/auth/components/GoogleAuthForm/GoogleAuthForm.tsx:75
 msgid "To allow users to sign in with Google you'll need to give Metabase a Google Developers console application client ID. It only takes a few steps and instructions on how to create a key can be found {0}."
-msgstr "为了让用户通过谷歌账户登录，你需要给Metabase一个谷歌开发端用户ID。只需要较少的步骤和指示即可知道如何创建一个可被寻找的钥匙"
+msgstr "为了让用户通过谷歌账户登录，你需要给HiCision一个谷歌开发端用户ID。只需要较少的步骤和指示即可知道如何创建一个可被寻找的钥匙"
 
 #: frontend/src/metabase/admin/settings/components/SettingsSingleSignOnForm.jsx:134
 msgid "Be sure to include the full client ID, including the apps.googleusercontent.com suffix."
@@ -14408,7 +14408,7 @@ msgstr "确保包括完整的客户端ID，包括apps.googleusercontent.com后�
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:95
 msgid "Metabase {0} is available."
-msgstr "Metabase {0} 可用。"
+msgstr "HiCision {0} 可用。"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:96
 msgid "You're running {0}"
@@ -14436,7 +14436,7 @@ msgstr "没有可映射的分组"
 
 #: frontend/src/metabase/admin/tasks/containers/Help.jsx:109
 msgid "Metabase Documentation"
-msgstr "Metabase 文档"
+msgstr "HiCision 文档"
 
 #: frontend/src/metabase/admin/tasks/containers/Help.jsx:110
 msgid "Includes a troubleshooting guide"
@@ -14448,7 +14448,7 @@ msgstr "在Metabase支持论坛上发帖"
 
 #: frontend/src/metabase/admin/tasks/containers/Help.jsx:115
 msgid "A community forum for all things Metabase"
-msgstr "一个关于Metabase所有事情的社区论坛"
+msgstr "一个关于HiCision所有事情的社区论坛"
 
 #: frontend/src/metabase/admin/tasks/components/Help/Help.tsx:125
 msgid "File a bug report"
@@ -14526,7 +14526,7 @@ msgstr "这是一个轻量级的过程，用于检查对该数据库架构的更
 
 #: frontend/src/metabase/entities/databases/big-query-fields.js:165
 msgid "Metabase can scan the values present in each field in this database to enable checkbox filters in dashboards and questions. This can be a somewhat resource-intensive process, particularly if you have a very large database."
-msgstr "Metabase可以扫描此数据库中每个字段中存在的值，以启用仪表板和问题中的复选框筛选器。这可能会占用一些资源，特别是如果您的数据库很大。"
+msgstr "HiCision可以扫描此数据库中每个字段中存在的值，以启用仪表板和问题中的复选框筛选器。这可能会占用一些资源，特别是如果您的数据库很大。"
 
 #: enterprise/frontend/src/metabase-enterprise/caching/components/StrategyEditorForQuestionsAndDashboards/constants.tsx:11
 #: enterprise/frontend/src/metabase-enterprise/clean_up/CleanupCollectionModal/CleanupCollectionTable.tsx:77
@@ -15219,7 +15219,7 @@ msgstr "Google身份验证令牌似乎不正确。 "
 #: src/metabase/integrations/google.clj
 #: target/classes/metabase/integrations/google.clj
 msgid "Double check that it matches in Google and Metabase."
-msgstr "仔细检查它在谷歌和Metabase中是否匹配。"
+msgstr "仔细检查它在谷歌和HiCision中是否匹配。"
 
 #: metabase/api/table.clj:341
 msgid "Everything else"
@@ -15235,7 +15235,7 @@ msgstr "需要数据库升级"
 
 #: metabase/db/setup.clj:45
 msgid "NOTICE: Your database requires updates to work with this version of Metabase."
-msgstr "注意：您的数据库需要更新才能使用此版本的Metabase。"
+msgstr "注意：您的数据库需要更新才能使用此版本的HiCision。"
 
 #: metabase/db/setup.clj:47
 msgid "Please execute the following sql commands on your database before proceeding."
@@ -15278,11 +15278,11 @@ msgstr "引用的问题#{0}的子查询失败，错误如下。{1}"
 
 #: metabase/driver/mysql.clj:127
 msgid "WARNING: Metabase only officially supports MySQL {0}/MariaDB {1} and above."
-msgstr "警告：Metabase只正式支持MySQL {0}/MariaDB {1}及以上版本。"
+msgstr "警告：HiCision只正式支持MySQL {0}/MariaDB {1}及以上版本。"
 
 #: metabase/driver/mysql.clj:131
 msgid "All Metabase features may not work properly when using an unsupported version."
-msgstr "使用不受支持的版本时，所有 Metabase 功能可能无法正常工作。"
+msgstr "使用不受支持的版本时，所有 HiCision 功能可能无法正常工作。"
 
 #: target/classes/metabase/driver/sql/parameters/substitute.clj
 msgid "Unable to substitute parameters"
@@ -15577,7 +15577,7 @@ msgstr "服务账户"
 
 #: frontend/src/metabase/entities/databases/big-query-fields.js:30
 msgid "Metabase connects to Big Query via {0}."
-msgstr "Metabase通过{0}连接到Big Query。"
+msgstr "HiCision通过{0}连接到Big Query。"
 
 #: frontend/src/metabase/entities/databases/big-query-fields.js:33
 msgid "Continue using an OAuth application to connect"
@@ -15863,7 +15863,7 @@ msgstr "获取设置值的错误"
 
 #: src/metabase/public_settings.clj
 msgid "The language that should be used for Metabase's UI, system emails, pulses, and alerts."
-msgstr "Metabase的UI界面，系统电子邮件，定时和警报应使用的语言。"
+msgstr "HiCision的UI界面，系统电子邮件，定时和警报应使用的语言。"
 
 #: src/metabase/public_settings.clj
 msgid "This is also the default language for all users, which they can change from their own account settings."
@@ -15883,7 +15883,7 @@ msgstr "不能将请求重定向到HTTPS，除非`site-url`是HTTPS。"
 
 #: metabase/channel/render/style.clj:115
 msgid "Error registering fonts: Metabase will not be able to send Pulses."
-msgstr "注册字体时出错：Metabase无法发送Pulse。"
+msgstr "注册字体时出错：HiCision无法发送Pulse。"
 
 #: metabase/channel/render/style.clj:117
 msgid "This is a known issue with certain JVMs. See {0} and for more details."
@@ -16019,7 +16019,7 @@ msgstr "配置你的身份提供者（IdP）。"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:120
 msgid "Your identity provider will need the following info about Metabase."
-msgstr "你的身份提供者将需要关于Metabase的以下信息。"
+msgstr "你的身份提供者将需要关于HiCision的以下信息。"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:128
 msgid "URL the IdP should redirect back to"
@@ -16055,11 +16055,11 @@ msgstr "用户的姓氏属性"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:159
 msgid "Tell Metabase about your identity provider"
-msgstr "告诉Metabase关于你的身份提供者"
+msgstr "告诉HiCision关于你的身份提供者"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:163
 msgid "Metabase will need the following info about your provider."
-msgstr "Metabase将需要以下关于你的供应商的信息。"
+msgstr "HiCision将需要以下关于你的供应商的信息。"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:168
 msgid "SAML Identity Provider URL"
@@ -16106,7 +16106,7 @@ msgstr "将群组成员与你的SSO同步化"
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm/SettingsSAMLForm.jsx:215
 msgid "To enable this, you'll need to create mappings to tell Metabase which group(s) your users should\n"
 "be added to based on the SSO group they're in."
-msgstr "要启用此功能，你需要创建映射来告诉Metabase你的用户应该使用哪些组根据它们所在的SSO组添加到。"
+msgstr "要启用此功能，你需要创建映射来告诉HiCision你的用户应该使用哪些组根据它们所在的SSO组添加到。"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsJWTForm/SettingsJWTForm.tsx:131
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsJWTForm/SettingsJWTForm.tsx:132
@@ -16129,7 +16129,7 @@ msgstr "注："
 
 #: enterprise/frontend/src/metabase-enterprise/auth/components/SettingsSAMLForm.jsx:186
 msgid "If you change any of the settings of an existing SAML active setup, then you will need to restart Metabase for them to take effect."
-msgstr "如果你改变了现有的SAML活动设置的任何设置，那么你将需要重新启动Metabase以使其生效。"
+msgstr "如果你改变了现有的SAML活动设置的任何设置，那么你将需要重新启动HiCision以使其生效。"
 
 #: enterprise/frontend/src/metabase-enterprise/auth/containers/SamlAuthCard/SamlAuthCard.tsx:14
 msgid "Allows users to login via a SAML Identity Provider."
@@ -16184,11 +16184,11 @@ msgstr "JWT签名密钥使用的字符串"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/index.js:27
 msgid "Embedding the entire Metabase app"
-msgstr "嵌入整个Metabase应用"
+msgstr "嵌入整个HiCision应用"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/index.js:16
 msgid "If you want to embed all of Metabase, enter the origins of the websites or web apps where you want to allow embedding in an iframe, separated by a space. Here are the {0} for what can be entered."
-msgstr "如果你想嵌入所有的Metabase，请在iframe中输入你想允许嵌入的网站或网络应用的origin，用空格隔开。下面是可以输入的内容的{0}。"
+msgstr "如果你想嵌入所有的HiCision，请在iframe中输入你想允许嵌入的网站或网络应用的origin，用空格隔开。下面是可以输入的内容的{0}。"
 
 #: enterprise/frontend/src/metabase-enterprise/sandboxes/components/EditSandboxingModal/EditSandboxingModal.tsx:136
 msgid "Grant sandboxed access to this table"
@@ -16314,7 +16314,7 @@ msgstr "我们在验证你的标记时遇到困难"
 
 #: enterprise/frontend/src/metabase-enterprise/store/containers/StoreAccount.jsx:89
 msgid "Please double-check that your instance can connect to Metabase's servers"
-msgstr "请仔细检查你的实例是否可以连接到Metabase的服务器上"
+msgstr "请仔细检查你的实例是否可以连接到HiCision的服务器上"
 
 #: enterprise/frontend/src/metabase-enterprise/store/containers/StoreAccount.jsx:94
 msgid "Get help"
@@ -16322,11 +16322,11 @@ msgstr "获得帮助"
 
 #: enterprise/frontend/src/metabase-enterprise/store/containers/StoreAccount.jsx:101
 msgid "Get even more out of Metabase with the Enterprise Edition"
-msgstr "使用企业版从Metabase中获得更多的好处。"
+msgstr "使用企业版从HiCision中获得更多的好处。"
 
 #: enterprise/frontend/src/metabase-enterprise/store/containers/StoreAccount.jsx:103
 msgid "All the tools you need to quickly and easily provide reports for your customers, or to help you run and monitor Metabase in a large organization"
-msgstr "你需要的所有工具，以快速和轻松地为你的客户提供报告，或帮助你在一个大型组织中运行和监控Metabase。"
+msgstr "你需要的所有工具，以快速和轻松地为你的客户提供报告，或帮助你在一个大型组织中运行和监控HiCision。"
 
 #: enterprise/frontend/src/metabase-enterprise/store/containers/StoreAccount.jsx:115
 #: enterprise/frontend/src/metabase-enterprise/store/containers/StoreAccount.jsx:137
@@ -16427,7 +16427,7 @@ msgstr "白色标签"
 
 #: enterprise/frontend/src/metabase-enterprise/store/lib/features.js:17
 msgid "Match Metabase to your brand with custom colors, your own logo and more."
-msgstr "使用自定义颜色、您自己的徽标等，使Metabase与您的品牌相匹配。"
+msgstr "使用自定义颜色、您自己的徽标等，使HiCision与您的品牌相匹配。"
 
 #: enterprise/frontend/src/metabase-enterprise/store/lib/features.js:26
 msgid "Auditing"
@@ -16526,7 +16526,7 @@ msgstr "于"
 
 #: frontend/src/metabase/dashboard/components/ClickBehaviorSidebar/utils.ts:29
 msgid "Open the Metabase actions menu"
-msgstr "打开Metabase行动菜单"
+msgstr "打开HiCision行动菜单"
 
 #: frontend/src/metabase/dashboard/components/ClickBehaviorSidebar/TableClickBehaviorView/TableClickBehaviorView.tsx:39
 #: frontend/src/metabase/dashboard/components/ClickBehaviorSidebar/hooks.ts:16
@@ -17221,7 +17221,7 @@ msgstr "发送到Slack"
 
 #: frontend/src/metabase/sharing/components/NewPulseSidebar.tsx:104
 msgid "Pick a channel and a schedule, and Metabase will do the rest."
-msgstr "选择一个频道和时间表，Metabase将做其余的工作。"
+msgstr "选择一个频道和时间表，HiCision将做其余的工作。"
 
 #: frontend/src/metabase/sharing/components/AddEditSidebar/AddEditEmailSidebar.jsx:53
 msgid "Email this dashboard"
@@ -17278,15 +17278,15 @@ msgstr "无效的Slack令牌。"
 
 #: metabase/cmd.clj:51
 msgid "The ''{0}'' command is only available in Metabase Enterprise Edition."
-msgstr "''{0}''命令仅在Metabase企业版中可用。"
+msgstr "''{0}''命令仅在HiCision企业版中可用。"
 
 #: metabase/core.clj:53
 msgid "Metabase Enterprise Edition extensions are PRESENT."
-msgstr "Metabase企业版扩展是存在的。"
+msgstr "HiCision企业版扩展是存在的。"
 
 #: metabase/core.clj:55
 msgid "Usage of Metabase Enterprise Edition features are subject to the Metabase Commercial License."
-msgstr "Metabase企业版功能的使用受Metabase商业许可的约束。"
+msgstr "HiCision企业版功能的使用受HiCision商业许可的约束。"
 
 #: metabase/core.clj:57
 msgid "See {0} for details."
@@ -17294,7 +17294,7 @@ msgstr "详见{0}。"
 
 #: metabase/core.clj:58
 msgid "Metabase Enterprise Edition extensions are NOT PRESENT."
-msgstr "Metabase企业版扩展不存在。"
+msgstr "HiCision企业版扩展不存在。"
 
 #: metabase/notification/payload/impl/system_event.clj:29
 msgid "You''re invited to join {0}''s {1}"
@@ -17450,7 +17450,7 @@ msgstr "登录属性键必须是一个关键词或字符串"
 
 #: src/metabase/public_settings.clj target/classes/metabase/public_settings.clj
 msgid "The default language for all users across the Metabase UI, system emails, pulses, and alerts."
-msgstr "Metabase用户界面、系统邮件、定时和警报中所有用户的默认语言。"
+msgstr "HiCision用户界面、系统邮件、定时和警报中所有用户的默认语言。"
 
 #: src/metabase/public_settings.clj target/classes/metabase/public_settings.clj
 msgid "Users can individually override this default language from their own account settings."
@@ -17462,7 +17462,7 @@ msgstr "向用户显示的默认页面"
 
 #: metabase/public_settings.clj:238
 msgid "Allow this origin to embed the full Metabase application"
-msgstr "允许这个orgin嵌入完整的Metabase应用程序"
+msgstr "允许这个orgin嵌入完整的HiCision应用程序"
 
 #: metabase/public_settings.clj:431
 msgid "Values greater than {0} ({1}) are not allowed."
@@ -17470,11 +17470,11 @@ msgstr "不允许大于{0}（{1}）的值。"
 
 #: metabase/public_settings.clj:27
 msgid "This will replace the word \"Metabase\" wherever it appears."
-msgstr "这将取代所有出现的 \"Metabase \"一词。"
+msgstr "这将取代所有出现的 \"HiCision \"一词。"
 
 #: metabase/public_settings.clj:337
 msgid "These are the primary colors used in charts and throughout Metabase. You might need to refresh your browser to see your changes take effect."
-msgstr "这些是在图表和整个Metabase中使用的主要颜色。你可能需要刷新你的浏览器才能看到你的变化生效。"
+msgstr "这些是在图表和整个HiCision中使用的主要颜色。你可能需要刷新你的浏览器才能看到你的变化生效。"
 
 #: metabase/public_settings.clj:432
 msgid "For best results, use an SVG file with a transparent background."
@@ -17609,7 +17609,7 @@ msgstr "在查询中包括用户ID和查询哈希值"
 
 #: frontend/src/metabase/entities/databases/forms.js:24
 msgid "When on, Metabase User ID and query hash get appended to queries on this database, which can be useful for auditing and debugging. However, this causes each query to look distinct, preventing BigQuery from returning cached results, which may increase your costs."
-msgstr "当打开时，Metabase用户ID和查询哈希会被附加到该数据库的查询中，这对审计和调试很有用。然而，这导致每个查询看起来是不同的，防止BigQuery返回缓存的结果，这可能会增加你的成本。"
+msgstr "当打开时，HiCision用户ID和查询哈希会被附加到该数据库的查询中，这对审计和调试很有用。然而，这导致每个查询看起来是不同的，防止BigQuery返回缓存的结果，这可能会增加你的成本。"
 
 #: metabase/driver/common.clj:181
 msgid "Periodically refingerprint tables"
@@ -17617,7 +17617,7 @@ msgstr "定期修改指纹表"
 
 #: frontend/src/metabase/entities/databases/forms.js:357
 msgid "When syncing with this database, Metabase will scan a subset of values of fields to gather statistics that enable things like improved binning behavior in charts, and to generally make your Metabase instance smarter."
-msgstr "当与该数据库同步时，Metabase将扫描字段值的一个子集，以收集统计数据，从而实现改进图表中的分选行为，并使你的Metabase实例更加智能。"
+msgstr "当与该数据库同步时，HiCision将扫描字段值的一个子集，以收集统计数据，从而实现改进图表中的分选行为，并使你的HiCision实例更加智能。"
 
 #: frontend/src/metabase/lib/core.js:252
 msgid "Updated date"
@@ -17882,7 +17882,7 @@ msgstr "无效的上下文种子值"
 
 #: metabase_enterprise/serialization/cmd.clj:63
 msgid "Dump was produced using a different version of Metabase. Things may break!"
-msgstr "Dump是用不同版本的Metabase制作的。事情可能会被打破!"
+msgstr "Dump是用不同版本的HiCision制作的。事情可能会被打破!"
 
 #: enterprise/backend/src/metabase_enterprise/serialization/cmd.clj
 msgid "Error loading dump: {0}"
@@ -18045,7 +18045,7 @@ msgstr "打开钥匙库的密码"
 
 #: metabase_enterprise/sso/integrations/sso_settings.clj:63
 msgid "Alias for the key that Metabase should use for signing SAML requests"
-msgstr "Metabase应该用来签署SAML请求的密钥的别名。"
+msgstr "HiCision应该用来签署SAML请求的密钥的别名。"
 
 #: metabase_enterprise/sso/integrations/sso_settings.clj:120
 msgid "SAML attribute for the user''s email address"
@@ -18070,7 +18070,7 @@ msgstr "用于群组同步的SAML属性"
 #. Should be in the form: {"groupName": [1, 2, 3]} where keys are SAML groups and values are lists of MB groups IDs
 #: metabase_enterprise/sso/integrations/sso_settings.clj:89
 msgid "JSON containing SAML to Metabase group mappings."
-msgstr "包含SAML到Metabase组的映射的JSON。"
+msgstr "包含SAML到HiCision组的映射的JSON。"
 
 #: metabase_enterprise/sso/integrations/sso_settings.clj:102
 msgid "Enable JWT based authentication"
@@ -18107,7 +18107,7 @@ msgstr "启用与JWT同步的群组成员。"
 #. Should be in the form: {"groupName": [1, 2, 3]} where keys are JWT groups and values are lists of MB groups IDs
 #: metabase_enterprise/sso/integrations/sso_settings.clj:144
 msgid "JSON containing JWT to Metabase group mappings."
-msgstr "包含JWT到Metabase组的映射的JSON。"
+msgstr "包含JWT到HiCision组的映射的JSON。"
 
 #: metabase/integrations/common.clj:61
 msgid "Should new email notifications be sent to admins, for all new SSO users?"
@@ -18585,11 +18585,11 @@ msgstr "想让人帮你解决升级的问题吗？"
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.jsx:160
 #: frontend/src/metabase/admin/settings/components/widgets/MarginHostingCTA.jsx:20
 msgid "Migrate to Metabase Cloud."
-msgstr "迁移到 Metabase Cloud。"
+msgstr "迁移到 HiCision Cloud。"
 
 #: frontend/src/metabase/nav/components/ProfileLink.jsx:50
 msgid "Manage Metabase Cloud"
-msgstr "管理 Metabase Cloud"
+msgstr "管理 HiCision Cloud"
 
 #: frontend/src/metabase/visualizations/visualizations/PivotTable/settings.ts:241
 msgid "Show totals"
@@ -18967,7 +18967,7 @@ msgstr "无效的单元格格式"
 
 #: metabase/search/config.clj:10
 msgid "Enable typeahead search in the Metabase navbar?"
-msgstr "启用Metabase导航栏中的typeahead搜索？"
+msgstr "启用HiCision导航栏中的typeahead搜索？"
 
 #: target/classes/metabase/server/request/util.clj
 msgid "Login in request is missing device ID information"
@@ -19364,7 +19364,7 @@ msgstr "无效字段{0}{1}：回落到{2}。"
 #: src/metabase/models/humanization.clj
 #: target/classes/metabase/models/humanization.clj
 msgid "To make table and field names more human-friendly, Metabase will replace dashes and underscores in them with spaces."
-msgstr "为了使表和字段的名称更加人性化，Metabase将用空格替换其中的破折号和下划线。"
+msgstr "为了使表和字段的名称更加人性化，HiCision将用空格替换其中的破折号和下划线。"
 
 #: src/metabase/models/humanization.clj
 #: target/classes/metabase/models/humanization.clj
@@ -19378,7 +19378,7 @@ msgstr "设置名称在会发生碰撞。{0}和{1}"
 
 #: metabase/public_settings.clj:154
 msgid "Indicates when Metabase last checked for new versions."
-msgstr "表示Metabase最后一次检查新版本的时间。"
+msgstr "表示HiCision最后一次检查新版本的时间。"
 
 #: src/metabase/public_settings.clj target/classes/metabase/public_settings.clj
 msgid "This URL is used for things like creating links in emails, auth redirects,"
@@ -19478,7 +19478,7 @@ msgstr "输入你从商店收到的令牌"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:46
 msgid "Metabase Cloud keeps your instance up-to-date. You're currently on version {0}. Thanks for being a customer!"
-msgstr "Metabase Cloud使您的实例保持最新。您当前使用的是版本{0}。感谢您成为我们的客户！"
+msgstr "HiCision Cloud使您的实例保持最新。您当前使用的是版本{0}。感谢您成为我们的客户！"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.jsx:30
 msgid "No successful checks yet."
@@ -19640,7 +19640,7 @@ msgstr "管理你的云帐户，包括元数据库存储帐户中有关此实例
 #: enterprise/frontend/src/metabase-enterprise/hosting/components/SettingsCloudStoreLink/SettingsCloudStoreLink.tsx:16
 #: enterprise/frontend/src/metabase-enterprise/license/components/BillingInfo/BillingGoToStore.tsx:19
 msgid "Go to the Metabase Store"
-msgstr "跳转到 Metabase 商店"
+msgstr "跳转到 HiCision 商店"
 
 #: metabase/driver/presto_jdbc.clj:567
 msgid "Running statement in describe-schema: {0}"
@@ -19765,7 +19765,7 @@ msgstr "确保用户永远不能看到这个数据库的数据，不管他们在
 
 #: frontend/src/metabase/admin/permissions/constants/messages.ts:8
 msgid "Only available in certain Metabase plans."
-msgstr "只适用于某些Metabase计划。"
+msgstr "只适用于某些HiCision计划。"
 
 #: frontend/src/metabase/admin/permissions/components/DataPermissionsHelp/DataPermissionsHelp.jsx:60
 msgid "Learn more about permissions"
@@ -19899,7 +19899,7 @@ msgstr "退订所有的订阅/提示信息"
 
 #: enterprise/frontend/src/metabase-enterprise/caching/components/DatabaseCacheTimeField/DatabaseCacheTimeField.tsx:52
 msgid "How long to keep question results. By default, Metabase will use the value you supply on the {0}, but if this database has other factors that influence the freshness of data, it could make sense to set a custom duration. You can also choose custom durations on individual questions or dashboards to help improve performance."
-msgstr "保留问题结果的时间。默认情况下，Metabase将使用你在{0}上提供的值，但如果这个数据库有其他影响数据新鲜度程度的因素，设置一个自定义的持续时间可能是有意义的。为了提高性能你也可以在个别问题或仪表板上选择自定义持续时间。"
+msgstr "保留问题结果的时间。默认情况下，HiCision将使用你在{0}上提供的值，但如果这个数据库有其他影响数据新鲜度程度的因素，设置一个自定义的持续时间可能是有意义的。为了提高性能你也可以在个别问题或仪表板上选择自定义持续时间。"
 
 #: enterprise/frontend/src/metabase-enterprise/caching/components/DatabaseCacheTimeField/DatabaseCacheTimeField.tsx:54
 msgid "cache settings page"
@@ -20131,7 +20131,7 @@ msgstr "这将删除{0}创建的任何仪表板订阅或警报，并从任何其
 
 #: enterprise/frontend/src/metabase-enterprise/audit_app/components/UnsubscribeUserForm/UnsubscribeUserForm.jsx:48
 msgid "This does not affect email distribution lists that are managed outside of Metabase."
-msgstr "这并不影响在Metabase之外管理的电子邮件分发列表。"
+msgstr "这并不影响在HiCision之外管理的电子邮件分发列表。"
 
 #: enterprise/frontend/src/metabase-enterprise/audit_app/components/AuditSidebar/AuditSidebar.jsx:36
 #: enterprise/frontend/src/metabase-enterprise/audit_app/pages/AuditUsers.jsx:11
@@ -20184,7 +20184,7 @@ msgstr "没有看到这里列出的东西？"
 
 #: frontend/src/metabase/account/notifications/components/HelpModal/HelpModal.jsx:29
 msgid "It’s possible you may also receive emails from Metabase if you’re a member of an email distribution list, like “team@mycompany.com” and that list is used as the recipient for an alert or dashboard subscription instead of your individual email."
-msgstr "如果你是一个电子邮件分发列表的成员，如 \"team@mycompany.com\"，并且该列表被用作警报或仪表板订阅的收件人，而不是你的个人电子邮件，你也有可能收到Metabase的电子邮件。"
+msgstr "如果你是一个电子邮件分发列表的成员，如 \"team@mycompany.com\"，并且该列表被用作警报或仪表板订阅的收件人，而不是你的个人电子邮件，你也有可能收到HiCision的电子邮件。"
 
 #: frontend/src/metabase/account/notifications/components/HelpModal/HelpModal.jsx:39
 msgid "Hopefully they’ll be able to help you out!"
@@ -20196,7 +20196,7 @@ msgstr "你的实例管理员"
 
 #: frontend/src/metabase/account/notifications/components/HelpModal/HelpModal.jsx:53
 msgid "Metabase doesn’t manage those lists, so we’d recommend contacting {0}. "
-msgstr "Metabase并不管理这些名单，所以我们建议联系{0}。 "
+msgstr "HiCision并不管理这些名单，所以我们建议联系{0}。 "
 
 #: frontend/src/metabase/account/notifications/components/NotificationCard/NotificationCard.jsx:102
 msgid "Created by you"
@@ -20458,7 +20458,7 @@ msgstr "导航栏颜色"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/ColorSchemeWidget.jsx:25
 msgid "The top nav bar of Metabase. Defaults to the Primary Color if not set."
-msgstr "Metabase的顶部导航栏。如果没有设置，则默认为主色。"
+msgstr "HiCision的顶部导航栏。如果没有设置，则默认为主色。"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/ColorSchemeWidget.jsx:23
 msgid "Accent 1"
@@ -20511,7 +20511,7 @@ msgstr "服务账户JSON文件"
 
 #: frontend/src/metabase/entities/databases/big-query-fields.js:93
 msgid "This JSON file contains the credentials Metabase needs to read and query your dataset."
-msgstr "这个JSON文件包含Metabase读取和查询你的数据集所需的证书。"
+msgstr "这个JSON文件包含HiCision读取和查询你的数据集所需的证书。"
 
 #: metabase/driver/common.clj:129
 msgid "Rerun queries for simple explorations"
@@ -20527,7 +20527,7 @@ msgstr "选择同步和扫描的时间"
 
 #: metabase/driver/common.clj:140
 msgid "By default, Metabase does a lightweight hourly sync and an intensive daily scan of field values. If you have a large database, turn this on to make changes."
-msgstr "默认情况下，Metabase每小时进行一次轻量级的同步，每天对字段值进行一次密集扫描。如果你有一个大数据库，请打开这个功能来进行修改。"
+msgstr "默认情况下，HiCision每小时进行一次轻量级的同步，每天对字段值进行一次密集扫描。如果你有一个大数据库，请打开这个功能来进行修改。"
 
 #: metabase/driver/common.clj:182
 msgid "This enables Metabase to scan for additional field values during syncs allowing smarter behavior, like improved auto-binning on your bar charts."
@@ -20648,7 +20648,7 @@ msgstr "我们的{0}"
 
 #: frontend/src/metabase/databases/components/DatabaseNameField/DatabaseNameField.tsx:20
 msgid "Choose what this data will be called in Metabase."
-msgstr "选择这个数据在Metabase中的名称。"
+msgstr "选择这个数据在HiCision中的名称。"
 
 #: frontend/src/metabase/browse/models/BrowseModels.tsx:60
 #: frontend/src/metabase/collections/components/PinnedItemOverview/PinnedItemOverview.tsx:190
@@ -21083,7 +21083,7 @@ msgstr "DB {0}有硬编码的数据集-ID；改变为包含模式并更新表模
 
 #: src/metabase/analytics/snowplow.clj
 msgid "Unique identifier to be used in Snowplow analytics, to identify this instance of Metabase."
-msgstr "在Snowplow分析中使用的唯一标识符，以识别Metabase的这个实例。"
+msgstr "在Snowplow分析中使用的唯一标识符，以识别HiCision的这个实例。"
 
 #: src/metabase/analytics/snowplow.clj
 msgid "This is a public setting since some analytics events are sent prior to initial setup."
@@ -21115,7 +21115,7 @@ msgstr "发送Snowplow分析事件{0}时出错"
 
 #: metabase/analytics/snowplow.clj:120
 msgid "The approximate timestamp at which this instance of Metabase was created, for inclusion in analytics."
-msgstr "创建这个Metabase实例的大致时间戳，用于分析。"
+msgstr "创建这个HiCision实例的大致时间戳，用于分析。"
 
 #: metabase/models/card.clj:873
 msgid "Unverified due to edit"
@@ -21235,7 +21235,7 @@ msgstr "在大多数情况下，你应该把这个设置为每小时同步一次
 
 #: src/metabase/driver/common.clj
 msgid "If your database is behind a firewall, you may need to allow connections from our Metabase Cloud IP addresses:"
-msgstr "如果你的数据库在防火墙后面，你可能需要允许从我们的Metabase Cloud IP地址进行连接。"
+msgstr "如果你的数据库在防火墙后面，你可能需要允许从我们的HiCision Cloud IP地址进行连接。"
 
 #: metabase/driver/common.clj:334
 msgid "Error querying database {0} for current time: {1}"
@@ -21247,7 +21247,7 @@ msgstr "错误：为参数指定多个值；非字段筛选器参数只能有一
 
 #: metabase/driver/h2.clj:92
 msgid "The local path relative to where Metabase is running from. Your string should not include the .mv.db extension."
-msgstr "相对于Metabase运行地点的本地路径。你的字符串不应该包括.mv.db的扩展名。"
+msgstr "相对于HiCision运行地点的本地路径。你的字符串不应该包括.mv.db的扩展名。"
 
 #: metabase/driver/postgres.clj:151
 msgid "SSL Mode"
@@ -21343,7 +21343,7 @@ msgstr "所有除了..."
 
 #: metabase/driver/util.clj:293
 msgid "Comma separated names of {0} that <strong>should</strong> appear in Metabase"
-msgstr "<strong>应该</strong>出现在Metabase中的{0}的逗号分隔名称"
+msgstr "<strong>应该</strong>出现在HiCision中的{0}的逗号分隔名称"
 
 #: metabase/driver/util.clj:295 metabase/driver/util.clj:302
 msgid "You can use patterns like <strong>auth*</strong> to match multiple {0}"
@@ -21351,7 +21351,7 @@ msgstr "你可以使用<strong>auth*</strong>等模式来匹配多个{0}。"
 
 #: metabase/driver/util.clj:300
 msgid "Comma separated names of {0} that <strong>should NOT</strong> appear in Metabase"
-msgstr "逗号分隔的{0}名称，<strong>不应该</strong>出现在Metabase中。"
+msgstr "逗号分隔的{0}名称，<strong>不应该</strong>出现在HiCision中。"
 
 #: metabase/email/messages.clj:704
 msgid "Your Slack connection stopped working"
@@ -21379,7 +21379,7 @@ msgstr "成功地验证了谷歌登录令牌。{0} {1}"
 
 #: src/metabase/integrations/slack.clj
 msgid "Deprecated Slack API token for connecting the Metabase Slack bot."
-msgstr "用于连接Metabase Slack机器人的已废弃的Slack API令牌。"
+msgstr "用于连接HiCision Slack机器人的已废弃的Slack API令牌。"
 
 #: src/metabase/integrations/slack.clj
 msgid "Please use a new Slack app integration instead."
@@ -21387,11 +21387,11 @@ msgstr "请使用新的Slack应用集成来代替。"
 
 #: src/metabase/integrations/slack.clj
 msgid "Bot user OAuth token for connecting the Metabase Slack app."
-msgstr "用于连接Metabase Slack应用程序的Bot用户OAuth令牌。"
+msgstr "用于连接HiCision Slack应用程序的Bot用户OAuth令牌。"
 
 #: src/metabase/integrations/slack.clj
 msgid "This should be used for all new Slack integrations starting in Metabase v0.42.0."
-msgstr "从Metabase v0.42.0开始，这应该用于所有新的Slack集成。"
+msgstr "从HiCision v0.42.0开始，这应该用于所有新的Slack集成。"
 
 #: src/metabase/integrations/slack.clj
 msgid "Whether the current Slack app token, if set, is valid."
@@ -21403,7 +21403,7 @@ msgstr "如果Slack API请求返回auth错误，则设置为'false'。"
 
 #: metabase/integrations/slack.clj:83
 msgid "The name of the channel to which Metabase files should be initially uploaded"
-msgstr "最初应上传Metabase文件的通道的名称"
+msgstr "最初应上传HiCision文件的通道的名称"
 
 #: metabase/integrations/slack.clj:119
 msgid "🔒 Your Slack authorization token is invalid or has been revoked. Please update your integration in Admin Settings -> Slack."
@@ -21463,7 +21463,7 @@ msgstr "{0}指向不存在的文件。{1}"
 
 #: metabase/models/secret.clj:190
 msgid "{0} (a local file path) cannot be used in Metabase hosted environment"
-msgstr "{0}（一个本地文件路径）不能在Metabase托管环境中使用"
+msgstr "{0}（一个本地文件路径）不能在HiCision托管环境中使用"
 
 #: metabase/models/setting.clj:616
 msgid "Error parsing Setting {0}: {1}"
@@ -21475,7 +21475,7 @@ msgstr "设置{0}不允许使用全站的值。"
 
 #: metabase/models/setting.clj:772
 msgid "Setting {0} is deprecated as of Metabase {1} and may be removed in a future version."
-msgstr "从Metabase {1}开始，设置{0}已被废弃，并可能在未来的版本中被删除。"
+msgstr "从HiCision {1}开始，设置{0}已被废弃，并可能在未来的版本中被删除。"
 
 #: metabase/models/setting.clj:1044
 msgid "Setting name ''{0}'' is retired; use a different name instead"
@@ -21487,7 +21487,7 @@ msgstr "表示是否应将分析数据发送到前端的谷歌分析的布尔值
 
 #: metabase/public_settings.clj:452
 msgid "Metabase version for which a notice about usage of deprecated features has been shown."
-msgstr "已显示关于使用已废弃功能的 Metabase 版本通知。"
+msgstr "已显示关于使用已废弃功能的 HiCision 版本通知。"
 
 #: metabase/public_settings.clj:798
 msgid "Whether or not to display a message about pinning dashboards. It will also be hidden if any dashboards are pinned. Admins might hide this to direct users to better content than raw data"
@@ -21507,11 +21507,11 @@ msgstr "尽管它被用来设置Snowflake的WEEK_START会话变量。"
 
 #: metabase/public_settings.clj:680
 msgid "Error fetching Metabase Cloud gateway IP addresses:"
-msgstr "在获取Metabase Cloud网关IP地址时出错。"
+msgstr "在获取HiCision Cloud网关IP地址时出错。"
 
 #: metabase/public_settings.clj:964
 msgid "Metabase Cloud gateway IP addresses, to configure connections to DBs behind firewalls"
-msgstr "Metabase云网关的IP地址，以配置与防火墙后的数据库的连接"
+msgstr "HiCision云网关的IP地址，以配置与防火墙后的数据库的连接"
 
 #: src/metabase/public_settings.clj
 msgid "Whether an introductory modal should be shown after the next database connection is added."
@@ -21640,7 +21640,7 @@ msgstr "这个令牌似乎无效。仔细检查一下，如果你认为它应该
 
 #: enterprise/frontend/src/metabase-enterprise/settings/hooks/use-license.ts:10
 msgid "We're having trouble validating your token. Please double-check that your instance can connect to Metabase's servers."
-msgstr "我们在验证您的令牌时遇到困难。请仔细检查您的实例是否可以连接到Metabase的服务器。"
+msgstr "我们在验证您的令牌时遇到困难。请仔细检查您的实例是否可以连接到HiCision的服务器。"
 
 #: frontend/src/metabase-lib/v1/expressions/pratt/compiler.ts:45
 #: frontend/src/metabase-lib/v1/expressions/pratt/compiler.ts:218
@@ -21720,7 +21720,7 @@ msgstr "账单"
 
 #: enterprise/frontend/src/metabase-enterprise/license/components/BillingInfo/BillingGoToStore.tsx:16
 msgid "Manage your Cloud account, including billing preferences, in your Metabase Store account."
-msgstr "在你的Metabase商店账户中管理你的云账户，包括计费偏好。"
+msgstr "在你的HiCision商店账户中管理你的云账户，包括计费偏好。"
 
 #: enterprise/frontend/src/metabase-enterprise/license/components/LicenseAndBillingSettings/LicenseAndBillingSettings.tsx:133
 msgid "To manage your billing preferences, please email {0}"
@@ -21782,7 +21782,7 @@ msgstr "样本数据库"
 
 #: frontend/src/metabase/databases/components/DatabaseSyncModal/DatabaseSyncModal.tsx:39
 msgid "Have a look around your Metabase in the meantime if you want to get a head start."
-msgstr "如果你想先下手为强，请在你的Metabase中查看一下。"
+msgstr "如果你想先下手为强，请在你的HiCision中查看一下。"
 
 #: frontend/src/metabase/databases/components/DatabaseSyncModal/DatabaseSyncModal.tsx:46
 msgid "Explore sample data"
@@ -21969,12 +21969,12 @@ msgstr "你的高级嵌入许可证在{0}之前是有效的。"
 
 #: frontend/src/metabase/admin/settings/containers/PremiumEmbeddingLicensePage/PremiumEmbeddingLicensePage.tsx:106
 msgid "Enter the token you bought from the Metabase Store below."
-msgstr "在下面输入你从Metabase商店购买的Token令牌。"
+msgstr "在下面输入你从HiCision商店购买的Token令牌。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingCustomizationInfo.tsx:12
 msgid "Looking to remove the “Powered by Metabase” logo, customize colors\n"
 "and make it your own? {0}"
-msgstr "想去掉 \"Powered by Metabase \"标识，自定义颜色\n"
+msgstr "想去掉 \"Powered by HiCision \"标识，自定义颜色\n"
 "并使其成为你自己的？{0}"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackDeleteModal/SlackDeleteModal.tsx:24
@@ -22012,7 +22012,7 @@ msgstr "邀请队友"
 
 #: frontend/src/metabase/home/homepage/components/StartSection/StartSection.tsx:117
 msgid "Connect your data to get the most out of Metabase"
-msgstr "连接你的数据以获得Metabase的最大效益"
+msgstr "连接你的数据以获得HiCision的最大效益"
 
 #: frontend/src/metabase/home/homepage/components/StartSection/StartSection.tsx:119
 msgid "If you need help, you can {0} or {1}."
@@ -22065,7 +22065,7 @@ msgstr "使用Tab键在设置和栏目中导航。"
 
 #: frontend/src/metabase/admin/settings/components/SettingsLicense/SettingsLicense.tsx:33
 msgid "Metabase is open source and will be free forever – but by upgrading you can have priority support, more tools to help you share your insights with your teams and powerful options to help you create seamless, interactive data experiences for your customers."
-msgstr "Metabase是开源的，并将永远免费 - 但通过升级，你可以获得优先支持，有更多的工具帮助你与你的团队分享你的洞察力，并有强大的选项帮助你为你的客户创造无缝、互动的数据体验。"
+msgstr "HiCision是开源的，并将永远免费 - 但通过升级，你可以获得优先支持，有更多的工具帮助你与你的团队分享你的洞察力，并有强大的选项帮助你为你的客户创造无缝、互动的数据体验。"
 
 #: frontend/src/metabase/admin/settings/components/SettingsLicense/SettingsLicense.tsx:35
 msgid "Want to know more?"
@@ -22098,7 +22098,7 @@ msgstr "Slack应用程序无法工作。"
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:51
 #: frontend/src/metabase/admin/settings/slack/components/SlackStatus/SlackStatus.tsx:52
 msgid "Metabase on Slack"
-msgstr "Slack上的Metabase"
+msgstr "Slack上的HiCision"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackStatus/SlackStatus.tsx:57
 msgid "Need help? {0}."
@@ -22127,7 +22127,7 @@ msgstr "我们建议你{0}，见以下说明。"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:61
 msgid "Bring the power of Metabase to your Slack #channels."
-msgstr "将Metabase的力量带到你的Slack #频道。"
+msgstr "将HiCision的力量带到你的Slack #频道。"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:62
 msgid "Follow these steps to connect to Slack:"
@@ -22139,7 +22139,7 @@ msgstr "1.创建你的Slack应用程序"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:101
 msgid "To create your Metabase integration on Slack you’ll need to set up some things."
-msgstr "要在Slack上创建你的Metabase集成，你需要设置一些东西。"
+msgstr "要在Slack上创建你的HiCision集成，你需要设置一些东西。"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:102
 msgid "First, go to {0}, hit “{1}” and pick “{2}”"
@@ -22159,7 +22159,7 @@ msgstr "来自一个应用程序清单。"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:128
 msgid "2. Copy the Metabase manifest"
-msgstr "2.复制Metabase清单"
+msgstr "2.复制HiCision清单"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:130
 msgid "Select your workspace and then copy our {0} below and paste it in to create the app. In the following screen, click “{1}” and authorize it."
@@ -22449,11 +22449,11 @@ msgstr "删除{0}？"
 
 #: frontend/src/metabase/databases/components/DatabaseEngineWarning/DatabaseEngineWarning.tsx:110
 msgid "This is a community-developed driver and not supported by Metabase. "
-msgstr "这是一个社区开发的驱动程序，不受Metabase支持。 "
+msgstr "这是一个社区开发的驱动程序，不受HiCision支持。 "
 
 #: frontend/src/metabase/databases/components/DatabaseEngineWarning/DatabaseEngineWarning.tsx:138
 msgid "This is a partner-developed driver. Though Metabase can’t provide support for it, if you need help you can contact the fine folks at "
-msgstr "这是一个合作伙伴开发的驱动程序。虽然Metabase不能为它提供支持，但如果你需要帮助，你可以联系以下的优秀人士 "
+msgstr "这是一个合作伙伴开发的驱动程序。虽然HiCision不能为它提供支持，但如果你需要帮助，你可以联系以下的优秀人士 "
 
 #: frontend/src/metabase/components/Toaster/Toaster.tsx:26
 #: frontend/src/metabase/dashboard/containers/DashboardApp/DashboardApp.tsx:187
@@ -22575,7 +22575,7 @@ msgstr "很高兴见到你，{0}。"
 
 #: frontend/src/metabase/home/components/HomeHelpCard/HomeHelpCard.tsx:11
 msgid "Metabase tips"
-msgstr "Metabase 提示"
+msgstr "HiCision 提示"
 
 #: frontend/src/metabase/home/components/HomePopularSection/HomePopularSection.tsx:50
 #: frontend/src/metabase/home/components/HomePopularSection/HomePopularSection.tsx:65
@@ -22604,7 +22604,7 @@ msgstr "从你离开的地方继续"
 
 #: frontend/src/metabase/home/components/HomeXraySection/HomeXraySection.tsx:69
 msgid "Try out these sample x-rays to see what Metabase can do."
-msgstr "试试这些透视样本，看看Metabase能做什么。"
+msgstr "试试这些透视样本，看看HiCision能做什么。"
 
 #: frontend/src/metabase/home/components/HomeXraySection/HomeXraySection.tsx:83
 msgid "Here are some explorations of the"
@@ -22745,11 +22745,11 @@ msgstr "推出v2.0版"
 
 #: frontend/src/metabase/timelines/collections/components/TimelineEmptyState/TimelineEmptyState.tsx:69
 msgid "Add events to Metabase to show important milestones, launches, or anything else, right alongside your data."
-msgstr "在Metabase中添加事件，在你的数据旁边显示重要的里程碑、发布或其他任何事情。"
+msgstr "在HiCision中添加事件，在你的数据旁边显示重要的里程碑、发布或其他任何事情。"
 
 #: frontend/src/metabase/timelines/collections/components/TimelineEmptyState/TimelineEmptyState.tsx:70
 msgid "Events in Metabase let you see important milestones, launches, or anything else, right alongside your data."
-msgstr "Metabase中的事件让你看到重要的里程碑、启动或其他任何事情，就在你的数据旁边。"
+msgstr "HiCision中的事件让你看到重要的里程碑、启动或其他任何事情，就在你的数据旁边。"
 
 #: frontend/src/metabase/timelines/collections/components/TimelineCard/TimelineCard.tsx:52
 #: frontend/src/metabase/timelines/common/components/TimelinePicker/TimelinePicker.tsx:67
@@ -22776,11 +22776,11 @@ msgstr "移动 {0}"
 
 #: frontend/src/metabase/timelines/questions/components/TimelineEmptyState/TimelineEmptyState.tsx:30
 msgid "Add events to Metabase to show helpful context alongside your data."
-msgstr "将事件添加到Metabase中，以显示与你的数据有关的有用背景。"
+msgstr "将事件添加到HiCision中，以显示与你的数据有关的有用背景。"
 
 #: frontend/src/metabase/timelines/questions/components/TimelineEmptyState/TimelineEmptyState.tsx:31
 msgid "Events in Metabase let you see helpful context alongside your data."
-msgstr "Metabase中的事件功能，为您在数据周围显示有用的上下文信息。"
+msgstr "HiCision中的事件功能，为您在数据周围显示有用的上下文信息。"
 
 #: frontend/src/metabase/admin/datamodel/metadata/components/MetadataTable/MetadataTable.tsx:39
 msgid "Original schema"
@@ -22788,7 +22788,7 @@ msgstr "原始模式"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:98
 msgid "Click the button below to begin creating your Slack App using the Metabase configuration."
-msgstr "点击下面的按钮，开始使用Metabase配置创建你的Slack应用程序。"
+msgstr "点击下面的按钮，开始使用HiCision配置创建你的Slack应用程序。"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:99
 msgid "Once created, click “{0}” to authorize it."
@@ -23056,7 +23056,7 @@ msgstr "切换到可视化"
 #: frontend/src/metabase/admin/settings/components/widgets/GroupMappingsWidget.jsx:139
 msgid "Mappings allow Metabase to automatically add and remove users from groups based on the membership information provided by the\n"
 "directory server. Users are only ever added to or removed from mapped groups."
-msgstr "映射允许Metabase根据目录服务器提供的成员信息，自动从组中添加和删除用户。\n"
+msgstr "映射允许HiCision根据目录服务器提供的成员信息，自动从组中添加和删除用户。\n"
 "目录服务器提供的成员信息。用户只被添加到映射的组中或从组中删除。"
 
 #: metabase_enterprise/advanced_config/models/pulse_channel.clj:10
@@ -23426,7 +23426,7 @@ msgstr "保存的问题"
 
 #: frontend/src/metabase/admin/settings/selectors.js:598
 msgid "Enabling cache will create tables for your models in a dedicated schema and Metabase will refresh them on a schedule. Questions based on your models will query these tables. {0}."
-msgstr "启用缓存将在一个专门的模式中为你的模型创建表，Metabase将按计划刷新它们。基于你的模型的问题将查询这些表。{0}."
+msgstr "启用缓存将在一个专门的模式中为你的模型创建表，HiCision将按计划刷新它们。基于你的模型的问题将查询这些表。{0}."
 
 #: frontend/src/metabase/admin/settings/selectors.js:439
 msgid "Refresh every"
@@ -23655,7 +23655,7 @@ msgstr "从自托管的主机迁移？"
 
 #: frontend/src/metabase/setup/components/CloudMigrationHelp/CloudMigrationHelp.tsx:22
 msgid "Check out our docs for how to migrate your self-hosted instance to Cloud."
-msgstr "查看我们的文档，看如何从你自托管的主机迁移到Metabase云上。"
+msgstr "查看我们的文档，看如何从你自托管的主机迁移到HiCision云上。"
 
 #: frontend/src/metabase/components/TextWidget/TextWidget.tsx:99
 #: frontend/src/metabase/parameters/components/ParameterDropdownWidget.tsx:127
@@ -23716,7 +23716,7 @@ msgstr "移动、归档和其他..."
 
 #: frontend/src/metabase/sharing/components/SlackChannelField/SlackChannelField.tsx:71
 msgid "In order to send subscriptions and alerts to private Slack channels, you must first add the Metabase bot to them."
-msgstr "想要发送订阅和报警到私人Slack频道，你需要首先添加Metabase bot。"
+msgstr "想要发送订阅和报警到私人Slack频道，你需要首先添加HiCision bot。"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/ColorResetModal/ColorResetModal.tsx:23
 msgid "Are you sure you want to reset to default colors?"
@@ -23831,7 +23831,7 @@ msgstr "在主页上显示我们的小伙伴"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingCustomizationWidget/EmbeddingCustomizationWidget.tsx:13
 msgid "In order to remove the Metabase logo from embeds, you can always upgrade to {0}"
-msgstr "想要移除嵌入的Metabase商标，你可以升级到 {0}"
+msgstr "想要移除嵌入的HiCision商标，你可以升级到 {0}"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingCustomizationWidget/EmbeddingCustomizationWidget.tsx:15
 msgid "one of our paid plans."
@@ -23843,7 +23843,7 @@ msgstr "嵌入整个metabase应用"
 
 #: frontend/src/metabase/admin/settings/components/widgets/FullAppEmbeddingLinkWidget/FullAppEmbeddingLinkWidget.tsx:23
 msgid "With {0} you can embed the full Metabase app and enable your users to drill-through to charts, browse collections, and use the graphical query builder. You can also get priority support, more tools to help you share your insights with your teams and powerful options to help you create seamless, interactive data experiences for your customers."
-msgstr "通过{0}，您可以嵌入完整的Metabase应用程序，并使用户能够钻取图表、浏览集合和使用图形查询生成器。您还可以获得优先支持、更多帮助您与团队分享见解的工具，以及帮助您为客户创造无缝、交互式数据体验的强大选项。"
+msgstr "通过{0}，您可以嵌入完整的HiCision应用程序，并使用户能够钻取图表、浏览集合和使用图形查询生成器。您还可以获得优先支持、更多帮助您与团队分享见解的工具，以及帮助您为客户创造无缝、交互式数据体验的强大选项。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/FullAppEmbeddingLinkWidget/FullAppEmbeddingLinkWidget.tsx:16
 msgid "some of our paid plans,"
@@ -23958,7 +23958,7 @@ msgstr "1.点击下面的按钮开始创建你的Slack应用"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:103
 msgid "First, {0} using the Metabase configuration. Once created, click “${ 1 }” to authorize it."
-msgstr "首先，{0}使用Metabase配置。一旦创建，点击 “${ 1 }”  授权。"
+msgstr "首先，{0}使用HiCision配置。一旦创建，点击 “${ 1 }”  授权。"
 
 #: frontend/src/metabase/admin/settings/slack/components/SlackSetup/SlackSetup.tsx:104
 msgid "click the button below to create your Slack App"
@@ -24107,7 +24107,7 @@ msgstr "黑体"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/components/EmbeddingAppOriginDescription/EmbeddingAppOriginDescription.tsx:8
 msgid "With this Pro/Enterprise feature you can embed the full Metabase app. Enable your users to drill-through to charts, browse collections, and use the graphical query builder. {0}"
-msgstr "通过这个 Pro/Enterprise 特性，你可以嵌入完整的 Metabase 应用程序。允许用户钻取图表、浏览集合和使用图形查询生成器。{0}"
+msgstr "通过这个 Pro/Enterprise 特性，你可以嵌入完整的 HiCision 应用程序。允许用户钻取图表、浏览集合和使用图形查询生成器。{0}"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/components/InteractiveEmbeddingSettings.tsx:21
 msgid "Authorized origins"
@@ -24197,7 +24197,7 @@ msgstr "全应用嵌入"
 #: frontend/src/metabase/admin/settings/selectors.js:481
 #, fuzzy
 msgid "With this Pro/Enterprise feature you can embed the full Metabase app. Enable your users to drill-through to charts, browse collections, and use the graphical query builder."
-msgstr "通过这个专业/企业版功能，你可以嵌入完整的Metabase应用程序。使你的用户能够深入到图表中，浏览集合，并使用可视化查询生成器。"
+msgstr "通过这个专业/企业版功能，你可以嵌入完整的HiCision应用程序。使你的用户能够深入到图表中，浏览集合，并使用可视化查询生成器。"
 
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/StaticEmbeddingSettings.tsx:21
 msgid "Standalone Embed Secret Key used to sign JSON Web Tokens for requests to /api/embed endpoints. This lets you create a secure environment limited to specific users or organizations."
@@ -24373,7 +24373,7 @@ msgstr "表示Snowplow收集器是否可以接收分析事件的布尔值。应�
 
 #: metabase/analytics/snowplow.clj:69
 msgid "Unique identifier to be used in Snowplow analytics, to identify this instance of Metabase. This is a public setting since some analytics events are sent prior to initial setup."
-msgstr "唯一的身份标识被使用 Snowplow analytics中识别 Metabase实例.这是一个公共设置，因为一些分析事件在初始设置之前发送。"
+msgstr "唯一的身份标识被使用 Snowplow analytics中识别 HiCision实例.这是一个公共设置，因为一些分析事件在初始设置之前发送。"
 
 #: metabase/api/database.clj:740 metabase/driver/util.clj:75
 #: metabase/driver/util.clj:47 metabase/driver/util.clj:63
@@ -24429,11 +24429,11 @@ msgstr "系统信息：\n"
 
 #: metabase/driver/common.clj:158
 msgid "Metabase can scan the values present in each field in this database to enable checkbox filters in dashboards and questions. This can be a somewhat resource-intensive process, particularly if you have a very large database. When should Metabase automatically scan and cache field values?"
-msgstr "Metabase可以扫描此数据库中每个字段中的值，以启用仪表板和问题中的复选框过滤器。这可能是一个资源密集型的过程，特别是如果您有一个非常大的数据库。Metabase何时应自动扫描和缓存字段值？"
+msgstr "HiCision可以扫描此数据库中每个字段中的值，以启用仪表板和问题中的复选框过滤器。这可能是一个资源密集型的过程，特别是如果您有一个非常大的数据库。HiCision何时应自动扫描和缓存字段值？"
 
 #: metabase/driver/common.clj:219
 msgid "If your database is behind a firewall, you may need to allow connections from our Metabase [Cloud IP addresses](https://www.metabase.com/cloud/docs/ip-addresses-to-whitelist.html):"
-msgstr "如果您的数据库位于防火墙之后，您可能需要允许来自我们的Metabase[Cloud IP addresses]的连接。\n"
+msgstr "如果您的数据库位于防火墙之后，您可能需要允许来自我们的HiCision[Cloud IP addresses]的连接。\n"
 "(https://www.metabase.com/cloud/docs/ip-addresses-to-whitelist.html):"
 
 #: metabase/driver/common.clj:177
@@ -24560,16 +24560,16 @@ msgstr "[{0}] 模型缓存刷新失败 {1}"
 
 #: metabase/integrations/google.clj:88
 msgid "Google Sign-In token appears to be incorrect. Double check that it matches in Google and Metabase."
-msgstr "Google 登录 token 显示不正确。请确认在 Google 和 Metabase是否一致。"
+msgstr "Google 登录 token 显示不正确。请确认在 Google 和 HiCision是否一致。"
 
 #: metabase/integrations/slack.clj:22
 #, fuzzy
 msgid "Deprecated Slack API token for connecting the Metabase Slack bot. Please use a new Slack app integration instead."
-msgstr "用于连接Metabase Slack机器人的Slack API令牌功能已经废弃。请使用新的Slack应用集成功能代替。"
+msgstr "用于连接HiCision Slack机器人的Slack API令牌功能已经废弃。请使用新的Slack应用集成功能代替。"
 
 #: metabase/integrations/slack.clj:33
 msgid "Bot user OAuth token for connecting the Metabase Slack app. This should be used for all new Slack integrations starting in Metabase v0.42.0."
-msgstr "Bot 使用 OAuth token 连接 Metabase Slack app。在Metabase v0.42.0后将用在新的Slack integrations 。"
+msgstr "Bot 使用 OAuth token 连接 HiCision Slack app。在HiCision v0.42.0后将用在新的Slack integrations 。"
 
 #: metabase/integrations/slack.clj:47
 #, fuzzy
@@ -24623,7 +24623,7 @@ msgstr "不能更新FieldValues的类型或hash_key。"
 #: metabase/models/humanization.clj:79
 #, fuzzy
 msgid "To make table and field names more human-friendly, Metabase will replace dashes and underscores in them with spaces. We’ll capitalize each word while at it, so ‘last_visited_at’ will become ‘Last Visited At’."
-msgstr "为了使表和字段的名称更加人性化，Metabase将用空格代替其中的破折号和下划线。我们将大写每个单词，所以'last_visited_at'将变成'Last Visited At'。"
+msgstr "为了使表和字段的名称更加人性化，HiCision将用空格代替其中的破折号和下划线。我们将大写每个单词，所以'last_visited_at'将变成'Last Visited At'。"
 
 #: metabase/models/params.clj:43
 #, fuzzy
@@ -24671,7 +24671,7 @@ msgstr "告诉我们在哪里可以找到每种字体重量的文件。你不需
 #: metabase/public_settings.clj:179
 #, fuzzy
 msgid "The default language for all users across the Metabase UI, system emails, pulses, and alerts. Users can individually override this default language from their own account settings."
-msgstr "所有用户在Metabase用户界面、系统邮件、pulses和警报中的默认语言。用户可以从自己的账户设置中单独设置自己默认语言。"
+msgstr "所有用户在HiCision用户界面、系统邮件、pulses和警报中的默认语言。用户可以从自己的账户设置中单独设置自己默认语言。"
 
 #: metabase/public_settings.clj:974
 #, fuzzy
@@ -25452,7 +25452,7 @@ msgid "Optional. The default is \"ISO\".\n"
 msgstr "可选的。默认为 \"ISO\"。\n"
 "- ISO：第一周从一月第一个星期四前的星期一开始。\n"
 "- 美国。第1周从1月1日开始，其他各周都从周日开始。\n"
-"- 实例。第1周从1月1日开始，所有其他星期从你的Metabase本地化设置中定义的日期开始。"
+"- 实例。第1周从1月1日开始，所有其他星期从你的HiCision本地化设置中定义的日期开始。"
 
 #: frontend/src/metabase-lib/v1/expressions/helper-text-strings.ts:935
 msgid "Takes a datetime and returns an integer (1-31) with the number of the day of the month."
@@ -26213,7 +26213,7 @@ msgstr "{0}的数据库要求从''{1}''变为''{2}''。"
 
 #: metabase/task.clj:168
 msgid "Metabase task scheduler disabled. Scheduled tasks will not be ran."
-msgstr "Metabase任务调度器被禁用。预定的任务将不被运行。"
+msgstr "HiCision任务调度器被禁用。预定的任务将不被运行。"
 
 #: metabase/util/schema.clj:148
 msgid "value must be a map with schema: (\n"
@@ -26291,7 +26291,7 @@ msgstr "无效的ID（s）集合。这些集合不存在：{0}"
 
 #: metabase_enterprise/serialization/cmd.clj:95
 msgid "Loading serialized Metabase files from {0}"
-msgstr "从{0}加载序列化的Metabase文件"
+msgstr "从{0}加载序列化的HiCisione文件"
 
 #: metabase_enterprise/serialization/v2/entity_ids.clj:69
 msgid "{0} tables have entity_id; expected to resolve the same number of models, but only got {1}"
@@ -26525,7 +26525,7 @@ msgstr "减少结果行时出错：{0}"
 
 #: metabase/sample_data.clj:63
 msgid "Sample database could not be extracted to the plugins directory,which may result in slow startup times. Please set MB_PLUGINS_DIR to a writable directory and restart Metabase."
-msgstr "无法将示例数据库提取到插件目录，这可能会导致启动时间变慢。请将 MB_PLUGINS_DIR 设置为可写目录并重新启动 Metabase。"
+msgstr "无法将示例数据库提取到插件目录，这可能会导致启动时间变慢。请将 MB_PLUGINS_DIR 设置为可写目录并重新启动 HiCision。"
 
 #: metabase_enterprise/advanced_config/file.clj:261
 msgid "Metabase config files require a Premium token with the :advanced-config feature."
@@ -26585,11 +26585,11 @@ msgstr "这个组的用户成员资格将不再与目录服务器同步。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/GroupMappingsWidget/DeleteGroupMappingModal/DeleteGroupMappingModal.tsx:63
 msgid "What should happen with the groups themselves in Metabase?"
-msgstr "Metabase中的组本身应该如何处理？"
+msgstr "HiCision中的组本身应该如何处理？"
 
 #: frontend/src/metabase/admin/settings/components/widgets/GroupMappingsWidget/DeleteGroupMappingModal/DeleteGroupMappingModal.tsx:64
 msgid "What should happen with the group itself in Metabase?"
-msgstr "在Metabase中，该组本身应该发生什么？"
+msgstr "在HiCision中，该组本身应该发生什么？"
 
 #: frontend/src/metabase/admin/settings/components/widgets/GroupMappingsWidget/DeleteGroupMappingModal/DeleteGroupMappingModal.tsx:69
 msgid "Remove this group mapping?"
@@ -26621,7 +26621,7 @@ msgstr "同步组成员"
 
 #: frontend/src/metabase/admin/settings/components/widgets/GroupMappingsWidget/GroupMappingsWidget.jsx:123
 msgid "Mappings allow Metabase to automatically add and remove users from groups based on the membership information provided by the directory server. If a group isn‘t mapped, its membership won‘t be synced."
-msgstr "映射允许Metabase根据目录服务器提供的成员信息，自动从组中添加和删除用户。如果一个组没有被映射，其成员资格将不会被同步。"
+msgstr "映射允许HiCision根据目录服务器提供的成员信息，自动从组中添加和删除用户。如果一个组没有被映射，其成员资格将不会被同步。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/GroupMappingsWidget/GroupMappingsWidget.jsx:128
 msgid "About mappings"
@@ -26789,7 +26789,7 @@ msgstr "该卡不支持点击映射"
 
 #: frontend/src/metabase/databases/components/DatabaseCacheScheduleField/DatabaseCacheScheduleField.tsx:91
 msgid "When a user adds a new filter to a dashboard or a SQL question, Metabase will scan the field(s) mapped to that filter in order to show the list of selectable values."
-msgstr "当用户在仪表盘或SQL问题中添加一个新的过滤器时，Metabase将扫描映射到该过滤器的字段，以显示可选择的值的列表。"
+msgstr "当用户在仪表盘或SQL问题中添加一个新的过滤器时，HiCision将扫描映射到该过滤器的字段，以显示可选择的值的列表。"
 
 #: frontend/src/metabase/models/containers/FormModelPicker/FormModelPicker.tsx:28
 #: frontend/src/metabase/models/containers/FormModelPicker/FormModelPicker.tsx:70
@@ -27469,7 +27469,7 @@ msgstr "当前用户未找到"
 
 #: frontend/src/metabase/dashboard/components/ClickBehaviorSidebar/utils.ts:30
 msgid "Open the Metabase drill-through menu"
-msgstr "打开Metabase钻探菜单"
+msgstr "打开HiCision钻探菜单"
 
 #: frontend/src/metabase/query_builder/components/expressions/ExpressionWidget.tsx:207
 msgid "Expression"
@@ -27639,7 +27639,7 @@ msgstr "厌倦了手动管理人员和组？"
 
 #: frontend/src/metabase/admin/people/components/NudgeToPro.tsx:18
 msgid "Get single-sign on (SSO) via SAML, JWT, or LDAP with Metabase Pro"
-msgstr "使用Metabase Pro通过SAML、JWT或LDAP实现单点登录（SSO）"
+msgstr "使用HiCision Pro通过SAML、JWT或LDAP实现单点登录（SSO）"
 
 #: frontend/src/metabase/admin/permissions/components/ApplicationPermissionsHelp/ApplicationPermissionsHelp.tsx:12
 #: frontend/src/metabase/admin/permissions/components/CollectionPermissionsHelp/CollectionPermissionsHelp.tsx:14
@@ -27661,7 +27661,7 @@ msgstr "切换身份 (Pro)"
 
 #: frontend/src/metabase/admin/permissions/components/DataPermissionsHelp/DataPermissionsHelp.tsx:59
 msgid "Impersonation associates a Metabase group with database-defined roles and their privileges. Metabase queries made by this group will respect the grants given to the database roles. You can use impersonation to give a group access to the native/SQL editor, while restricting the group's access to data based on a specific database role."
-msgstr "模拟关联了一个Metabase组与数据库定义的角色和它们的权限。由该组发出的Metabase查询将遵守授予数据库角色的权限。您可以使用模拟来授予组访问本地/SQL编辑器的权限，同时基于特定数据库角色限制组对数据的访问权限。"
+msgstr "模拟关联了一个HiCision组与数据库定义的角色和它们的权限。由该组发出的HiCision查询将遵守授予数据库角色的权限。您可以使用模拟来授予组访问本地/SQL编辑器的权限，同时基于特定数据库角色限制组对数据的访问权限。"
 
 #: frontend/src/metabase/admin/permissions/components/DataPermissionsHelp/DataPermissionsHelp.tsx:66
 msgid "The group can't use the query builder or drill through existing questions. They also can't see the data in the Browse data section. They can still view questions based on this data, if they have permissions to the relevant collection."
@@ -27745,7 +27745,7 @@ msgstr "关于集合权限的{0}"
 
 #: frontend/src/metabase/collections/components/CollectionHeader/CollectionUploadInfoModal.tsx:26
 msgid "Uploads CSVs to Metabase"
-msgstr "将CSV文件上传到Metabase"
+msgstr "将CSV文件上传到HiCision"
 
 #: frontend/src/metabase/collections/components/CollectionHeader/CollectionUploadInfoModal.tsx:35
 msgid "Team members will be able to upload CSV files and work with them just like any other data source"
@@ -27906,7 +27906,7 @@ msgstr "导航栏"
 
 #: frontend/src/metabase/nav/components/DatabasePromptBanner/DatabasePromptBanner.tsx:41
 msgid "Connect to your database to get the most from Metabase."
-msgstr "连接到您的数据库，以充分利用Metabase。"
+msgstr "连接到您的数据库，以充分利用HiCision。"
 
 #: frontend/src/metabase/nav/components/DatabasePromptBanner/DatabasePromptBanner.tsx:48
 msgid "Get help connecting"
@@ -28026,7 +28026,7 @@ msgstr "应用程序权限"
 
 #: frontend/src/metabase/admin/permissions/components/ApplicationPermissionsHelp/ApplicationPermissionsHelp.tsx:17
 msgid "Application settings are useful for granting groups access to some, but not all, of Metabase’s administrative features."
-msgstr "应用程序设置对于授予组访问Metabase的某些但不是全部管理功能都非常有用。"
+msgstr "应用程序设置对于授予组访问HiCision的某些但不是全部管理功能都非常有用。"
 
 #: frontend/src/metabase/admin/permissions/components/ApplicationPermissionsHelp/ApplicationPermissionsHelp.tsx:19
 msgid "{0} the group can access the Settings tab in the Admin panel."
@@ -28322,7 +28322,7 @@ msgstr "将用户属性映射到数据库角色"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationModal/ImpersonationModalView.tsx:91
 msgid "When the person runs a query (including native queries), Metabase will impersonate the privileges of the database role you associate with the user attribute."
-msgstr "当用户运行查询（包括本地查询）时，Metabase会模拟与用户属性关联的数据库角色的权限。"
+msgstr "当用户运行查询（包括本地查询）时，HiCision会模拟与用户属性关联的数据库角色的权限。"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationModal/ImpersonationModalView.tsx:101
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/InteractiveEmbeddingOptionCard/InteractiveEmbeddingOptionCard.tsx:88
@@ -28339,11 +28339,11 @@ msgstr "编辑用户设置"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationWarning/ImpersonationWarning.tsx:23
 msgid "Make sure the main database credential has access to everything different user groups may need access to. It's what Metabase uses to sync table information."
-msgstr "确保主数据库凭据具有访问不同用户组可能需要访问的所有内容。这是Metabase用于同步表信息的方式。"
+msgstr "确保主数据库凭据具有访问不同用户组可能需要访问的所有内容。这是HiCision用于同步表信息的方式。"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationWarning/ImpersonationWarning.tsx:20
 msgid "{0} is the database user Metabase is using to connect to {1}. Make sure that {2} has access to everything in {3} that all Metabase groups may need access to, as that database user account is what Metabase uses to sync table information."
-msgstr "{0} 是Metabase用来连接{1}的数据库用户。请确保{2}可以访问{3}中所有Metabase组可能需要访问的内容，因为该数据库用户账户是Metabase用来同步表信息的。"
+msgstr "{0} 是HiCision用来连接{1}的数据库用户。请确保{2}可以访问{3}中所有HiCision组可能需要访问的内容，因为该数据库用户账户是HiCision用来同步表信息的。"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationWarning/ImpersonationWarning.tsx:67
 #: frontend/src/metabase/dashboard/components/DashboardHeader/buttons/DashboardActionMenu.tsx:71
@@ -28462,7 +28462,7 @@ msgstr "您的数据库与此版本的上传功能不兼容。"
 
 #: frontend/src/metabase/admin/settings/components/UploadSettings/UploadSettingsForm.tsx:291
 msgid "Metabase currently supports {0} for uploads and needs a connection with write privileges."
-msgstr "Metabase目前支持{0}的上传，并需要具有写权限的连接。"
+msgstr "HiCision目前支持{0}的上传，并需要具有写权限的连接。"
 
 #: frontend/src/metabase/admin/settings/components/UploadSettings/UploadSettingsForm.tsx:292
 msgid "Postgres, MySQL, and H2"
@@ -28631,7 +28631,7 @@ msgstr "\"{0}\""
 
 #: metabase/core.clj:152
 msgid "Metabase Initialization COMPLETE in {0}"
-msgstr "Metabase 初始化完成，用时 {0}"
+msgstr "HiCision 初始化完成，用时 {0}"
 
 #: metabase/driver/bigquery_cloud_sdk.clj:245
 msgid "Warning: missing type mapping for parsing BigQuery results column {0} of type {1}."
@@ -28659,7 +28659,7 @@ msgstr "抱歉，您尝试更新的行不存在"
 
 #: metabase/driver/sql_jdbc/execute.clj:284
 msgid "{0} is deprecated in Metabase 0.47.0. Implement {1} instead."
-msgstr "在Metabase 0.47.0中，{0}已经被弃用，请改用{1}。"
+msgstr "在HiCision 0.47.0中，{0}已经被弃用，请改用{1}。"
 
 #: metabase/events/view_log.clj:29
 msgid "List of the 10 most recently viewed items for the user."
@@ -29131,7 +29131,7 @@ msgstr "导出到{0}完成！"
 
 #: metabase_enterprise/serialization/cmd.clj:230
 msgid "Exporting Metabase to {0}"
-msgstr "将Metabase导出到{0}"
+msgstr "将HiCision导出到{0}"
 
 #: metabase_enterprise/serialization/v2/load.clj:80
 msgid "Error importing {0}. Continuing..."
@@ -29268,7 +29268,7 @@ msgstr "上传错误详情"
 
 #: frontend/src/metabase/home/components/CustomHomePageModal/CustomHomePageModal.tsx:108
 msgid "Pick a dashboard to serve as the homepage. If people lack permissions to view the selected dashboard, Metabase will redirect them to the default homepage. You can update or reset the homepage at any time in Admin Settings > Settings > General."
-msgstr "选择一个仪表板作为主页。如果用户没有权限查看所选仪表板，Metabase将会重定向到默认主页。您可以随时在管理设置>设置>常规中更新或重置主页。"
+msgstr "选择一个仪表板作为主页。如果用户没有权限查看所选仪表板，HiCision将会重定向到默认主页。您可以随时在管理设置>设置>常规中更新或重置主页。"
 
 #: frontend/src/metabase/redux/uploads.ts:68
 msgid "You cannot upload files larger than {0}mb"
@@ -29276,7 +29276,7 @@ msgstr "你无法上传大于{0}mb的文件"
 
 #: metabase/public_settings.clj:104
 msgid "Pick a dashboard to serve as the homepage. If people lack permissions to view the selected dashboard, Metabase will redirect them to the default homepage."
-msgstr "选择一个仪表板作为首页。如果用户没有权限查看所选仪表板，则Metabase将重定向他们到默认首页。"
+msgstr "选择一个仪表板作为首页。如果用户没有权限查看所选仪表板，则HiCision将重定向他们到默认首页。"
 
 #: metabase/public_settings.clj:333
 msgid "{0} will cache all saved questions with an average query execution time longer than this many seconds:"
@@ -29403,11 +29403,11 @@ msgstr "互动嵌入"
 
 #: frontend/src/metabase/admin/settings/selectors.js:507
 msgid "With this Pro/Enterprise feature, you can let your customers query, visualize, and drill-down on their data with the full functionality of Metabase in your app or website, complete with your branding. Set permissions with SSO, down to the row- or column-level, so people only see what they need to."
-msgstr "有了这项专业版/企业版功能，您就可以让客户在您的应用程序或网站中使用 Metabase 的全部功能对数据进行查询、可视化和深入研究，并完整地使用您的品牌。使用 SSO 设置权限，直至行或列级别，这样人们只能看到他们需要的内容。"
+msgstr "有了这项专业版/企业版功能，您就可以让客户在您的应用程序或网站中使用 HiCision 的全部功能对数据进行查询、可视化和深入研究，并完整地使用您的品牌。使用 SSO 设置权限，直至行或列级别，这样人们只能看到他们需要的内容。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/FullAppEmbeddingLinkWidget/FullAppEmbeddingLinkWidget.tsx:14
 msgid "With {0} you can embed the full Metabase app to allow people to drill-through to charts, browse collections, and use the graphical query builder. You can also get priority support, more tools to help you share your insights with your teams and powerful options to help you create seamless, interactive data experiences for your customers."
-msgstr "有了{0}，您就可以嵌入完整的Metabase应用程序，让用户可以深入查看图表、浏览集合并使用图形查询生成器。您还可以获得优先支持、更多帮助您与团队分享见解的工具，以及帮助您为客户创建无缝、交互式数据体验的强大选项。"
+msgstr "有了{0}，您就可以嵌入完整的HiCision应用程序，让用户可以深入查看图表、浏览集合并使用图形查询生成器。您还可以获得优先支持、更多帮助您与团队分享见解的工具，以及帮助您为客户创建无缝、交互式数据体验的强大选项。"
 
 #: metabase/analytics/prometheus.clj:208
 msgid "Number of emails sent."
@@ -29484,7 +29484,7 @@ msgstr "如果元数据库实例注册了一个或多个用户，则该值为 tr
 
 #: metabase_enterprise/advanced_config/file.clj:260
 msgid "Metabase config files require a Premium token with the :config-text-file feature."
-msgstr "Metabase 配置文件需要带有 :config-text-file 功能的 Premium 令牌。"
+msgstr "HiCision 配置文件需要带有 :config-text-file 功能的 Premium 令牌。"
 
 #: metabase_enterprise/advanced_config/models/pulse_channel.clj:10
 msgid "Allowed email address domain(s) for new Dashboard Subscriptions and Alerts. To specify multiple domains, separate each domain with a comma, with no space in between. To allow all domains, leave the field empty. This setting doesn’t affect existing subscriptions."
@@ -29906,7 +29906,7 @@ msgstr "严格（不推荐）"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/components/EmbeddingAppSameSiteCookieDescription/SameSiteSelectWidget.tsx:17
 msgid "Never allows cookies to be sent on a cross-site request. Warning: this will prevent users from following external links to Metabase."
-msgstr "绝不允许在跨站请求中发送 cookie。警告：这将阻止用户跟踪 Metabase 的外部链接。"
+msgstr "绝不允许在跨站请求中发送 cookie。警告：这将阻止用户跟踪 HiCision 的外部链接。"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/components/EmbeddingAppSameSiteCookieDescription/SameSiteSelectWidget.tsx:22
 msgid "Allows all cross-site requests. Incompatible with most Safari and iOS-based browsers."
@@ -30116,7 +30116,7 @@ msgstr "SameSite cookie 设置"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/components/EmbeddingAppSameSiteCookieDescription/EmbeddingAppSameSiteCookieDescription.tsx:34
 msgid "Determines whether or not cookies are allowed to be sent on cross-site requests. You’ll likely need to change this to None if your embedding application is hosted under a different domain than Metabase. Otherwise, leave it set to Lax, as it's more secure."
-msgstr "决定是否允许在跨站请求中发送 cookie。如果嵌入应用程序的主机与 Metabase 的域不同，则可能需要将其更改为 \"无\"。否则，请将其设置为 \"宽松\"，因为这样更安全。"
+msgstr "决定是否允许在跨站请求中发送 cookie。如果嵌入应用程序的主机与 HiCision 的域不同，则可能需要将其更改为 \"无\"。否则，请将其设置为 \"宽松\"，因为这样更安全。"
 
 #: enterprise/frontend/src/metabase-enterprise/embedding/components/EmbeddingAppSameSiteCookieDescription/EmbeddingAppSameSiteCookieDescription.tsx:34
 msgid "If you set this to None, you'll have to use HTTPS (unless you're just embedding locally), or browsers will reject the request. {0}"
@@ -30586,7 +30586,7 @@ msgstr "使用心得"
 
 #: enterprise/frontend/src/metabase-enterprise/collections/components/CollectionInstanceAnalyticsIcon.tsx:38
 msgid "This is a read-only Metabase Analytics {0}."
-msgstr "这是只读 Metabase 分析 {0}。"
+msgstr "这是只读 HiCision 分析 {0}。"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/HelpLinkSettings/HelpLinkSettings.tsx:45
 msgid "This field can't be left empty."
@@ -30598,7 +30598,7 @@ msgstr "这需要是一个 \"http://\"、\"https://\"或 \"mailto: \"URL。"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/HelpLinkSettings/HelpLinkSettings.tsx:63
 msgid "Link to Metabase help"
-msgstr "Metabase 帮助链接"
+msgstr "HiCision 帮助链接"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/HelpLinkSettings/HelpLinkSettings.tsx:64
 msgid "Hide it"
@@ -30618,12 +30618,12 @@ msgstr "输入 URL，它应该转到"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/MetabaseLinksToggleWidget/MetabaseLinksToggleDescription.tsx:7
 msgid "Control the visibility of links to Metabase documentation and Metabase references in your instance. {0}"
-msgstr "控制实例中 Metabase 文档链接和 Metabase 引用的可见性。{0}"
+msgstr "控制实例中 HiCision 文档链接和 HiCision 引用的可见性。{0}"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/MetabaseLinksToggleDescription.tsx:36
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/MetabaseLinksToggleWidget/MetabaseLinksToggleDescription.tsx:18
 msgid "This affects all links in the product experience (outside of the admin panel) that point to Metabase.com URLs."
-msgstr "这会影响产品体验中（管理面板之外）指向 Metabase.com URL 的所有链接。"
+msgstr "这会影响产品体验中（管理面板之外）指向 HiCision.com URL 的所有链接。"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/MetabaseLinksToggleDescription.tsx:39
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/components/MetabaseLinksToggleWidget/MetabaseLinksToggleDescription.tsx:21
@@ -30753,7 +30753,7 @@ msgstr "替换为..."
 
 #: frontend/src/metabase/home/components/EmbedHomepage/HeaderWithDismiss.tsx:17
 msgid "Get started with Embedding Metabase in your app"
-msgstr "开始在应用程序中嵌入 Metabase"
+msgstr "开始在应用程序中嵌入 HiCision"
 
 #: frontend/src/metabase/home/components/EmbedMinimalHomepage/EmbedMinimalHomepage.tsx:40
 msgid "As you expressed interest in Embedding, follow these steps to start"
@@ -30854,11 +30854,11 @@ msgstr "使用户能够从该嵌入下载数据"
 
 #: frontend/src/metabase/public/components/EmbedModal/StaticEmbedSetupPane/AppearanceSettings.tsx:190
 msgid "Removing the “Powered by Metabase” banner"
-msgstr "移除 \"Powered by Metabase \"横幅"
+msgstr "移除 \"Powered by HiCision \"横幅"
 
 #: frontend/src/metabase/public/components/EmbedModal/StaticEmbedSetupPane/AppearanceSettings.tsx:193
 msgid "This banner appears on all static embeds created with the Metabase open source version. You’ll need to upgrade to {0} to remove the banner."
-msgstr "该横幅会出现在所有使用 Metabase 开源版本创建的静态嵌入上。您需要升级到{0}才能移除该横幅。"
+msgstr "该横幅会出现在所有使用 HiCision 开源版本创建的静态嵌入上。您需要升级到{0}才能移除该横幅。"
 
 #: frontend/src/metabase/public/components/EmbedModal/StaticEmbedSetupPane/LookAndFeelSettings.tsx:218
 msgid "Dashboard title"
@@ -31086,7 +31086,7 @@ msgstr "在此配置参数的类型和属性。这些参数的值可以来自用
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/EmbeddingOption.tsx:61
 msgid "A \"powered by Metabase\" banner appears on static embeds. You can {0} to remove it."
-msgstr "静态嵌入程序上会出现 \"powered by Metabase\"（由 Metabase 提供）横幅。您可以 {0} 删除它。"
+msgstr "静态嵌入程序上会出现 \"powered by HiCision\"（由 HiCision 提供）横幅。您可以 {0} 删除它。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/EmbeddingOption.tsx:63
 msgid "upgrade to a paid plan"
@@ -31127,7 +31127,7 @@ msgstr "设置"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/InteractiveEmbeddingCTA/InteractiveEmbeddingCTA.tsx:37
 msgid "Give your customers the full power of Metabase in your own app, with SSO, advanced permissions, customization, and more."
-msgstr "通过 SSO、高级权限、自定义等功能，在您自己的应用程序中为客户提供 Metabase 的全部功能。"
+msgstr "通过 SSO、高级权限、自定义等功能，在您自己的应用程序中为客户提供 HiCision 的全部功能。"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:122
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:141
@@ -31505,19 +31505,19 @@ msgstr "紧凑型编号"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationWarning/ImpersonationWarning.tsx:26
 msgid "You’re connecting Metabase to the {0} database using the credentials for the Redshift user {1}. For impersonation to work,  {2} must be a superuser in Redshift."
-msgstr "您正在使用 Redshift 用户 {1} 的凭据将 Metabase 连接到 {0} 数据库。要使冒充操作有效，{2} 必须是 Redshift 的超级用户。"
+msgstr "您正在使用 Redshift 用户 {1} 的凭据将 HiCision 连接到 {0} 数据库。要使冒充操作有效，{2} 必须是 Redshift 的超级用户。"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationWarning/ImpersonationWarning.tsx:41
 msgid "{0} is the database user Metabase is using to connect to your  {1} database. Make sure that {2} has access to everything in {3} that all Metabase groups may need access to, as that database user account is what Metabase uses to sync table information."
-msgstr "{0} 是 Metabase 用来连接 {1} 数据库的数据库用户。确保 {2} 可以访问所有 Metabase 组可能需要访问的 {3} 中的所有内容，因为该数据库用户账户是 Metabase 用来同步表信息的。"
+msgstr "{0} 是 HiCision 用来连接 {1} 数据库的数据库用户。确保 {2} 可以访问所有 HiCision 组可能需要访问的 {3} 中的所有内容，因为该数据库用户账户是 HiCision 用来同步表信息的。"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationModal/ImpersonationModalView.tsx:84
 msgid "Map a Metabase user attribute to database users"
-msgstr "将 Metabase 用户属性映射到数据库用户"
+msgstr "将 HiCision 用户属性映射到数据库用户"
 
 #: enterprise/frontend/src/metabase-enterprise/advanced_permissions/components/ImpersonationModal/ImpersonationModalView.tsx:89
 msgid "When the person runs a query (including native queries), Metabase will impersonate the privileges of the database user you associate with the user attribute."
-msgstr "当用户运行查询（包括本地查询）时，Metabase 将假冒与用户属性相关联的数据库用户的权限。"
+msgstr "当用户运行查询（包括本地查询）时，HiCision 将假冒与用户属性相关联的数据库用户的权限。"
 
 #: frontend/src/metabase/visualizations/visualizations/SmartScalar/compute.js:245
 #: frontend/src/metabase/visualizations/visualizations/SmartScalar/compute.js:533
@@ -31615,7 +31615,7 @@ msgstr "重新生成 API 密钥"
 
 #: frontend/src/metabase/admin/settings/components/ApiKeys/EditApiKeyModal.tsx:75
 msgid "Metabase will replace the existing API key with a new key. You won't be able to recover the old key."
-msgstr "Metabase 将用新密钥替换现有的 API 密钥。您将无法恢复旧密钥。"
+msgstr "HiCision 将用新密钥替换现有的 API 密钥。您将无法恢复旧密钥。"
 
 #: frontend/src/metabase/admin/settings/components/ApiKeys/EditApiKeyModal.tsx:80
 msgid "No, don't regenerate"
@@ -31764,7 +31764,7 @@ msgstr "点击 \"同意并继续\"，即表示您同意 {0}。"
 
 #: frontend/src/metabase/public/components/widgets/LegaleseStep/LegaleseStep.tsx:45
 msgid "When you embed charts or dashboards from Metabase in your own application that application isn't subject to the Affero General Public License that covers the rest of Metabase, provided you keep the Metabase logo and the \"Powered by Metabase\" visible on those embeds."
-msgstr "当您在自己的应用程序中嵌入 Metabase 中的图表或仪表盘时，该应用程序不受涵盖 Metabase 其他部分的 Affero 通用公共许可证的约束，前提是您必须在嵌入的图表或仪表盘上保留 Metabase 徽标和 \"Powered by Metabase\"（由 Metabase 提供）字样。"
+msgstr "当您在自己的应用程序中嵌入 HiCision 中的图表或仪表盘时，该应用程序不受涵盖 HiCision 其他部分的 Affero 通用公共许可证的约束，前提是您必须在嵌入的图表或仪表盘上保留 HiCision 徽标和 \"Powered by HiCision\"（由 HiCision 提供）字样。"
 
 #: frontend/src/metabase/public/components/widgets/LegaleseStep/LegaleseStep.tsx:48
 msgid "You should, however, read the license text linked above as that is the actual license that you will be agreeing to by enabling this feature."
@@ -31993,7 +31993,7 @@ msgstr "帮助链接的自定义 URL。"
 
 #: metabase/public_settings.clj:720
 msgid "Whether or not to display Metabase links outside admin settings."
-msgstr "是否在管理设置之外显示 Metabase 链接。"
+msgstr "是否在管理设置之外显示 HiCision 链接。"
 
 #: metabase/public_settings.clj:690
 msgid "Invalid help link option"
@@ -32009,7 +32009,7 @@ msgstr "在用户取消 \"浏览有关模型的数据 \"的横幅后切换为 tr
 
 #: metabase/public_settings.clj:104
 msgid "Pick a dashboard to serve as the homepage. If people lack permissions to view the selected dashboard, Metabase will redirect them to the default homepage. To revert to the default Metabase homepage, simply turn off the toggle."
-msgstr "选择一个仪表板作为主页。如果用户没有权限查看所选仪表板，Metabase 会将其重定向到默认主页。要恢复到默认 Metabase 主页，只需关闭切换开关即可。"
+msgstr "选择一个仪表板作为主页。如果用户没有权限查看所选仪表板，HiCision 会将其重定向到默认主页。要恢复到默认 HiCision 主页，只需关闭切换开关即可。"
 
 #: metabase/channel/render/body.clj:204
 msgid "Results have been included as a file attachment"
@@ -32102,19 +32102,19 @@ msgstr "您无法访问审计数据库"
 #: metabase_enterprise/sso/integrations/sso_settings.clj:27
 msgid "When we enable SAML user provisioning, we automatically create a Metabase account on SAML signin for users who\n"
 "don''t have one."
-msgstr "当我们启用 SAML 用户供应时，我们会在 SAML 登录时为没有 Metabase 帐户的用户自动创建一个 Metabase 帐户。\n"
+msgstr "当我们启用 SAML 用户供应时，我们会在 SAML 登录时为没有 HiCision 帐户的用户自动创建一个 HiCision 帐户。\n"
 "账户。"
 
 #: metabase_enterprise/sso/integrations/sso_settings.clj:40
 msgid "When we enable JWT user provisioning, we automatically create a Metabase account on JWT signin for users who\n"
 "don''t have one."
-msgstr "当我们启用 JWT 用户供应时，我们会在 JWT 登录时自动为没有 Metabase 帐户的用户创建一个 Metabase 帐户。\n"
+msgstr "当我们启用 JWT 用户供应时，我们会在 JWT 登录时自动为没有 HiCision 帐户的用户创建一个 HiCision 帐户。\n"
 "账户。"
 
 #: metabase_enterprise/sso/integrations/sso_settings.clj:48
 msgid "When we enable LDAP user provisioning, we automatically create a Metabase account on LDAP signin for users who\n"
 "don''t have one."
-msgstr "当我们启用 LDAP 用户供应时，我们会在 LDAP 登录时自动为没有 Metabase 帐户的用户创建一个 Metabase 帐户。\n"
+msgstr "当我们启用 LDAP 用户供应时，我们会在 LDAP 登录时自动为没有 HiCision 帐户的用户创建一个 HiCision 帐户。\n"
 "账户。"
 
 #: metabase_enterprise/sso/integrations/sso_utils.clj:37
@@ -32229,7 +32229,7 @@ msgstr "为获得最佳效果，请使用带有透明图层的 SVG 文件\n"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/index.js:150
 msgid "Hide or customize pieces of the Metabase product to tailor the experience to your brand and needs"
-msgstr "隐藏或自定义 Metabase 产品的各个部分，以便根据您的品牌和需求定制体验"
+msgstr "隐藏或自定义 HiCision 产品的各个部分，以便根据您的品牌和需求定制体验"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/index.js:155
 msgid "Homepage, Documentation and References"
@@ -32550,7 +32550,7 @@ msgstr "选择查询运行时显示的消息。"
 
 #: metabase/public_settings.clj:28
 msgid "Replace the word “Metabase” wherever it appears."
-msgstr "替换出现的“Metabase”一词。"
+msgstr "替换出现的“HiCision”一词。"
 
 #: metabase/public_settings.clj:580
 msgid "Upload a file to use as the favicon."
@@ -32570,11 +32570,11 @@ msgstr "输入向用户显示的登录页面的 URL。这会覆盖上面的自�
 
 #: metabase/public_settings.clj:483
 msgid "Choose the colors used in the user interface throughout Metabase and others specifically for the charts. You need to refresh your browser to see your changes take effect."
-msgstr "选择整个 Metabase 和其他专门用于图表的用户界面中使用的颜色。您需要刷新浏览器才能看到更改生效。"
+msgstr "选择整个 HiCision 和其他专门用于图表的用户界面中使用的颜色。您需要刷新浏览器才能看到更改生效。"
 
 #: metabase/public_settings.clj:569
 msgid "Upload a file to replace the Metabase logo on the top bar."
-msgstr "上传文件以替换顶栏上的 Metabase 徽标。"
+msgstr "上传文件以替换顶栏上的 HiCision 徽标。"
 
 #: metabase/query_processor/compile.clj:35
 msgid "Error compiling query: {0}"
@@ -32648,7 +32648,7 @@ msgstr "启用人工智能功能。"
 
 #: metabase_enterprise/llm/settings.clj:15
 msgid "The OpenAI API Key used in Metabase Enterprise."
-msgstr "Metabase Enterprise 中使用的 OpenAI API 密钥。"
+msgstr "HiCision Enterprise 中使用的 OpenAI API 密钥。"
 
 #: metabase_enterprise/sso/api/sso.clj:102
 msgid "Error handling SLO"
@@ -33192,7 +33192,7 @@ msgstr "更改 \"无自助服务（已废弃）\"。查看数据访问以启用�
 
 #: frontend/src/metabase/admin/permissions/selectors/confirmations.tsx:83
 msgid "In a future release, if a group's View data access for a database (or any of its schemas or tables) is still set to No self-service (Deprecated), Metabase will automatically change that group's View data access for the entire database to Blocked. We'll be defaulting to Blocked, the least permissive View data access, to prevent any unintended access to data."
-msgstr "在未来的版本中，如果某个组对某个数据库（或其任何模式或表）的视图数据访问权限仍设置为 \"无自助服务\"（已废弃），Metabase 将自动把该组对整个数据库的视图数据访问权限更改为 \"已阻止\"。我们将默认使用 \"已阻止 \"这种权限最小的视图数据访问方式，以防止意外访问数据。"
+msgstr "在未来的版本中，如果某个组对某个数据库（或其任何模式或表）的视图数据访问权限仍设置为 \"无自助服务\"（已废弃），HiCision 将自动把该组对整个数据库的视图数据访问权限更改为 \"已阻止\"。我们将默认使用 \"已阻止 \"这种权限最小的视图数据访问方式，以防止意外访问数据。"
 
 #: frontend/src/metabase/admin/permissions/selectors/confirmations.tsx:171
 msgid "Change access to this database to “Granular”?"
@@ -33265,7 +33265,7 @@ msgstr "创建要嵌入的仪表板"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/InteractiveTabContent.tsx:52
 msgid "Implement SSO to sign app users into Metabase"
-msgstr "实施 SSO，将应用程序用户登录到 Metabase"
+msgstr "实施 SSO，将应用程序用户登录到 HiCision"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/InteractiveTabContent.tsx:55
 msgid "Configure collection permissions"
@@ -33325,7 +33325,7 @@ msgstr "已为您自动启用嵌入功能"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/EmbedHomepageView.tsx:97
 msgid "Because you expressed interest in embedding Metabase, we took this step for you so that you can more easily try it out. You can turn it off anytime in {0}."
-msgstr "由于您表示对嵌入 Metabase 感兴趣，我们为您采取了这一步骤，以便您更轻松地试用。您可以随时在 {0} 中关闭它。"
+msgstr "由于您表示对嵌入 HiCision 感兴趣，我们为您采取了这一步骤，以便您更轻松地试用。您可以随时在 {0} 中关闭它。"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/NeedMoreInfoCard.tsx:16
 msgid "Need more information?"
@@ -33333,7 +33333,7 @@ msgstr "需要更多信息？"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/NeedMoreInfoCard.tsx:19
 msgid "Explore the {0} and {1} to learn more about what Metabase offers."
-msgstr "探索{0}和{1}，了解 Metabase 提供的更多信息。"
+msgstr "探索{0}和{1}，了解 HiCision 提供的更多信息。"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/NeedMoreInfoCard.tsx:21
 msgid "embedding documentation"
@@ -33349,7 +33349,7 @@ msgstr "如何改进嵌入工作？"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/FeedbackModal.tsx:46
 msgid "Please let us know what happened. We’re always looking for ways to improve Metabase."
-msgstr "请告诉我们发生了什么。我们一直在寻找改进 Metabase 的方法。"
+msgstr "请告诉我们发生了什么。我们一直在寻找改进 HiCision 的方法。"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/FeedbackModal.tsx:49
 msgid "Feedback"
@@ -33554,7 +33554,7 @@ msgstr "受阻"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/index.js:164
 msgid "Control the display of Metabase documentation and Metabase references in your instance."
-msgstr "控制实例中 Metabase 文档和 Metabase 引用的显示。"
+msgstr "控制实例中 HiCision 文档和 HiCision 引用的显示。"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/index.js:194
 msgid "Metabase illustrations"
@@ -33562,7 +33562,7 @@ msgstr "元数据库插图"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/index.js:196
 msgid "Customize each of the illustrations in Metabase"
-msgstr "自定义 Metabase 中的每个插图"
+msgstr "自定义 HiCision 中的每个插图"
 
 #: enterprise/frontend/src/metabase-enterprise/whitelabel/index.js:215
 msgid "Login and unsubscribe pages"
@@ -33817,7 +33817,7 @@ msgstr "更换了公制"
 
 #: frontend/src/metabase/nav/components/ReadOnlyBanner/ReadOnlyBanner.tsx:11
 msgid "Metabase is under maintenance and is operating in read-only mode. Please contact your administrator for details."
-msgstr "Metabase 正在进行维护，并以只读模式运行。详情请联系您的管理员。"
+msgstr "HiCision 正在进行维护，并以只读模式运行。详情请联系您的管理员。"
 
 #: frontend/src/metabase/palette/components/Palette.tsx:52
 msgid "Search for anything or jump somewhere…"
@@ -33999,7 +33999,7 @@ msgstr "{0} 以实现快速、可靠和安全的部署。"
 #: frontend/src/metabase/admin/upsells/UpsellHosting.tsx:30
 #: frontend/src/metabase/admin/upsells/UpsellHosting.tsx:54
 msgid "Migrate to Metabase Cloud"
-msgstr "迁移到 Metabase 云"
+msgstr "迁移到 HiCision 云"
 
 #: frontend/src/metabase/admin/upsells/UpsellHosting.tsx:45
 msgid "Get automatic updates"
@@ -34156,7 +34156,7 @@ msgstr "更多信息"
 
 #: frontend/src/metabase/admin/permissions/components/PermissionsEditor/PermissionsEditorLegacyWarning.tsx:31
 msgid "In a future release, if a group’s View data access for a database (or any of its schemas or tables) is still set to “No self-service (deprecated)”, Metabase will automatically change that group’s View data access for the entire database to “Blocked”. We’ll be defaulting to “Blocked”, the least permissive View data access, to prevent any unintended access to data."
-msgstr "在未来的版本中，如果某个组对某个数据库（或其任何模式或表）的视图数据访问权限仍设置为 \"无自助服务（已废弃）\"，Metabase 将自动把该组对整个数据库的视图数据访问权限更改为 \"已阻止\"。我们将默认为 \"已阻止\"，这是最不允许的视图数据访问，以防止任何意外的数据访问。"
+msgstr "在未来的版本中，如果某个组对某个数据库（或其任何模式或表）的视图数据访问权限仍设置为 \"无自助服务（已废弃）\"，HiCision 将自动把该组对整个数据库的视图数据访问权限更改为 \"已阻止\"。我们将默认为 \"已阻止\"，这是最不允许的视图数据访问，以防止任何意外的数据访问。"
 
 #: frontend/src/metabase/admin/permissions/components/PermissionsEditor/PermissionsEditorLegacyWarning.tsx:37
 msgid "Need help? See our docs."
@@ -34185,16 +34185,16 @@ msgstr "迁移到云"
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationCreationError.tsx:23
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationError.tsx:25
 msgid "Migration to Metabase Cloud failed"
-msgstr "迁移到 Metabase 云失败"
+msgstr "迁移到 HiCision 云失败"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationError.tsx:37
 msgid "Migration to Metabase Cloud failed on {0}."
-msgstr "在 {0} 上迁移到 Metabase Cloud 失败。"
+msgstr "在 {0} 上迁移到 HiCision Cloud 失败。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:30
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:31
 msgid "Talking to Metabase Cloud..."
-msgstr "与 Metabase 云对话..."
+msgstr "与 HiCision 云对话..."
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:32
 msgid "Taking a snapshot of this instance..."
@@ -34206,11 +34206,11 @@ msgstr "将快照上传到云..."
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:55
 msgid "Migration to Metabase Cloud has been canceled."
-msgstr "已取消向 Metabase 云迁移。"
+msgstr "已取消向 HiCision 云迁移。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:56
 msgid "You are now migrating to Metabase Cloud"
-msgstr "您正在迁移到 Metabase 云计算平台"
+msgstr "您正在迁移到 HiCision 云计算平台"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:60
 msgid "This instance will be in read-only mode when taking a snapshot. It could take up to 30 minutes."
@@ -34239,7 +34239,7 @@ msgstr "我们将取消迁移过程。之后，该实例将不再是只读的。
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:30
 msgid "It only takes a few clicks to migrate this instance to Metabase Cloud."
-msgstr "只需点击几下，即可将该实例迁移到 Metabase Cloud。"
+msgstr "只需点击几下，即可将该实例迁移到 HiCision Cloud。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:33
 msgid "There is no additional cost for your Pro account."
@@ -34263,7 +34263,7 @@ msgstr "预配置的 SMTP 服务器"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:61
 msgid "Migrate this instance to Metabase Cloud now?"
-msgstr "现在就将此实例迁移到 Metabase 云？"
+msgstr "现在就将此实例迁移到 HiCision 云？"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:66
 msgid "Once you start this process, we’ll take a snapshot of this instance, then upload it to a new Cloud instance."
@@ -34271,7 +34271,7 @@ msgstr "启动此流程后，我们将为该实例拍摄快照，然后将其上
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:67
 msgid "You will be directed to Metabase Store to create an account and configure the instance details."
-msgstr "系统会引导您到 Metabase Store 创建账户并配置实例详细信息。"
+msgstr "系统会引导您到 HiCision Store 创建账户并配置实例详细信息。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:68
 msgid "During the snapshot step, this instance will be in a read-only mode. This should take 5-30 minutes depending on your instance’s size."
@@ -34287,7 +34287,7 @@ msgstr "快照已上传至云端"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationSuccess.tsx:36
 msgid "Please complete the migration process on the Metabase Store."
-msgstr "请在 Metabase Store 上完成迁移过程。"
+msgstr "请在 HiCision Store 上完成迁移过程。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationSuccess.tsx:39
 msgid "This instance is no longer in read-only mode."
@@ -34296,7 +34296,7 @@ msgstr "该实例不再处于只读模式。"
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:107
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationSuccess.tsx:45
 msgid "Go to Metabase Store"
-msgstr "前往 Metabase 商店"
+msgstr "前往 HiCision 商店"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationSuccess.tsx:58
 msgid "Restart the process"
@@ -34635,11 +34635,11 @@ msgstr "用于迁移的存储 URL。仅供内部测试使用。"
 
 #: metabase/models/cloud_migration.clj:80
 msgid "Boolean indicating whether a Metabase's is in read-only mode with regards to its app db. Will take up to 1m to propagate to other Metabase instances in a cluster.Audit tables are excluded from read-only-mode mode."
-msgstr "表示 Metabase 的应用程序数据库是否处于只读模式的布尔值。传播到群集中的其他 Metabase 实例最长需要 1m 的时间，审计表不包括在只读模式中。"
+msgstr "表示 HiCision 的应用程序数据库是否处于只读模式的布尔值。传播到群集中的其他 HiCision 实例最长需要 1m 的时间，审计表不包括在只读模式中。"
 
 #: metabase/models/cloud_migration.clj:114
 msgid "Metabase is in read-only-mode mode!"
-msgstr "Metabase 处于只读模式！"
+msgstr "HiCision 处于只读模式！"
 
 #: metabase/models/collection.clj:729
 msgid "You must specify a new `parent_id` to un-trash to."
@@ -34994,7 +34994,7 @@ msgstr "升级到付费计划"
 
 #: frontend/src/metabase/admin/upsells/UpsellMetabaseBanner.tsx:15
 msgid "The “Powered by Metabase” banner appears on all static embeds created with the open source version. You’ll need to upgrade to remove it."
-msgstr "使用开源版本创建的所有静态嵌入上都会出现 \"Powered by Metabase \"横幅。您需要升级才能移除它。"
+msgstr "使用开源版本创建的所有静态嵌入上都会出现 \"Powered by HiCision \"横幅。您需要升级才能移除它。"
 
 #: frontend/src/metabase/components/DateRelativeWidget/DateRelativeWidget.tsx:33
 msgid "Previous 7 days"
@@ -35014,7 +35014,7 @@ msgstr "出问题了"
 
 #: frontend/src/metabase/nav/components/ReadOnlyBanner/ReadOnlyBanner.tsx:11
 msgid "Metabase is under maintenance and is operating in read-only mode.  It should only take up to 30 minutes."
-msgstr "Metabase 正在维护中，将处于只读状态。状态最多持续30分钟。"
+msgstr "HiCision 正在维护中，将处于只读状态。状态最多持续30分钟。"
 
 #: frontend/src/metabase/common/components/ExportSettingsWidget/ExportSettingsWidget.tsx:55
 #: frontend/src/metabase/query_builder/components/QueryDownloadPopover/DownloadButton.tsx:33
@@ -35064,7 +35064,7 @@ msgstr "控制缓存"
 #: frontend/src/metabase/admin/upsells/UpsellCacheConfig.tsx:20
 #: frontend/src/metabase/admin/upsells/UpsellSSO.tsx:26
 msgid "Try Metabase Pro"
-msgstr "试用 Metabase Pro"
+msgstr "试用 HiCision Pro"
 
 #: frontend/src/metabase/admin/upsells/UpsellCacheConfig.tsx:24
 msgid "Get granular caching controls for each database, dashboard, and query with {0}"
@@ -35072,7 +35072,7 @@ msgstr "使用 {0} 获取每个数据库、仪表盘和查询的细粒度缓存�
 
 #: frontend/src/metabase/admin/upsells/UpsellCacheConfig.tsx:25
 msgid "Metabase Pro."
-msgstr "Metabase Pro。"
+msgstr "HiCision Pro。"
 
 #: frontend/src/metabase/components/ErrorPages/ErrorDiagnosticModal.tsx:319
 msgid "We’ve run into an error, try to refresh the page or go back."
@@ -35114,11 +35114,11 @@ msgstr "如果设置为 \"无\"，则必须使用 HTTPS，否则浏览器会拒�
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:33
 msgid "Migrate this instance to Metabase Cloud at no extra cost and get high availability, automatic upgrades, backups, and enterprise grade compliance."
-msgstr "将此实例迁移到 Metabase Cloud，无需额外费用，即可获得高可用性、自动升级、备份和企业级合规性。"
+msgstr "将此实例迁移到 HiCision Cloud，无需额外费用，即可获得高可用性、自动升级、备份和企业级合规性。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:34
 msgid "Migrate this instance to Metabase Cloud with a free 14-day trial and get high availability, automatic upgrades, backups, and official support."
-msgstr "通过 14 天的免费试用，将此实例迁移到 Metabase Cloud，并获得高可用性、自动升级、备份和官方支持。"
+msgstr "通过 14 天的免费试用，将此实例迁移到 HiCision Cloud，并获得高可用性、自动升级、备份和官方支持。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:35
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:64
@@ -35127,12 +35127,12 @@ msgstr "了解更多信息。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:59
 msgid "Get started with Metabase Cloud"
-msgstr "开始使用 Metabase 云"
+msgstr "开始使用 HiCision 云"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationStart.tsx:62
 msgid "Just a heads up: your Metabase will be read-only for up to 30\n"
 "minutes while we prep it for migration."
-msgstr "请注意：在我们准备迁移 Metabase 时，您的 Metabase 将处于 30 分钟的只读状态。\n"
+msgstr "请注意：在我们准备迁移 HiCision 时，您的 HiCision 将处于 30 分钟的只读状态。\n"
 "分钟。"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationSuccess.tsx:38
@@ -35143,15 +35143,15 @@ msgstr "在{0}上"
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:86
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationSuccess.tsx:40
 msgid "To complete the migration, set up your account in the Metabase Store"
-msgstr "要完成迁移，请在 Metabase Store 中设置账户"
+msgstr "要完成迁移，请在 HiCision Store 中设置账户"
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:79
 msgid "Migrating to Metabase Cloud…"
-msgstr "迁移到 Metabase Cloud..."
+msgstr "迁移到 HiCision Cloud..."
 
 #: frontend/src/metabase/admin/settings/components/CloudPanel/MigrationInProgress.tsx:83
 msgid "While we snapshot your Metabase data, people will be able to view questions and dashboards, but they won't be able to edit or create anything new. It should only take up to 30 minutes"
-msgstr "当我们对 Metabase 数据进行快照时，用户可以查看问题和仪表盘，但不能编辑或创建任何新内容。最长只需 30 分钟"
+msgstr "当我们对 HiCision 数据进行快照时，用户可以查看问题和仪表盘，但不能编辑或创建任何新内容。最长只需 30 分钟"
 
 #: frontend/src/metabase/dashboard/components/DashCard/DashCardParameterMapper/DashCardCardParameterMapper.tsx:151
 #: frontend/src/metabase/dashboard/components/DashCard/DashCardParameterMapper/DashCardCardParameterMapperContent.tsx:179
@@ -35436,7 +35436,7 @@ msgstr "再生令牌？"
 
 #: enterprise/frontend/src/metabase-enterprise/user_provisioning/components/UserProvisioningModals.tsx:97
 msgid "This will delete the existing token. You'll need to update your identity provider with the new token, otherwise people won't be able to log in to your Metabase."
-msgstr "这将删除现有令牌。您需要用新令牌更新身份供应商，否则人们将无法登录 Metabase。"
+msgstr "这将删除现有令牌。您需要用新令牌更新身份供应商，否则人们将无法登录 HiCision。"
 
 #: enterprise/frontend/src/metabase-enterprise/user_provisioning/components/UserProvisioningModals.tsx:102
 msgid "Regenerate now"
@@ -35505,7 +35505,7 @@ msgstr "通过 SCIM 进行用户配置"
 
 #: frontend/src/metabase/admin/upsells/UpsellSSO.tsx:32
 msgid "Metabase Pro and Enterprise plans include:"
-msgstr "Metabase 专业版和企业版计划包括"
+msgstr "HiCision 专业版和企业版计划包括"
 
 #: frontend/src/metabase/admin/upsells/UpsellSSO.tsx:34
 msgid "SSO with SAML and JWT"
@@ -35888,7 +35888,7 @@ msgstr "专业版和企业版"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/StaticEmbeddingOptionCard/StaticEmbeddingOptionCard.tsx:26
 msgid "A \"powered by Metabase\" banner appears on static embeds. You can {0} which removes it."
-msgstr "静态嵌入程序上会出现 \"powered by Metabase \"横幅。您可以通过{0}将其删除。"
+msgstr "静态嵌入程序上会出现 \"powered by HiCision \"横幅。您可以通过{0}将其删除。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/StaticEmbeddingOptionCard/StaticEmbeddingOptionCard.tsx:28
 msgid "upgrade to a specific paid plan"
@@ -35909,7 +35909,7 @@ msgstr "添加一个方法或指标"
 
 #: frontend/src/metabase/admin/settings/components/SettingsUpdatesForm/VersionUpdateNotice/VersionUpdateNotice.tsx:66
 msgid "You're running Metabase {0}"
-msgstr "您正在运行 Metabase {0}"
+msgstr "您正在运行 HiCision {0}"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/EmbeddingSdkOptionCard/EmbeddingSdkOptionCard.tsx:22
 #: frontend/src/metabase/home/components/EmbedHomepage/SDKContent.tsx:20
@@ -35925,7 +35925,7 @@ msgstr "测试版"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/EmbeddingSdkOptionCard/EmbeddingSdkOptionCard.tsx:41
 msgid "Interactive embedding with full, granular control. Embed and style individual Metabase components in your app, and tailor the experience to each person. Allows for CSS styling, custom user flows, event subscriptions, and more. Only available with SSO via JWT."
-msgstr "交互式嵌入，全面细化控制。在您的应用程序中嵌入 Metabase 组件并为其设计样式，为每个人量身定制体验。允许 CSS 样式、自定义用户流、事件订阅等。仅适用于通过 JWT 进行的 SSO。"
+msgstr "交互式嵌入，全面细化控制。在您的应用程序中嵌入 HiCision 组件并为其设计样式，为每个人量身定制体验。允许 CSS 样式、自定义用户流、事件订阅等。仅适用于通过 JWT 进行的 SSO。"
 
 #: frontend/src/metabase/admin/settings/components/widgets/EmbeddingOption/EmbeddingSdkOptionCard/EmbeddingSdkOptionCard.tsx:45
 msgid "Try it out"
@@ -36089,11 +36089,11 @@ msgstr "这也会将该组对该数据库的数据访问权限改为 \"可以查
 
 #: frontend/src/metabase/admin/permissions/selectors/confirmations.tsx:246
 msgid "This schema contains one or more tables with “Blocked” permissions, which prevents access to the query builder. To grant Create query permissions for this schema, Metabase will also change the View data permissions on this schema to “Can view”."
-msgstr "此模式包含一个或多个具有 \"封锁 \"权限的表，因此无法访问查询生成器。要授予此模式创建查询权限，Metabase 还会将此模式的查看数据权限更改为 \"可查看\"。"
+msgstr "此模式包含一个或多个具有 \"封锁 \"权限的表，因此无法访问查询生成器。要授予此模式创建查询权限，HiCision 还会将此模式的查看数据权限更改为 \"可查看\"。"
 
 #: frontend/src/metabase/admin/permissions/selectors/confirmations.tsx:247
 msgid "This database contains one or more schemas and tables with “Blocked” permissions, which prevents access to the query builder. To grant Create query permissions for this database, Metabase will also change the View data permissions on this database to “Can view”."
-msgstr "该数据库包含一个或多个具有 \"封锁 \"权限的模式和表，因此无法访问查询生成器。要为该数据库授予创建查询权限，Metabase 还会将该数据库的查看数据权限更改为 \"可查看\"。"
+msgstr "该数据库包含一个或多个具有 \"封锁 \"权限的模式和表，因此无法访问查询生成器。要为该数据库授予创建查询权限，HiCision 还会将该数据库的查看数据权限更改为 \"可查看\"。"
 
 #: frontend/src/metabase/admin/permissions/selectors/confirmations.tsx:249
 msgid "Updating access will reset your granular settings for this {0}. To keep those settings, you’ll need to manually change the View data permissions for the schemas or tables that are set to “Blocked”."
@@ -36116,7 +36116,7 @@ msgstr "在本地主机上试用 SDK。要启用其他网站，{0} 并输入您�
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/EmbeddingSdkSettings.tsx:108
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/EmbeddingSdkSettings.tsx:121
 msgid "upgrade to Metabase Pro"
-msgstr "升级到 Metabase 专业版"
+msgstr "升级到 HiCision 专业版"
 
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/EmbeddingSdkSettings.tsx:63
 msgid "Enter the origins for the websites or apps where you want to allow SDK embedding, separated by a space. Localhost is automatically included."
@@ -36168,7 +36168,7 @@ msgstr "版本固定"
 
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/EmbeddingSdkSettings.tsx:215
 msgid "Metabase Cloud instances are automatically upgraded to new releases. SDK packages are strictly compatible with specific version of Metabase. You can request to pin your Metabase to a major version and upgrade your Metabase and SDK dependency in a coordinated fashion."
-msgstr "Metabase 云实例会自动升级到新版本。SDK 软件包严格兼容特定版本的 Metabase。您可以申请将 Metabase 固定到主要版本，并以协调的方式升级 Metabase 和 SDK 依赖关系。"
+msgstr "HiCision 云实例会自动升级到新版本。SDK 软件包严格兼容特定版本的 HiCision。您可以申请将 HiCision 固定到主要版本，并以协调的方式升级 HiCision 和 SDK 依赖关系。"
 
 #: frontend/src/metabase/admin/settings/components/EmbeddingSettings/EmbeddingSdkSettings.tsx:225
 msgid "Request version pinning"
@@ -36323,11 +36323,11 @@ msgstr "特定选项卡 ID"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/EmbedHomepageView.tsx:54
 msgid "Give your customers secure, multi-tenant access to their data with as much (or as little) interactivity and tools to explore data as you want, with as much customization as you need. Embed dashboards, charts—even Metabase's query editor—with iframes or as individual React components."
-msgstr "让您的客户以安全、多租户的方式访问他们的数据，并根据您的需要定制尽可能多（或尽可能少）的交互性和工具来探索数据。使用 iframe 或单独的 React 组件嵌入仪表盘、图表，甚至是 Metabase 的查询编辑器。"
+msgstr "让您的客户以安全、多租户的方式访问他们的数据，并根据您的需要定制尽可能多（或尽可能少）的交互性和工具来探索数据。使用 iframe 或单独的 React 组件嵌入仪表盘、图表，甚至是 HiCision 的查询编辑器。"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/InteractiveContent.tsx:24
 msgid "Interactive embedding allows you to embed the full Metabase app with iframes. It offers settings to customize appearance and includes the query builder with row-level access."
-msgstr "交互式嵌入允许您使用 iframe 嵌入完整的 Metabase 应用程序。它提供可自定义外观的设置，并包含可进行行级访问的查询生成器。"
+msgstr "交互式嵌入允许您使用 iframe 嵌入完整的 HiCision 应用程序。它提供可自定义外观的设置，并包含可进行行级访问的查询生成器。"
 
 #: frontend/src/metabase/browse/metrics/BrowseMetrics.tsx:134
 #: frontend/src/metabase/home/components/EmbedHomepage/InteractiveContent.tsx:31
@@ -36342,7 +36342,7 @@ msgstr "使用 React 嵌入图表、仪表盘、查询生成器等单个组件�
 
 #: frontend/src/metabase/home/components/EmbedHomepage/StaticEmbedContent.tsx:28
 msgid "Embed a dashboard in a 'Powered by Metabase' iframe with interactivity limited to filters and tooltips, and a few customization options. The iframe loads a Metabase URL secured with a signed JSON Web Token (JWT). Appears with \"Powered by Metabase\", on Open Source and Starter plans, with the option to remove on Pro and Enterprise. As the simplest form of embedding, you can add a dashboard into your app in a few minutes with just a snippet."
-msgstr "在 \"Powered by Metabase \"的 iframe 中嵌入仪表盘，互动功能仅限于过滤器和工具提示，以及一些自定义选项。iframe 可加载使用已签名 JSON 网络令牌 (JWT) 加密的 Metabase URL。在开源计划和入门计划中会显示 \"Powered by Metabase\"（由 Metabase 提供），在专业计划和企业计划中可选择移除。作为最简单的嵌入形式，只需一个代码段，您就可以在几分钟内将仪表盘添加到您的应用程序中。"
+msgstr "在 \"Powered by HiCision \"的 iframe 中嵌入仪表盘，互动功能仅限于过滤器和工具提示，以及一些自定义选项。iframe 可加载使用已签名 JSON 网络令牌 (JWT) 加密的 HiCision URL。在开源计划和入门计划中会显示 \"Powered by HiCision\"（由 HiCision 提供），在专业计划和企业计划中可选择移除。作为最简单的嵌入形式，只需一个代码段，您就可以在几分钟内将仪表盘添加到您的应用程序中。"
 
 #: frontend/src/metabase/home/components/EmbedHomepage/StaticEmbedContent.tsx:40
 msgid "Embed an example dashboard"
@@ -36574,7 +36574,7 @@ msgstr "升级计划"
 
 #: frontend/src/metabase/admin/upsells/UpsellMetabaseBanner.tsx:15
 msgid "The “Powered by Metabase” banner appears on all static embeds created with your current version. Upgrade to remove it (and customize a lot more)"
-msgstr "Powered by Metabase \"横幅会出现在使用您当前版本创建的所有静态嵌入上。升级后可移除该横幅（并可自定义更多内容）"
+msgstr "Powered by HiCision \"横幅会出现在使用您当前版本创建的所有静态嵌入上。升级后可移除该横幅（并可自定义更多内容）"
 
 #: frontend/src/metabase/admin/upsells/UpsellUsageAnalytics.tsx:28
 msgid "See who’s doing what, when"
@@ -36586,7 +36586,7 @@ msgstr "免费试用"
 
 #: frontend/src/metabase/admin/upsells/UpsellUsageAnalytics.tsx:37
 msgid "Get detailed reports for tracking Metabase content usage, performance, and configuration changes."
-msgstr "获取详细报告，跟踪 Metabase 内容的使用情况、性能和配置更改。"
+msgstr "获取详细报告，跟踪 HiCision 内容的使用情况、性能和配置更改。"
 
 #: frontend/src/metabase/browse/metrics/MetricsTable.tsx:106
 msgid "Table of metrics"
@@ -36662,11 +36662,11 @@ msgstr "邀请新用户"
 
 #: frontend/src/metabase/home/components/Onboarding/Onboarding.tsx:262
 msgid "Don't be shy with invites. Metabase makes self-service analytics easy."
-msgstr "不要羞于邀请。Metabase 让自助分析变得简单。"
+msgstr "不要羞于邀请。HiCision 让自助分析变得简单。"
 
 #: frontend/src/metabase/home/components/Onboarding/Onboarding.tsx:265
 msgid "Don't be shy with invites. Metabase Starter plan includes 5 users, and Pro includes 10 users without the need to pay additionally."
-msgstr "不要不好意思邀请。Metabase 入门计划包括 5 个用户，专业版包括 10 个用户，无需额外付费。"
+msgstr "不要不好意思邀请。HiCision 入门计划包括 5 个用户，专业版包括 10 个用户，无需额外付费。"
 
 #: frontend/src/metabase/home/components/Onboarding/Onboarding.tsx:283
 msgid "Set up Single Sign-on"
@@ -36856,7 +36856,7 @@ msgstr "⚠️ Pro 功能因未付款而暂时无法使用。{0} 以恢复专业
 
 #: frontend/src/metabase/nav/components/ReadOnlyBanner/ReadOnlyBanner.tsx:13
 msgid "Metabase is under maintenance and is operating in read-only mode. It should only take up to 30 minutes."
-msgstr "Metabase 正在进行维护，并以只读模式运行。最长只需 30 分钟。"
+msgstr "HiCision 正在进行维护，并以只读模式运行。最长只需 30 分钟。"
 
 #: frontend/src/metabase/palette/hooks/useCommandPaletteBasicActions.tsx:192
 msgid "Open error diagnostic modal"
@@ -37095,7 +37095,7 @@ msgstr "浏览指标"
 
 #: frontend/src/metabase/nav/containers/MainNavbar/MainNavbarContainer/MainNavbarView.tsx:194
 msgid "How to use Metabase"
-msgstr "如何使用 Metabase"
+msgstr "如何使用 HiCision"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:108
 msgid "Embedded, signed charts in iframes."
@@ -37111,7 +37111,7 @@ msgstr "锁定参数的数据限制。"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:127
 msgid "Embed all of Metabase in an iframe."
-msgstr "将 Metabase 全部嵌入 iframe。"
+msgstr "将 HiCision 全部嵌入 iframe。"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:128
 msgid "Let people can click on to explore."
@@ -37123,7 +37123,7 @@ msgstr "使用您的徽标、字体和颜色自定义外观。"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:149
 msgid "Embed Metabase components with React (like standalone charts, dashboards, the Query Builder, and more)"
-msgstr "使用 React 嵌入 Metabase 组件（如独立图表、仪表盘、查询生成器等）"
+msgstr "使用 React 嵌入 HiCision 组件（如独立图表、仪表盘、查询生成器等）"
 
 #: frontend/src/metabase/public/components/EmbedModal/SelectEmbedTypePane/SelectEmbedTypePane.tsx:150
 msgid "Manage access and interactivity per component"
@@ -37314,27 +37314,27 @@ msgstr "每秒可发送邮件的最大收件人数量（所有邮件的总和）
 
 #: metabase/embed/settings.clj:118
 msgid "Allow these space delimited origins to embed Metabase interactive."
-msgstr "允许这些空格分隔的起源嵌入 Metabase 交互式。"
+msgstr "允许这些空格分隔的起源嵌入 HiCision 交互式。"
 
 #: metabase/embed/settings.clj:51
 msgid "Allow this origin to embed the full Metabase application."
-msgstr "允许该原点嵌入完整的 Metabase 应用程序。"
+msgstr "允许该原点嵌入完整的 HiCision 应用程序。"
 
 #: metabase/embed/settings.clj:62
 msgid "Allow admins to embed Metabase via the SDK?"
-msgstr "允许管理员通过 SDK 嵌入 Metabase？"
+msgstr "允许管理员通过 SDK 嵌入 HiCision？"
 
 #: metabase/embed/settings.clj:109
 msgid "Allow admins to embed Metabase via interactive embedding?"
-msgstr "允许管理员通过交互式嵌入方式嵌入 Metabase？"
+msgstr "允许管理员通过交互式嵌入方式嵌入 HiCision？"
 
 #: metabase/embed/settings.clj:96
 msgid "Allow Metabase SDK access to these space delimited origins."
-msgstr "允许 Metabase SDK 访问这些以空格分隔的来源。"
+msgstr "允许 HiCision SDK 访问这些以空格分隔的来源。"
 
 #: metabase/embed/settings.clj:127
 msgid "Allow admins to embed Metabase via static embedding?"
-msgstr "允许管理员通过静态嵌入方式嵌入 Metabase？"
+msgstr "允许管理员通过静态嵌入方式嵌入 HiCision？"
 
 #: metabase/lib/temporal_bucket.cljc:33
 msgid "Second"
@@ -37360,7 +37360,7 @@ msgstr "用户对 \"浏览度量 \"页面是否应过滤为只显示已验证度
 
 #: metabase/public_settings.clj:818
 msgid "Indicates whether Metabase is running behind a proxy that sets the source-address-header for incoming requests. Defaults to false, but can be set to true via environment variable."
-msgstr "指示 Metabase 是否在代理后面运行，代理会为传入请求设置源地址头。默认为 false，但可通过环境变量设置为 true。"
+msgstr "指示 HiCision 是否在代理后面运行，代理会为传入请求设置源地址头。默认为 false，但可通过环境变量设置为 true。"
 
 #: metabase/public_settings.clj:203
 msgid "Allowed iframe hosts"

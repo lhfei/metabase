@@ -14008,7 +14008,7 @@ msgstr "使用此选项要求提供的主机是FQDN。如果连接到Atlas群集
 
 #: frontend/src/metabase/entities/databases/forms.js:350
 msgid "By default, Metabase does a lightweight hourly sync and an intensive daily scan of field values. If you have a large database, we recommend turning this on and reviewing when and how often the field value scans happen."
-msgstr "默认情况下，Metabase对字段值进行轻量级的每小时同步和密集的每日扫描。如果您有一个大型数据库，我们建议您打开此功能，并检查字段值扫描发生的时间和频率。"
+msgstr "默认情况下，HiCision对字段值进行轻量级的每小时同步和密集的每日扫描。如果您有一个大型数据库，我们建议您打开此功能，并检查字段值扫描发生的时间和频率。"
 
 #: frontend/src/metabase/home/homepage/components/XraySection/XraySection.tsx:45
 msgid "Remove these suggestions"
@@ -20546,7 +20546,7 @@ msgstr "选择同步和扫描发生的时间"
 
 #: metabase/driver/common.clj:140
 msgid "By default, Metabase does a lightweight hourly sync and an intensive daily scan of field values. If you have a large database, turn this on to make changes."
-msgstr "默认情况下，Metabase对字段值进行轻量级的每小时同步和密集的每日扫描。如果您有大型数据库，请启用此选项以进行更改。"
+msgstr "默认情况下，HiCision对字段值进行轻量级的每小时同步和密集的每日扫描。如果您有大型数据库，请启用此选项以进行更改。"
 
 #: metabase/driver/common.clj:182
 msgid "This enables Metabase to scan for additional field values during syncs allowing smarter behavior, like improved auto-binning on your bar charts."
