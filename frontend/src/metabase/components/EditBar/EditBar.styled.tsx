@@ -4,7 +4,8 @@ import ButtonsS from "metabase/css/components/buttons.module.css";
 import { alpha, color } from "metabase/lib/colors";
 import { FullWidthContainer } from "metabase/styled-components/layout/FullWidthContainer";
 import { Icon } from "metabase/ui";
-
+// background-color: ${props =>
+//   alpha(color(props.admin ? "accent7" : "brand"), 0.85)};
 export const Root = styled(FullWidthContainer)<{ admin: boolean }>`
   display: flex;
   align-items: center;
@@ -12,8 +13,7 @@ export const Root = styled(FullWidthContainer)<{ admin: boolean }>`
   position: relative;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  background-color: ${props =>
-    alpha(color(props.admin ? "accent7" : "brand"), 0.85)};
+  background-color: #262d34 !important;
 
   .${ButtonsS.Button} {
     color: var(--mb-color-text-white);
