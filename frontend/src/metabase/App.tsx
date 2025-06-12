@@ -1,7 +1,9 @@
+import styled from "@emotion/styled";
 import type { Location } from "history";
 import { KBarProvider } from "kbar";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { push } from "react-router-redux";
 
 import { AppBanner } from "metabase/components/AppBanner";
 import {
@@ -27,12 +29,64 @@ import {
   getIsNavBarEnabled,
 } from "metabase/selectors/app";
 import StatusListing from "metabase/status/components/StatusListing";
-import type { AppErrorDescriptor, State } from "metabase-types/store";
+import type { AppErrorDescriptor, Dispatch, State } from "metabase-types/store";
 
 import { AppContainer, AppContent, AppContentContainer } from "./App.styled";
 import ErrorBoundary from "./ErrorBoundary";
 import { NewModals } from "./new/components/NewModals/NewModals";
 import { Palette } from "./palette/components/Palette";
+
+const FloatButton = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-image: url("app/img/robot.png");
+  background-size: 48px 44px;
+  width: 48px;
+  height: 44px;
+  cursor: pointer;
+  &:hover {
+    transform: scale(1.1);
+  }
+  animation:
+    pulseRobot 2s infinite,
+    floatRobot 3s infinite ease-in-out,
+    fadeInRobot 1s ease-in-out;
+  border-radius: 50%;
+  @keyframes pulseRobot {
+    0% {
+      box-shadow: 0 0 5px rgba(0, 0, 255, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 10px rgba(0, 0, 255, 1);
+    }
+    100% {
+      box-shadow: 0 0 5px rgba(0, 0, 255, 0.5);
+    }
+  }
+
+  @keyframes floatRobot {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInRobot {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+`;
 
 const getErrorComponent = ({ status, data, context }: AppErrorDescriptor) => {
   if (status === 403 || data?.error_code === "unauthorized") {
@@ -60,6 +114,7 @@ interface AppStateProps {
 
 interface AppDispatchProps {
   onError: (error: unknown) => void;
+  dispatch: Dispatch;
 }
 
 interface AppRouterOwnProps {
@@ -79,9 +134,14 @@ const mapStateToProps = (
   isNavBarEnabled: getIsNavBarEnabled(state, props),
 });
 
-const mapDispatchToProps: AppDispatchProps = {
-  onError: setErrorPage,
-};
+// const mapDispatchToProps: AppDispatchProps = {
+//   onError: setErrorPage,
+// };
+
+const mapDispatchToProps = (dispatch: Dispatch): AppDispatchProps => ({
+  onError: error => dispatch(setErrorPage(error)),
+  dispatch,
+});
 
 function App({
   errorPage,
@@ -89,7 +149,9 @@ function App({
   isAppBarVisible,
   isNavBarEnabled,
   children,
+  location,
   onError,
+  dispatch,
 }: AppProps) {
   const [viewportElement, setViewportElement] = useState<HTMLElement | null>();
 
@@ -122,6 +184,9 @@ function App({
           <Palette />
         </KBarProvider>
       </ScrollToTop>
+      {location.pathname !== "/chat" && (
+        <FloatButton onClick={() => dispatch(push("/chat"))} />
+      )}
     </ErrorBoundary>
   );
 }
