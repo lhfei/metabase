@@ -68,7 +68,8 @@
 }
 
 .DatasetEditBar {
-  background-color: var(--mb-color-brand) !important;
+  /* background-color: var(--mb-color-brand) !important; */
+  background-color: #262d34 !important;
 }
 
 .TableHeaderColumnName {
