@@ -79,30 +79,30 @@ const MetabotGreeting = () => {
   }, [buffer]);
 
   return (
-    <Tooltip
-      label={t`Don't tell anyone, but you're my favorite.`}
-      position="bottom"
+    // <Tooltip
+    //   label={t`Don't tell anyone, but you're my favorite.`}
+    //   position="bottom"
+    // >
+    <Box
+      style={{
+        position: "relative",
+        width: "54px",
+        height: "40px",
+        marginInlineEnd: "0.5rem",
+      }}
     >
-      <Box
-        style={{
-          position: "relative",
-          width: "54px",
-          height: "40px",
-          marginInlineEnd: "0.5rem",
-        }}
-      >
-        <GreetingLogo
-          isCool={isCool}
-          className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
-          variant="cool"
-        />
-        <GreetingLogo
-          isCool={!isCool}
-          className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
-          variant="happy"
-        />
-      </Box>
-    </Tooltip>
+      <GreetingLogo
+        isCool={isCool}
+        className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
+        variant="cool"
+      />
+      <GreetingLogo
+        isCool={!isCool}
+        className={`${styles.SpinOut} ${isCooling ? styles.SpinOutActive : ""}`}
+        variant="happy"
+      />
+    </Box>
+    // </Tooltip>
   );
 };
 
