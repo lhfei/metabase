@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { connect } from "metabase/lib/redux";
+import { closeNavbar } from "metabase/redux/app";
 import {
   Button,
   Group,
@@ -25,7 +27,12 @@ interface Message {
   loading?: boolean;
 }
 
-export function ChatPage() {
+interface IProps {
+  closeNavbar: () => void;
+}
+
+function Chat(props: IProps) {
+  const { closeNavbar } = props;
   const theme = useMantineTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -75,6 +82,10 @@ export function ChatPage() {
       behavior: "smooth",
     });
   }, [messages]);
+
+  useEffect(() => {
+    closeNavbar();
+  }, []);
 
   return (
     <motion.div
@@ -218,3 +229,9 @@ export function ChatPage() {
     </motion.div>
   );
 }
+
+const mapDispatchToProps = {
+  closeNavbar,
+};
+
+export const ChatPage = connect(null, mapDispatchToProps)(Chat);
