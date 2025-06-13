@@ -184,9 +184,10 @@ function App({
           <Palette />
         </KBarProvider>
       </ScrollToTop>
-      {location.pathname !== "/chat" && (
-        <FloatButton onClick={() => dispatch(push("/chat"))} />
-      )}
+      {location.pathname !== "/chat" &&
+        !location.pathname.startsWith("/auth/login") && (
+          <FloatButton onClick={() => dispatch(push("/chat"))} />
+        )}
     </ErrorBoundary>
   );
 }
