@@ -250,6 +250,7 @@ export function MainNavbarView({
             </ErrorBoundary>
           </SidebarSection>
 
+          {/* 浏览 */}
           <SidebarSection>
             <ErrorBoundary>
               <BrowseNavSection

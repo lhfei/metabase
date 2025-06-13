@@ -12,6 +12,7 @@ import { PLUGIN_COLLECTIONS } from "metabase/plugins";
 import { Icon } from "metabase/ui";
 import type { Collection } from "metabase-types/api";
 
+import { SidebarAddButton } from "./SidebarAddButton";
 import {
   CollectionNodeRoot,
   ExpandToggleButton,
@@ -20,20 +21,20 @@ import {
   SidebarIcon,
 } from "./SidebarItems.styled";
 
-const AddButton = styled.button`
-  margin-left: auto;
-  margin-right: 8px;
-  background: transparent;
-  border: none;
-  color: #1a7dd7;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
-`;
+// const AddButton = styled.button`
+//   margin-left: auto;
+//   margin-right: 8px;
+//   background: transparent;
+//   border: none;
+//   color: #1a7dd7;
+//   cursor: pointer;
+//   font-size: 12px;
+//   padding: 2px 6px;
+//   border-radius: 3px;
+//   opacity: 0;
+//   transition: opacity 0.2s;
+//   pointer-events: none;
+// `;
 
 const CollectionNodeRootWithAdd = styled(CollectionNodeRoot)<{
   isSelected?: boolean;
@@ -41,7 +42,7 @@ const CollectionNodeRootWithAdd = styled(CollectionNodeRoot)<{
   ${props =>
     props.isSelected &&
     `
-      ${AddButton} {
+      button {
         opacity: 1;
         pointer-events: auto;
       }
@@ -167,9 +168,14 @@ const SidebarCollectionLink = forwardRef<HTMLLIElement, Props>(
           <NameContainer>{collection.name}</NameContainer>
         </FullWidthLink>
         {withAdd && (
-          <AddButton onClick={handleAddClick}>
-            <Icon name="add" tooltip="新集合" />
-          </AddButton>
+          // <AddButton onClick={handleAddClick}>
+          //   <Icon name="add" tooltip="新集合" />
+          // </AddButton>
+          <SidebarAddButton
+            icon="add"
+            onClick={handleAddClick}
+            tooltip="新集合"
+          />
         )}
       </CollectionNodeRootWithAdd>
     );
