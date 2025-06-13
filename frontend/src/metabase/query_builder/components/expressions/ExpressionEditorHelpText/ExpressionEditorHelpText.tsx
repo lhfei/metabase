@@ -93,7 +93,7 @@ export const ExpressionEditorHelpTextContent = ({
         <Box className={ExpressionEditorHelpTextS.ExampleCode}>
           {helpText.example}
         </Box>
-        {showMetabaseLinks && (
+        {/* {showMetabaseLinks && (
           <ExternalLink
             className={ExpressionEditorHelpTextS.DocumentationLink}
             href={docsUrl}
@@ -102,7 +102,7 @@ export const ExpressionEditorHelpTextContent = ({
             <Icon m="0.25rem 0.5rem" name="reference" size={12} />
             {t`Learn more`}
           </ExternalLink>
-        )}
+        )} */}
       </Box>
     </>
   );
