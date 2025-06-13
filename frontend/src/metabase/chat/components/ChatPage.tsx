@@ -156,7 +156,13 @@ function Chat(props: IProps) {
           boxSizing: "border-box",
         }}
       >
-        <Button fullWidth variant="outline" onClick={startNewChat} mb="md">
+        <Button
+          disabled={messages.length === 0}
+          fullWidth
+          variant="outline"
+          onClick={startNewChat}
+          mb="md"
+        >
           新对话
         </Button>
         <ScrollArea style={{ height: "calc(100vh - 160px)" }}>
