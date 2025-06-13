@@ -5,6 +5,8 @@ import { useUserSetting } from "metabase/common/hooks";
 import CollapseSection from "metabase/components/CollapseSection";
 import CS from "metabase/css/core/index.css";
 import { useDispatch } from "metabase/lib/redux";
+import * as Urls from "metabase/lib/urls";
+import type { CollectionId } from "metabase-types/api";
 
 import { PaddedSidebarLink, SidebarHeading } from "../MainNavbar.styled";
 import type { SelectedItem } from "../types";
@@ -13,10 +15,12 @@ export const BrowseNavSection = ({
   nonEntityItem,
   onItemSelect,
   hasDataAccess,
+  collectionId,
 }: {
   nonEntityItem: SelectedItem;
   onItemSelect: () => void;
   hasDataAccess: boolean;
+  collectionId?: CollectionId;
 }) => {
   const BROWSE_MODELS_URL = "/browse/models";
   const BROWSE_DATA_URL = "/browse/databases";
@@ -43,7 +47,6 @@ export const BrowseNavSection = ({
         withAdd
         tooltip="创建模型"
         onAddClick={() => {
-          // window.location.href = "/model/new";
           dispatch(push("/model/new"));
         }}
         icon="model"
@@ -68,6 +71,16 @@ export const BrowseNavSection = ({
       )}
 
       <PaddedSidebarLink
+        withAdd
+        tooltip="创建指标"
+        onAddClick={() => {
+          const url = Urls.newQuestion({
+            mode: "query",
+            cardType: "metric",
+            collectionId,
+          });
+          dispatch(push(url));
+        }}
         icon="metric"
         url={BROWSE_METRICS_URL}
         isSelected={nonEntityItem?.url?.startsWith(BROWSE_METRICS_URL)}

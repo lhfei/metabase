@@ -26,7 +26,12 @@ import * as Urls from "metabase/lib/urls";
 import { getHasDataAccess } from "metabase/selectors/data";
 import { getUser, getUserIsAdmin } from "metabase/selectors/user";
 import type Database from "metabase-lib/v1/metadata/Database";
-import type { Bookmark, Collection, User } from "metabase-types/api";
+import type {
+  Bookmark,
+  Collection,
+  CollectionId,
+  User,
+} from "metabase-types/api";
 import type { State } from "metabase-types/store";
 
 import { NavbarErrorView } from "../NavbarErrorView";
@@ -37,12 +42,13 @@ import { MainNavbarView } from "./MainNavbarView";
 
 type NavbarModal = "MODAL_NEW_COLLECTION" | null;
 
-function mapStateToProps(state: State, { databases = [] }: DatabaseProps) {
+function mapStateToProps(state: State, props: DatabaseProps) {
   return {
     currentUser: getUser(state),
     isAdmin: getUserIsAdmin(state),
-    hasDataAccess: getHasDataAccess(databases),
+    hasDataAccess: getHasDataAccess(props.databases || []),
     bookmarks: getOrderedBookmarks(state),
+    collectionId: Collections.selectors.getInitialCollectionId?.(state, props),
   };
 }
 
@@ -61,6 +67,7 @@ interface Props extends MainNavbarProps {
   hasDataAccess: boolean;
   allError: boolean;
   allFetched: boolean;
+  collectionId?: CollectionId;
   logout: () => void;
   onReorderBookmarks: (bookmarks: Bookmark[]) => Promise<any>;
   onChangeLocation: (location: LocationDescriptor) => void;

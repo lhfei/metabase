@@ -27,7 +27,12 @@ import { getHasOwnDatabase } from "metabase/selectors/data";
 import { getSetting } from "metabase/selectors/settings";
 import { Icon, type IconName, type IconProps, Tooltip } from "metabase/ui";
 import type Database from "metabase-lib/v1/metadata/Database";
-import type { Bookmark, Collection, User } from "metabase-types/api";
+import type {
+  Bookmark,
+  Collection,
+  CollectionId,
+  User,
+} from "metabase-types/api";
 
 import {
   CollectionMenuList,
@@ -67,6 +72,7 @@ type Props = {
   collections: CollectionTreeItem[];
   databases: Database[];
   selectedItems: SelectedItem[];
+  collectionId?: CollectionId;
   handleCloseNavbar: () => void;
   handleLogout: () => void;
   handleCreateNewCollection: () => void;
@@ -88,6 +94,7 @@ export function MainNavbarView({
   databases,
   selectedItems,
   hasDataAccess,
+  collectionId,
   reorderBookmarks,
   handleCreateNewCollection,
   handleCloseNavbar,
@@ -254,6 +261,7 @@ export function MainNavbarView({
           <SidebarSection>
             <ErrorBoundary>
               <BrowseNavSection
+                collectionId={collectionId}
                 nonEntityItem={nonEntityItem}
                 onItemSelect={onItemSelect}
                 hasDataAccess={hasDataAccess}
