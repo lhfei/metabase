@@ -132,6 +132,7 @@
     "typescript": "^5.4.5",
     "underscore": "~1.13.3",
     "use-debounce": "^10.0.0",
+    "uuid": "^11.1.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {
