@@ -191,11 +191,20 @@ function Chat(props: IProps) {
                 <Button
                   size="xs"
                   variant="subtle"
-                  style={{
-                    position: "absolute",
-                    top: 8,
-                    right: 8,
-                    padding: 2,
+                  styles={{
+                    root: {
+                      position: "absolute",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      right: 0,
+                      // color: theme.colors.danger[6],
+                      color: "#ED6E6E",
+                      transition: "color 0.2s ease-in-out",
+                      "&:hover": {
+                        color: "#D84343",
+                        transition: "color 0.2s ease-in-out",
+                      },
+                    },
                   }}
                   onClick={() => deleteSession(session.id)}
                 >
