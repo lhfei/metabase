@@ -76,21 +76,21 @@ export function suggestWithExtras(
   if (args.showMetabaseLinks && args.source === "") {
     suggestions.push(...(args.shortcuts ?? []));
 
-    if (args.startRule === "aggregation") {
-      suggestions.push({
-        footer: true,
-        name: t`Documentation`,
-        icon: "external",
-        href: "https://www.metabase.com/docs/latest/questions/query-builder/expressions-list#aggregations",
-      });
-    } else {
-      suggestions.push({
-        footer: true,
-        name: t`Documentation`,
-        icon: "external",
-        href: "https://www.metabase.com/docs/latest/questions/query-builder/expressions-list#functions",
-      });
-    }
+    // if (args.startRule === "aggregation") {
+    //   suggestions.push({
+    //     footer: true,
+    //     name: t`Documentation`,
+    //     icon: "external",
+    //     href: "https://www.metabase.com/docs/latest/questions/query-builder/expressions-list#aggregations",
+    //   });
+    // } else {
+    //   suggestions.push({
+    //     footer: true,
+    //     name: t`Documentation`,
+    //     icon: "external",
+    //     href: "https://www.metabase.com/docs/latest/questions/query-builder/expressions-list#functions",
+    //   });
+    // }
   }
 
   return {
