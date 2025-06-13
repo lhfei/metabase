@@ -1,8 +1,10 @@
+import { push } from "react-router-redux";
 import { c, t } from "ttag";
 
 import { useUserSetting } from "metabase/common/hooks";
 import CollapseSection from "metabase/components/CollapseSection";
 import CS from "metabase/css/core/index.css";
+import { useDispatch } from "metabase/lib/redux";
 
 import { PaddedSidebarLink, SidebarHeading } from "../MainNavbar.styled";
 import type { SelectedItem } from "../types";
@@ -23,6 +25,7 @@ export const BrowseNavSection = ({
   const [expandBrowse = true, setExpandBrowse] = useUserSetting(
     "expand-browse-in-nav",
   );
+  const dispatch = useDispatch();
 
   return (
     <CollapseSection
@@ -37,6 +40,12 @@ export const BrowseNavSection = ({
       onToggle={setExpandBrowse}
     >
       <PaddedSidebarLink
+        withAdd
+        tooltip="创建模型"
+        onAddClick={() => {
+          // window.location.href = "/model/new";
+          dispatch(push("/model/new"));
+        }}
         icon="model"
         url={BROWSE_MODELS_URL}
         isSelected={nonEntityItem?.url?.startsWith(BROWSE_MODELS_URL)}

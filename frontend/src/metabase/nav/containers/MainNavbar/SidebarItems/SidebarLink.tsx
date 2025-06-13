@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import type { MouseEvent, ReactNode } from "react";
 import { isValidElement, useCallback, useMemo } from "react";
 import _ from "underscore";
@@ -5,6 +6,7 @@ import _ from "underscore";
 import { TreeNode } from "metabase/components/tree/TreeNode";
 import type { IconName, IconProps } from "metabase/ui";
 
+import { SidebarAddButton } from "./SidebarAddButton";
 import {
   FullWidthButton,
   FullWidthLink,
@@ -16,15 +18,31 @@ import {
   SidebarIcon,
 } from "./SidebarItems.styled";
 
+const NodeRootWithAdd = styled(NodeRoot)<{
+  isSelected?: boolean;
+}>`
+  ${props =>
+    props.isSelected &&
+    `
+      button {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    `}
+`;
+
 interface SidebarLinkProps {
   children: string;
   url?: string;
   icon?: IconName | IconProps;
   isSelected?: boolean;
+  withAdd?: boolean;
+  tooltip?: string;
   hasDefaultIconStyle?: boolean;
   left?: ReactNode;
   right?: ReactNode;
   onClick?: (event: MouseEvent) => void;
+  onAddClick?: () => void;
 }
 
 type ContentProps = {
@@ -51,7 +69,10 @@ function SidebarLink({
   hasDefaultIconStyle,
   left = null,
   right = null,
+  withAdd,
+  tooltip,
   onClick,
+  onAddClick,
   ...props
 }: SidebarLinkProps) {
   const renderIcon = useCallback(() => {
@@ -84,7 +105,7 @@ function SidebarLink({
   }, [url, isSelected, onClick]);
 
   return (
-    <NodeRoot
+    <NodeRootWithAdd
       depth={0}
       isSelected={isSelected}
       hasDefaultIconStyle={hasDefaultIconStyle}
@@ -103,7 +124,11 @@ function SidebarLink({
       {isValidElement(right) && (
         <RightElementContainer>{right}</RightElementContainer>
       )}
-    </NodeRoot>
+
+      {withAdd && (
+        <SidebarAddButton onClick={onAddClick} icon="add" tooltip={tooltip} />
+      )}
+    </NodeRootWithAdd>
   );
 }
 
