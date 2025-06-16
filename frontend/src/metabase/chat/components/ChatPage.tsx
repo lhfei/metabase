@@ -76,7 +76,9 @@ function Chat(props: IProps) {
         const updated = [...prev];
         updated[updated.length - 1] = {
           sender: "ai",
-          text: md,
+          text: input.includes("贵州茅台")
+            ? require("./mockMaotai").data
+            : require("./mockNingde").data,
         };
         return updated;
       });
@@ -95,8 +97,7 @@ function Chat(props: IProps) {
   const startNewChat = () => {
     if (messages.length > 0) {
       const firstUser = messages.find(m => m.sender === "user");
-      const title =
-        firstUser?.text.slice(0, 20) || `会话 ${sessions.length + 1}`;
+      const title = firstUser?.text || `会话 ${sessions.length + 1}`;
       setSessions(prev => [
         ...prev,
         { id: currentSessionId, title, messages: [...messages] },
@@ -181,7 +182,7 @@ function Chat(props: IProps) {
                 mb="sm"
                 style={{
                   cursor: "pointer",
-                  paddingRight: 40,
+                  // paddingRight: 40,
                   backgroundColor:
                     session.id === currentSessionId
                       ? theme.colors.gray[2]
@@ -193,7 +194,7 @@ function Chat(props: IProps) {
                   {session.title}
                 </Text>
               </Paper>
-              {hoveredSessionId === session.id && (
+              {/* {hoveredSessionId === session.id && (
                 <Button
                   size="xs"
                   variant="subtle"
@@ -216,7 +217,7 @@ function Chat(props: IProps) {
                 >
                   删除
                 </Button>
-              )}
+              )} */}
             </div>
           ))}
         </ScrollArea>
@@ -231,7 +232,59 @@ function Chat(props: IProps) {
           >
             <div style={{ width: "100%", maxWidth: 576, margin: "0 auto" }}>
               {messages.length === 0 ? (
-                <MemoedWelcome />
+                <>
+                  <MemoedWelcome />
+
+                  <Group
+                    spacing="xs"
+                    p="xs"
+                    style={{ justifyContent: "flex-start" }}
+                  >
+                    <Button
+                      // variant="light"
+                      size="xs"
+                      style={{
+                        background: "#f3f4f6",
+                        // color: theme.colors.gray[7],
+                        borderRadius: 16,
+                        fontWeight: 500,
+                        boxShadow: "none",
+                        border: "none",
+                        padding: "4px 12px",
+                        marginRight: 8,
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        setInput(
+                          "根据贵州茅台近两年的财务报表，分析下它的盈利能力",
+                        )
+                      }
+                    >
+                      根据贵州茅台近两年的财务报表，分析下它的盈利能力
+                    </Button>
+                    <Button
+                      // variant="light"
+                      size="xs"
+                      style={{
+                        background: "#f3f4f6",
+                        // color: theme.colors.gray[7],
+                        borderRadius: 16,
+                        fontWeight: 500,
+                        boxShadow: "none",
+                        border: "none",
+                        padding: "4px 12px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        setInput(
+                          "请结合宁德时代最新的财务数据，帮我找几条亮点，我要给董事长汇报",
+                        )
+                      }
+                    >
+                      请结合宁德时代最新的财务数据，帮我找几条亮点，我要给董事长汇报
+                    </Button>
+                  </Group>
+                </>
               ) : (
                 messages.map((msg, idx) => (
                   <motion.div

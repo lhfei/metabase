@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-import { Group, Paper, Text, useMantineTheme } from "metabase/ui";
+import { Button, Group, Paper, Text, useMantineTheme } from "metabase/ui";
 
 function Welcome() {
   const theme = useMantineTheme();
