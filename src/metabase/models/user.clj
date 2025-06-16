@@ -189,7 +189,7 @@
   ;; This logic is replicated in SQL in [[metabase-enterprise.query-reference-validation.api]]. If the below logic changes,
   ;; please update the EE ns as well.
   (let [common-name (if (or first_name last_name)
-                      (str/trim (str first_name " " last_name))
+                      (str/trim (str last_name " " first_name))
                       email)]
     (cond-> user
       (and (contains? user :first_name)
